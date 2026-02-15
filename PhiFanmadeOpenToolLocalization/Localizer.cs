@@ -23,6 +23,12 @@ public sealed class Localizer : ILocalizer
 {
     private readonly Dictionary<string, string> _map;
     public string Language { get; }
+    public static Action<string> OnError { get; set; } = msg => { };
+
+    private static JsonSerializerOptions Options = new()
+    {
+        TypeInfoResolver = new System.Text.Json.Serialization.Metadata.DefaultJsonTypeInfoResolver()
+    };
 
     private Localizer(string lang, Dictionary<string, string> map)
     {
@@ -33,7 +39,7 @@ public sealed class Localizer : ILocalizer
     public static ILocalizer Create()
     {
         var lang = CultureInfo.CurrentCulture.Name;
-        var loc = TryLoad(lang) ?? TryLoad("en-US") ?? new Localizer(lang, new());
+        var loc = TryLoad(lang) ?? TryLoad("en-US") ?? new Localizer(lang, new Dictionary<string, string>());
         return loc;
     }
 
@@ -45,20 +51,18 @@ public sealed class Localizer : ILocalizer
             var file = Path.Combine(dir, lang + ".json");
             if (!File.Exists(file)) return null;
             var json = File.ReadAllText(file);
-            var options = new JsonSerializerOptions
-            {
-                TypeInfoResolver = new System.Text.Json.Serialization.Metadata.DefaultJsonTypeInfoResolver()
-            };
-            var dict = JsonSerializer.Deserialize<Dictionary<string, string>>(json, options) ?? new();
+            var dict = JsonSerializer.Deserialize<Dictionary<string, string>>(json, Options) ??
+                       new Dictionary<string, string>();
             return new Localizer(lang, dict);
         }
         catch (Exception e)
         {
-            Console.WriteLine("Failed to load localization for " + lang + ": " + e.Message);
+            OnError.Invoke("Failed to load localization for " + lang + ": " + e.Message);
+            //Console.WriteLine("Failed to load localization for " + lang + ": " + e.Message);
             return null;
         }
     }
 
     public string this[string key]
-        => _map.TryGetValue(key, out var v) ? v : key;
+        => _map.GetValueOrDefault(key, key);
 }

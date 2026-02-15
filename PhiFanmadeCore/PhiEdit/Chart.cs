@@ -10,6 +10,12 @@ namespace PhiFanmade.Core.PhiEdit
     {
         public class Chart
         {
+            /// <summary>
+            /// 从PhiEditChart格式的字符串加载谱面
+            /// </summary>
+            /// <param name="pec">PhiEditChart字符串</param>
+            /// <returns>已反序列化谱面</returns>
+            /// <exception cref="FormatException">格式不正确</exception>
             public static Chart Load(string pec)
             {
                 var chart = new Chart();
@@ -170,10 +176,19 @@ namespace PhiFanmade.Core.PhiEdit
                 return chart;
             }
 
+            /// <summary>
+            /// 异步从PhiEditChart格式的字符串加载谱面
+            /// </summary>
+            /// <param name="pec">PhiEditChart字符串</param>
+            /// <returns>已反序列化谱面</returns>
             public static async Task<Chart> LoadAsync(string pec)
                 => await Task.Run(() => Load(pec));
 
 
+            /// <summary>
+            /// 导出PhiEditChart
+            /// </summary>
+            /// <returns>PhiEditChart</returns>
             public string Export()
             {
                 var stringBuilder = new StringBuilder();
@@ -207,8 +222,12 @@ namespace PhiFanmade.Core.PhiEdit
                 return stringBuilder.ToString().Trim();
             }
 
+            /// <summary>
+            /// 异步导出PhiEditChart
+            /// </summary>
+            /// <returns>PhiEditChart</returns>
             public async Task<string> ExportAsync()
-                => await Task.Run(() => Export());
+                => await Task.Run(Export);
 
 
             /// <summary>
@@ -227,9 +246,26 @@ namespace PhiFanmade.Core.PhiEdit
                 public const float MinY = -700f;
             }
 
+            /// <summary>
+            /// 判定线列表
+            /// </summary>
             public List<JudgeLine> JudgeLineList = new List<JudgeLine>();
+
+            /// <summary>
+            /// BPM列表
+            /// </summary>
             public List<Bpm> BpmList = new List<Bpm>();
+            
+            public Chart Clone()
+            {
+                var clonedChart = new Chart
+                {
+                    Offset = Offset,
+                    BpmList = BpmList.Select(b => b.Clone()).ToList(),
+                    JudgeLineList = JudgeLineList.Select(jl => jl.Clone()).ToList()
+                };
+                return clonedChart;
+            }
         }
     }
-
 }

@@ -44,6 +44,18 @@ namespace PhiFanmade.Core.PhiEdit
             /// <returns>PhiEditor Chart格式字符串</returns>
             public string ToString(int judgeLineIndex)
                 => $"cm {judgeLineIndex} {StartBeat} {EndBeat} {EndXValue} {EndYValue} {(int)EasingType}";
+
+            public MoveEvent Clone()
+            {
+                return new MoveEvent
+                {
+                    StartBeat = StartBeat,
+                    EndBeat = EndBeat,
+                    EasingType = EasingType,
+                    EndXValue = EndXValue,
+                    EndYValue = EndYValue
+                };
+            }
         }
     }
 }

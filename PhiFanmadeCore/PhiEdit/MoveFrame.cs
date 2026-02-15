@@ -27,6 +27,16 @@ namespace PhiFanmade.Core.PhiEdit
             /// <returns>PhiEditor Chart格式字符串</returns>
             public string ToString(int judgeLineIndex)
                 => $"cp {judgeLineIndex} {Beat} {XValue} {YValue}";
+
+            public MoveFrame Clone()
+            {
+                return new MoveFrame
+                {
+                    Beat = Beat,
+                    XValue = XValue,
+                    YValue = YValue
+                };
+            }
         }
     }
 }

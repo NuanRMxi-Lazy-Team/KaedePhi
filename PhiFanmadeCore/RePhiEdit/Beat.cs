@@ -28,10 +28,16 @@ namespace PhiFanmade.Core.RePhiEdit
             public Beat(int[] beatArray)
             {
                 _beat = beatArray ?? new[] { 0, 0, 1 };
+                // calculate curBeat
+                _curBeatDouble = (double)_beat[1] / _beat[2] + _beat[0];
+                _curBeatFloat = (float)_curBeatDouble;
             }
 
             public Beat(double beat)
             {
+                // set curBeat
+                _curBeatDouble = beat;
+                _curBeatFloat = (float)beat;
                 // 将 double 转换为 Beat 结构，使用连分数算法获得最佳分数近似
                 int wholePart = (int)Math.Floor(beat);
                 double fractionalPart = beat - wholePart;
@@ -125,14 +131,19 @@ namespace PhiFanmade.Core.RePhiEdit
                     if (index < 0 || index > 2)
                         throw new IndexOutOfRangeException("RePhiEdit Beat index must be between 0 and 2.");
                     _beat[index] = value;
+                    // recalculate curBeat
+                    _curBeatDouble = (double)_beat[1] / _beat[2] + _beat[0];
+                    _curBeatFloat = (float)_curBeatDouble;
                 }
             }
-            
+
+            private double _curBeatDouble;
+            private float _curBeatFloat;
             // 隐式转换为 float，返回 CurBeat
-            public static implicit operator float(Beat beat) => (float)beat._beat[1] / beat._beat[2] + beat._beat[0];
+            public static implicit operator float(Beat beat) => beat._curBeatFloat;
             
             // 隐式转换为 double，返回 CurBeat
-            public static implicit operator double(Beat beat) => (double)beat._beat[1] / beat._beat[2] + beat._beat[0];
+            public static implicit operator double(Beat beat) => beat._curBeatDouble;
 
             // 隐式转换为 int[]，返回 _beat 的副本
             public static implicit operator int[](Beat beat) => (int[])beat._beat.Clone();
@@ -226,18 +237,18 @@ namespace PhiFanmade.Core.RePhiEdit
             }
 
             // 定义两个Beat对象的比较运算符，强行使用double作为比较依据，float有精度问题
-            public static bool operator <(Beat a, Beat b) => (double)a < (double)b;
-            public static bool operator >(Beat a, Beat b) => (double)a > (double)b;
-            public static bool operator <=(Beat a, Beat b) => (double)a <= (double)b;
-            public static bool operator >=(Beat a, Beat b) => (double)a >= (double)b;
-
+           public static bool operator <(Beat a, Beat b) => a._curBeatDouble < b._curBeatDouble;
+            public static bool operator >(Beat a, Beat b) => a._curBeatDouble > b._curBeatDouble;
+            public static bool operator <=(Beat a, Beat b) => a._curBeatDouble <= b._curBeatDouble;
+            public static bool operator >=(Beat a, Beat b) => a._curBeatDouble >= b._curBeatDouble;
+            
             public static bool operator ==(Beat a, Beat b)
             {
                 if (ReferenceEquals(a, b)) return true;
                 if (a is null || b is null) return false;
-                return (double)a == (double)b;
+                return a._curBeatDouble == b._curBeatDouble;
             }
-
+            
             public static bool operator !=(Beat a, Beat b) => !(a == b);
 
             /// <summary>

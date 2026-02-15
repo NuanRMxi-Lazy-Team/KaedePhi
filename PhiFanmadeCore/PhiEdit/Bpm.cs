@@ -11,6 +11,15 @@
             {
                 return $"bp {StartBeat} {BeatPerMinute}";
             }
+            
+            public Bpm Clone()
+            {
+                return new Bpm
+                {
+                    BeatPerMinute = BeatPerMinute,
+                    StartBeat = StartBeat
+                };
+            }
         }
         
     }

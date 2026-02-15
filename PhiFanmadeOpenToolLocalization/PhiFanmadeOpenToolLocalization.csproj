@@ -11,8 +11,14 @@
     </PropertyGroup>
     
     <ItemGroup>
-        <None Update="Localization\*.json">
+        <None Update="*.json">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="en-US.json">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="zh-CN.json">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
     </ItemGroup>
 </Project>

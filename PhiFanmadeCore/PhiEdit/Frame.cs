@@ -31,6 +31,15 @@ namespace PhiFanmade.Core.PhiEdit
                     throw new ArgumentException("请使用 MoveFrame 或 MoveEvent 的 ToString 方法，这不是一个 MoveFrame 或 MoveEvent");
                 return $"{head} {judgeLineIndex} {Beat} {Value}";
             }
+            
+            public Frame Clone()
+            {
+                return new Frame
+                {
+                    Beat = Beat,
+                    Value = Value
+                };
+            }
         }
     }
 }

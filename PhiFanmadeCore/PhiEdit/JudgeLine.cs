@@ -86,6 +86,21 @@ namespace PhiFanmade.Core.PhiEdit
                     return (0, 0);
                 }
             }
+            
+            public JudgeLine Clone()
+            {
+                return new JudgeLine()
+                {
+                    SpeedFrames = SpeedFrames.Select(f => f.Clone()).ToList(),
+                    MoveFrames = MoveFrames.Select(f => f.Clone()).ToList(),
+                    RotateFrames = RotateFrames.Select(f => f.Clone()).ToList(),
+                    AlphaFrames = AlphaFrames.Select(f => f.Clone()).ToList(),
+                    AlphaEvents = AlphaEvents.Select(e => e.Clone()).ToList(),
+                    MoveEvents = MoveEvents.Select(e => e.Clone()).ToList(),
+                    RotateEvents = RotateEvents.Select(e => e.Clone()).ToList(),
+                    NoteList = NoteList.Select(n => n.Clone()).ToList()
+                };
+            }
         }
     }
 }

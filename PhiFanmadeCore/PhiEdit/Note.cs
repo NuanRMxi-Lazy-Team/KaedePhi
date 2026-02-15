@@ -60,6 +60,21 @@ namespace PhiFanmade.Core.PhiEdit
 
                 return stringBuilder.ToString().Trim();
             }
+            
+            public Note Clone()
+            {
+                return new Note
+                {
+                    Type = Type,
+                    StartBeat = StartBeat,
+                    EndBeat = EndBeat,
+                    Above = Above,
+                    PositionX = PositionX,
+                    WidthRatio = WidthRatio,
+                    IsFake = IsFake,
+                    SpeedMultiplier = SpeedMultiplier
+                };
+            }
         }
 
         public enum NoteType
