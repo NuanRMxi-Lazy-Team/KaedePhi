@@ -1,151 +1,154 @@
-﻿using PhiFanmade.Tool.Cli.Infrastructure;
-using PhiFanmade.Tool.Cli.Parsing;
+﻿using System.ComponentModel;
+using PhiFanmade.Tool.Cli.Infrastructure;
 using PhiFanmade.Tool.Localization;
 using PhiFanmade.Tool.Utils;
+using Spectre.Console;
+using Spectre.Console.Cli;
 
 namespace PhiFanmade.Tool.Cli.Commands;
 
-public sealed class RpeUnbindFatherCommand : ICommandHandler
-{
-    public async Task<int> ExecuteAsync(string[] args, ConsoleWriter writer, ILocalizer loc)
-    {
-        var input = OptionParser.GetOption(args, "-i", "--input", "--输入");
-        var output = OptionParser.GetOption(args, "-o", "--output", "--输出");
-        var workspace = OptionParser.GetOption(args, "--workspace", "-wk", "--工作区");
-        var precision = OptionParser.GetOption(args, "--precision", "-p", "--精度");
-        var tolerance = OptionParser.GetOption(args, "--tolerance", "-t", "--容差");
-        var dryRun = OptionParser.HasFlag(args, "--dry-run");
+// ─── 共享 Settings ────────────────────────────────────────────────────────────
 
-        Rpe.Chart? chart;
-        if (!string.IsNullOrWhiteSpace(workspace))
+/// <summary>RPE 操作的通用参数，供 unbind-father 和 layer-merge 复用。</summary>
+public abstract class RpeOperationSettings : BaseSettings
+{
+    [CommandOption("-i|--input <PATH>")]
+    [Description("输入的 RPE 谱面文件路径（与 --workspace 二选一）")] // cli_opt_input_rpe_desc
+    public string? Input { get; set; }
+
+    [CommandOption("-o|--output <PATH>")]
+    [Description("输出文件路径（不填则自动生成 _PFC.json 后缀）")] // cli_opt_output_auto_desc
+    public string? Output { get; set; }
+
+    [CommandOption("-w|--workspace <ID>")]
+    [Description("工作区 ID（与 --input 二选一）")] // cli_opt_workspace_rpe_desc
+    public string? Workspace { get; set; }
+
+    [CommandOption("-p|--precision <N>")]
+    [Description("采样精度（每拍细分数，默认：64，即每次采样步进六十四分之一拍）")] // cli_opt_precision_desc
+    public double Precision { get; set; } = 64;
+
+    [CommandOption("-t|--tolerance <N>")]
+    [Description("拟合容差（默认：5）")] // cli_opt_tolerance_desc
+    public double Tolerance { get; set; } = 5;
+
+    [CommandOption("--dry-run")]
+    [Description("试运行模式，不写入文件")] // cli_opt_dry_run_desc
+    public bool DryRun { get; set; }
+
+    public override ValidationResult Validate()
+    {
+        if (string.IsNullOrWhiteSpace(Input) && string.IsNullOrWhiteSpace(Workspace))
+            return ValidationResult.Error(Strings.cli_err_input_required);
+        return base.Validate();
+    }
+
+    /// <summary>从文件或工作区加载谱面。</summary>
+    public async Task<Rpe.Chart> LoadChartAsync()
+    {
+        if (!string.IsNullOrWhiteSpace(Workspace))
         {
             var ws = new WorkspaceService();
-            chart = await ws.GetAsync(workspace!) ?? throw new InvalidOperationException(
-                loc["cli.err.workspace.missing"].Replace("{workspace}", workspace!));
-        }
-        else
-        {
-            if (string.IsNullOrWhiteSpace(input))
-                throw new ArgumentException(loc["cli.err.input.required"]);
-            var text = await File.ReadAllTextAsync(input);
-            chart = await Rpe.Chart.LoadFromJsonStjAsync(text);
+            return await ws.GetAsync(Workspace) ?? throw new InvalidOperationException(
+                string.Format(Strings.cli_err_workspace_missing, Workspace));
         }
 
-        // 检查precision和tolerance参数，如果有则解析为double，没有则使用默认值64和5
-        double precisionValue = 64d;
-        double toleranceValue = 5d;
-        if (!string.IsNullOrWhiteSpace(precision) && double.TryParse(precision, out var p))
-            precisionValue = p;
-        if (!string.IsNullOrWhiteSpace(tolerance) && double.TryParse(tolerance, out var t))
-            toleranceValue = t;
+        var text = await File.ReadAllTextAsync(Input!);
+        return await Rpe.Chart.LoadFromJsonStjAsync(text);
+    }
 
+    /// <summary>根据 Input/Workspace 自动计算输出路径。</summary>
+    public string ResolveOutputPath()
+    {
+        if (!string.IsNullOrWhiteSpace(Output)) return Output;
+        var source = Input ?? "workspace";
+        return Path.Combine(
+            Path.GetDirectoryName(source) ?? ".",
+            Path.GetFileNameWithoutExtension(source) + "_PFC.json");
+    }
+}
 
+// ─── rpe unbind-father ───────────────────────────────────────────────────────
+
+// Description set via WithDescription(Strings.cli_cmd_rpe_unbind_father_desc) in Program.cs
+public sealed class RpeUnbindFatherCommand : AsyncCommand<RpeUnbindFatherCommand.Settings>
+{
+    public sealed class Settings : RpeOperationSettings { }
+
+    protected override async Task<int> ExecuteAsync(CommandContext context, Settings settings,CancellationToken cancellationToken)
+    {
+        var writer = settings.CreateWriter();
+        var chart = await settings.LoadChartAsync();
         var chartCopy = chart.Clone();
-        for (var index = 0; index < chart.JudgeLineList.Count; index++)
+
+        for (var i = 0; i < chart.JudgeLineList.Count; i++)
         {
-            Console.WriteLine(index);
-            var jl = chart.JudgeLineList[index];
-            if (jl.Father != -1)
-            {
-                chartCopy.JudgeLineList[index] = await RePhiEditHelper.FatherUnbindAsync(index, chart.JudgeLineList,
-                    precisionValue, toleranceValue);
-            }
+            Console.WriteLine(i);
+            if (chart.JudgeLineList[i].Father != -1)
+                chartCopy.JudgeLineList[i] = await RePhiEditHelper.FatherUnbindAsync(
+                    i, chart.JudgeLineList, settings.Precision, settings.Tolerance);
         }
 
-        if (string.IsNullOrWhiteSpace(output))
+        var output = settings.ResolveOutputPath();
+        if (!settings.DryRun)
         {
-            var source = input ?? "workspace";
-            output = Path.Combine(Path.GetDirectoryName(source) ?? ".",
-                Path.GetFileNameWithoutExtension(source) + "_PFC.json");
-        }
-
-        // 使用流式序列化（ExportToJsonStjStreamAsync）防止OOM
-        var stream = new FileStream(output, FileMode.Create);
-        if (!dryRun)
+            await using var stream = new FileStream(output, FileMode.Create);
             await chartCopy.ExportToJsonStjStreamAsync(stream, true);
-        writer.Info(loc["cli.msg.written"].Replace("{path}", output!));
+        }
+
+        writer.Info(string.Format(Strings.cli_msg_written, output));
         return 0;
     }
 }
 
-public sealed class RpeLayerMergeCommand : ICommandHandler
+// ─── rpe layer-merge ────────────────────────────────────────────────────────
+
+// Description set via WithDescription(Strings.cli_cmd_rpe_layer_merge_desc) in Program.cs
+public sealed class RpeLayerMergeCommand : AsyncCommand<RpeLayerMergeCommand.Settings>
 {
-    public async Task<int> ExecuteAsync(string[] args, ConsoleWriter writer, ILocalizer loc)
+    public sealed class Settings : RpeOperationSettings { }
+
+    protected override async Task<int> ExecuteAsync(CommandContext context, Settings settings,CancellationToken cancellationToken)
     {
-        try
+        var writer = settings.CreateWriter();
+        var chart = await settings.LoadChartAsync();
+        var chartCopy = chart.Clone();
+
+        foreach (var jl in chartCopy.JudgeLineList)
         {
-            var input = OptionParser.GetOption(args, "-i", "--input", "--输入");
-            var output = OptionParser.GetOption(args, "-o", "--output", "--输出");
-            var workspace = OptionParser.GetOption(args, "--workspace", "-wk", "--工作区");
-            var precision = OptionParser.GetOption(args, "--precision", "-p", "--精度");
-            var tolerance = OptionParser.GetOption(args, "--tolerance", "-t", "--容差");
-            var dryRun = OptionParser.HasFlag(args, "--dry-run");
-
-            Rpe.Chart? chart;
-            if (!string.IsNullOrWhiteSpace(workspace))
-            {
-                var ws = new WorkspaceService();
-                chart = await ws.GetAsync(workspace) ?? throw new InvalidOperationException(
-                    loc["cli.err.workspace.missing"].Replace("{workspace}", workspace!));
-            }
-            else
-            {
-                if (string.IsNullOrWhiteSpace(input))
-                    throw new ArgumentException(loc["cli.err.input.required"]);
-                var text = await File.ReadAllTextAsync(input);
-                chart = await Rpe.Chart.LoadFromJsonStjAsync(text);
-            }
-
-            // 检查precision和tolerance参数，如果有则解析为double，没有则使用默认值64和5
-            double precisionValue = 64d;
-            double toleranceValue = 5d;
-            if (!string.IsNullOrWhiteSpace(precision) && double.TryParse(precision, out var p))
-                precisionValue = p;
-            if (!string.IsNullOrWhiteSpace(tolerance) && double.TryParse(tolerance, out var t))
-                toleranceValue = t;
-
-            var chartCopy = chart.Clone();
-            foreach (var jl in chartCopy.JudgeLineList)
-            {
-                if (jl.EventLayers is not { Count: > 1 }) continue;
-                var merged = RePhiEditHelper.LayerMerge(jl.EventLayers, precisionValue, toleranceValue);
-                jl.EventLayers = [merged];
-            }
-
-            if (string.IsNullOrWhiteSpace(output))
-            {
-                var source = input ?? "workspace";
-                output = Path.Combine(Path.GetDirectoryName(source) ?? ".",
-                    Path.GetFileNameWithoutExtension(source) + "_PFC.json");
-            }
-
-            if (!dryRun)
-                await File.WriteAllTextAsync(output, await chartCopy.ExportToJsonStjAsync(true));
-            writer.Info(loc["cli.msg.written"].Replace("{path}", output!));
-            return 0;
+            if (jl.EventLayers is not { Count: > 1 }) continue;
+            jl.EventLayers = [RePhiEditHelper.LayerMerge(jl.EventLayers, settings.Precision, settings.Tolerance)];
         }
-        catch (Exception e)
-        {
-            Console.WriteLine(e);
-            throw;
-        }
+
+        var output = settings.ResolveOutputPath();
+        if (!settings.DryRun)
+            await File.WriteAllTextAsync(output, await chartCopy.ExportToJsonStjAsync(true));
+
+        writer.Info(string.Format(Strings.cli_msg_written, output));
+        return 0;
     }
 }
 
-public sealed class RpeConvertCommand : ICommandHandler
+// ─── rpe convert ─────────────────────────────────────────────────────────────
+
+// Description set via WithDescription(Strings.cli_cmd_rpe_convert_desc) in Program.cs
+public sealed class RpeConvertCommand : Command<BaseSettings>
 {
-    public Task<int> ExecuteAsync(string[] args, ConsoleWriter writer, ILocalizer loc)
+    protected override int Execute(CommandContext context, BaseSettings settings,CancellationToken cancellationToken)
     {
-        writer.Warn(loc["cli.warn.rpe.convert"]);
-        return Task.FromResult(2);
+        settings.CreateWriter().Warn(Strings.cli_warn_rpe_convert);
+        return 2;
     }
 }
 
-public sealed class UnknownCommand : ICommandHandler
+// ─── UnknownCommand（保留兼容）──────────────────────────────────────────────
+
+/// <summary>不应在正常路由中被命中，仅作保底。</summary>
+public sealed class UnknownCommand : Command<BaseSettings>
 {
-    public Task<int> ExecuteAsync(string[] args, ConsoleWriter writer, ILocalizer loc)
+    protected override int Execute(CommandContext context, BaseSettings settings,CancellationToken cancellationToken)
     {
-        writer.Error(loc["cli.err.unknown"]);
-        return Task.FromResult(1);
+        settings.CreateWriter().Error(Strings.cli_err_unknown);
+        return 1;
     }
 }

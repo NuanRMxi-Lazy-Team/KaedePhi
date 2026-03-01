@@ -1,59 +1,109 @@
-﻿using PhiFanmade.Tool.Cli.Infrastructure;
-using PhiFanmade.Tool.Cli.Parsing;
+﻿using System.ComponentModel;
+using PhiFanmade.Tool.Cli.Infrastructure;
 using PhiFanmade.Tool.Localization;
+using Spectre.Console;
+using Spectre.Console.Cli;
 
 namespace PhiFanmade.Tool.Cli.Commands;
 
-public sealed class LoadCommand : ICommandHandler
+// ─── Load ────────────────────────────────────────────────────────────────────
+
+// Description set via WithDescription(Strings.cli_cmd_load_desc) in Program.cs
+public sealed class LoadCommand : AsyncCommand<LoadCommand.Settings>
 {
-    public async Task<int> ExecuteAsync(string[] args, ConsoleWriter writer, ILocalizer loc)
+    public sealed class Settings : BaseSettings
     {
-        var input = OptionParser.GetOption(args, "-i", "--input", "--输入");
-        var workspace = OptionParser.GetOption(args, "--workspace", "--工作区") ?? "default";
-        if (string.IsNullOrWhiteSpace(input))
-            throw new ArgumentException(loc["err.input.required"]);
+        [CommandOption("-i|--input <PATH>")]
+        [Description("输入的 RPE/PhiEdit 谱面文件路径")] // cli_opt_input_phiedit_desc
+        public string? Input { get; set; }
+
+        [CommandOption("-w|--workspace <ID>")]
+        [Description("工作区 ID（默认：default）")] // cli_opt_workspace_default_desc
+        public string Workspace { get; set; } = "default";
+
+        public override ValidationResult Validate()
+        {
+            if (string.IsNullOrWhiteSpace(Input))
+                return ValidationResult.Error(Strings.cli_err_input_required);
+            return base.Validate();
+        }
+    }
+
+    protected override async Task<int> ExecuteAsync(CommandContext context, Settings settings,CancellationToken cancellationToken)
+    {
+        var writer = settings.CreateWriter();
         var ws = new WorkspaceService();
-        await ws.LoadAsync(workspace, input);
-        writer.Info(loc["cli.msg.loaded"].Replace("{workspace}", workspace));
+        await ws.LoadAsync(settings.Workspace, settings.Input!);
+        writer.Info(string.Format(Strings.cli_msg_loaded, settings.Workspace));
         return 0;
     }
 }
 
-public sealed class SaveCommand : ICommandHandler
+// ─── Save ────────────────────────────────────────────────────────────────────
+
+// Description set via WithDescription(Strings.cli_cmd_save_desc) in Program.cs
+public sealed class SaveCommand : AsyncCommand<SaveCommand.Settings>
 {
-    public async Task<int> ExecuteAsync(string[] args, ConsoleWriter writer, ILocalizer loc)
+    public sealed class Settings : BaseSettings
     {
-        var output = OptionParser.GetOption(args, "-o", "--output", "--输出");
-        var workspace = OptionParser.GetOption(args, "--workspace", "--工作区") ?? "default";
-        if (string.IsNullOrWhiteSpace(output))
-            throw new ArgumentException(loc["err.output.required"]);
+        [CommandOption("-o|--output <PATH>")]
+        [Description("输出文件路径")] // cli_opt_output_path_desc
+        public string? Output { get; set; }
+
+        [CommandOption("-w|--workspace <ID>")]
+        [Description("工作区 ID（默认：default）")] // cli_opt_workspace_default_desc
+        public string Workspace { get; set; } = "default";
+
+        public override ValidationResult Validate()
+        {
+            if (string.IsNullOrWhiteSpace(Output))
+                return ValidationResult.Error(Strings.cli_err_output_required);
+            return base.Validate();
+        }
+    }
+
+    protected override async Task<int> ExecuteAsync(CommandContext context, Settings settings,CancellationToken cancellationToken)
+    {
+        var writer = settings.CreateWriter();
         var ws = new WorkspaceService();
-        await ws.SaveAsync(workspace, output!);
-        writer.Info(loc["cli.msg.saved"].Replace("{workspace}", workspace).Replace("{path}", output!));
+        await ws.SaveAsync(settings.Workspace, settings.Output!);
+        writer.Info(string.Format(Strings.cli_msg_saved, settings.Workspace, settings.Output!));
         return 0;
     }
 }
 
-public sealed class WorkspaceListCommand : ICommandHandler
+// ─── Workspace List ───────────────────────────────────────────────────────────
+
+// Description set via WithDescription(Strings.cli_cmd_workspace_list_desc) in Program.cs
+public sealed class WorkspaceListCommand : Command<BaseSettings>
 {
-    public Task<int> ExecuteAsync(string[] args, ConsoleWriter writer, ILocalizer loc)
+    protected override int Execute(CommandContext context, BaseSettings settings,CancellationToken cancellationToken)
     {
         var ws = new WorkspaceService();
         foreach (var id in ws.List())
-        {
             Console.WriteLine(id);
-        }
-        return Task.FromResult(0);
+        return 0;
     }
 }
 
-public sealed class WorkspaceClearCommand : ICommandHandler
+// ─── Workspace Clear ──────────────────────────────────────────────────────────
+
+// Description set via WithDescription(Strings.cli_cmd_workspace_clear_desc) in Program.cs
+public sealed class WorkspaceClearCommand : Command<WorkspaceClearCommand.Settings>
 {
-    public Task<int> ExecuteAsync(string[] args, ConsoleWriter writer, ILocalizer loc)
+    public sealed class Settings : BaseSettings
     {
+        [CommandOption("--id <ID>")]
+        [Description("只清理指定工作区（不填则清理全部）")] // cli_opt_workspace_clear_id_desc
+        public string? Id { get; set; }
+    }
+
+    protected override int Execute(CommandContext context, Settings settings,CancellationToken cancellationToken)
+    {
+        var writer = settings.CreateWriter();
         var ws = new WorkspaceService();
-        ws.Clear();
-        writer.Info(loc["cli.msg.cleared"]);
-        return Task.FromResult(0);
+        ws.Clear(settings.Id);
+        writer.Info(Strings.cli_msg_cleared);
+        return 0;
     }
 }
