@@ -168,6 +168,16 @@ namespace PhiFanmade.Tool.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to 输出的结果可能有些大哦~请试着添加“--stream”选项来减少内存占用！若这没有解决你的问题，请将以下信息发送到https://github.com/NuanRMxi-Lazy-Team/PhiFanmadeTool/issues，我们会尽快修复这个问题！
+        ///{0}.
+        /// </summary>
+        public static string cli_err_out_of_memory {
+            get {
+                return ResourceManager.GetString("cli_err_out_of_memory", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to 需要提供 --output 才能帮你保存呢~.
         /// </summary>
         public static string cli_err_output_required {
@@ -250,7 +260,7 @@ namespace PhiFanmade.Tool.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to 写好了哟！{0}.
+        ///   Looks up a localized string similar to 文件已经成功输出到 {0} 了！.
         /// </summary>
         public static string cli_msg_written {
             get {
@@ -309,6 +319,15 @@ namespace PhiFanmade.Tool.Localization {
         public static string cli_opt_precision_desc {
             get {
                 return ResourceManager.GetString("cli_opt_precision_desc", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 流式输出模式（若发生内存不足错误，请考虑使用此选项）.
+        /// </summary>
+        public static string cli_opt_stream_output_desc {
+            get {
+                return ResourceManager.GetString("cli_opt_stream_output_desc", resourceCulture);
             }
         }
         

@@ -124,6 +124,9 @@
   <data name="cli_opt_dry_run_desc" xml:space="preserve">
     <value>Test run mode, no files written.</value>
   </data>
+  <data name="cli_opt_stream_output_desc" xml:space="preserve">
+    <value>Stream output mode (consider using this option if an out-of-memory error occurs)</value>
+  </data>
   <!-- ── messages ─────────────────────────────────────────────────────────── -->
   <data name="cli_msg_loaded" xml:space="preserve">
     <value>Successfully loaded the chart into workspace {0}!</value>

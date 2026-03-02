@@ -1,5 +1,4 @@
-﻿using System.ComponentModel;
-using PhiFanmade.Tool.Cli.Infrastructure;
+﻿using PhiFanmade.Tool.Cli.Infrastructure;
 using PhiFanmade.Tool.Localization;
 using PhiFanmade.Tool.Utils;
 using Spectre.Console;
@@ -13,28 +12,32 @@ namespace PhiFanmade.Tool.Cli.Commands;
 public abstract class RpeOperationSettings : BaseSettings
 {
     [CommandOption("-i|--input <PATH>")]
-    [Description("输入的 RPE 谱面文件路径（与 --workspace 二选一）")] // cli_opt_input_rpe_desc
+    [LocalizedDescription("cli_opt_input_rpe_desc")]
     public string? Input { get; set; }
 
     [CommandOption("-o|--output <PATH>")]
-    [Description("输出文件路径（不填则自动生成 _PFC.json 后缀）")] // cli_opt_output_auto_desc
+    [LocalizedDescription("cli_opt_output_auto_desc")]
     public string? Output { get; set; }
 
     [CommandOption("-w|--workspace <ID>")]
-    [Description("工作区 ID（与 --input 二选一）")] // cli_opt_workspace_rpe_desc
+    [LocalizedDescription("cli_opt_workspace_rpe_desc")]
     public string? Workspace { get; set; }
 
     [CommandOption("-p|--precision <N>")]
-    [Description("采样精度（每拍细分数，默认：64，即每次采样步进六十四分之一拍）")] // cli_opt_precision_desc
+    [LocalizedDescription("cli_opt_precision_desc")]
     public double Precision { get; set; } = 64;
 
     [CommandOption("-t|--tolerance <N>")]
-    [Description("拟合容差（默认：5）")] // cli_opt_tolerance_desc
+    [LocalizedDescription("cli_opt_tolerance_desc")]
     public double Tolerance { get; set; } = 5;
 
     [CommandOption("--dry-run")]
-    [Description("试运行模式，不写入文件")] // cli_opt_dry_run_desc
+    [LocalizedDescription("cli_opt_dry_run_desc")]
     public bool DryRun { get; set; }
+
+    [CommandOption("--stream")]
+    [LocalizedDescription("cli_opt_stream_output_desc")]
+    public bool StreamOutput { get; set; }
 
     public override ValidationResult Validate()
     {
@@ -70,12 +73,17 @@ public abstract class RpeOperationSettings : BaseSettings
 
 // ─── rpe unbind-father ───────────────────────────────────────────────────────
 
-// Description set via WithDescription(Strings.cli_cmd_rpe_unbind_father_desc) in Program.cs
+/// <summary>
+/// 解绑父级命令
+/// </summary>
 public sealed class RpeUnbindFatherCommand : AsyncCommand<RpeUnbindFatherCommand.Settings>
 {
-    public sealed class Settings : RpeOperationSettings { }
+    public sealed class Settings : RpeOperationSettings
+    {
+    }
 
-    protected override async Task<int> ExecuteAsync(CommandContext context, Settings settings,CancellationToken cancellationToken)
+    protected override async Task<int> ExecuteAsync(CommandContext context, Settings settings,
+        CancellationToken cancellationToken)
     {
         var writer = settings.CreateWriter();
         var chart = await settings.LoadChartAsync();
@@ -83,7 +91,7 @@ public sealed class RpeUnbindFatherCommand : AsyncCommand<RpeUnbindFatherCommand
 
         for (var i = 0; i < chart.JudgeLineList.Count; i++)
         {
-            Console.WriteLine(i);
+            //Console.WriteLine(i);
             if (chart.JudgeLineList[i].Father != -1)
                 chartCopy.JudgeLineList[i] = await RePhiEditHelper.FatherUnbindAsync(
                     i, chart.JudgeLineList, settings.Precision, settings.Tolerance);
@@ -92,8 +100,15 @@ public sealed class RpeUnbindFatherCommand : AsyncCommand<RpeUnbindFatherCommand
         var output = settings.ResolveOutputPath();
         if (!settings.DryRun)
         {
-            await using var stream = new FileStream(output, FileMode.Create);
-            await chartCopy.ExportToJsonStreamAsync(stream, true);
+            if (settings.StreamOutput)
+            {
+                await using var stream = new FileStream(output, FileMode.Create);
+                await chartCopy.ExportToJsonStreamAsync(stream, true);
+            }
+            else
+            {
+                await File.WriteAllTextAsync(output, await chartCopy.ExportToJsonAsync(true), cancellationToken);
+            }
         }
 
         writer.Info(string.Format(Strings.cli_msg_written, output));
@@ -103,12 +118,17 @@ public sealed class RpeUnbindFatherCommand : AsyncCommand<RpeUnbindFatherCommand
 
 // ─── rpe layer-merge ────────────────────────────────────────────────────────
 
-// Description set via WithDescription(Strings.cli_cmd_rpe_layer_merge_desc) in Program.cs
+/// <summary>
+/// 合并层级命令
+/// </summary>
 public sealed class RpeLayerMergeCommand : AsyncCommand<RpeLayerMergeCommand.Settings>
 {
-    public sealed class Settings : RpeOperationSettings { }
+    public sealed class Settings : RpeOperationSettings
+    {
+    }
 
-    protected override async Task<int> ExecuteAsync(CommandContext context, Settings settings,CancellationToken cancellationToken)
+    protected override async Task<int> ExecuteAsync(CommandContext context, Settings settings,
+        CancellationToken cancellationToken)
     {
         var writer = settings.CreateWriter();
         var chart = await settings.LoadChartAsync();
@@ -134,7 +154,7 @@ public sealed class RpeLayerMergeCommand : AsyncCommand<RpeLayerMergeCommand.Set
 // Description set via WithDescription(Strings.cli_cmd_rpe_convert_desc) in Program.cs
 public sealed class RpeConvertCommand : Command<BaseSettings>
 {
-    protected override int Execute(CommandContext context, BaseSettings settings,CancellationToken cancellationToken)
+    protected override int Execute(CommandContext context, BaseSettings settings, CancellationToken cancellationToken)
     {
         settings.CreateWriter().Warn(Strings.cli_warn_rpe_convert);
         return 2;
@@ -146,7 +166,7 @@ public sealed class RpeConvertCommand : Command<BaseSettings>
 /// <summary>不应在正常路由中被命中，仅作保底。</summary>
 public sealed class UnknownCommand : Command<BaseSettings>
 {
-    protected override int Execute(CommandContext context, BaseSettings settings,CancellationToken cancellationToken)
+    protected override int Execute(CommandContext context, BaseSettings settings, CancellationToken cancellationToken)
     {
         settings.CreateWriter().Error(Strings.cli_err_unknown);
         return 1;

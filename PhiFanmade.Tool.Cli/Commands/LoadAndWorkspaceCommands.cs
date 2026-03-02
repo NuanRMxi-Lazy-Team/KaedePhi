@@ -1,5 +1,4 @@
-﻿using System.ComponentModel;
-using PhiFanmade.Tool.Cli.Infrastructure;
+﻿using PhiFanmade.Tool.Cli.Infrastructure;
 using PhiFanmade.Tool.Localization;
 using Spectre.Console;
 using Spectre.Console.Cli;
@@ -14,11 +13,11 @@ public sealed class LoadCommand : AsyncCommand<LoadCommand.Settings>
     public sealed class Settings : BaseSettings
     {
         [CommandOption("-i|--input <PATH>")]
-        [Description("输入的 RPE/PhiEdit 谱面文件路径")] // cli_opt_input_phiedit_desc
+        [LocalizedDescription("cli_opt_input_phiedit_desc")]
         public string? Input { get; set; }
 
         [CommandOption("-w|--workspace <ID>")]
-        [Description("工作区 ID（默认：default）")] // cli_opt_workspace_default_desc
+        [LocalizedDescription("cli_opt_workspace_default_desc")]
         public string Workspace { get; set; } = "default";
 
         public override ValidationResult Validate()
@@ -47,11 +46,11 @@ public sealed class SaveCommand : AsyncCommand<SaveCommand.Settings>
     public sealed class Settings : BaseSettings
     {
         [CommandOption("-o|--output <PATH>")]
-        [Description("输出文件路径")] // cli_opt_output_path_desc
+        [LocalizedDescription("cli_opt_output_path_desc")]
         public string? Output { get; set; }
 
         [CommandOption("-w|--workspace <ID>")]
-        [Description("工作区 ID（默认：default）")] // cli_opt_workspace_default_desc
+        [LocalizedDescription("cli_opt_workspace_default_desc")]
         public string Workspace { get; set; } = "default";
 
         public override ValidationResult Validate()
@@ -94,7 +93,7 @@ public sealed class WorkspaceClearCommand : Command<WorkspaceClearCommand.Settin
     public sealed class Settings : BaseSettings
     {
         [CommandOption("--id <ID>")]
-        [Description("只清理指定工作区（不填则清理全部）")] // cli_opt_workspace_clear_id_desc
+        [LocalizedDescription("cli_opt_workspace_clear_id_desc")]
         public string? Id { get; set; }
     }
 

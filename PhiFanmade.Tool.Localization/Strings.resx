@@ -136,6 +136,10 @@
     <value>试运行模式，不写入文件</value>
     <comment>RpeOperationSettings --dry-run 选项</comment>
   </data>
+  <data name="cli_opt_stream_output_desc" xml:space="preserve">
+    <value>流式输出模式（若发生内存不足错误，请考虑使用此选项）</value>
+    <comment>RpeOperationSettings --stream 选项</comment>
+  </data>
   <!-- ── messages ─────────────────────────────────────────────────────────── -->
   <data name="cli_msg_loaded" xml:space="preserve">
     <value>已经把小可爱谱面塞进 {0} 工作区啦！</value>
@@ -178,6 +182,11 @@
   </data>
   <data name="cli_err_ukerr" xml:space="preserve">
     <value>すみません！软件遇到了未知错误！请将以下信息发送到https://github.com/NuanRMxi-Lazy-Team/PhiFanmadeTool/issues 我们会尽快修复这个问题！
+{0}</value>
+    <comment>{0} = 错误</comment>
+  </data>
+  <data name="cli_err_out_of_memory" xml:space="preserve">
+    <value>输出的结果可能有些大哦~请试着添加“--stream”选项来减少内存占用！若这没有解决你的问题，请将以下信息发送到https://github.com/NuanRMxi-Lazy-Team/PhiFanmadeTool/issues，我们会尽快修复这个问题！
 {0}</value>
     <comment>{0} = 错误</comment>
   </data>

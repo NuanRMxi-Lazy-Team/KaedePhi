@@ -6,7 +6,7 @@ namespace PhiFanmade.Tool.Cli.Commands;
 /// <summary>
 /// 所有命令的基础 Settings。
 /// </summary>
-public abstract class BaseSettings : CommandSettings
+public class BaseSettings : CommandSettings
 {
     /// <summary>快速构建与当前 Settings 对应的 ConsoleWriter。</summary>
     public ConsoleWriter CreateWriter() => new();

@@ -8,7 +8,7 @@ var app = new CommandApp();
 app.SetDefaultCommand<VersionCommand>();
 app.Configure(config =>
 {
-    config.SetApplicationName("phi-tool");
+    config.SetApplicationName(Strings.cli_app_title);
     config.SetApplicationVersion(
         Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "unknown");
 
@@ -18,6 +18,12 @@ app.Configure(config =>
     // 统一异常处理，保持与原先相同的错误输出风格
     config.SetExceptionHandler((ex, _) =>
     {
+        // 如果是out of memory这种错误，应该提示使用--stream选项，而不是让其反馈
+        if (ex is OutOfMemoryException)
+        {
+            new ConsoleWriter().Error(string.Format(Strings.cli_err_out_of_memory,ex));
+            return 1;
+        }
         new ConsoleWriter().Error(string.Format(Strings.cli_err_ukerr, ex));
         return 1;
     });
@@ -48,7 +54,8 @@ app.Configure(config =>
             .WithDescription(Strings.cli_cmd_rpe_unbind_father_desc)
             .WithAlias("unbind");
         rpe.AddCommand<RpeLayerMergeCommand>("layer-merge")
-            .WithDescription(Strings.cli_cmd_rpe_layer_merge_desc);
+            .WithDescription(Strings.cli_cmd_rpe_layer_merge_desc)
+            .WithAlias("layer-merge");
         rpe.AddCommand<RpeConvertCommand>("convert")
             .WithDescription(Strings.cli_cmd_rpe_convert_desc);
     });
