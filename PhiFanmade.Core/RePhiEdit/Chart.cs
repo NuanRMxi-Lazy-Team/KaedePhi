@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Newtonsoft.Json;
+using PhiFanmade.Core.Common;
 
 namespace PhiFanmade.Core.RePhiEdit
 {
@@ -14,6 +15,8 @@ namespace PhiFanmade.Core.RePhiEdit
             public const float MinX = -675f;
             public const float MaxY = 450f;
             public const float MinY = -450f;
+            public const CoordinateSystemAnchor Anchor = CoordinateSystemAnchor.ScreenCenter;
+            public const bool ClockwiseRotation = true;
         }
 
         /// <summary>

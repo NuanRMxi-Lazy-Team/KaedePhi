@@ -1,0 +1,39 @@
+﻿using System.Collections.Generic;
+using PhiFanmade.Core.Common;
+
+namespace PhiFanmade.Core.PhiFanmadeNrc
+{
+    public partial class Chart
+    {
+        /// <summary>
+        /// 坐标系边界
+        /// </summary>
+        public static class CoordinateSystem
+        {
+            public const float MaxX = 1f;
+            public const float MinX = -1f;
+            public const float MaxY = 1f;
+            public const float MinY = -1f;
+            public const CoordinateSystemAnchor Anchor = CoordinateSystemAnchor.ScreenCenter;
+            public const bool ClockwiseRotation = false;
+        }
+
+        /// <summary>
+        /// BPM列表
+        /// </summary>
+        public List<BpmItem> BpmList = new List<BpmItem>
+        {
+            new BpmItem()
+        };
+
+        /// <summary>
+        /// 元数据
+        /// </summary>
+        public Meta Meta = new Meta();
+
+        /// <summary>
+        /// 判定线列表
+        /// </summary>
+        public List<JudgeLine> JudgeLineList = new List<JudgeLine>();
+    }
+}
