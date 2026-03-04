@@ -47,7 +47,7 @@ PhiFanmadeOpenToolCli: .NET8.0, .NET10.0
 
 
 ## 开源许可证
-[GNU AFFERO GENERAL PUBLIC LICENSE](https://www.gnu.org/licenses/agpl-3.0.html)
+[GNU LESSER GENERAL PUBLIC LICENSE 2.1]([https://www.gnu.org/licenses/agpl-3.0.html](https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html))
 
 ## Copyright
 NuanR_Mxi Copyright © 2025 PhiFanmadeTool Project.  
