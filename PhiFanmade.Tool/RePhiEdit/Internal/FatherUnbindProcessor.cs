@@ -1,4 +1,4 @@
-﻿namespace PhiFanmade.Tool.Utils.RePhiEditUtility;
+﻿namespace PhiFanmade.Tool.RePhiEdit.Internal;
 
 /// <summary>
 /// 判定线父子关系处理器
@@ -43,3 +43,4 @@ internal static class FatherUnbindProcessor
         List<Rpe.JudgeLine> allJudgeLines, double precision = 64d, double tolerance = 5d) =>
         FatherUnbindAsyncProcessor.FatherUnbindCore(targetJudgeLineIndex, allJudgeLines, precision, tolerance);
 }
+

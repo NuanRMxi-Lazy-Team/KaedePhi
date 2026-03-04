@@ -1,4 +1,4 @@
-﻿namespace PhiFanmade.Tool.Utils.RePhiEditUtility;
+﻿namespace PhiFanmade.Tool.RePhiEdit.Internal;
 
 /// <summary>
 /// RePhiEdit层级处理器
@@ -33,7 +33,6 @@ internal static class LayerProcessor
         layers.RemoveAll(layer => layer == null);
         if (layers.Count <= 1)
             return layers.FirstOrDefault() ?? new Rpe.EventLayer();
-        
 
         // index非1 layer头部的0值事件去除
         layers = RemoveUnlessLayer(layers) ?? layers;
@@ -60,4 +59,41 @@ internal static class LayerProcessor
 
         return mergedLayer;
     }
+    
+    /// <summary>
+    /// 更节省性能的合并多个事件层级
+    /// </summary>
+    public static Rpe.EventLayer LayerMergePlus(List<Rpe.EventLayer> layers, double precision = 64d, double tolerance = 5d)
+    {
+        // 清理null层级
+        layers.RemoveAll(layer => layer == null);
+        if (layers.Count <= 1)
+            return layers.FirstOrDefault() ?? new Rpe.EventLayer();
+
+        // index非1 layer头部的0值事件去除
+        layers = RemoveUnlessLayer(layers) ?? layers;
+
+        var mergedLayer = new Rpe.EventLayer();
+        foreach (var layer in layers)
+        {
+            if (layer.AlphaEvents is { Count: > 0 })
+                mergedLayer.AlphaEvents =
+                    EventProcessor.EventMergePlus(mergedLayer.AlphaEvents, layer.AlphaEvents, precision, tolerance);
+            if (layer.MoveXEvents is { Count: > 0 })
+                mergedLayer.MoveXEvents =
+                    EventProcessor.EventMergePlus(mergedLayer.MoveXEvents, layer.MoveXEvents, precision, tolerance);
+            if (layer.MoveYEvents is { Count: > 0 })
+                mergedLayer.MoveYEvents =
+                    EventProcessor.EventMergePlus(mergedLayer.MoveYEvents, layer.MoveYEvents, precision, tolerance);
+            if (layer.RotateEvents is { Count: > 0 })
+                mergedLayer.RotateEvents =
+                    EventProcessor.EventMergePlus(mergedLayer.RotateEvents, layer.RotateEvents, precision, tolerance);
+            if (layer.SpeedEvents is { Count: > 0 })
+                mergedLayer.SpeedEvents =
+                    EventProcessor.EventMergePlus(mergedLayer.SpeedEvents, layer.SpeedEvents, precision, tolerance);
+        }
+
+        return mergedLayer;
+    }
 }
+

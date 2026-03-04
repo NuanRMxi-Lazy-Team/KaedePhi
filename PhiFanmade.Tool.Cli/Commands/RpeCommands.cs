@@ -1,6 +1,6 @@
 ﻿using PhiFanmade.Tool.Cli.Infrastructure;
 using PhiFanmade.Tool.Localization;
-using PhiFanmade.Tool.Utils;
+using PhiFanmade.Tool.RePhiEdit;
 using Spectre.Console;
 using Spectre.Console.Cli;
 
@@ -137,7 +137,7 @@ public sealed class RpeLayerMergeCommand : AsyncCommand<RpeLayerMergeCommand.Set
         foreach (var jl in chartCopy.JudgeLineList)
         {
             if (jl.EventLayers is not { Count: > 1 }) continue;
-            jl.EventLayers = [RePhiEditHelper.LayerMerge(jl.EventLayers, settings.Precision, settings.Tolerance)];
+            jl.EventLayers = [RePhiEditHelper.LayerMergePlus(jl.EventLayers, settings.Precision, settings.Tolerance)];
         }
 
         var output = settings.ResolveOutputPath();
@@ -149,7 +149,7 @@ public sealed class RpeLayerMergeCommand : AsyncCommand<RpeLayerMergeCommand.Set
     }
 }
 
-// ─── rpe convert ─────────────────────────────────────────────────────────────
+// rpe convert 
 
 // Description set via WithDescription(Strings.cli_cmd_rpe_convert_desc) in Program.cs
 public sealed class RpeConvertCommand : Command<BaseSettings>
@@ -161,7 +161,7 @@ public sealed class RpeConvertCommand : Command<BaseSettings>
     }
 }
 
-// ─── UnknownCommand（保留兼容）──────────────────────────────────────────────
+// UnknownCommand（保留兼容
 
 /// <summary>不应在正常路由中被命中，仅作保底。</summary>
 public sealed class UnknownCommand : Command<BaseSettings>

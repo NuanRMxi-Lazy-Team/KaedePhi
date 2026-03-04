@@ -1,7 +1,7 @@
 ﻿using System.Collections.Concurrent;
 using PhiFanmade.Core.Common;
 
-namespace PhiFanmade.Tool.Utils.RePhiEditUtility;
+namespace PhiFanmade.Tool.RePhiEdit.Internal;
 
 /// <summary>
 /// 判定线父子关系异步处理器（多线程版本）
@@ -123,22 +123,28 @@ internal static class FatherUnbindAsyncProcessor
                 ? fatherLineNewRotateEvents.Max(e => e.EndBeat)
                 : new Beat(0);
 
+            // 闭包捕获要求变量不可变，创建局部引用以防止外部重赋值影响 Task 内部
+            var yevents = fatherLineNewYevents;
+            var xevents = fatherLineNewXevents;
+            var newYevents = targetLineNewYevents;
+            var newXevents = targetLineNewXevents;
+            var rotateEvents = fatherLineNewRotateEvents;
             // 并行切割事件
             var cutTasks = new[]
             {
                 Task.Run(() =>
-                    EventProcessor.CutEventsInRange(targetLineNewXevents, targetLineXEventsMinBeat!,
+                    EventProcessor.CutEventsInRange(newXevents, targetLineXEventsMinBeat!,
                         targetLineXEventsMaxBeat!)),
                 Task.Run(() =>
-                    EventProcessor.CutEventsInRange(targetLineNewYevents, targetLineYEventsMinBeat!,
+                    EventProcessor.CutEventsInRange(newYevents, targetLineYEventsMinBeat!,
                         targetLineYEventsMaxBeat!)),
                 Task.Run(() =>
-                    EventProcessor.CutEventsInRange(fatherLineNewXevents, fatherLineXEventsMinBeat!,
+                    EventProcessor.CutEventsInRange(xevents, fatherLineXEventsMinBeat!,
                         fatherLineXEventsMaxBeat!)),
                 Task.Run(() =>
-                    EventProcessor.CutEventsInRange(fatherLineNewYevents, fatherLineYEventsMinBeat!,
+                    EventProcessor.CutEventsInRange(yevents, fatherLineYEventsMinBeat!,
                         fatherLineYEventsMaxBeat!)),
-                Task.Run(() => EventProcessor.CutEventsInRange(fatherLineNewRotateEvents,
+                Task.Run(() => EventProcessor.CutEventsInRange(rotateEvents,
                     fatherLineRotateEventsMinBeat!,
                     fatherLineRotateEventsMaxBeat!))
             };
@@ -266,14 +272,14 @@ internal static class FatherUnbindAsyncProcessor
 
             // 赋值压缩后的事件列表
             judgeLineCopy.EventLayers[0].MoveXEvents = EventProcessor.EventListCompress(sortedXEvents, tolerance);
-            judgeLineCopy.EventLayers[0].MoveYEvents = EventProcessor.EventListCompress(sortedYEvents,tolerance);
+            judgeLineCopy.EventLayers[0].MoveYEvents = EventProcessor.EventListCompress(sortedYEvents, tolerance);
 
             if (judgeLineCopy.RotateWithFather)
             {
                 judgeLineCopy.EventLayers[0].RotateEvents =
                     EventProcessor.EventListCompress(
                         EventProcessor.EventMerge(judgeLineCopy.EventLayers[0].RotateEvents,
-                            fatherLineNewRotateEvents),tolerance);
+                            fatherLineNewRotateEvents), tolerance);
             }
 
             judgeLineCopy.Father = -1;
@@ -291,3 +297,4 @@ internal static class FatherUnbindAsyncProcessor
         }
     }
 }
+

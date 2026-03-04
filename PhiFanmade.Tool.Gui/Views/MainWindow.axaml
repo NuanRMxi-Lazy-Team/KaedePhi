@@ -82,7 +82,7 @@
             </DockPanel>
         </Border>
 
-        <!-- ══ 主内容区 ══════════════════════════════════════════════════════ -->
+        <!-- 主内容区 -->
         <ContentControl Grid.Column="1"
                         Content="{Binding CurrentPage}"/>
     </Grid>
