@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using PhiFanmade.Core.Common;
+using PhiFanmade.Core.Utils;
 
 // STJ 特性使用完全限定名
 
@@ -170,22 +171,29 @@ namespace PhiFanmade.Core.PhiFanmadeNrc
             {
                 var elementType = type.GetElementType();
                 var array = value as Array;
-                var clonedArray = Array.CreateInstance(elementType, array.Length);
-                for (int i = 0; i < array.Length; i++)
+                if (elementType != null)
                 {
-                    var element = array.GetValue(i);
-                    if (IsImmutableType(elementType))
-                        clonedArray.SetValue(element, i);
-                    else
+                    if (array != null)
                     {
-                        var cloneMethod = typeof(Event<T>)
-                            .GetMethod("DeepClone", BindingFlags.NonPublic | BindingFlags.Instance)
-                            ?.MakeGenericMethod(elementType);
-                        clonedArray.SetValue(cloneMethod.Invoke(this, new[] { element }), i);
+                        var clonedArray = Array.CreateInstance(elementType, array.Length);
+                        for (int i = 0; i < array.Length; i++)
+                        {
+                            var element = array.GetValue(i);
+                            if (IsImmutableType(elementType))
+                                clonedArray.SetValue(element, i);
+                            else
+                            {
+                                var cloneMethod = typeof(Event<T>)
+                                    .GetMethod("DeepClone", BindingFlags.NonPublic | BindingFlags.Instance)
+                                    ?.MakeGenericMethod(elementType);
+                                if (cloneMethod != null)
+                                    clonedArray.SetValue(cloneMethod.Invoke(this, new[] { element }), i);
+                            }
+                        }
+
+                        return (TValue)(object)clonedArray;
                     }
                 }
-
-                return (TValue)(object)clonedArray;
             }
 
             // 处理泛型集合 (List<T>, Dictionary<K,V>, etc.)

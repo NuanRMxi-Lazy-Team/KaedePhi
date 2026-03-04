@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace PhiFanmade.Core.RePhiEdit
+namespace PhiFanmade.Core.Utils
 {
     public static class Bezier
     {

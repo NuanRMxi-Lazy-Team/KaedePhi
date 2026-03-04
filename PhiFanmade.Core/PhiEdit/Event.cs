@@ -20,7 +20,7 @@ namespace PhiFanmade.Core.PhiEdit
             {
                 //获得这个拍在这个事件的时间轴上的位置
                 float t = (beat - StartBeat) / (EndBeat - StartBeat);
-                return EasingType.Do(0, 1, startValue, EndValue, t);
+                return EasingType.Do(startValue, EndValue, t);
             }
 
             /// <summary>
