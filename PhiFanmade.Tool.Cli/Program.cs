@@ -72,6 +72,10 @@ app.Configure(config =>
             .WithAlias("layer-merge");
         rpe.AddCommand<RpeConvertCommand>("convert")
             .WithDescription(Strings.cli_cmd_rpe_convert_desc);
+        rpe.AddCommand<RpeCutEventCommand>("cut")
+            .WithAlias("cut-event")
+            .WithAlias("cut-all")
+            .WithDescription(Strings.cli_cmd_rpe_cut_event_desc);
     });
 });
 

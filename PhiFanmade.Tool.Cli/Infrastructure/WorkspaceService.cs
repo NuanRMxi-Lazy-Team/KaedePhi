@@ -49,7 +49,9 @@ public sealed class WorkspaceService
     public async Task SaveAsync(string id, string outputPath)
     {
         var chart = await GetAsync(id) ?? throw new InvalidOperationException($"Workspace '{id}' not found");
-        await File.WriteAllTextAsync(outputPath, await chart.ExportToJsonAsync(true));
+        await using var stream = new FileStream(outputPath, FileMode.Create, FileAccess.Write, FileShare.None,
+            bufferSize: 65536, useAsync: true);
+        await chart.ExportToJsonStreamAsync(stream, true);
     }
 
     public void Clear(string? id = null)

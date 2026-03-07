@@ -11,32 +11,12 @@ namespace PhiFanmade.Tool.RePhiEdit.Internal;
 internal static class FatherUnbindAsyncProcessor
 {
     /// <summary>
-    /// 将判定线与自己的父判定线解绑，并保持行为一致。（async 等间隔采样版本）
-    /// 同一 <paramref name="allJudgeLines"/> 实例内的多次调用会共享解绑缓存，避免重复解绑同一父线；
-    /// 不同谱面（不同 List 实例）的缓存自动隔离，无需手动清理。
-    /// </summary>
-    public static Task<Rpe.JudgeLine> FatherUnbindAsync(int targetJudgeLineIndex,
-        List<Rpe.JudgeLine> allJudgeLines, double precision = 64d, double tolerance = 5d) =>
-        FatherUnbindCoreAsync(targetJudgeLineIndex, allJudgeLines, precision, tolerance,
-            FatherUnbindProcessor.ChartCacheTable.GetOrCreateValue(allJudgeLines));
-
-    /// <summary>
-    /// 将判定线与自己的父判定线解绑，并保持行为一致。（async 自适应采样版本）
-    /// 同一 <paramref name="allJudgeLines"/> 实例内的多次调用会共享解绑缓存，避免重复解绑同一父线；
-    /// 不同谱面（不同 List 实例）的缓存自动隔离，无需手动清理。
-    /// </summary>
-    public static Task<Rpe.JudgeLine> FatherUnbindAsyncPlus(int targetJudgeLineIndex,
-        List<Rpe.JudgeLine> allJudgeLines, double precision = 64d, double tolerance = 5d) =>
-        FatherUnbindCorePlusAsync(targetJudgeLineIndex, allJudgeLines, precision, tolerance,
-            FatherUnbindProcessor.ChartCacheTable.GetOrCreateValue(allJudgeLines));
-
-    /// <summary>
     /// 将判定线与自己的父判定线解绑，并保持行为一致。
     /// 策略：等间隔采样（精度由 precision 决定），各通道层级合并并行执行，主采样循环异步卸载至线程池。
     /// </summary>
-    private static async Task<Rpe.JudgeLine> FatherUnbindCoreAsync(int targetJudgeLineIndex,
+    internal static async Task<Rpe.JudgeLine> FatherUnbindAsync(int targetJudgeLineIndex,
         List<Rpe.JudgeLine> allJudgeLines, double precision, double tolerance,
-        ConcurrentDictionary<int, Rpe.JudgeLine> cache)
+        ConcurrentDictionary<int, Rpe.JudgeLine> cache, bool compress)
     {
         // ── 缓存命中：该线已被解绑过，直接返回副本，避免重复计算 ──
         if (cache.TryGetValue(targetJudgeLineIndex, out var cachedResult))
@@ -66,8 +46,8 @@ internal static class FatherUnbindAsyncProcessor
                 RePhiEditHelper.OnDebug.Invoke(
                     $"FatherUnbindAsync[{targetJudgeLineIndex}]: 父线 {judgeLineCopy.Father} 仍有父线，递归解绑");
                 // 传入共享缓存：若父线已被其他调用解绑过，直接复用缓存结果
-                fatherLineCopy = await FatherUnbindCoreAsync(judgeLineCopy.Father, allJudgeLinesCopy,
-                    precision, tolerance, cache);
+                fatherLineCopy = await FatherUnbindAsync(judgeLineCopy.Father, allJudgeLinesCopy,
+                    precision, tolerance, cache, compress);
             }
 
             judgeLineCopy.EventLayers =
@@ -81,15 +61,20 @@ internal static class FatherUnbindAsyncProcessor
             // 各通道按层顺序串行叠加（层间叠加不满足交换律；不同通道间互不依赖，并行执行）
             var mergeResults = await Task.WhenAll(
                 Task.Run(() => FatherUnbindProcessor.MergeLayerChannel(
-                    tLayers, l => l.MoveXEvents, (a, b) => EventProcessor.EventMerge(a, b))),
+                    tLayers, l => l.MoveXEvents,
+                    (a, b) => EventProcessor.EventListMerge(a, b, precision, tolerance, compress))),
                 Task.Run(() => FatherUnbindProcessor.MergeLayerChannel(
-                    tLayers, l => l.MoveYEvents, (a, b) => EventProcessor.EventMerge(a, b))),
+                    tLayers, l => l.MoveYEvents,
+                    (a, b) => EventProcessor.EventListMerge(a, b, precision, tolerance, compress))),
                 Task.Run(() => FatherUnbindProcessor.MergeLayerChannel(
-                    fLayers, l => l.MoveXEvents, (a, b) => EventProcessor.EventMerge(a, b))),
+                    fLayers, l => l.MoveXEvents,
+                    (a, b) => EventProcessor.EventListMerge(a, b, precision, tolerance, compress))),
                 Task.Run(() => FatherUnbindProcessor.MergeLayerChannel(
-                    fLayers, l => l.MoveYEvents, (a, b) => EventProcessor.EventMerge(a, b))),
+                    fLayers, l => l.MoveYEvents,
+                    (a, b) => EventProcessor.EventListMerge(a, b, precision, tolerance, compress))),
                 Task.Run(() => FatherUnbindProcessor.MergeLayerChannel(
-                    fLayers, l => l.RotateEvents, (a, b) => EventProcessor.EventMerge(a, b)))
+                    fLayers, l => l.RotateEvents,
+                    (a, b) => EventProcessor.EventListMerge(a, b, precision, tolerance, compress)))
             );
 
             var tX = mergeResults[0];
@@ -103,18 +88,21 @@ internal static class FatherUnbindAsyncProcessor
             var (fxMin, fxMax) = FatherUnbindProcessor.GetEventRange(fX);
             var (fyMin, fyMax) = FatherUnbindProcessor.GetEventRange(fY);
             var (frMin, frMax) = FatherUnbindProcessor.GetEventRange(fR);
-
+            var cutLength = new Beat(1d / precision);
             // 5 个通道互不依赖，并行切割为等长小段
             var cutResults = await Task.WhenAll(
-                Task.Run(() => EventProcessor.CutEventsInRange(tX, txMin, txMax)),
-                Task.Run(() => EventProcessor.CutEventsInRange(tY, tyMin, tyMax)),
-                Task.Run(() => EventProcessor.CutEventsInRange(fX, fxMin, fxMax)),
-                Task.Run(() => EventProcessor.CutEventsInRange(fY, fyMin, fyMax)),
-                Task.Run(() => EventProcessor.CutEventsInRange(fR, frMin, frMax))
+                Task.Run(() => EventProcessor.CutEventsInRange(tX, txMin, txMax, cutLength)),
+                Task.Run(() => EventProcessor.CutEventsInRange(tY, tyMin, tyMax, cutLength)),
+                Task.Run(() => EventProcessor.CutEventsInRange(fX, fxMin, fxMax, cutLength)),
+                Task.Run(() => EventProcessor.CutEventsInRange(fY, fyMin, fyMax, cutLength)),
+                Task.Run(() => EventProcessor.CutEventsInRange(fR, frMin, frMax, cutLength))
             );
 
-            tX = cutResults[0]; tY = cutResults[1];
-            fX = cutResults[2]; fY = cutResults[3]; fR = cutResults[4];
+            tX = cutResults[0];
+            tY = cutResults[1];
+            fX = cutResults[2];
+            fY = cutResults[3];
+            fR = cutResults[4];
 
             // 采样范围仅由 X/Y 移动事件决定（旋转事件不影响范围边界）
             var overallMin = new Beat(Math.Min(Math.Min(txMin, tyMin), Math.Min(fxMin, fyMin)));
@@ -159,9 +147,13 @@ internal static class FatherUnbindAsyncProcessor
                         txEvt?.EndValue ?? prevTX, tyEvt?.EndValue ?? prevTY);
 
                     xBag.Add((i, new Rpe.Event<float>
-                        { StartBeat = beat, EndBeat = next, StartValue = (float)startAbsX, EndValue = (float)endAbsX }));
+                    {
+                        StartBeat = beat, EndBeat = next, StartValue = (float)startAbsX, EndValue = (float)endAbsX
+                    }));
                     yBag.Add((i, new Rpe.Event<float>
-                        { StartBeat = beat, EndBeat = next, StartValue = (float)startAbsY, EndValue = (float)endAbsY }));
+                    {
+                        StartBeat = beat, EndBeat = next, StartValue = (float)startAbsY, EndValue = (float)endAbsY
+                    }));
                 });
 
                 return (
@@ -170,10 +162,12 @@ internal static class FatherUnbindAsyncProcessor
                 );
             });
 
+
             RePhiEditHelper.OnDebug.Invoke(
-                $"FatherUnbindAsync[{targetJudgeLineIndex}]: 采样完成，压缩并写回");
+                $"FatherUnbindAsync[{targetJudgeLineIndex}]: 采样完成，写回");
             FatherUnbindProcessor.WriteResultToLine(judgeLineCopy, sortedX, sortedY, fR, tolerance,
-                (a, b) => EventProcessor.EventMerge(a, b));
+                (a, b) => EventProcessor.EventListMerge(a, b, precision, tolerance, compress), compress);
+
 
             cache.TryAdd(targetJudgeLineIndex, judgeLineCopy);
             RePhiEditHelper.OnInfo.Invoke($"FatherUnbindAsync[{targetJudgeLineIndex}]: 解绑完成");
@@ -198,7 +192,7 @@ internal static class FatherUnbindAsyncProcessor
     /// 策略：自适应采样——以事件边界为强制切割点，仅在误差超过容差时才插入新采样段。
     /// 各通道层级合并并行执行，自适应采样主循环异步卸载至线程池。
     /// </summary>
-    private static async Task<Rpe.JudgeLine> FatherUnbindCorePlusAsync(int targetJudgeLineIndex,
+    internal static async Task<Rpe.JudgeLine> FatherUnbindPlusAsync(int targetJudgeLineIndex,
         List<Rpe.JudgeLine> allJudgeLines, double precision, double tolerance,
         ConcurrentDictionary<int, Rpe.JudgeLine> cache)
     {
@@ -231,7 +225,7 @@ internal static class FatherUnbindAsyncProcessor
                 RePhiEditHelper.OnDebug.Invoke(
                     $"FatherUnbindAsyncPlus[{targetJudgeLineIndex}]: 父线 {judgeLineCopy.Father} 仍有父线，递归解绑");
                 // 传入共享缓存：若父线已被其他调用解绑过，直接复用缓存结果
-                fatherLineCopy = await FatherUnbindCorePlusAsync(judgeLineCopy.Father, allJudgeLinesCopy,
+                fatherLineCopy = await FatherUnbindPlusAsync(judgeLineCopy.Father, allJudgeLinesCopy,
                     precision, tolerance, cache);
             }
 
@@ -270,8 +264,17 @@ internal static class FatherUnbindAsyncProcessor
             {
                 if (list.Count == 0) continue;
                 var (mn, mx) = FatherUnbindProcessor.GetEventRange(list);
-                if (!hasEvents) { overallMin = mn; overallMax = mx; hasEvents = true; }
-                else { if (mn < overallMin) overallMin = mn; if (mx > overallMax) overallMax = mx; }
+                if (!hasEvents)
+                {
+                    overallMin = mn;
+                    overallMax = mx;
+                    hasEvents = true;
+                }
+                else
+                {
+                    if (mn < overallMin) overallMin = mn;
+                    if (mx > overallMax) overallMax = mx;
+                }
             }
 
             if (!hasEvents)
@@ -286,11 +289,11 @@ internal static class FatherUnbindAsyncProcessor
             // 以所有通道的事件边界拍作为强制切割点，防止跳变被忽略
             var keyBeatsList = new List<Beat> { overallMin, overallMax };
             foreach (var list in new[] { tX, tY, fX, fY, fR })
-                foreach (var e in list)
-                {
-                    if (e.StartBeat >= overallMin && e.StartBeat <= overallMax) keyBeatsList.Add(e.StartBeat);
-                    if (e.EndBeat >= overallMin && e.EndBeat <= overallMax) keyBeatsList.Add(e.EndBeat);
-                }
+            foreach (var e in list)
+            {
+                if (e.StartBeat >= overallMin && e.StartBeat <= overallMax) keyBeatsList.Add(e.StartBeat);
+                if (e.EndBeat >= overallMin && e.EndBeat <= overallMax) keyBeatsList.Add(e.EndBeat);
+            }
 
             var keyBeats = keyBeatsList.Distinct().OrderBy(b => b).ToList();
 
@@ -315,7 +318,11 @@ internal static class FatherUnbindAsyncProcessor
                 var segmentCount = keyBeats.Count - 1;
                 var segmentsX = new List<Rpe.Event<float>>[segmentCount];
                 var segmentsY = new List<Rpe.Event<float>>[segmentCount];
-                for (var i = 0; i < segmentCount; i++) { segmentsX[i] = []; segmentsY[i] = []; }
+                for (var i = 0; i < segmentCount; i++)
+                {
+                    segmentsX[i] = [];
+                    segmentsY[i] = [];
+                }
 
                 Parallel.For(0, segmentCount, ki =>
                 {
@@ -354,10 +361,16 @@ internal static class FatherUnbindAsyncProcessor
                         if (shouldCut)
                         {
                             localX.Add(new Rpe.Event<float>
-                                { StartBeat = segStart, EndBeat = next, StartValue = (float)segX, EndValue = (float)nextX });
+                            {
+                                StartBeat = segStart, EndBeat = next, StartValue = (float)segX, EndValue = (float)nextX
+                            });
                             localY.Add(new Rpe.Event<float>
-                                { StartBeat = segStart, EndBeat = next, StartValue = (float)segY, EndValue = (float)nextY });
-                            segStart = next; segX = nextX; segY = nextY;
+                            {
+                                StartBeat = segStart, EndBeat = next, StartValue = (float)segY, EndValue = (float)nextY
+                            });
+                            segStart = next;
+                            segX = nextX;
+                            segY = nextY;
                         }
 
                         cur = next;
@@ -372,10 +385,12 @@ internal static class FatherUnbindAsyncProcessor
                 return (resX, resY);
             });
 
+
+            // 压缩一下写回
             RePhiEditHelper.OnDebug.Invoke(
                 $"FatherUnbindAsyncPlus[{targetJudgeLineIndex}]: 采样完成（生成 {resultX.Count} 段），压缩并写回");
             FatherUnbindProcessor.WriteResultToLine(judgeLineCopy, resultX, resultY, fR, tolerance,
-                (a, b) => EventProcessor.EventMergePlus(a, b));
+                (a, b) => EventProcessor.EventMergePlus(a, b), compress: true);
 
             cache.TryAdd(targetJudgeLineIndex, judgeLineCopy);
             RePhiEditHelper.OnInfo.Invoke($"FatherUnbindAsyncPlus[{targetJudgeLineIndex}]: 解绑完成");
