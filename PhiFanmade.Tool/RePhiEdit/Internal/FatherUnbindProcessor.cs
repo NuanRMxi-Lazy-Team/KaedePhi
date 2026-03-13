@@ -39,31 +39,11 @@ internal static class FatherUnbindProcessor
 
     /// <summary>
     /// 将判定线与自己的父判定线解绑，并保持行为一致。
-    /// 同一 <paramref name="allJudgeLines"/> 实例内的多次调用会共享解绑缓存，避免重复解绑同一父线；
-    /// 不同谱面（不同 List 实例）的缓存自动隔离，无需手动清理。
-    /// </summary>
-    public static Rpe.JudgeLine FatherUnbind(int targetJudgeLineIndex,
-        List<Rpe.JudgeLine> allJudgeLines, double precision = 64d, double tolerance = 5d) =>
-        FatherUnbindCore(targetJudgeLineIndex, allJudgeLines, precision, tolerance,
-            ChartCacheTable.GetOrCreateValue(allJudgeLines));
-
-    /// <summary>
-    /// 将判定线与自己的父判定线解绑，并保持行为一致。（自适应采样节省性能版本）
-    /// 同一 <paramref name="allJudgeLines"/> 实例内的多次调用会共享解绑缓存，避免重复解绑同一父线；
-    /// 不同谱面（不同 List 实例）的缓存自动隔离，无需手动清理。
-    /// </summary>
-    public static Rpe.JudgeLine FatherUnbindPlus(int targetJudgeLineIndex,
-        List<Rpe.JudgeLine> allJudgeLines, double precision = 64d, double tolerance = 5d) =>
-        FatherUnbindCorePlus(targetJudgeLineIndex, allJudgeLines, precision, tolerance,
-            ChartCacheTable.GetOrCreateValue(allJudgeLines));
-
-    /// <summary>
-    /// 将判定线与自己的父判定线解绑，并保持行为一致。
     /// 策略：等间隔采样（精度由 precision 决定），多线程并行计算各采样段的绝对坐标。
     /// </summary>
-    private static Rpe.JudgeLine FatherUnbindCore(int targetJudgeLineIndex,
+    internal static Rpe.JudgeLine FatherUnbind(int targetJudgeLineIndex,
         List<Rpe.JudgeLine> allJudgeLines, double precision, double tolerance,
-        ConcurrentDictionary<int, Rpe.JudgeLine> cache)
+        ConcurrentDictionary<int, Rpe.JudgeLine> cache, bool compress = true)
     {
         // ── 缓存命中：该线已被解绑过，直接返回副本，避免重复计算 ──
         if (cache.TryGetValue(targetJudgeLineIndex, out var cachedResult))
@@ -93,7 +73,7 @@ internal static class FatherUnbindProcessor
                 RePhiEditHelper.OnDebug.Invoke(
                     $"FatherUnbind[{targetJudgeLineIndex}]: 父线 {judgeLineCopy.Father} 仍有父线，递归解绑");
                 // 传入共享缓存：若父线已被其他子线解绑过，直接复用缓存结果
-                fatherLineCopy = FatherUnbindCore(judgeLineCopy.Father, allJudgeLinesCopy, precision, tolerance, cache);
+                fatherLineCopy = FatherUnbind(judgeLineCopy.Father, allJudgeLinesCopy, precision, tolerance, cache);
             }
 
             judgeLineCopy.EventLayers =
@@ -105,11 +85,16 @@ internal static class FatherUnbindProcessor
             var fLayers = fatherLineCopy.EventLayers;
 
             // 各通道按层顺序串行叠加（层间叠加不满足交换律；不同通道间互不依赖，可并行）
-            var tX = MergeLayerChannel(tLayers, l => l.MoveXEvents, (a, b) => EventProcessor.EventMerge(a, b));
-            var tY = MergeLayerChannel(tLayers, l => l.MoveYEvents, (a, b) => EventProcessor.EventMerge(a, b));
-            var fX = MergeLayerChannel(fLayers, l => l.MoveXEvents, (a, b) => EventProcessor.EventMerge(a, b));
-            var fY = MergeLayerChannel(fLayers, l => l.MoveYEvents, (a, b) => EventProcessor.EventMerge(a, b));
-            var fR = MergeLayerChannel(fLayers, l => l.RotateEvents, (a, b) => EventProcessor.EventMerge(a, b));
+            var tX = MergeLayerChannel(tLayers, l => l.MoveXEvents,
+                (a, b) => EventProcessor.EventListMerge(a, b, precision, tolerance, compress));
+            var tY = MergeLayerChannel(tLayers, l => l.MoveYEvents,
+                (a, b) => EventProcessor.EventListMerge(a, b, precision, tolerance, compress));
+            var fX = MergeLayerChannel(fLayers, l => l.MoveXEvents,
+                (a, b) => EventProcessor.EventListMerge(a, b, precision, tolerance, compress));
+            var fY = MergeLayerChannel(fLayers, l => l.MoveYEvents,
+                (a, b) => EventProcessor.EventListMerge(a, b, precision, tolerance, compress));
+            var fR = MergeLayerChannel(fLayers, l => l.RotateEvents,
+                (a, b) => EventProcessor.EventListMerge(a, b, precision, tolerance, compress));
 
             var (txMin, txMax) = GetEventRange(tX);
             var (tyMin, tyMax) = GetEventRange(tY);
@@ -123,13 +108,14 @@ internal static class FatherUnbindProcessor
             var capFx = fX;
             var capFy = fY;
             var capFr = fR;
+            var cutLength = new Beat(1d / precision);
             var cutTasks = new[]
             {
-                Task.Run(() => EventProcessor.CutEventsInRange(capTx, txMin, txMax)),
-                Task.Run(() => EventProcessor.CutEventsInRange(capTy, tyMin, tyMax)),
-                Task.Run(() => EventProcessor.CutEventsInRange(capFx, fxMin, fxMax)),
-                Task.Run(() => EventProcessor.CutEventsInRange(capFy, fyMin, fyMax)),
-                Task.Run(() => EventProcessor.CutEventsInRange(capFr, frMin, frMax))
+                Task.Run(() => EventProcessor.CutEventsInRange(capTx, txMin, txMax, cutLength)),
+                Task.Run(() => EventProcessor.CutEventsInRange(capTy, tyMin, tyMax, cutLength)),
+                Task.Run(() => EventProcessor.CutEventsInRange(capFx, fxMin, fxMax, cutLength)),
+                Task.Run(() => EventProcessor.CutEventsInRange(capFy, fyMin, fyMax, cutLength)),
+                Task.Run(() => EventProcessor.CutEventsInRange(capFr, frMin, frMax, cutLength))
             };
             Task.WaitAll(cutTasks);
 
@@ -189,9 +175,10 @@ internal static class FatherUnbindProcessor
             var sortedY = yBag.OrderBy(x => x.i).Select(x => x.evt).ToList();
 
             RePhiEditHelper.OnDebug.Invoke(
-                $"FatherUnbind[{targetJudgeLineIndex}]: 采样完成，压缩并写回");
+                $"FatherUnbind[{targetJudgeLineIndex}]: 采样完成，写回");
             WriteResultToLine(judgeLineCopy, sortedX, sortedY, fR, tolerance,
-                (a, b) => EventProcessor.EventMerge(a, b));
+                (a, b) => EventProcessor.EventListMerge(a, b, precision, tolerance, compress), compress);
+
 
             cache.TryAdd(targetJudgeLineIndex, judgeLineCopy);
             RePhiEditHelper.OnInfo.Invoke($"FatherUnbind[{targetJudgeLineIndex}]: 解绑完成");
@@ -215,7 +202,7 @@ internal static class FatherUnbindProcessor
     /// 将判定线与自己的父判定线解绑，并保持行为一致。
     /// 策略：自适应采样——以事件边界为强制切割点，仅在误差超过容差时才插入新采样段。
     /// </summary>
-    private static Rpe.JudgeLine FatherUnbindCorePlus(int targetJudgeLineIndex,
+    internal static Rpe.JudgeLine FatherUnbindPlus(int targetJudgeLineIndex,
         List<Rpe.JudgeLine> allJudgeLines, double precision, double tolerance,
         ConcurrentDictionary<int, Rpe.JudgeLine> cache)
     {
@@ -248,7 +235,7 @@ internal static class FatherUnbindProcessor
                     $"FatherUnbindPlus[{targetJudgeLineIndex}]: 父线 {judgeLineCopy.Father} 仍有父线，递归解绑");
                 // 传入共享缓存：若父线已被其他子线解绑过，直接复用缓存结果
                 fatherLineCopy =
-                    FatherUnbindCorePlus(judgeLineCopy.Father, allJudgeLinesCopy, precision, tolerance, cache);
+                    FatherUnbindPlus(judgeLineCopy.Father, allJudgeLinesCopy, precision, tolerance, cache);
             }
 
             judgeLineCopy.EventLayers =
@@ -386,7 +373,7 @@ internal static class FatherUnbindProcessor
             RePhiEditHelper.OnDebug.Invoke(
                 $"FatherUnbindPlus[{targetJudgeLineIndex}]: 采样完成（生成 {resultX.Count} 段），压缩并写回");
             WriteResultToLine(judgeLineCopy, resultX, resultY, fR, tolerance,
-                (a, b) => EventProcessor.EventMergePlus(a, b));
+                (a, b) => EventProcessor.EventMergePlus(a, b), compress: true);
 
             cache.TryAdd(targetJudgeLineIndex, judgeLineCopy);
             RePhiEditHelper.OnInfo.Invoke($"FatherUnbindPlus[{targetJudgeLineIndex}]: 解绑完成");
@@ -511,7 +498,8 @@ internal static class FatherUnbindProcessor
         List<Rpe.Event<float>> newYEvents,
         List<Rpe.Event<float>> fatherRotateEvents,
         double tolerance,
-        Func<List<Rpe.Event<float>>, List<Rpe.Event<float>>, List<Rpe.Event<float>>> merge)
+        Func<List<Rpe.Event<float>>, List<Rpe.Event<float>>, List<Rpe.Event<float>>> merge,
+        bool compress = true)
     {
         for (var i = 1; i < line.EventLayers.Count; i++)
         {
@@ -522,21 +510,20 @@ internal static class FatherUnbindProcessor
         if (line.EventLayers.Count == 0)
             line.EventLayers.Add(new Rpe.EventLayer());
 
-        line.EventLayers[0].MoveXEvents = EventProcessor.EventListCompress(newXEvents, tolerance);
-        line.EventLayers[0].MoveYEvents = EventProcessor.EventListCompress(newYEvents, tolerance);
+        line.EventLayers[0].MoveXEvents = compress
+            ? EventProcessor.EventListCompress(newXEvents, tolerance)
+            : newXEvents;
+        line.EventLayers[0].MoveYEvents = compress
+            ? EventProcessor.EventListCompress(newYEvents, tolerance)
+            : newYEvents;
 
         if (line.RotateWithFather)
-            line.EventLayers[0].RotateEvents = EventProcessor.EventListCompress(
-                merge(line.EventLayers[0].RotateEvents, fatherRotateEvents), tolerance);
-        // 确保这条线的第一层级每个事件列表都至少存在一个垫底事件，且列表必须存在，这是兼容一些不遵守空列表行为的模拟器所使用的，后续删掉也无可厚非
-        line.EventLayers[0].AlphaEvents ??= [];
-        if (line.EventLayers[0].AlphaEvents.Count == 0)
-            line.EventLayers[0].AlphaEvents.Add(new Rpe.Event<int>
-                { StartBeat = new Beat(0), EndBeat = new Beat(1), StartValue = 0, EndValue = 0 });
-        line.EventLayers[0].SpeedEvents ??= [];
-        if (line.EventLayers[0].SpeedEvents.Count == 0)
-            line.EventLayers[0].SpeedEvents.Add(new Rpe.Event<float>
-                { StartBeat = new Beat(0), EndBeat = new Beat(1), StartValue = 0, EndValue = 0 });
+        {
+            var merged = merge(line.EventLayers[0].RotateEvents, fatherRotateEvents);
+            line.EventLayers[0].RotateEvents = compress
+                ? EventProcessor.EventListCompress(merged, tolerance)
+                : merged;
+        }
         line.Father = -1;
     }
 }

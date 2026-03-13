@@ -42,6 +42,10 @@ public abstract class RpeOperationSettings : BaseSettings
     [LocalizedDescription("cli_opt_format_desc")]
     public bool FormatOutput { get; set; }
 
+    [CommandOption("--no-compress")]
+    [LocalizedDescription("cli_opt_compress_desc")]
+    public bool DisableCompress { get; set; }
+    
     public override ValidationResult Validate()
     {
         if (string.IsNullOrWhiteSpace(Input) && string.IsNullOrWhiteSpace(Workspace))
@@ -67,9 +71,13 @@ public abstract class RpeOperationSettings : BaseSettings
     public string ResolveOutputPath()
     {
         if (!string.IsNullOrWhiteSpace(Output)) return Output;
-        var source = Input ?? "workspace";
+        if (!string.IsNullOrWhiteSpace(Workspace))
+        {
+            var ws = new WorkspaceService();
+            return Path.Combine(ws.Root, Workspace, "chart.json");
+        }
         return Path.Combine(
-            Path.GetDirectoryName(source) ?? ".",
-            Path.GetFileNameWithoutExtension(source) + "_PFC.json");
+            Path.GetDirectoryName(Input!) ?? ".",
+            Path.GetFileNameWithoutExtension(Input!) + "_PFC.json");
     }
 }

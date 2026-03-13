@@ -13,16 +13,16 @@ internal static class EventProcessor
     /// <param name="events">要切割的事件列表</param>
     /// <param name="startBeat">开始拍</param>
     /// <param name="endBeat">结束拍</param>
-    /// <param name="cutLength">切割长度（默认0.015625拍）</param>
+    /// <param name="cutLength">切割长度</param>
     /// <typeparam name="T">事件值类型</typeparam>
     /// <returns>切割后的事件列表</returns>
     internal static List<Rpe.Event<T>> CutEventsInRange<T>(
         List<Rpe.Event<T>> events,
         Beat startBeat,
         Beat endBeat,
-        Beat? cutLength = null)
+        Beat cutLength
+    )
     {
-        var length = cutLength ?? new Beat(1d / 64d);
         var cutEvents = new List<Rpe.Event<T>>();
 
         // 找到在指定范围内的事件
@@ -35,13 +35,13 @@ internal static class EventProcessor
 
             // 计算需要切割的段数，避免浮点累加误差
             var totalBeats = cutEnd - cutStart;
-            var segmentCount = (int)Math.Ceiling((totalBeats / length));
+            var segmentCount = (int)Math.Ceiling((totalBeats / cutLength));
 
             for (int i = 0; i < segmentCount; i++)
             {
                 // 使用索引计算位置，而不是累加
-                var currentBeat = new Beat(cutStart + (length * i));
-                var segmentEnd = new Beat(cutStart + (length * (i + 1)));
+                var currentBeat = new Beat(cutStart + (cutLength * i));
+                var segmentEnd = new Beat(cutStart + (cutLength * (i + 1)));
 
                 // 最后一段可能需要调整
                 if (segmentEnd > cutEnd)
@@ -67,13 +67,19 @@ internal static class EventProcessor
     /// <param name="events">事件列表</param>
     /// <param name="tolerance">拟合容差百分比，越大拟合精细度越低</param>
     /// <returns>压缩后的事件列表</returns>
-    public static List<Rpe.Event<float>> EventListCompress(List<Rpe.Event<float>>? events,
+    internal static List<Rpe.Event<T>> EventListCompress<T>(List<Rpe.Event<T>>? events,
         double tolerance = 5)
     {
+        // 如果T为非数字，立即报错
+        if (typeof(T) != typeof(int) && typeof(T) != typeof(float) && typeof(T) != typeof(double))
+        {
+            throw new NotSupportedException("EventListCompress only supports int, float, and double types.");
+        }
+
         if (events == null || events.Count == 0)
             return [];
 
-        var compressed = new List<Rpe.Event<float>> { events[0] };
+        var compressed = new List<Rpe.Event<T>> { events[0] };
 
         for (int i = 1; i < events.Count; i++)
         {
@@ -83,16 +89,16 @@ internal static class EventProcessor
             // 两个事件必须为线性事件，且两个事件数值变化率相同，且结束拍起始拍相连，且结束数值起始数值相等
             if (lastEvent.Easing == 1 && currentEvent.Easing == 1)
             {
-                var lastRate = (lastEvent.EndValue - lastEvent.StartValue) /
+                var lastRate = ((dynamic?)lastEvent.EndValue - (dynamic?)lastEvent.StartValue) /
                                (lastEvent.EndBeat - lastEvent.StartBeat);
-                var currentRate = (currentEvent.EndValue - currentEvent.StartValue) /
+                var currentRate = ((dynamic?)currentEvent.EndValue - (dynamic?)currentEvent.StartValue) /
                                   (currentEvent.EndBeat - currentEvent.StartBeat);
 
                 if (Math.Abs((double)(lastRate - currentRate)) <= tolerance *
                     (Math.Abs((double)lastRate) + Math.Abs((double)currentRate)) / 2.0 / 100.0 &&
                     lastEvent.EndBeat == currentEvent.StartBeat &&
-                    Math.Abs((double)(lastEvent.EndValue - currentEvent.StartValue)) <=
-                    tolerance * (Math.Abs((double)lastEvent.EndValue) + 1e-9) / 100.0)
+                    Math.Abs((double)((dynamic?)lastEvent.EndValue - (dynamic?)currentEvent.StartValue)) <=
+                    tolerance * (Math.Abs((dynamic?)lastEvent.EndValue) + 1e-9) / 100.0)
                 {
                     // 合并事件
                     lastEvent.EndBeat = currentEvent.EndBeat;
@@ -115,12 +121,14 @@ internal static class EventProcessor
     /// <param name="formEvents">要合并进源事件的事件列表</param>
     /// <param name="precision">切割精细度</param>
     /// <param name="tolerance">数值拟合容差</param>
+    /// <param name="compress">是否压缩返回事件列表</param>
     /// <returns>已合并的事件列表</returns>
-    public static List<Rpe.Event<T>> EventMerge<T>(
+    internal static List<Rpe.Event<T>> EventListMerge<T>(
         List<Rpe.Event<T>>? toEvents,
         List<Rpe.Event<T>>? formEvents,
         double precision = 64d,
-        double tolerance = 5d)
+        double tolerance = 5d,
+        bool compress = true)
     {
         // 先检查 null，避免 LINQ "Value cannot be null. (Parameter 'source')" 错误
         if (toEvents == null || toEvents.Count == 0)
@@ -309,8 +317,8 @@ internal static class EventProcessor
 
             // 把切割后的事件加入newEvents
             newEvents.AddRange(allCutEvents);
-            // 如果T为float，则进行压缩
-            if (typeof(T) == typeof(float))
+            // 如果要求压缩，则压缩
+            if (compress)
                 newEvents = EventListCompress(newEvents as List<Rpe.Event<float>> ?? throw new NullReferenceException(),
                         tolerance)
                     .Select(e => e as Rpe.Event<T>).ToList();
@@ -372,14 +380,14 @@ internal static class EventProcessor
 
 
     /// <summary>
-    /// 将两个事件列表合并，使用更简洁的实现
+    /// 将两个事件列表合并，使用更简洁的实现，此方法天然压缩。
     /// </summary>
     /// <param name="toEvents">源事件列表</param>
     /// <param name="formEvents">要合并进源事件的事件列表</param>
     /// <param name="precision">切割精细度</param>
     /// <param name="tolerance">数值拟合容差</param>
     /// <returns>已合并的事件列表</returns>
-    public static List<Rpe.Event<T>> EventMergePlus<T>(
+    internal static List<Rpe.Event<T>> EventMergePlus<T>(
         List<Rpe.Event<T>>? toEvents,
         List<Rpe.Event<T>>? formEvents,
         double precision = 64d,
@@ -389,7 +397,7 @@ internal static class EventProcessor
         if (toEvents == null || toEvents.Count == 0)
         {
             if (formEvents == null || formEvents.Count == 0)
-                return new();
+                return new List<Rpe.Event<T>>();
             return formEvents.Select(e => e.Clone()).ToList();
         }
 
@@ -635,7 +643,7 @@ internal static class EventProcessor
 
                     // 容差：以 tolerance% 的当前值幅度为阈值
                     var thresholdBase = (Math.Abs((double)(dynamic)segmentStartSum) +
-                                            Math.Abs((double)(dynamic)sumAtNext)) / 2.0;
+                                         Math.Abs((double)(dynamic)sumAtNext)) / 2.0;
                     var threshold = tolerance / 100.0 * (thresholdBase + 1e-9);
 
                     var isLastStep = nextBeat >= end;

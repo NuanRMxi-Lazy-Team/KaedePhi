@@ -105,6 +105,15 @@ namespace PhiFanmade.Tool.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to 将所有事件碎尸万段为线性事件，完全破坏可编辑性.
+        /// </summary>
+        public static string cli_cmd_rpe_cut_event_desc {
+            get {
+                return ResourceManager.GetString("cli_cmd_rpe_cut_event_desc", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to 将所有判定线的多个事件层级合并为单一层级.
         /// </summary>
         public static string cli_cmd_rpe_layer_merge_desc {
@@ -155,6 +164,15 @@ namespace PhiFanmade.Tool.Localization {
         public static string cli_cmd_workspace_list_desc {
             get {
                 return ResourceManager.GetString("cli_cmd_workspace_list_desc", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 某些选项禁用时，必须启用旧版行为.
+        /// </summary>
+        public static string cli_err_classic_disablsed {
+            get {
+                return ResourceManager.GetString("cli_err_classic_disablsed", resourceCulture);
             }
         }
         
@@ -283,6 +301,15 @@ namespace PhiFanmade.Tool.Localization {
         public static string cli_opt_classic_mode_desc {
             get {
                 return ResourceManager.GetString("cli_opt_classic_mode_desc", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 禁用压缩.
+        /// </summary>
+        public static string cli_opt_compress_desc {
+            get {
+                return ResourceManager.GetString("cli_opt_compress_desc", resourceCulture);
             }
         }
         

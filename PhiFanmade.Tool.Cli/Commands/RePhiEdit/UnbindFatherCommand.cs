@@ -23,6 +23,12 @@ public sealed class RpeUnbindFatherCommand : AsyncCommand<RpeUnbindFatherCommand
         var writer = settings.CreateWriter();
         var chart = await settings.LoadChartAsync();
         var chartCopy = chart.Clone();
+        if (settings is { DisableCompress: true, Classic: false })
+        {
+            writer.Error(string.Format(Strings.cli_err_classic_disablsed));
+            return 1;
+        }
+
         // 订阅日志
         RePhiEditHelper.OnDebug += s => writer.Info(s);
         RePhiEditHelper.OnError += s => writer.Error(s);
@@ -34,7 +40,7 @@ public sealed class RpeUnbindFatherCommand : AsyncCommand<RpeUnbindFatherCommand
             if (chart.JudgeLineList[i].Father != -1)
                 if (settings.Classic)
                     chartCopy.JudgeLineList[i] = await RePhiEditHelper.FatherUnbindAsync(
-                        i, chart.JudgeLineList, settings.Precision, settings.Tolerance);
+                        i, chart.JudgeLineList, settings.Precision, settings.Tolerance, !settings.DisableCompress);
                 else
                     chartCopy.JudgeLineList[i] = await RePhiEditHelper.FatherUnbindPlusAsync(
                         i, chart.JudgeLineList, settings.Precision, settings.Tolerance);

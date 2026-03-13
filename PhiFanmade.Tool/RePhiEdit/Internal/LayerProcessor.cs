@@ -1,4 +1,6 @@
-﻿namespace PhiFanmade.Tool.RePhiEdit.Internal;
+﻿using PhiFanmade.Core.Common;
+
+namespace PhiFanmade.Tool.RePhiEdit.Internal;
 
 /// <summary>
 /// RePhiEdit层级处理器
@@ -27,7 +29,86 @@ internal static class LayerProcessor
     /// <summary>
     /// 合并多个事件层级
     /// </summary>
-    public static Rpe.EventLayer LayerMerge(List<Rpe.EventLayer> layers, double precision = 64d, double tolerance = 5d)
+    internal static List<Rpe.EventLayer> CutLayerEvents(List<Rpe.EventLayer> layers, double precision = 64d,
+        double tolerance = 5d, bool compress = true)
+    {
+        // 清理null层级
+        layers.RemoveAll(layer => layer == null);
+
+        // index非1 layer头部的0值事件去除
+        layers = RemoveUnlessLayer(layers) ?? layers;
+
+        return layers.Select(layer => CutLayerEvents(layer, precision, tolerance, compress)).ToList();
+    }
+
+    internal static Rpe.EventLayer CutLayerEvents(Rpe.EventLayer layer, double precision = 64d,
+        double tolerance = 5d, bool compress = true)
+    {
+        // 清理null层级
+        if (layer == null)
+            return new Rpe.EventLayer();
+
+        var cutLength = new Beat(1d / precision);
+        var cutEventLayer = new Rpe.EventLayer();
+
+        if (layer.AlphaEvents is { Count: > 0 })
+        {
+            // 寻找StartBeat最小值和EndBeat最大值，然后CutInRange
+            var rangeMin = layer.AlphaEvents.Min(e => e.StartBeat);
+            var rangeMax = layer.AlphaEvents.Max(e => e.EndBeat);
+            cutEventLayer.AlphaEvents =
+                EventProcessor.CutEventsInRange(layer.AlphaEvents, rangeMin, rangeMax, cutLength);
+        }
+
+        if (layer.MoveXEvents is { Count: > 0 })
+        {
+            var rangeMin = layer.MoveXEvents.Min(e => e.StartBeat);
+            var rangeMax = layer.MoveXEvents.Max(e => e.EndBeat);
+            cutEventLayer.MoveXEvents =
+                EventProcessor.CutEventsInRange(layer.MoveXEvents, rangeMin, rangeMax, cutLength);
+        }
+
+        if (layer.MoveYEvents is { Count: > 0 })
+        {
+            var rangeMin = layer.MoveYEvents.Min(e => e.StartBeat);
+            var rangeMax = layer.MoveYEvents.Max(e => e.EndBeat);
+            cutEventLayer.MoveYEvents =
+                EventProcessor.CutEventsInRange(layer.MoveYEvents, rangeMin, rangeMax, cutLength);
+        }
+
+        if (layer.RotateEvents is { Count: > 0 })
+        {
+            var rangeMin = layer.RotateEvents.Min(e => e.StartBeat);
+            var rangeMax = layer.RotateEvents.Max(e => e.EndBeat);
+            cutEventLayer.RotateEvents =
+                EventProcessor.CutEventsInRange(layer.RotateEvents, rangeMin, rangeMax, cutLength);
+        }
+
+        if (layer.SpeedEvents is { Count: > 0 })
+        {
+            var rangeMin = layer.SpeedEvents.Min(e => e.StartBeat);
+            var rangeMax = layer.SpeedEvents.Max(e => e.EndBeat);
+            cutEventLayer.SpeedEvents =
+                EventProcessor.CutEventsInRange(layer.SpeedEvents, rangeMin, rangeMax, cutLength);
+        }
+
+        if (compress)
+        {
+            cutEventLayer.AlphaEvents = EventProcessor.EventListCompress(cutEventLayer.AlphaEvents, tolerance);
+            cutEventLayer.MoveXEvents = EventProcessor.EventListCompress(cutEventLayer.MoveXEvents, tolerance);
+            cutEventLayer.MoveYEvents = EventProcessor.EventListCompress(cutEventLayer.MoveYEvents, tolerance);
+            cutEventLayer.RotateEvents = EventProcessor.EventListCompress(cutEventLayer.RotateEvents, tolerance);
+            cutEventLayer.SpeedEvents = EventProcessor.EventListCompress(cutEventLayer.SpeedEvents, tolerance);
+        }
+
+        return cutEventLayer;
+    }
+
+    /// <summary>
+    /// 合并多个事件层级
+    /// </summary>
+    internal static Rpe.EventLayer LayerMerge(List<Rpe.EventLayer> layers, double precision = 64d,
+        double tolerance = 5d, bool compress = true)
     {
         // 清理null层级
         layers.RemoveAll(layer => layer == null);
@@ -42,28 +123,34 @@ internal static class LayerProcessor
         {
             if (layer.AlphaEvents is { Count: > 0 })
                 mergedLayer.AlphaEvents =
-                    EventProcessor.EventMerge(mergedLayer.AlphaEvents, layer.AlphaEvents, precision, tolerance);
+                    EventProcessor.EventListMerge(mergedLayer.AlphaEvents, layer.AlphaEvents, precision, tolerance,
+                        compress);
             if (layer.MoveXEvents is { Count: > 0 })
                 mergedLayer.MoveXEvents =
-                    EventProcessor.EventMerge(mergedLayer.MoveXEvents, layer.MoveXEvents, precision, tolerance);
+                    EventProcessor.EventListMerge(mergedLayer.MoveXEvents, layer.MoveXEvents, precision, tolerance,
+                        compress);
             if (layer.MoveYEvents is { Count: > 0 })
                 mergedLayer.MoveYEvents =
-                    EventProcessor.EventMerge(mergedLayer.MoveYEvents, layer.MoveYEvents, precision, tolerance);
+                    EventProcessor.EventListMerge(mergedLayer.MoveYEvents, layer.MoveYEvents, precision, tolerance,
+                        compress);
             if (layer.RotateEvents is { Count: > 0 })
                 mergedLayer.RotateEvents =
-                    EventProcessor.EventMerge(mergedLayer.RotateEvents, layer.RotateEvents, precision, tolerance);
+                    EventProcessor.EventListMerge(mergedLayer.RotateEvents, layer.RotateEvents, precision, tolerance,
+                        compress);
             if (layer.SpeedEvents is { Count: > 0 })
                 mergedLayer.SpeedEvents =
-                    EventProcessor.EventMerge(mergedLayer.SpeedEvents, layer.SpeedEvents, precision, tolerance);
+                    EventProcessor.EventListMerge(mergedLayer.SpeedEvents, layer.SpeedEvents, precision, tolerance,
+                        compress);
         }
 
         return mergedLayer;
     }
-    
+
     /// <summary>
     /// 更节省性能的合并多个事件层级
     /// </summary>
-    public static Rpe.EventLayer LayerMergePlus(List<Rpe.EventLayer> layers, double precision = 64d, double tolerance = 5d)
+    public static Rpe.EventLayer LayerMergePlus(List<Rpe.EventLayer> layers, double precision = 64d,
+        double tolerance = 5d)
     {
         // 清理null层级
         layers.RemoveAll(layer => layer == null);
@@ -96,4 +183,3 @@ internal static class LayerProcessor
         return mergedLayer;
     }
 }
-
