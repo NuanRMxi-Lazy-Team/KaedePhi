@@ -1,6 +1,6 @@
 ﻿using PhiFanmade.Tool.Cli.Infrastructure;
 using PhiFanmade.Tool.Localization;
-using PhiFanmade.Tool.RePhiEdit;
+using PhiFanmade.Tool.RePhiEdit.Layers;
 using Spectre.Console.Cli;
 
 namespace PhiFanmade.Tool.Cli.Commands.RePhiEdit;
@@ -33,17 +33,17 @@ public sealed class RpeLayerMergeCommand : AsyncCommand<RpeLayerMergeCommand.Set
         {
             if (jl.EventLayers is not { Count: > 1 }) continue;
             if (settings.Classic)
-                jl.EventLayers =
-                [
-                    RePhiEditHelper.LayerMerge(jl.EventLayers, settings.Precision, settings.Tolerance,
+                jl.EventLayers = new List<CoreRpe.EventLayer>
+                {
+                    RpeLayerTools.LayerMerge(jl.EventLayers, settings.Precision, settings.Tolerance,
                         !settings.DisableCompress)
-                ];
+                };
             else
                 jl.EventLayers =
-                [
-                    RePhiEditHelper.LayerMergePlus(jl.EventLayers, settings.Precision,
-                        settings.Tolerance)
-                ];
+                jl.EventLayers = new List<CoreRpe.EventLayer>
+                {
+                    RpeLayerTools.LayerMergePlus(jl.EventLayers, settings.Precision, settings.Tolerance)
+                };
         }
 
         var output = settings.ResolveOutputPath();

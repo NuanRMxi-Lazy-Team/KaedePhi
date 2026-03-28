@@ -1,26 +1,16 @@
-﻿namespace PhiFanmade.Tool.PhiEdit;
+﻿using PhiFanmade.Tool.PhiEdit;
 
+namespace PhiFanmade.Tool.PhiEdit;
+
+/// <summary>
+/// 兼容旧 API 的包装器。新代码请改用 <see cref="PeCoordinateTransform"/>。
+/// </summary>
+[Obsolete("Use PhiFanmade.Tool.PhiEdit.PeCoordinateTransform instead.")]
 public static class PhiEditHelper
 {
     public static class CoordinateTransform
     {
-        public static float ToRePhiEditX(float x)
-        {
-            var rpeMin = Rpe.Chart.CoordinateSystem.MinX;
-            var rpeMax = Rpe.Chart.CoordinateSystem.MaxX;
-            var peMin = Pe.Chart.CoordinateSystem.MinX;
-            var peMax = Pe.Chart.CoordinateSystem.MaxX;
-            return rpeMin + (x - peMin) / (peMax - peMin) * (rpeMax - rpeMin);
-        }
-
-        public static float ToRePhiEditY(float y)
-        {
-            var rpeMin = Rpe.Chart.CoordinateSystem.MinY;
-            var rpeMax = Rpe.Chart.CoordinateSystem.MaxY;
-            var peMin = Rpe.Chart.CoordinateSystem.MinY;
-            var peMax = Rpe.Chart.CoordinateSystem.MaxY;
-            return rpeMin + (y - peMin) / (peMax - peMin) * (rpeMax - rpeMin);
-        }
+        public static float ToRePhiEditX(float x) => PeCoordinateTransform.ToRePhiEditX(x);
+        public static float ToRePhiEditY(float y) => PeCoordinateTransform.ToRePhiEditY(y);
     }
 }
-

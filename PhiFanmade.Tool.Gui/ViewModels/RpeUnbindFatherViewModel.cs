@@ -4,7 +4,7 @@ using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using PhiFanmade.Tool.Gui.Messages;
 using PhiFanmade.Tool.Gui.Services;
-using PhiFanmade.Tool.RePhiEdit;
+using PhiFanmade.Tool.RePhiEdit.JudgeLines;
 
 namespace PhiFanmade.Tool.Gui.ViewModels;
 
@@ -72,7 +72,7 @@ public partial class RpeUnbindFatherViewModel : PageViewModelBase, IRecipient<Ch
 
         try
         {
-            Rpe.Chart chart;
+            CoreRpe.Chart chart;
             if (!string.IsNullOrWhiteSpace(WorkspaceId))
             {
                 chart = await WorkspaceService.Instance.GetAsync(WorkspaceId)
@@ -81,19 +81,17 @@ public partial class RpeUnbindFatherViewModel : PageViewModelBase, IRecipient<Ch
             else
             {
                 var text = await File.ReadAllTextAsync(InputPath, cancellationToken);
-                chart = await Rpe.Chart.LoadFromJsonAsync(text);
+                chart = await CoreRpe.Chart.LoadFromJsonAsync(text);
             }
 
-            var chartCopy    = chart.Clone();
-            var processCount = 0;
+            var chartCopy = chart.Clone();
 
             for (var i = 0; i < chart.JudgeLineList.Count; i++)
             {
                 cancellationToken.ThrowIfCancellationRequested();
                 if (chart.JudgeLineList[i].Father == -1) continue;
-                chartCopy.JudgeLineList[i] = await RePhiEditHelper.FatherUnbindAsync(
+                chartCopy.JudgeLineList[i] = await RpeJudgeLineTools.FatherUnbindAsync(
                     i, chart.JudgeLineList, (double)Precision, (double)Tolerance);
-                processCount++;
             }
 
             if (!DryRun)
@@ -109,11 +107,9 @@ public partial class RpeUnbindFatherViewModel : PageViewModelBase, IRecipient<Ch
                 }
                 else
                 {
-                    await File.WriteAllTextAsync(output, await chartCopy.ExportToJsonAsync(true), cancellationToken);
+                    var json = await chartCopy.ExportToJsonAsync(true);
+                    await File.WriteAllTextAsync(output, json, cancellationToken);
                 }
-            }
-            else
-            {
             }
 
             Status = "完成";

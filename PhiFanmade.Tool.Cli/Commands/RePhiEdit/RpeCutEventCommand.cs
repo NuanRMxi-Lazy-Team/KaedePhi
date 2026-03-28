@@ -1,6 +1,5 @@
-﻿using PhiFanmade.Tool.Cli.Infrastructure;
-using PhiFanmade.Tool.Localization;
-using PhiFanmade.Tool.RePhiEdit;
+﻿using PhiFanmade.Tool.Localization;
+using PhiFanmade.Tool.RePhiEdit.Layers;
 using Spectre.Console.Cli;
 
 namespace PhiFanmade.Tool.Cli.Commands.RePhiEdit;
@@ -24,7 +23,7 @@ public sealed class RpeCutEventCommand : AsyncCommand<RpeCutEventCommand.Setting
         for (var i = 0; i < chartCopy.JudgeLineList.Count; i++)
         {
             var judgeLine = chartCopy.JudgeLineList[i];
-            judgeLine.EventLayers = RePhiEditHelper.CutLayerEvents(judgeLine.EventLayers, settings.Precision,
+            judgeLine.EventLayers = RpeLayerTools.CutLayerEvents((List<global::PhiFanmade.Core.RePhiEdit.EventLayer>)judgeLine.EventLayers, settings.Precision,
                 settings.Tolerance, !settings.DisableCompress);
         }
 
@@ -37,8 +36,10 @@ public sealed class RpeCutEventCommand : AsyncCommand<RpeCutEventCommand.Setting
                 await chartCopy.ExportToJsonStreamAsync(stream, settings.FormatOutput);
             }
             else
-                await File.WriteAllTextAsync(output, await chartCopy.ExportToJsonAsync(settings.FormatOutput),
-                    cancellationToken);
+            {
+                var json = await chartCopy.ExportToJsonAsync(settings.FormatOutput);
+                await File.WriteAllTextAsync(output, json, cancellationToken);
+            }
         }
 
         writer.Info(string.Format(Strings.cli_msg_written, output));

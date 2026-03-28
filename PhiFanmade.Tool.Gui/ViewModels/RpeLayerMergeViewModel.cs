@@ -1,9 +1,9 @@
-﻿﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using PhiFanmade.Tool.Gui.Messages;
 using PhiFanmade.Tool.Gui.Services;
-using PhiFanmade.Tool.RePhiEdit;
+using PhiFanmade.Tool.RePhiEdit.Layers;
 
 namespace PhiFanmade.Tool.Gui.ViewModels;
 
@@ -70,7 +70,7 @@ public partial class RpeLayerMergeViewModel : PageViewModelBase, IRecipient<Char
 
         try
         {
-            Rpe.Chart chart;
+            CoreRpe.Chart chart;
             if (!string.IsNullOrWhiteSpace(WorkspaceId))
             {
                 chart = await WorkspaceService.Instance.GetAsync(WorkspaceId)
@@ -79,11 +79,10 @@ public partial class RpeLayerMergeViewModel : PageViewModelBase, IRecipient<Char
             else
             {
                 var text = await File.ReadAllTextAsync(InputPath, cancellationToken);
-                chart = await Rpe.Chart.LoadFromJsonAsync(text);
+                chart = await CoreRpe.Chart.LoadFromJsonAsync(text);
             }
 
-            var chartCopy  = chart.Clone();
-            var mergeCount = 0;
+            var chartCopy = chart.Clone();
 
             await Task.Run(() =>
             {
@@ -91,11 +90,10 @@ public partial class RpeLayerMergeViewModel : PageViewModelBase, IRecipient<Char
                 {
                     cancellationToken.ThrowIfCancellationRequested();
                     if (jl.EventLayers is not { Count: > 1 }) continue;
-                    jl.EventLayers =
-                    [
-                        RePhiEditHelper.LayerMerge(jl.EventLayers, (double)Precision, (double)Tolerance)
-                    ];
-                    mergeCount++;
+                    jl.EventLayers = new List<CoreRpe.EventLayer>
+                    {
+                        RpeLayerTools.LayerMerge(jl.EventLayers, (double)Precision, (double)Tolerance)
+                    };
                 }
             }, cancellationToken);
 
@@ -104,10 +102,8 @@ public partial class RpeLayerMergeViewModel : PageViewModelBase, IRecipient<Char
                 var output = string.IsNullOrWhiteSpace(OutputPath)
                     ? ResolveOutputPath(InputPath, WorkspaceId)
                     : OutputPath;
-                await File.WriteAllTextAsync(output, await chartCopy.ExportToJsonAsync(true), cancellationToken);
-            }
-            else
-            {
+                var json = await chartCopy.ExportToJsonAsync(true);
+                await File.WriteAllTextAsync(output, json, cancellationToken);
             }
 
             Status = "完成";
@@ -116,7 +112,7 @@ public partial class RpeLayerMergeViewModel : PageViewModelBase, IRecipient<Char
         {
             Status = "已取消";
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             Status = "出错";
         }

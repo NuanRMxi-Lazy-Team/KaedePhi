@@ -1,2 +1,2 @@
-﻿global using Pe = PhiFanmade.Core.PhiEdit;
-global using Rpe = PhiFanmade.Core.RePhiEdit;
+﻿global using CorePe = PhiFanmade.Core.PhiEdit;
+global using CoreRpe = PhiFanmade.Core.RePhiEdit;

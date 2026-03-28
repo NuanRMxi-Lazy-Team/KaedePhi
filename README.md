@@ -1,6 +1,13 @@
 ﻿# PhiFanmadeTool
 即使身处无人角落，我仍要继续向前，直到我无法前进。
 
+## 前言
+NuanR_Star Ciallo Team（以下简称“我们”）开发的PhiFanmadeTool（以下简称“本软件”）其源码遵循[GNU LGPL 2.1](https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html)开源协议发布，
+作为一个刚刚起步的项目，我们不建议您将本软件代码fork进行自行二次开发，我们非常希望可以保持社区的集中性，不分化社区资源，
+使使用者无需在众多分叉中寻找最合适的版本，或是担心某个分叉不再维护而导致的后续问题，
+我们非常希望您向本软件的主分支提交pull request来参与开发，或是加入我们的开发群来进行讨论，或是通过邮件来联系我们，来参与到本软件的开发中来，
+总之，以上都是建议，我们完全遵循开源协议，感谢支持。
+
 ## 使用
 从 `Release` 中获得 nuget 包，或从源码编译。  
 <span style="color:yellow">**注意：此项目仍然处于早期阶段，字段名称与行为随时有可能更改，请斟酌后再使用！**</span>  
@@ -12,7 +19,7 @@
 还在写，别慌，别慌，别慌！
 
 ## .NET版本
-PhiFanmade.Core: .NETStandard2.1, .NET8.0, .NET10.0 （基于System.Text.Json的Json序列化功能不在.NETStandard2.1提供）  
+PhiFanmade.Core: .NETStandard2.1, .NET8.0, .NET10.0  
 PhiFanmade.Tool: .NET8.0, .NET10.0  
 PhiFanmade.Tool.Cli: .NET8.0, .NET10.0  
 
@@ -29,9 +36,9 @@ PhiFanmade.Tool.Cli: .NET8.0, .NET10.0
 - [x] PhiEdit反序列化
 - [ ] PhiEdit序列化
 - [ ] PhiFans反序列化
-- [ ] PhiFans序列化
-~~- [ ] PhiChain反序列化~~（格式构造有点奇异，基本上只有自家可以读写，搁置，PhiChain本身有导出为RePhiEdit的功能，后期无优化则彻底放弃）
-~~- [ ] PhiChain序列化~~（格式构造有点奇异，基本上只有自家可以读写，搁置，PhiChain本身有导出为RePhiEdit的功能，后期无优化则彻底放弃）
+- [ ] PhiFans序列化  
+- [ ] ~~PhiChain反序列化~~（格式构造有点奇异，基本上只有自家可以读写，搁置，PhiChain本身有导出为RePhiEdit的功能，后期无优化则彻底放弃）  
+- [ ] ~~PhiChain序列化~~（格式构造有点奇异，基本上只有自家可以读写，搁置，PhiChain本身有导出为RePhiEdit的功能，后期无优化则彻底放弃）  
 - [ ] 本家谱面反序列化
 - [ ] 本家谱面序列化
 - [ ] CLI工具（当前已初步可用）

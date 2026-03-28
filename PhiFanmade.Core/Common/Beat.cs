@@ -12,8 +12,7 @@ namespace PhiFanmade.Core.Common
     [JsonConverter(typeof(BeatJsonConverter))]
     public class Beat : IComparable<Beat>
     {
-        [JsonIgnore]
-        private readonly int[] _beat;
+        [JsonIgnore] private readonly int[] _beat;
 
         public Beat(int[] beatArray)
         {
@@ -44,7 +43,7 @@ namespace PhiFanmade.Core.Common
             var remaining = fractionalPart;
             const int maxDenominator = 1000;
 
-            for (var iteration = 0; iteration < 20 && denominator <= maxDenominator; iteration++)
+            for (var iteration = 0; iteration < 20; iteration++)
             {
                 var digit = (int)Math.Floor(remaining);
 
@@ -66,7 +65,7 @@ namespace PhiFanmade.Core.Common
             }
 
             // 如果连分数算法没有找到好的近似，使用简单的四舍五入方法
-            if (denominator == 0 || denominator > maxDenominator)
+            if (denominator == 0)
             {
                 denominator = 1000;
                 numerator = (int)Math.Round(fractionalPart * denominator);
@@ -113,13 +112,15 @@ namespace PhiFanmade.Core.Common
             get
             {
                 if (index < 0 || index > 2)
-                    throw new IndexOutOfRangeException("RePhiEdit Beat index must be between 0 and 2.");
+                    throw new ArgumentOutOfRangeException(nameof(index), index,
+                        "RePhiEdit Beat index must be between 0 and 2.");
                 return _beat[index];
             }
             set
             {
                 if (index < 0 || index > 2)
-                    throw new IndexOutOfRangeException("RePhiEdit Beat index must be between 0 and 2.");
+                    throw new ArgumentOutOfRangeException(nameof(index), index,
+                        "RePhiEdit Beat index must be between 0 and 2.");
                 _beat[index] = value;
                 // recalculate curBeat
                 _curBeatDouble = (double)_beat[1] / _beat[2] + _beat[0];

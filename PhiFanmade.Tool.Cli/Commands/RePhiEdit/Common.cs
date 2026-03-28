@@ -54,7 +54,7 @@ public abstract class RpeOperationSettings : BaseSettings
     }
 
     /// <summary>从文件或工作区加载谱面。</summary>
-    public async Task<Rpe.Chart> LoadChartAsync()
+    public async Task<CoreRpe.Chart> LoadChartAsync()
     {
         string path;
         if (!string.IsNullOrWhiteSpace(Workspace))
@@ -70,7 +70,7 @@ public abstract class RpeOperationSettings : BaseSettings
         }
 
         var text = await File.ReadAllTextAsync(path);
-        return await Rpe.Chart.LoadFromJsonAsync(text);
+        return await CoreRpe.Chart.LoadFromJsonAsync(text);
     }
 
     /// <summary>根据 Input/Workspace 自动计算输出路径。</summary>

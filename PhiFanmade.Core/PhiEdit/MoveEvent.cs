@@ -21,8 +21,8 @@ namespace PhiFanmade.Core.PhiEdit
         {
             //获得这个拍在这个事件的时间轴上的位置
             float t = (beat - StartBeat) / (EndBeat - StartBeat);
-            var xValue = EasingType.Do(startXValue, EndXValue, t);
-            var yValue = EasingType.Do(startYValue, EndYValue, t);
+            var xValue = EasingType.Interpolate(startXValue, EndXValue, t);
+            var yValue = EasingType.Interpolate(startYValue, EndYValue, t);
             return (xValue, yValue);
         }
 

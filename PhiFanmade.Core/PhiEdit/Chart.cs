@@ -9,7 +9,7 @@ namespace PhiFanmade.Core.PhiEdit
         /// <summary>
         /// 谱面偏移，单位为毫秒
         /// </summary>
-        public int Offset = 0;
+        public int Offset { get; set; }
 
         /// <summary>
         /// 坐标系边界
@@ -27,12 +27,12 @@ namespace PhiFanmade.Core.PhiEdit
         /// <summary>
         /// 判定线列表
         /// </summary>
-        public List<JudgeLine> JudgeLineList = new List<JudgeLine>();
+        public List<JudgeLine> JudgeLineList { get; set; } = new List<JudgeLine>();
 
         /// <summary>
         /// BPM列表
         /// </summary>
-        public List<Bpm> BpmList = new List<Bpm>();
+        public List<BpmItem> BpmList { get; set; } = new List<BpmItem>();
 
         public Chart Clone()
         {

@@ -1,6 +1,7 @@
 ﻿using PhiFanmade.Tool.Cli.Infrastructure;
 using PhiFanmade.Tool.Localization;
 using PhiFanmade.Tool.RePhiEdit;
+using PhiFanmade.Tool.RePhiEdit.JudgeLines;
 using Spectre.Console.Cli;
 
 namespace PhiFanmade.Tool.Cli.Commands.RePhiEdit;
@@ -30,27 +31,31 @@ public sealed class RpeUnbindFatherCommand : AsyncCommand<RpeUnbindFatherCommand
         }
 
         // 订阅日志
-        RePhiEditHelper.OnDebug += s => writer.Info(s);
-        RePhiEditHelper.OnError += s => writer.Error(s);
-        RePhiEditHelper.OnInfo += s => writer.Info(s);
-        RePhiEditHelper.OnWarning += s => writer.Warn(s);
+        Action<string> onDebug = s => writer.Info(s);
+        Action<string> onError = s => writer.Error(s);
+        Action<string> onInfo = s => writer.Info(s);
+        Action<string> onWarning = s => writer.Warn(s);
+        RpeToolLog.OnDebug += onDebug;
+        RpeToolLog.OnError += onError;
+        RpeToolLog.OnInfo += onInfo;
+        RpeToolLog.OnWarning += onWarning;
 
         for (var i = 0; i < chart.JudgeLineList.Count; i++)
         {
             if (chart.JudgeLineList[i].Father != -1)
                 if (settings.Classic)
-                    chartCopy.JudgeLineList[i] = await RePhiEditHelper.FatherUnbindAsync(
+                    chartCopy.JudgeLineList[i] = await RpeJudgeLineTools.FatherUnbindAsync(
                         i, chart.JudgeLineList, settings.Precision, settings.Tolerance, !settings.DisableCompress);
                 else
-                    chartCopy.JudgeLineList[i] = await RePhiEditHelper.FatherUnbindPlusAsync(
+                    chartCopy.JudgeLineList[i] = await RpeJudgeLineTools.FatherUnbindPlusAsync(
                         i, chart.JudgeLineList, settings.Precision, settings.Tolerance);
         }
 
         // 取消订阅
-        RePhiEditHelper.OnDebug -= s => writer.Info(s);
-        RePhiEditHelper.OnError -= s => writer.Error(s);
-        RePhiEditHelper.OnInfo -= s => writer.Info(s);
-        RePhiEditHelper.OnWarning -= s => writer.Warn(s);
+        RpeToolLog.OnDebug -= onDebug;
+        RpeToolLog.OnError -= onError;
+        RpeToolLog.OnInfo -= onInfo;
+        RpeToolLog.OnWarning -= onWarning;
 
         var output = settings.ResolveOutputPath();
         if (!settings.DryRun)

@@ -1,4 +1,4 @@
-﻿﻿using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 
 namespace PhiFanmade.Tool.Gui.Services;
 
@@ -8,7 +8,7 @@ public sealed class WorkspaceService
     private static readonly Lazy<WorkspaceService> _lazy = new(() => new WorkspaceService());
     public static WorkspaceService Instance => _lazy.Value;
 
-    private readonly ConcurrentDictionary<string, Rpe.Chart> _charts = new();
+    private readonly ConcurrentDictionary<string, CoreRpe.Chart> _charts = new();
     private readonly string _rootDir;
 
     private WorkspaceService()
@@ -28,7 +28,7 @@ public sealed class WorkspaceService
     public async Task LoadAsync(string id, string chartPath)
     {
         var text = await File.ReadAllTextAsync(chartPath);
-        var chart = await Rpe.Chart.LoadFromJsonAsync(text);
+        var chart = await CoreRpe.Chart.LoadFromJsonAsync(text);
         _charts[id] = chart;
         var dir = Path.Combine(_rootDir, id);
         Directory.CreateDirectory(dir);
@@ -38,13 +38,13 @@ public sealed class WorkspaceService
     public bool Exists(string id) =>
         _charts.ContainsKey(id) || Directory.Exists(Path.Combine(_rootDir, id));
 
-    public async Task<Rpe.Chart?> GetAsync(string id)
+    public async Task<CoreRpe.Chart?> GetAsync(string id)
     {
         if (_charts.TryGetValue(id, out var chart)) return chart;
         var file = Path.Combine(_rootDir, id, "chart.json");
         if (!File.Exists(file)) return null;
         var text = await File.ReadAllTextAsync(file);
-        var c = await Rpe.Chart.LoadFromJsonAsync(text);
+        var c = await CoreRpe.Chart.LoadFromJsonAsync(text);
         _charts[id] = c;
         return c;
     }
