@@ -9,13 +9,10 @@ namespace PhiFanmade.Tool.Cli.Commands;
 /// <summary>
 /// 解绑父级命令
 /// </summary>
-public sealed class UnbindFatherCommand : AsyncCommand<UnbindFatherCommand.Settings>
+public sealed class FitEventCommand : AsyncCommand<FitEventCommand.Settings>
 {
     public sealed class Settings : OperationSettings
     {
-        [CommandOption("--classic")]
-        [LocalizedDescription("cli_opt_classic_mode_desc")]
-        public bool Classic { get; set; }
     }
 
     public override async Task<int> ExecuteAsync(CommandContext context, Settings settings,
@@ -23,11 +20,6 @@ public sealed class UnbindFatherCommand : AsyncCommand<UnbindFatherCommand.Setti
     {
         var writer = settings.CreateWriter();
         var chartText = await settings.LoadChartAsync();
-        if (settings is { DisableCompress: true, Classic: false })
-        {
-            writer.Error(string.Format(Strings.cli_err_classic_disablsed));
-            return 1;
-        }
 
         // 推断谱面格式
         var chartType = Common.ChartGetType.GetType(chartText);
@@ -40,7 +32,7 @@ public sealed class UnbindFatherCommand : AsyncCommand<UnbindFatherCommand.Setti
 
         if (nrc == null)
         {
-            writer.Error(string.Format(Strings.cli_err_unimplemented));
+            writer.Error(string.Format(Strings.cli_err_ukerr));
             return 1;
         }
 
@@ -57,14 +49,22 @@ public sealed class UnbindFatherCommand : AsyncCommand<UnbindFatherCommand.Setti
 
         for (var i = 0; i < nrc.JudgeLineList.Count; i++)
         {
-            if (nrc.JudgeLineList[i].Father != -1)
-                if (settings.Classic)
-                    nrcCopy.JudgeLineList[i] = await NrcJudgeLineTools.FatherUnbindAsync(
-                        i, nrc.JudgeLineList, settings.Precision, settings.Tolerance, !settings.DisableCompress);
-                else
-                    nrcCopy.JudgeLineList[i] = await NrcJudgeLineTools.FatherUnbindPlusAsync(
-                        i, nrc.JudgeLineList, settings.Precision, settings.Tolerance);
+            var jdl = nrc.JudgeLineList[i];
+            for (var index = 0; index < jdl.EventLayers.Count; index++)
+            {
+                var eventLayer = jdl.EventLayers[index];
+                if (eventLayer == null) continue;
+                nrcCopy.JudgeLineList[i].EventLayers[index].MoveXEvents = NrcTool.Events.NrcEventTools.EventListFit(eventLayer.MoveXEvents,
+                    settings.Precision, settings.Tolerance);
+                nrcCopy.JudgeLineList[i].EventLayers[index].MoveYEvents = NrcTool.Events.NrcEventTools.EventListFit(eventLayer.MoveYEvents,
+                    settings.Precision, settings.Tolerance);
+                nrcCopy.JudgeLineList[i].EventLayers[index].AlphaEvents = NrcTool.Events.NrcEventTools.EventListFit(eventLayer.AlphaEvents,
+                    settings.Precision, settings.Tolerance);
+                nrcCopy.JudgeLineList[i].EventLayers[index].RotateEvents = NrcTool.Events.NrcEventTools.EventListFit(eventLayer.RotateEvents,
+                    settings.Precision, settings.Tolerance);
+            }
         }
+
         var rpeResult = NrcTool.Converters.NrcToRpe.Convert(nrcCopy);
 
         // 取消订阅

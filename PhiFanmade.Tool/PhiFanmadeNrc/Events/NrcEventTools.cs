@@ -7,6 +7,13 @@ namespace PhiFanmade.Tool.PhiFanmadeNrc.Events;
 /// </summary>
 public static class NrcEventTools
 {
+    /// <summary>
+    /// 对事件列表做缓动拟合；仅会拟合连续线性事件，原有非线性事件会被保留。
+    /// </summary>
+    public static List<Nrc.Event<T>> EventListFit<T>(
+        List<Nrc.Event<T>> events, double precision = 64d, double tolerance = 5d)
+        => EventFit.EventListFit(events, precision, tolerance);
+
     /// <summary>根据容差压缩事件列表，合并变化率相近的相邻线性事件。</summary>
     public static List<Nrc.Event<double>> EventListCompress(
         List<Nrc.Event<double>> events, double tolerance = 5)
