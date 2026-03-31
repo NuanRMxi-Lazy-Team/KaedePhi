@@ -17,68 +17,116 @@ namespace PhiFanmade.Core.PhiEdit
 
         public List<Note> NoteList { get; set; } = new();
 
+        /// <summary>
+        /// 获取指定拍点上的判定线移动坐标。
+        /// 优先级：精确匹配 Frame -> 当前生效 Event 插值 -> 最近的历史 Event/Frame -> 默认 (0, 0)。
+        /// </summary>
+        /// <param name="beat">目标拍点。</param>
+        /// <returns>该拍点对应的 (X, Y) 坐标。</returns>
         public (float, float) GetMoveAtBeat(float beat)
         {
-            MoveFrame curFrame = null;
-            // 遍历Frame，寻找这个beat上一个使用的Frame
-            for (int j = MoveFrames.Count - 1; j >= 0; j--)
+            var (foundExactFrame, exactFrameValue, previousFrame) = FindExactOrPreviousFrame(beat);
+            if (foundExactFrame)
+                return exactFrameValue;
+
+            var activeEvent = FindActiveMoveEvent(beat);
+            if (activeEvent != null)
             {
-                var frame = MoveFrames[j];
-                // 如果frame的Beat等于当前beat，直接返回（考虑float误差）
-                if (Math.Abs(frame.Beat - beat) < 0.0001f)
-                    return (frame.XValue, frame.YValue);
-                // 如果当前beat大于frame的Beat，那么这个就是上一个使用的Frame
-                if (frame.Beat < beat)
-                {
-                    curFrame = frame;
-                    break;
-                }
+                var (startX, startY) = ResolveMoveEventStartValue(beat, previousFrame);
+                return activeEvent.GetValueAtBeat(beat, startX, startY);
             }
 
-            // 与RPE不同的是，需要同时遍历Frame和Event
+            var previousEvent = FindPreviousMoveEvent(beat);
+            if (IsEventCloserThanFrame(previousEvent, previousFrame))
+                return (previousEvent.EndXValue, previousEvent.EndYValue);
+
+            if (previousFrame != null)
+                return (previousFrame.XValue, previousFrame.YValue);
+
+            return (0, 0);
+        }
+
+        /// <summary>
+        /// 在 MoveFrames 中查找与目标拍点精确匹配的帧，或返回最近的前置帧。
+        /// </summary>
+        /// <param name="beat">目标拍点。</param>
+        /// <returns>
+        /// foundExactFrame 表示是否命中精确帧；
+        /// value 为精确帧值（未命中时无意义）；
+        /// previousFrame 为最近的前置帧（不存在则为 null）。
+        /// </returns>
+        private (bool foundExactFrame, (float, float) value, MoveFrame previousFrame) FindExactOrPreviousFrame(float beat)
+        {
+            for (int i = MoveFrames.Count - 1; i >= 0; i--)
+            {
+                var frame = MoveFrames[i];
+                if (Math.Abs(frame.Beat - beat) < 0.0001f)
+                    return (true, (frame.XValue, frame.YValue), frame);
+
+                if (frame.Beat < beat)
+                    return (false, default, frame);
+            }
+
+            return (false, default, null);
+        }
+
+        /// <summary>
+        /// 查找目标拍点上正在生效的移动事件。
+        /// </summary>
+        /// <param name="beat">目标拍点。</param>
+        /// <returns>命中的移动事件；若不存在则返回 null。</returns>
+        private MoveEvent FindActiveMoveEvent(float beat)
+        {
             for (int i = 0; i < MoveEvents.Count; i++)
             {
                 var e = MoveEvents[i];
                 if (beat >= e.StartBeat && beat <= e.EndBeat)
-                {
-                    // 先别急！比对一下curFrame的Beat和上一个 当前拍大于Event的EndBeat的Event 谁大，谁大就用谁的值（Frame用Value、Event用EndValue）
-                    var lastEvent = MoveEvents.LastOrDefault(ev => beat > ev.EndBeat);
-
-                    if (lastEvent != null && (curFrame == null || lastEvent.EndBeat > curFrame.Beat))
-                    {
-                        // 上一个Event的EndBeat更大，说明上一个Event更接近当前拍，使用它的EndValue
-                        return e.GetValueAtBeat(beat, lastEvent.EndXValue, lastEvent.EndYValue);
-                    }
-                    else if (curFrame != null)
-                    {
-                        // 上一个Frame的Beat更大，说明上一个Frame更接近当前拍，使用它的Value
-                        return e.GetValueAtBeat(beat, curFrame.XValue, curFrame.YValue);
-                    }
-                    else
-                    {
-                        // 两者都为空，使用默认值0
-                        return e.GetValueAtBeat(beat, 0, 0);
-                    }
-                }
+                    return e;
 
                 if (beat < e.StartBeat)
-                {
                     break;
-                }
             }
 
-            var previousEvent = MoveEvents.LastOrDefault(ev => beat > ev.EndBeat);
-            if (previousEvent != null && (curFrame == null || previousEvent.EndBeat > curFrame.Beat))
-            
-                // 上一个Event的EndBeat更大，说明上一个Event更接近当前拍，使用它的EndValue
+            return null;
+        }
+
+        /// <summary>
+        /// 查找目标拍点之前最近结束的移动事件。
+        /// </summary>
+        /// <param name="beat">目标拍点。</param>
+        /// <returns>最近结束的移动事件；若不存在则返回 null。</returns>
+        private MoveEvent FindPreviousMoveEvent(float beat)
+        {
+            return MoveEvents.LastOrDefault(ev => beat > ev.EndBeat);
+        }
+
+        /// <summary>
+        /// 解析事件插值起点值：比较最近历史 Event 与前置 Frame，选择更接近目标拍点的一方。
+        /// </summary>
+        /// <param name="beat">目标拍点。</param>
+        /// <param name="previousFrame">最近的前置帧。</param>
+        /// <returns>事件插值的起始 (X, Y) 坐标。</returns>
+        private (float, float) ResolveMoveEventStartValue(float beat, MoveFrame previousFrame)
+        {
+            var previousEvent = FindPreviousMoveEvent(beat);
+            if (IsEventCloserThanFrame(previousEvent, previousFrame))
                 return (previousEvent.EndXValue, previousEvent.EndYValue);
-            else if (curFrame != null)
-                // 上一个Frame的Beat更大，说明上一个Frame更接近当前拍，使用它的Value
-                return (curFrame.XValue, curFrame.YValue);
-            else
-                // 两者都为空，使用默认值0
-                return (0, 0);
-            
+
+            if (previousFrame != null)
+                return (previousFrame.XValue, previousFrame.YValue);
+
+            return (0, 0);
+        }
+
+        /// <summary>
+        /// 判断历史事件是否比前置帧更接近目标拍点。
+        /// </summary>
+        /// <param name="previousEvent">最近结束的历史事件。</param>
+        /// <param name="previousFrame">最近的前置帧。</param>
+        /// <returns>若应优先使用历史事件值则为 true，否则为 false。</returns>
+        private static bool IsEventCloserThanFrame(MoveEvent previousEvent, MoveFrame previousFrame)
+        {
+            return previousEvent != null && (previousFrame == null || previousEvent.EndBeat > previousFrame.Beat);
         }
 
         public JudgeLine Clone()

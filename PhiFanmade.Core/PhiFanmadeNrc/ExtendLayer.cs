@@ -9,32 +9,32 @@ namespace PhiFanmade.Core.PhiFanmadeNrc
         /// <summary>
         /// 判定线纹理颜色事件列表，颜色格式为RGB字节数组，使用顶点颜色乘法
         /// </summary>
-        public List<Event<byte[]>> ColorEvents;
+        public List<Event<byte[]>> ColorEvents{ get; set; }
 
         /// <summary>
         /// 判定线纹理宽度缩放事件列表
         /// </summary>
-        public List<Event<float>> ScaleXEvents;
+        public List<Event<float>> ScaleXEvents{ get; set; }
 
         /// <summary>
         /// 判定线纹理高度缩放事件列表
         /// </summary>
-        public List<Event<float>> ScaleYEvents;
+        public List<Event<float>> ScaleYEvents{ get; set; }
 
         /// <summary>
         /// 判定线文字纹理事件列表
         /// </summary>
-        public List<Event<string>> TextEvents;
+        public List<Event<string>> TextEvents{ get; set; }
 
         /// <summary>
         /// 画笔事件列表，值为画笔大小
         /// </summary>
-        public List<Event<float>> PaintEvents;
+        public List<Event<float>> PaintEvents{ get; set; }
 
         /// <summary>
         /// 判定线动图播放进度事件列表，值为动图帧进度（0~1之间）
         /// </summary>
-        public List<Event<float>> GifEvents;
+        public List<Event<float>> GifEvents{ get; set; }
 
         public ExtendLayer Clone()
         {

@@ -20,7 +20,7 @@ namespace PhiFanmade.Core.PhiFanmadeNrc
             }
         }
         [PublicAPI]
-        public Beat StartBeat = new Beat(new[] { 0, 0, 1 });
+        public Beat StartBeat { get; set; }= new(new[] { 0, 0, 1 });
 
         public BpmItem Clone()
         {

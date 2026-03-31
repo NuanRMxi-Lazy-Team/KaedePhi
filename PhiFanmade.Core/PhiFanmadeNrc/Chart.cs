@@ -26,7 +26,7 @@ namespace PhiFanmade.Core.PhiFanmadeNrc
         /// <summary>
         /// 元数据
         /// </summary>
-        public Meta Meta = new Meta();
+        public Meta Meta { get; set; } = new Meta();
 
         /// <summary>
         /// 判定线列表

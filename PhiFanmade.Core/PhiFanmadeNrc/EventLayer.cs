@@ -5,15 +5,15 @@ namespace PhiFanmade.Core.PhiFanmadeNrc
 {
     public class EventLayer
     {
-        public List<Event<double>> MoveXEvents; // 移动事件
+        public List<Event<double>> MoveXEvents { get; set; } // 移动事件
 
-        public List<Event<double>> MoveYEvents; // 移动事件
+        public List<Event<double>> MoveYEvents { get; set; } // 移动事件
 
-        public List<Event<double>> RotateEvents; // 旋转事件
+        public List<Event<double>> RotateEvents { get; set; } // 旋转事件
 
-        public List<Event<int>> AlphaEvents; // 透明度事件
+        public List<Event<int>> AlphaEvents { get; set; } // 透明度事件
 
-        public List<Event<float>> SpeedEvents; // 速度事件
+        public List<Event<float>> SpeedEvents { get; set; } // 速度事件
 
         /// <summary>
         /// 获取某个拍时，指定事件层级指定事件列表的数值

@@ -10,77 +10,77 @@ namespace PhiFanmade.Core.PhiFanmadeNrc
         /// <summary>
         /// 音符是否在判定线上方下落，true为上方，false为下方
         /// </summary>
-        public bool Above = true;
+        public bool Above { get; set; }= true;
 
         /// <summary>
         /// 音符的不透明度
         /// </summary>
-        public byte Alpha = 255;
+        public byte Alpha { get; set; }= 255;
 
         /// <summary>
         /// 音符的起始拍
         /// </summary>
-        public Beat StartBeat = new Beat(new[] { 0, 0, 1 }); // 开始时间
+        public Beat StartBeat { get; set; }= new Beat(new[] { 0, 0, 1 }); // 开始时间
 
         /// <summary>
         /// 音符的结束拍
         /// </summary>
-        public Beat EndBeat = new Beat(new[] { 1, 0, 1 }); // 结束时间
+        public Beat EndBeat { get; set; }= new Beat(new[] { 1, 0, 1 }); // 结束时间
 
         /// <summary>
         /// 音符是否为假音符
         /// </summary>
-        public bool IsFake = false;
+        public bool IsFake { get; set; }= false;
 
         /// <summary>
         /// 音符相对于判定线的X坐标
         /// </summary>
-        public double PositionX = 0.0f; // X坐标
+        public double PositionX { get; set; }= 0.0f; // X坐标
 
         /// <summary>
         /// 音符宽度倍率
         /// </summary>
-        public float Size = 1.0f; // 宽度倍率
+        public float Size { get; set; }= 1.0f; // 宽度倍率
 
         /// <summary>
         /// 音符判定宽度倍率
         /// </summary>
-        public float JudgeArea = 1.0f;
+        public float JudgeArea { get; set; }= 1.0f;
 
         /// <summary>
         /// 音符下落速度倍率
         /// </summary>
-        public float SpeedMultiplier = 1.0f; // 速度倍率
+        public float SpeedMultiplier { get; set; }= 1.0f; // 速度倍率
 
         /// <summary>
         /// 音符类型
         /// </summary>
-        public NoteType Type = NoteType.Tap; // 类型（1 为 Tap、2 为 Hold、3 为 Flick、4 为 Drag）
+        public NoteType Type { get; set; }= NoteType.Tap; // 类型（1 为 Tap、2 为 Hold、3 为 Flick、4 为 Drag）
 
         /// <summary>
         /// 音符可见时间，单位为秒
         /// </summary>
-        public float VisibleTime = 999999.0000f; // 可见时间（单位为秒）
+        public float VisibleTime { get; set; }= 999999.0000f; // 可见时间（单位为秒）
 
         /// <summary>
         /// 音符相对于判定线的Y轴偏移
         /// </summary>
-        public double YOffset = 0.0f; // Y偏移
+        public double YOffset { get; set; }= 0.0f; // Y偏移
 
         /// <summary>
         /// 音符颜色（RGB，顶点颜色乘法）
         /// </summary>
-        public byte[] Tint = { 255, 255, 255 }; // 颜色（RGB）
+        public byte[] Tint { get; set; }= { 255, 255, 255 }; // 颜色（RGB）
 
         /// <summary>
         /// 打击特效颜色（RGB，顶点颜色乘法）
         /// </summary>
-        public byte[] HitFxColor = null;
+        public byte[] HitFxColor { get; set; }= null;
 
         /// <summary>
         /// 音符打击音效相对路径
         /// </summary>
-        public string HitSound = null; // 音效
+        public string HitSound { get; set; }= null; // 音效
 
         public Note Clone()
         {

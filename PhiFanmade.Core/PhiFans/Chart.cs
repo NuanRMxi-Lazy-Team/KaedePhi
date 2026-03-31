@@ -8,7 +8,8 @@ namespace PhiFanmade.Core.PhiFans
         /// <summary>
         /// 谱面基本信息
         /// </summary>
-        [JsonProperty("info")] public Info Info = new Info();
+        [JsonProperty("info")]
+        public Info Info { get; set; } = new Info();
 
         /// <summary>
         /// 谱面偏移
@@ -18,12 +19,14 @@ namespace PhiFanmade.Core.PhiFans
         /// <summary>
         /// 谱面BPM列表
         /// </summary>
-        [JsonProperty("bpm")] public List<Bpm> BpmList = new List<Bpm>();
+        [JsonProperty("bpm")]
+        public List<Bpm> BpmList { get; set; } = new List<Bpm>();
 
         /// <summary>
         /// 谱面判定线列表
         /// </summary>
-        [JsonProperty("lines")] public List<Line> JudgeLineList = new List<Line>();
+        [JsonProperty("lines")]
+        public List<Line> JudgeLineList { get; set; } = new List<Line>();
 
         /// <summary>
         /// 坐标系范围

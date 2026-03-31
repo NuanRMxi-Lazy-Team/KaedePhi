@@ -83,6 +83,21 @@ namespace PhiFanmade.Core.PhiFanmadeNrc
         public float Do(float minLim, float maxLim, float start, float end, float t)
             => Interpolate(minLim, maxLim, start, end, t);
 
+        /// <inheritdoc cref="Interpolate(float,float,float,float,float)"/>
+        [Obsolete("请使用 Interpolate 方法")]
+        public double Do(float minLim, float maxLim, double start, double end, double t)
+            => Interpolate(minLim, maxLim, start, end, t);
+
+        /// <inheritdoc cref="Interpolate(float,float,float,float,float)"/>
+        [Obsolete("请使用 Interpolate 方法")]
+        public int Do(float minLim, float maxLim, int start, int end, float t)
+            => Interpolate(minLim, maxLim, start, end, t);
+        
+        /// <inheritdoc cref="Interpolate(float,float,float,float,float)"/>
+        [Obsolete("请使用 Interpolate 方法")]
+        public byte Do(float minLim, float maxLim, byte start, byte end, float t)
+            => Interpolate(minLim, maxLim, start, end, t);
+
         /// <summary>
         /// 在指定缓动函数的 minLim 和 maxLim 之间对 [start, end] 区间在 t 处进行插值
         /// </summary>
@@ -107,10 +122,6 @@ namespace PhiFanmade.Core.PhiFanmadeNrc
             return start + (end - start) * easedTime;
         }
 
-        /// <inheritdoc cref="Interpolate(float,float,float,float,float)"/>
-        [Obsolete("请使用 Interpolate 方法")]
-        public double Do(float minLim, float maxLim, double start, double end, double t)
-            => Interpolate(minLim, maxLim, start, end, t);
 
         /// <inheritdoc cref="Interpolate(float,float,float,float,float)"/>
         public int Interpolate(float minLim, float maxLim, int start, int end, float t)
@@ -120,10 +131,6 @@ namespace PhiFanmade.Core.PhiFanmadeNrc
             return (int)(start + (end - start) * easedTime);
         }
 
-        /// <inheritdoc cref="Interpolate(float,float,float,float,float)"/>
-        [Obsolete("请使用 Interpolate 方法")]
-        public int Do(float minLim, float maxLim, int start, int end, float t)
-            => Interpolate(minLim, maxLim, start, end, t);
 
         /// <inheritdoc cref="Interpolate(float,float,float,float,float)"/>
         public byte Interpolate(float minLim, float maxLim, byte start, byte end, float t)
@@ -133,10 +140,6 @@ namespace PhiFanmade.Core.PhiFanmadeNrc
             return (byte)(start + (end - start) * easedTime);
         }
 
-        /// <inheritdoc cref="Interpolate(float,float,float,float,float)"/>
-        [Obsolete("请使用 Interpolate 方法")]
-        public byte Do(float minLim, float maxLim, byte start, byte end, float t)
-            => Interpolate(minLim, maxLim, start, end, t);
 
         // 以int访问时，返回缓动编号
         public static implicit operator int(Easing easing) => easing._easingNumber;

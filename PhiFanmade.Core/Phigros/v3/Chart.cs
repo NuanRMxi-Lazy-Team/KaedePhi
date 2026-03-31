@@ -9,17 +9,17 @@ namespace PhiFanmade.Core.Phigros.v3
         /// <summary>
         /// 格式版本号
         /// </summary>
-        [JsonProperty("formatVersion")] public int FormatVersion = 3;
+        [JsonProperty("formatVersion")] public int FormatVersion { get; set; }= 3;
 
         /// <summary>
         /// 谱面偏移，单位为秒
         /// </summary>
-        [JsonProperty("offset")] public float Offset = 0;
+        [JsonProperty("offset")] public float Offset { get; set; }= 0;
 
         /// <summary>
         /// 判定线列表
         /// </summary>
-        [JsonProperty("judgeLineList")] public List<JudgeLine> JudgeLineList = null;
+        [JsonProperty("judgeLineList")] public List<JudgeLine> JudgeLineList { get; set; }= null;
         
         /// <summary>
         /// 坐标系边界

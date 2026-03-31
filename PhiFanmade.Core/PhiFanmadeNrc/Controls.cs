@@ -6,14 +6,14 @@ namespace PhiFanmade.Core.PhiFanmadeNrc
     public abstract class ControlBase
     {
         protected readonly Guid Id = Guid.NewGuid();
-        public Easing Easing = new(1);
+        public Easing Easing { get; set; } = new(1);
 
         public float X { get; set; }
 
         public abstract ControlBase Clone();
     }
 
-    public class AlphaControl : ControlBase, IEquatable<AlphaControl>
+    public sealed class AlphaControl : ControlBase, IEquatable<AlphaControl>
     {
         public override int GetHashCode()
         {
@@ -71,7 +71,7 @@ namespace PhiFanmade.Core.PhiFanmadeNrc
         }
     }
 
-    public class XControl : ControlBase, IEquatable<XControl>
+    public sealed class XControl : ControlBase, IEquatable<XControl>
     {
         public override int GetHashCode()
         {
@@ -128,7 +128,7 @@ namespace PhiFanmade.Core.PhiFanmadeNrc
         }
     }
 
-    public class SizeControl : ControlBase, IEquatable<SizeControl>
+    public sealed class SizeControl : ControlBase, IEquatable<SizeControl>
     {
         public override int GetHashCode()
         {
@@ -185,7 +185,7 @@ namespace PhiFanmade.Core.PhiFanmadeNrc
         }
     }
 
-    public class SkewControl : ControlBase, IEquatable<SkewControl>
+    public sealed class SkewControl : ControlBase, IEquatable<SkewControl>
     {
         public override int GetHashCode()
         {
@@ -242,7 +242,7 @@ namespace PhiFanmade.Core.PhiFanmadeNrc
         }
     }
 
-    public class YControl : ControlBase, IEquatable<YControl>
+    public sealed class YControl : ControlBase, IEquatable<YControl>
     {
         public override int GetHashCode()
         {
