@@ -16,6 +16,7 @@ namespace PhiFanmade.Core.PhiEdit
         /// <param name="pec">PhiEditChart字符串</param>
         /// <returns>已反序列化谱面</returns>
         /// <exception cref="FormatException">格式不正确</exception>
+        [PublicAPI]
         public static Chart Load(string pec)
         {
             var chart = new Chart();
@@ -66,11 +67,6 @@ namespace PhiFanmade.Core.PhiEdit
 
         private static void ParseLineCommand(string[] part, int judgeLineIndex, Dictionary<int, JudgeLine> judgeDict)
         {
-            void Ensure()
-            {
-                if (!judgeDict.ContainsKey(judgeLineIndex)) judgeDict[judgeLineIndex] = new JudgeLine();
-            }
-
             switch (part[0])
             {
                 case "cv":
@@ -118,6 +114,13 @@ namespace PhiFanmade.Core.PhiEdit
                         EndValue = float.Parse(part[4]), EasingType = new Easing(1)
                     });
                     break;
+            }
+
+            return;
+
+            void Ensure()
+            {
+                if (!judgeDict.ContainsKey(judgeLineIndex)) judgeDict[judgeLineIndex] = new JudgeLine();
             }
         }
 

@@ -22,6 +22,10 @@
         <EmbeddedResource Update="Strings.zh-Hant.resx">
             <DependentUpon>Strings.resx</DependentUpon>
         </EmbeddedResource>
+        <EmbeddedResource Update="CliLocalizationString.resx">
+          <Generator>PublicResXFileCodeGenerator</Generator>
+          <LastGenOutput>CliLocalizationString.Designer.cs</LastGenOutput>
+        </EmbeddedResource>
     </ItemGroup>
 
     <ItemGroup>
@@ -29,6 +33,11 @@
             <AutoGen>True</AutoGen>
             <DesignTime>True</DesignTime>
             <DependentUpon>Strings.resx</DependentUpon>
+        </Compile>
+        <Compile Update="CliLocalizationString.Designer.cs">
+          <DesignTime>True</DesignTime>
+          <AutoGen>True</AutoGen>
+          <DependentUpon>CliLocalizationString.resx</DependentUpon>
         </Compile>
     </ItemGroup>
 

@@ -1,4 +1,5 @@
-﻿using JetBrains.Annotations;
+﻿using System;
+using JetBrains.Annotations;
 using static PhiFanmade.Core.Utils.Easings;
 
 namespace PhiFanmade.Core.PhiEdit
@@ -55,13 +56,14 @@ namespace PhiFanmade.Core.PhiEdit
 
     public class Easing
     {
+        // ReSharper disable once FieldCanBeMadeReadOnly.Local
         private int _easingNumber;
         private readonly EasingFunction _function;
 
         public Easing(int easingNumber)
         {
             _easingNumber = easingNumber;
-            // 缓存缓动函数，避免每次 Do 都走 switch
+            // 缓存缓动函数
             _function = t => Easings.Evaluate(easingNumber, t);
         }
 
@@ -72,13 +74,24 @@ namespace PhiFanmade.Core.PhiEdit
             return (float)(start + (end - start) * easedTime);
         }
 
-        /// <inheritdoc cref="Interpolate(double,double,double)"/>
+        /// <inheritdoc cref="Interpolate(float,float,float)"/>
         public double Interpolate(double start, double end, double t)
         {
             var easedTime = _function(t);
             return start + (end - start) * easedTime;
         }
 
+        /// <inheritdoc cref="Interpolate(float,float,float)"/>
+        [Obsolete("请使用 Interpolate 方法替代 Do 方法")]
+        public float Do(float start, float end, float t)
+            => Interpolate(start, end, t);
+
+        /// <inheritdoc cref="Interpolate(float,float,float)"/>
+        [Obsolete("请使用 Interpolate 方法替代 Do 方法")]
+        public double Do(double start, double end, double t)
+            => Interpolate(start, end, t);
+
         public static implicit operator int(Easing easing) => easing._easingNumber;
+        public static implicit operator Easing(int easingNumber) => new(easingNumber);
     }
 }

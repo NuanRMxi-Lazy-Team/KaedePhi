@@ -8,16 +8,18 @@ namespace PhiFanmade.Core.Phigros.v3
         /// 事件开始时间
         /// </summary>
         [JsonProperty("startTime")]
-        public float StartTime;
+        public float StartTime { get; set; }
+
         /// <summary>
         /// 事件结束时间
         /// </summary>
         [JsonProperty("endTime")]
-        public float EndTime;
+        public float EndTime { get; set; }
+
         /// <summary>
         /// 事件值
         /// </summary>
         [JsonProperty("value")]
-        public float Value;
+        public float Value { get; set; }
     }
 }

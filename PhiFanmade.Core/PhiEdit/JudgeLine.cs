@@ -6,16 +6,16 @@ namespace PhiFanmade.Core.PhiEdit
 {
     public class JudgeLine
     {
-        public List<Frame> SpeedFrames { get; set; } = new List<Frame>();
-        public List<MoveFrame> MoveFrames { get; set; } = new List<MoveFrame>();
-        public List<Frame> RotateFrames { get; set; } = new List<Frame>();
-        public List<Frame> AlphaFrames { get; set; } = new List<Frame>();
+        public List<Frame> SpeedFrames { get; set; } = new();
+        public List<MoveFrame> MoveFrames { get; set; } = new();
+        public List<Frame> RotateFrames { get; set; } = new();
+        public List<Frame> AlphaFrames { get; set; } = new();
 
-        public List<Event> AlphaEvents { get; set; } = new List<Event>();
-        public List<MoveEvent> MoveEvents { get; set; } = new List<MoveEvent>();
-        public List<Event> RotateEvents { get; set; } = new List<Event>();
+        public List<Event> AlphaEvents { get; set; } = new();
+        public List<MoveEvent> MoveEvents { get; set; } = new();
+        public List<Event> RotateEvents { get; set; } = new();
 
-        public List<Note> NoteList { get; set; } = new List<Note>();
+        public List<Note> NoteList { get; set; } = new();
 
         public (float, float) GetMoveAtBeat(float beat)
         {
@@ -69,25 +69,21 @@ namespace PhiFanmade.Core.PhiEdit
 
             var previousEvent = MoveEvents.LastOrDefault(ev => beat > ev.EndBeat);
             if (previousEvent != null && (curFrame == null || previousEvent.EndBeat > curFrame.Beat))
-            {
+            
                 // 上一个Event的EndBeat更大，说明上一个Event更接近当前拍，使用它的EndValue
                 return (previousEvent.EndXValue, previousEvent.EndYValue);
-            }
             else if (curFrame != null)
-            {
                 // 上一个Frame的Beat更大，说明上一个Frame更接近当前拍，使用它的Value
                 return (curFrame.XValue, curFrame.YValue);
-            }
             else
-            {
                 // 两者都为空，使用默认值0
                 return (0, 0);
-            }
+            
         }
 
         public JudgeLine Clone()
         {
-            return new JudgeLine()
+            return new JudgeLine
             {
                 SpeedFrames = SpeedFrames.Select(f => f.Clone()).ToList(),
                 MoveFrames = MoveFrames.Select(f => f.Clone()).ToList(),

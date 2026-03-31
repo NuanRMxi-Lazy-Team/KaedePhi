@@ -13,14 +13,20 @@ public class GetTypeTestCommand : AsyncCommand<GetTypeTestCommand.Settings>
         public string? Input { get; set; }
     }
 
-    protected override async Task<int> ExecuteAsync(CommandContext context, Settings settings,
+    public override async Task<int> ExecuteAsync(CommandContext context, Settings settings,
         CancellationToken cancellationToken)
     {
         var writer = settings.CreateWriter();
+#if Debug
         var input = settings.Input;
         var inputText = input is null ? "" : await File.ReadAllTextAsync(input, cancellationToken);
         var type = ChartGetType.GetType(inputText);
         writer.Info($"Type: {type}");
+#else
+        writer.Warn("This command can only be executed on Debug builds.");
+        await Task.CompletedTask;
+#endif
+        
         return 0;
     }
 }

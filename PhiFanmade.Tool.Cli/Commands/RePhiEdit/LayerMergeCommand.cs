@@ -8,6 +8,7 @@ namespace PhiFanmade.Tool.Cli.Commands.RePhiEdit;
 /// <summary>
 /// 合并层级命令
 /// </summary>
+[Obsolete("后期将不再支持直接操作RPE谱面")]
 public sealed class RpeLayerMergeCommand : AsyncCommand<RpeLayerMergeCommand.Settings>
 {
     public sealed class Settings : RpeOperationSettings
@@ -17,7 +18,7 @@ public sealed class RpeLayerMergeCommand : AsyncCommand<RpeLayerMergeCommand.Set
         public bool Classic { get; set; }
     }
 
-    protected override async Task<int> ExecuteAsync(CommandContext context, Settings settings,
+    public override async Task<int> ExecuteAsync(CommandContext context, Settings settings,
         CancellationToken cancellationToken)
     {
         var writer = settings.CreateWriter();
@@ -33,14 +34,14 @@ public sealed class RpeLayerMergeCommand : AsyncCommand<RpeLayerMergeCommand.Set
         {
             if (jl.EventLayers is not { Count: > 1 }) continue;
             if (settings.Classic)
-                jl.EventLayers = new List<CoreRpe.EventLayer>
+                jl.EventLayers = new List<RpeCore.EventLayer>
                 {
                     RpeLayerTools.LayerMerge(jl.EventLayers, settings.Precision, settings.Tolerance,
                         !settings.DisableCompress)
                 };
             else
                 jl.EventLayers =
-                jl.EventLayers = new List<CoreRpe.EventLayer>
+                jl.EventLayers = new List<RpeCore.EventLayer>
                 {
                     RpeLayerTools.LayerMergePlus(jl.EventLayers, settings.Precision, settings.Tolerance)
                 };

@@ -440,24 +440,6 @@ namespace PhiFanmade.Tool.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to 开源工具集.
-        /// </summary>
-        public static string gui_app_subtitle {
-            get {
-                return ResourceManager.GetString("gui_app_subtitle", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to 浏览.
-        /// </summary>
-        public static string gui_btn_browse {
-            get {
-                return ResourceManager.GetString("gui_btn_browse", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to 取消.
         /// </summary>
         public static string gui_btn_cancel {

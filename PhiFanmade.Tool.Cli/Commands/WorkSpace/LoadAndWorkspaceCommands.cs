@@ -5,8 +5,6 @@ using Spectre.Console.Cli;
 
 namespace PhiFanmade.Tool.Cli.Commands.WorkSpace;
 
-// ─── Load ────────────────────────────────────────────────────────────────────
-
 // Description set via WithDescription(Strings.cli_cmd_load_desc) in Program.cs
 public sealed class LoadCommand : AsyncCommand<LoadCommand.Settings>
 {
@@ -28,7 +26,7 @@ public sealed class LoadCommand : AsyncCommand<LoadCommand.Settings>
         }
     }
 
-    protected override async Task<int> ExecuteAsync(CommandContext context, Settings settings,CancellationToken cancellationToken)
+    public override async Task<int> ExecuteAsync(CommandContext context, Settings settings,CancellationToken cancellationToken)
     {
         var writer = settings.CreateWriter();
         var ws = new WorkspaceService();
@@ -59,7 +57,7 @@ public sealed class SaveCommand : AsyncCommand<SaveCommand.Settings>
         }
     }
 
-    protected override async Task<int> ExecuteAsync(CommandContext context, Settings settings,CancellationToken cancellationToken)
+    public override async Task<int> ExecuteAsync(CommandContext context, Settings settings,CancellationToken cancellationToken)
     {
         var writer = settings.CreateWriter();
         var ws = new WorkspaceService();
@@ -74,7 +72,7 @@ public sealed class SaveCommand : AsyncCommand<SaveCommand.Settings>
 // Description set via WithDescription(Strings.cli_cmd_workspace_list_desc) in Program.cs
 public sealed class WorkspaceListCommand : Command<BaseSettings>
 {
-    protected override int Execute(CommandContext context, BaseSettings settings,CancellationToken cancellationToken)
+    public override int Execute(CommandContext context, BaseSettings settings,CancellationToken cancellationToken)
     {
         var ws = new WorkspaceService();
         foreach (var id in ws.List())
@@ -95,7 +93,7 @@ public sealed class WorkspaceClearCommand : Command<WorkspaceClearCommand.Settin
         public string? Id { get; set; }
     }
 
-    protected override int Execute(CommandContext context, Settings settings,CancellationToken cancellationToken)
+    public override int Execute(CommandContext context, Settings settings,CancellationToken cancellationToken)
     {
         var writer = settings.CreateWriter();
         var ws = new WorkspaceService();

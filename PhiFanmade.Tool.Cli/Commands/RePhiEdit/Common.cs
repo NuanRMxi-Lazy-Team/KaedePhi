@@ -8,6 +8,7 @@ namespace PhiFanmade.Tool.Cli.Commands.RePhiEdit;
 // 共享 Settings
 
 /// <summary>RPE 操作的通用参数，供 unbind-father 和 layer-merge 复用。</summary>
+[Obsolete("后期将不再支持直接操作RPE谱面")]
 public abstract class RpeOperationSettings : BaseSettings
 {
     [CommandOption("-i|--input <PATH>")]
@@ -54,7 +55,7 @@ public abstract class RpeOperationSettings : BaseSettings
     }
 
     /// <summary>从文件或工作区加载谱面。</summary>
-    public async Task<CoreRpe.Chart> LoadChartAsync()
+    public async Task<RpeCore.Chart> LoadChartAsync()
     {
         string path;
         if (!string.IsNullOrWhiteSpace(Workspace))
@@ -70,7 +71,7 @@ public abstract class RpeOperationSettings : BaseSettings
         }
 
         var text = await File.ReadAllTextAsync(path);
-        return await CoreRpe.Chart.LoadFromJsonAsync(text);
+        return await RpeCore.Chart.LoadFromJsonAsync(text);
     }
 
     /// <summary>根据 Input/Workspace 自动计算输出路径。</summary>

@@ -8,6 +8,7 @@ namespace PhiFanmade.Tool.RePhiEdit.JudgeLines;
 public static class RpeJudgeLineTools
 {
     /// <summary>根据父线绝对坐标和旋转角度，计算子线的绝对坐标。</summary>
+    [Obsolete("请转换为PhiFanmadeNrc后再进行操作")]
     public static (double X, double Y) GetLinePos(
         double fatherLineX, double fatherLineY, double angleDegrees,
         double lineX, double lineY)
@@ -16,6 +17,7 @@ public static class RpeJudgeLineTools
     #region 经典（固定采样）
 
     /// <summary>将判定线与父判定线解绑并保持行为一致（等间隔采样，同步）。</summary>
+    [Obsolete("请转换为PhiFanmadeNrc后再进行操作")]
     public static Rpe.JudgeLine FatherUnbind(
         int targetJudgeLineIndex, List<Rpe.JudgeLine> allJudgeLines,
         double precision = 64d, double tolerance = 5d, bool compress = true)
@@ -24,6 +26,7 @@ public static class RpeJudgeLineTools
             FatherUnbindHelpers.ChartCacheTable.GetOrCreateValue(allJudgeLines), compress);
 
     /// <summary>将判定线与父判定线解绑并保持行为一致（等间隔采样，异步）。</summary>
+    [Obsolete("请转换为PhiFanmadeNrc后再进行操作")]
     public static async Task<Rpe.JudgeLine> FatherUnbindAsync(
         int targetJudgeLineIndex, List<Rpe.JudgeLine> allJudgeLines,
         double precision = 64d, double tolerance = 5d, bool useCompress = true)
@@ -36,6 +39,7 @@ public static class RpeJudgeLineTools
     #region Plus（自适应采样）
 
     /// <summary>将判定线与父判定线解绑并保持行为一致（自适应采样，同步）。</summary>
+    [Obsolete("请转换为PhiFanmadeNrc后再进行操作")]
     public static Rpe.JudgeLine FatherUnbindPlus(
         int targetJudgeLineIndex, List<Rpe.JudgeLine> allJudgeLines,
         double precision = 64d, double tolerance = 5d)
@@ -44,6 +48,7 @@ public static class RpeJudgeLineTools
             FatherUnbindHelpers.ChartCacheTable.GetOrCreateValue(allJudgeLines));
 
     /// <summary>将判定线与父判定线解绑并保持行为一致（自适应采样，异步）。</summary>
+    [Obsolete("请转换为PhiFanmadeNrc后再进行操作")]
     public static async Task<Rpe.JudgeLine> FatherUnbindPlusAsync(
         int targetJudgeLineIndex, List<Rpe.JudgeLine> allJudgeLines,
         double precision = 64d, double tolerance = 5d)

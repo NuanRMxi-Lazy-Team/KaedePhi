@@ -9,6 +9,7 @@ namespace PhiFanmade.Tool.Cli.Commands.RePhiEdit;
 /// <summary>
 /// 解绑父级命令
 /// </summary>
+[Obsolete("后期将不再支持直接操作RPE谱面")]
 public sealed class RpeUnbindFatherCommand : AsyncCommand<RpeUnbindFatherCommand.Settings>
 {
     public sealed class Settings : RpeOperationSettings
@@ -18,7 +19,7 @@ public sealed class RpeUnbindFatherCommand : AsyncCommand<RpeUnbindFatherCommand
         public bool Classic { get; set; }
     }
 
-    protected override async Task<int> ExecuteAsync(CommandContext context, Settings settings,
+    public override async Task<int> ExecuteAsync(CommandContext context, Settings settings,
         CancellationToken cancellationToken)
     {
         var writer = settings.CreateWriter();

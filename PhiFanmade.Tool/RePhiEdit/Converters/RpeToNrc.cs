@@ -1,4 +1,5 @@
-﻿using PhiFanmade.Core.Common;
+﻿using System.Diagnostics.Contracts;
+using PhiFanmade.Core.Common;
 using PhiFanmade.Tool.Common;
 
 namespace PhiFanmade.Tool.RePhiEdit.Converters;
@@ -8,6 +9,7 @@ namespace PhiFanmade.Tool.RePhiEdit.Converters;
 /// </summary>
 public static class RpeToNrc
 {
+    [Pure]
     public static Nrc.Chart Convert(Rpe.Chart rpe) => new()
     {
         BpmList = rpe.BpmList.ConvertAll(ConvertBpmItem),
@@ -15,6 +17,7 @@ public static class RpeToNrc
         JudgeLineList = rpe.JudgeLineList.ConvertAll(ConvertJudgeLine)
     };
 
+    [Pure]
     private static int MapEasingNumber(int rpe) => rpe switch
     {
         1 => 1, 2 => 3, 3 => 2, 4 => 6, 5 => 5, 6 => 4, 7 => 7,

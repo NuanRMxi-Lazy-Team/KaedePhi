@@ -2,11 +2,18 @@
 
 namespace PhiFanmade.Core.PhiEdit
 {
+    /// <summary>
+    /// <inheritdoc cref="BpmItem"/>
+    /// </summary>
     [Obsolete("Please use BpmItem instead of Bpm")]
     public class Bpm : BpmItem
     {
     }
 
+
+    /// <summary>
+    /// 单个BPM变化点
+    /// </summary>
     public class BpmItem
     {
         private float _bpm = 120f;

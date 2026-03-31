@@ -8,13 +8,10 @@ namespace PhiFanmade.Core.PhiEdit
         public float Value { get; set; }
 
         /// <summary>
-        /// DO NOT USE THIS METHOD
+        /// 调试用方法，不要调用，请改用<see cref="ToString(int, string)"/>
         /// </summary>
-        /// <returns>DO NOT USE THIS METHOD</returns>
-        /// <exception cref="ArgumentException">BECAUSE YOU USED A REMOVED METHOD</exception>
-        [Obsolete("请使用 ToString(int judgeLineIndex, string head) 方法", false)]
         public override string ToString()
-            => throw new ArgumentException("请使用 ToString(int judgeLineIndex, string head) 方法");
+            => $"Frame(Beat={Beat}, Value={Value})";
 
 
         /// <summary>
@@ -25,9 +22,9 @@ namespace PhiFanmade.Core.PhiEdit
         /// <returns>PhiEditor Chart格式字符串</returns>
         public string ToString(int judgeLineIndex, string head)
         {
-            if (head == "cp" || head == "cm")
-                throw new ArgumentException("请使用 MoveFrame 或 MoveEvent 的 ToString 方法，这不是一个 MoveFrame 或 MoveEvent");
-            return $"{head} {judgeLineIndex} {Beat} {Value}";
+            return head is "cp" or "cm"
+                ? throw new ArgumentException("请使用 MoveFrame 或 MoveEvent 的 ToString 方法，这不是一个 MoveFrame 或 MoveEvent")
+                : $"{head} {judgeLineIndex} {Beat} {Value}";
         }
 
         public Frame Clone()

@@ -29,7 +29,6 @@ app.Configure(config =>
         // 未知命令/参数：引导用户使用 --help
         if (ex is CommandParseException)
         {
-            var writer = new ConsoleWriter();
             writer.Error(Strings.cli_err_unknown);
             writer.Info(Strings.cli_hint_use_help);
             return 1;
@@ -76,7 +75,8 @@ app.Configure(config =>
         rpe.SetDescription(Strings.cli_branch_rpe_desc);
         rpe.AddCommand<RpeUnbindFatherCommand>("unbind-father")
             .WithDescription(Strings.cli_cmd_rpe_unbind_father_desc)
-            .WithAlias("unbind");
+            .WithAlias("unbind")
+            .IsHidden();
         rpe.AddCommand<RpeLayerMergeCommand>("layer-merge")
             .WithDescription(Strings.cli_cmd_rpe_layer_merge_desc)
             .WithAlias("layer-merge");

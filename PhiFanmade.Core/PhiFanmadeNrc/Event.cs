@@ -102,15 +102,15 @@ namespace PhiFanmade.Core.PhiFanmadeNrc
 
             // 检查 T 的类型并调用相应的方法
             if (typeof(T) == typeof(float))
-                return (T)(object)Easing.Do(EasingLeft, EasingRight, Convert.ToSingle(StartValue),
+                return (T)(object)Easing.Interpolate(EasingLeft, EasingRight, Convert.ToSingle(StartValue),
                     Convert.ToSingle(EndValue),
                     t);
             else if (typeof(T) == typeof(double))
-                return (T)(object)Easing.Do(EasingLeft, EasingRight, Convert.ToDouble(StartValue),
+                return (T)(object)Easing.Interpolate(EasingLeft, EasingRight, Convert.ToDouble(StartValue),
                     Convert.ToDouble(EndValue),
                     t);
             else if (typeof(T) == typeof(int))
-                return (T)(object)Easing.Do(EasingLeft, EasingRight, Convert.ToInt32(StartValue),
+                return (T)(object)Easing.Interpolate(EasingLeft, EasingRight, Convert.ToInt32(StartValue),
                     Convert.ToInt32(EndValue), t);
             else if (typeof(T) == typeof(byte[]))
             {
@@ -123,7 +123,7 @@ namespace PhiFanmade.Core.PhiFanmadeNrc
                         "Byte arrays must be of the same length for interpolation.");
                 byte[] result = new byte[startBytes.Length];
                 for (int i = 0; i < startBytes.Length; i++)
-                    result[i] = Easing.Do(EasingLeft, EasingRight, startBytes[i], endBytes[i], t);
+                    result[i] = Easing.Interpolate(EasingLeft, EasingRight, startBytes[i], endBytes[i], t);
                 return (T)(object)result;
             }
             else

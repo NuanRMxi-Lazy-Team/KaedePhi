@@ -20,7 +20,7 @@ public sealed class UnbindFatherCommand : AsyncCommand<UnbindFatherCommand.Setti
         public bool Classic { get; set; }
     }
 
-    protected override async Task<int> ExecuteAsync(CommandContext context, Settings settings,
+    public override async Task<int> ExecuteAsync(CommandContext context, Settings settings,
         CancellationToken cancellationToken)
     {
         var writer = settings.CreateWriter();
@@ -32,10 +32,10 @@ public sealed class UnbindFatherCommand : AsyncCommand<UnbindFatherCommand.Setti
         }
 
         // 推断谱面格式
-        var chartType = PhiFanmade.Tool.Common.ChartGetType.GetType(chartText);
-        if (chartType == PhiFanmade.Tool.Common.ChartType.RePhiEdit)
+        var chartType = Common.ChartGetType.GetType(chartText);
+        if (chartType == Common.ChartType.RePhiEdit)
         {
-            var chart = await CoreRpe.Chart.LoadFromJsonAsync(chartText);
+            var chart = await RpeCore.Chart.LoadFromJsonAsync(chartText);
             var nrc = PhiFanmade.Tool.RePhiEdit.Converters.RpeToNrc.Convert(chart);
 
 
@@ -60,7 +60,7 @@ public sealed class UnbindFatherCommand : AsyncCommand<UnbindFatherCommand.Setti
                         nrcCopy.JudgeLineList[i] = await NrcJudgeLineTools.FatherUnbindPlusAsync(
                             i, nrc.JudgeLineList, settings.Precision, settings.Tolerance);
             }
-            var rpeResult = PhiFanmade.Tool.PhiFanmadeNrc.Converters.NrcToRpe.Convert(nrcCopy);
+            var rpeResult = NrcTool.Converters.NrcToRpe.Convert(nrcCopy);
 
             // 取消订阅
             NrcToolLog.OnDebug -= onDebug;
