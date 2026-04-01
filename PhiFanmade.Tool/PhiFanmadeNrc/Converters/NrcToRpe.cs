@@ -38,10 +38,7 @@ public static class NrcToRpe
 
     private static Rpe.Easing ConvertEasing(Nrc.Easing src, bool isBezier = false)
         => isBezier ? new Rpe.Easing(1) : new Rpe.Easing(MapEasingNumber((int)src));
-
-    private static double TransformX(float x) => CoordinateGeometry.ToRenderX(x);
-    private static double TransformY(float y) => CoordinateGeometry.ToRenderY(y);
-
+    
     private static double TransformX(double x) => CoordinateGeometry.ToRenderX(x);
     private static double TransformY(double y) => CoordinateGeometry.ToRenderY(y);
 
@@ -352,7 +349,7 @@ public static class NrcToRpe
     private static Rpe.Event<string> ConvertStringEvent(Nrc.Event<string> src) => ConvertEvent(src);
 
     private static Rpe.Event<byte[]> ConvertByteArrayEvent(Nrc.Event<byte[]> src) =>
-        ConvertEvent(src, v => (byte[]?)v.ToArray() ?? []);
+        ConvertEvent(src, v => v.ToArray());
 
     private static Rpe.XControl ConvertXControl(Nrc.XControl src) =>
         new() { Easing = ConvertEasing(src.Easing), X = src.X, Pos = src.Pos };
