@@ -19,20 +19,11 @@ public sealed class FitEventCommand : AsyncCommand<FitEventCommand.Settings>
         CancellationToken cancellationToken)
     {
         var writer = settings.CreateWriter();
-        var chartText = await settings.LoadChartAsync();
-
-        // 推断谱面格式
-        var chartType = Common.ChartGetType.GetType(chartText);
-        NrcCore.Chart? nrc = null;
-        if (chartType == Common.ChartType.RePhiEdit)
-        {
-            var chart = await RpeCore.Chart.LoadFromJsonAsync(chartText);
-            nrc = PhiFanmade.Tool.RePhiEdit.Converters.RpeToNrc.Convert(chart);
-        }
+        var nrc = await settings.LoadNrcChartAsync(cancellationToken);
 
         if (nrc == null)
         {
-            writer.Error(string.Format(Strings.cli_err_ukerr));
+            writer.Error(string.Format(Strings.cli_err_unimplemented));
             return 1;
         }
 
@@ -47,46 +38,42 @@ public sealed class FitEventCommand : AsyncCommand<FitEventCommand.Settings>
         NrcToolLog.OnInfo += onInfo;
         NrcToolLog.OnWarning += onWarning;
 
-        for (var i = 0; i < nrc.JudgeLineList.Count; i++)
+        try
         {
-            var jdl = nrc.JudgeLineList[i];
-            for (var index = 0; index < jdl.EventLayers.Count; index++)
+            for (var i = 0; i < nrc.JudgeLineList.Count; i++)
             {
-                var eventLayer = jdl.EventLayers[index];
-                if (eventLayer == null) continue;
-                nrcCopy.JudgeLineList[i].EventLayers[index].MoveXEvents = NrcTool.Events.NrcEventTools.EventListFit(eventLayer.MoveXEvents,
-                    settings.Precision, settings.Tolerance);
-                nrcCopy.JudgeLineList[i].EventLayers[index].MoveYEvents = NrcTool.Events.NrcEventTools.EventListFit(eventLayer.MoveYEvents,
-                    settings.Precision, settings.Tolerance);
-                nrcCopy.JudgeLineList[i].EventLayers[index].AlphaEvents = NrcTool.Events.NrcEventTools.EventListFit(eventLayer.AlphaEvents,
-                    settings.Precision, settings.Tolerance);
-                nrcCopy.JudgeLineList[i].EventLayers[index].RotateEvents = NrcTool.Events.NrcEventTools.EventListFit(eventLayer.RotateEvents,
-                    settings.Precision, settings.Tolerance);
+                var jdl = nrc.JudgeLineList[i];
+                for (var index = 0; index < jdl.EventLayers.Count; index++)
+                {
+                    var eventLayer = jdl.EventLayers[index];
+                    if (eventLayer == null) continue;
+                    nrcCopy.JudgeLineList[i].EventLayers[index].MoveXEvents = NrcTool.Events.NrcEventTools.EventListFit(eventLayer.MoveXEvents,
+                        settings.Precision, settings.Tolerance);
+                    nrcCopy.JudgeLineList[i].EventLayers[index].MoveYEvents = NrcTool.Events.NrcEventTools.EventListFit(eventLayer.MoveYEvents,
+                        settings.Precision, settings.Tolerance);
+                    nrcCopy.JudgeLineList[i].EventLayers[index].AlphaEvents = NrcTool.Events.NrcEventTools.EventListFit(eventLayer.AlphaEvents,
+                        settings.Precision, settings.Tolerance);
+                    nrcCopy.JudgeLineList[i].EventLayers[index].RotateEvents = NrcTool.Events.NrcEventTools.EventListFit(eventLayer.RotateEvents,
+                        settings.Precision, settings.Tolerance);
+                }
             }
+
+            var output = await settings.SaveFromNrcAsync(nrcCopy, cancellationToken);
+            if (output == null)
+            {
+                writer.Warn(Strings.cli_warn_rpe_convert);
+                return 2;
+            }
+
+            writer.Info(string.Format(Strings.cli_msg_written, output));
+            return 0;
         }
-
-        var rpeResult = NrcTool.Converters.NrcToRpe.Convert(nrcCopy);
-
-        // 取消订阅
-        NrcToolLog.OnDebug -= onDebug;
-        NrcToolLog.OnError -= onError;
-        NrcToolLog.OnInfo -= onInfo;
-        NrcToolLog.OnWarning -= onWarning;
-
-        var output = settings.ResolveOutputPath();
-        if (!settings.DryRun)
+        finally
         {
-            if (settings.StreamOutput)
-            {
-                await using var stream = new FileStream(output, FileMode.Create);
-                await rpeResult.ExportToJsonStreamAsync(stream, settings.FormatOutput);
-            }
-            else
-                await File.WriteAllTextAsync(output, await rpeResult.ExportToJsonAsync(settings.FormatOutput),
-                    cancellationToken);
+            NrcToolLog.OnDebug -= onDebug;
+            NrcToolLog.OnError -= onError;
+            NrcToolLog.OnInfo -= onInfo;
+            NrcToolLog.OnWarning -= onWarning;
         }
-
-        writer.Info(string.Format(Strings.cli_msg_written, output));
-        return 0;
     }
 }

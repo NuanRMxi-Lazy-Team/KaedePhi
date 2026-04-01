@@ -1,5 +1,6 @@
 ﻿using PhiFanmade.Tool.Cli.Infrastructure;
 using PhiFanmade.Tool.Localization;
+using PhiFanmade.Tool.Common;
 using Spectre.Console;
 using Spectre.Console.Cli;
 
@@ -45,6 +46,10 @@ public abstract class OperationSettings : BaseSettings
     [CommandOption("--no-compress")]
     [LocalizedDescription("cli_opt_compress_desc")]
     public bool DisableCompress { get; set; }
+
+    [CommandOption("--target <TYPE>")]
+    [LocalizedDescription("convert_command_opt_target")]
+    public ChartType TargetType { get; set; } = ChartType.RePhiEdit;
     
     public override ValidationResult Validate()
     {
@@ -85,5 +90,48 @@ public abstract class OperationSettings : BaseSettings
         return Path.Combine(
             Path.GetDirectoryName(Input!) ?? ".",
             Path.GetFileNameWithoutExtension(Input!) + "_PFC.json");
+    }
+
+    /// <summary>将输入谱面统一转换为 NRC 中间类型。</summary>
+    public async Task<NrcCore.Chart?> LoadNrcChartAsync(CancellationToken cancellationToken = default)
+    {
+        var chartText = await LoadChartAsync();
+        var chartType = ChartGetType.GetType(chartText);
+
+        return chartType switch
+        {
+            ChartType.RePhiEdit => PhiFanmade.Tool.RePhiEdit.Converters.RpeToNrc.Convert(
+                await RpeCore.Chart.LoadFromJsonAsync(chartText)),
+            ChartType.PhiEdit => PhiFanmade.Tool.PhiEdit.Converters.PeToNrc.Convert(
+                await PeCore.Chart.LoadAsync(chartText)),
+            _ => null
+        };
+    }
+
+    /// <summary>将 NRC 中间类型导出为目标谱面类型，并按当前设置写入。</summary>
+    public async Task<string?> SaveFromNrcAsync(NrcCore.Chart chart, CancellationToken cancellationToken = default)
+    {
+        var output = ResolveOutputPath();
+
+        if (TargetType != ChartType.RePhiEdit)
+            return null;
+
+        var rpeChart = NrcTool.Converters.NrcToRpe.Convert(chart);
+
+        if (!DryRun)
+        {
+            if (StreamOutput)
+            {
+                await using var stream = new FileStream(output, FileMode.Create);
+                await rpeChart.ExportToJsonStreamAsync(stream, FormatOutput);
+            }
+            else
+            {
+                var json = await rpeChart.ExportToJsonAsync(FormatOutput);
+                await File.WriteAllTextAsync(output, json, cancellationToken);
+            }
+        }
+
+        return output;
     }
 }

@@ -37,18 +37,18 @@ public static class ChartGetType
                               throw new ArgumentNullException(nameof(chartText), "啊拉？序列化失败了...");
 
             // 如果存在META字段在根目录，且此字段为一个JsonObject，则这是一个RePhiEdit谱面
-            if (jsonObj.META is null && jsonObj.META is JObject)
+            if (jsonObj.META is JObject)
                 return ChartType.RePhiEdit;
 
             // 如果存在formatVersion字段，且字段类型为int，则根据版本号判断PhigrosV1/V3谱面
-            if (jsonObj.formatVersion is null && jsonObj.formatVersion is JValue
+            if (jsonObj.formatVersion is JValue
                 {
                     Type: JTokenType.Integer or JTokenType.Float
                 })
                 return GetTypeFromFormatVersion((int)jsonObj.formatVersion);
 
             // 如果存在info字段的同时，info字段为jsonObject，且存在lines字段，且lines字段为JsonArray，则这是PhiFans谱面
-            if (jsonObj.info is null && jsonObj.info is JObject && jsonObj.lines != null && jsonObj.lines is JArray)
+            if (jsonObj.info is JObject && jsonObj.lines != null && jsonObj.lines is JArray)
                 return ChartType.PhiFans;
         }
         catch (Exception e)

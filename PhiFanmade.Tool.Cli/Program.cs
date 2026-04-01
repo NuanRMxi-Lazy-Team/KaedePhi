@@ -1,6 +1,5 @@
 ﻿using System.Reflection;
 using PhiFanmade.Tool.Cli.Commands;
-using PhiFanmade.Tool.Cli.Commands.RePhiEdit;
 using PhiFanmade.Tool.Cli.Commands.Test;
 using PhiFanmade.Tool.Cli.Commands.WorkSpace;
 using PhiFanmade.Tool.Cli.Infrastructure;
@@ -62,6 +61,12 @@ app.Configure(config =>
         .WithDescription(CliLocalizationString.fit_command_desc);
     config.AddCommand<ConvertCommand>("convert")
         .WithDescription(CliLocalizationString.convert_command_desc);
+    config.AddCommand<LayerMergeCommand>("layer-merge")
+        .WithDescription(Strings.cli_cmd_rpe_layer_merge_desc);
+    config.AddCommand<CutEventCommand>("cut")
+        .WithAlias("cut-event")
+        .WithAlias("cut-all")
+        .WithDescription(Strings.cli_cmd_rpe_cut_event_desc);
 
     config.AddBranch("workspace", ws =>
     {
@@ -74,24 +79,6 @@ app.Configure(config =>
             .WithDescription(Strings.cli_cmd_load_desc);
         ws.AddCommand<SaveCommand>("save")
             .WithDescription(Strings.cli_cmd_save_desc);
-    });
-
-    config.AddBranch("rpe", rpe =>
-    {
-        rpe.SetDescription(Strings.cli_branch_rpe_desc);
-        rpe.AddCommand<VersionCommand>("unbind-father")
-            .WithDescription(Strings.cli_cmd_rpe_unbind_father_desc)
-            .WithAlias("unbind")
-            .IsHidden();
-        rpe.AddCommand<RpeLayerMergeCommand>("layer-merge")
-            .WithDescription(Strings.cli_cmd_rpe_layer_merge_desc)
-            .WithAlias("layer-merge");
-        rpe.AddCommand<RpeConvertCommand>("convert")
-            .WithDescription(Strings.cli_cmd_rpe_convert_desc);
-        rpe.AddCommand<RpeCutEventCommand>("cut")
-            .WithAlias("cut-event")
-            .WithAlias("cut-all")
-            .WithDescription(Strings.cli_cmd_rpe_cut_event_desc);
     });
 });
 

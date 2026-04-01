@@ -22,20 +22,11 @@ public sealed class UnbindFatherCommand : AsyncCommand<UnbindFatherCommand.Setti
         CancellationToken cancellationToken)
     {
         var writer = settings.CreateWriter();
-        var chartText = await settings.LoadChartAsync();
+        var nrc = await settings.LoadNrcChartAsync(cancellationToken);
         if (settings is { DisableCompress: true, Classic: false })
         {
             writer.Error(string.Format(Strings.cli_err_classic_disablsed));
             return 1;
-        }
-
-        // 推断谱面格式
-        var chartType = Common.ChartGetType.GetType(chartText);
-        NrcCore.Chart? nrc = null;
-        if (chartType == Common.ChartType.RePhiEdit)
-        {
-            var chart = await RpeCore.Chart.LoadFromJsonAsync(chartText);
-            nrc = PhiFanmade.Tool.RePhiEdit.Converters.RpeToNrc.Convert(chart);
         }
 
         if (nrc == null)
@@ -67,18 +58,12 @@ public sealed class UnbindFatherCommand : AsyncCommand<UnbindFatherCommand.Setti
                         nrcCopy.JudgeLineList[i] = await NrcJudgeLineTools.FatherUnbindPlusAsync(
                             i, nrc.JudgeLineList, settings.Precision, settings.Tolerance);
             }
-            var rpeResult = NrcTool.Converters.NrcToRpe.Convert(nrcCopy);
-            var output = settings.ResolveOutputPath();
-            if (!settings.DryRun)
+
+            var output = await settings.SaveFromNrcAsync(nrcCopy, cancellationToken);
+            if (output == null)
             {
-                if (settings.StreamOutput)
-                {
-                    await using var stream = new FileStream(output, FileMode.Create);
-                    await rpeResult.ExportToJsonStreamAsync(stream, settings.FormatOutput);
-                }
-                else
-                    await File.WriteAllTextAsync(output, await rpeResult.ExportToJsonAsync(settings.FormatOutput),
-                        cancellationToken);
+                writer.Warn(Strings.cli_warn_rpe_convert);
+                return 2;
             }
 
             writer.Info(string.Format(Strings.cli_msg_written, output));
