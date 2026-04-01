@@ -14,7 +14,8 @@ namespace PhiFanmade.Core.PhiFans
         /// <summary>
         /// 谱面偏移
         /// </summary>
-        [JsonProperty("offset")] public int Offset;
+        [JsonProperty("offset")]
+        public int Offset { get; set; }
 
         /// <summary>
         /// 谱面BPM列表
