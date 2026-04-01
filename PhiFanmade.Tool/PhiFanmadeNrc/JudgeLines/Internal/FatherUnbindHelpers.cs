@@ -7,7 +7,7 @@ using PhiFanmade.Tool.PhiFanmadeNrc.Events.Internal;
 namespace PhiFanmade.Tool.PhiFanmadeNrc.JudgeLines.Internal;
 
 /// <summary>
-/// NRC 父子解绑共用辅助方法：缓存表、坐标计算、通道合并、范围统计、结果写回。
+/// NRC 父子解绑共用辅助方法：缓存表、坐标计算、通道合并、范围统计、采样算法、结果写回。
 /// 同步处理器（<see cref="FatherUnbindProcessor"/>）与异步处理器（<see cref="FatherUnbindAsyncProcessor"/>）共享此类。
 /// </summary>
 internal static class FatherUnbindHelpers
@@ -180,5 +180,199 @@ internal static class FatherUnbindHelpers
         }
 
         line.Father = -1;
+    }
+
+    // ─── 共享数据结构 ────────────────────────────────────────────────────────
+
+    /// <summary>
+    /// 封装解绑计算所需的五个事件通道：父线 X/Y/旋转 和子线 X/Y。
+    /// 使用 readonly record struct 保证值语义，可安全在多线程闭包中捕获。
+    /// </summary>
+    internal readonly record struct EventChannels(
+        List<Nrc.Event<double>> Fx,
+        List<Nrc.Event<double>> Fy,
+        List<Nrc.Event<double>> Fr,
+        List<Nrc.Event<double>> Tx,
+        List<Nrc.Event<double>> Ty);
+
+    // ─── 等间隔采样算法 ──────────────────────────────────────────────────────
+
+    /// <summary>
+    /// 生成从 <paramref name="min"/> 到 <paramref name="max"/>（不含）以 <paramref name="step"/> 为步长的拍列表。
+    /// </summary>
+    internal static List<Beat> BuildBeatList(Beat min, Beat max, Beat step)
+    {
+        var beats = new List<Beat>();
+        for (var b = min; b < max; b += step) beats.Add(b);
+        return beats;
+    }
+
+    /// <summary>
+    /// 并行等间隔采样：对 <paramref name="beats"/> 中每一段计算绝对坐标，返回按顺序排列的 X/Y 事件列表。
+    /// </summary>
+    internal static (List<Nrc.Event<double>> x, List<Nrc.Event<double>> y) EqualSpacingSampling(
+        List<Beat> beats, Beat max, Beat step, EventChannels ch)
+    {
+        var xBag = new ConcurrentBag<(int i, Nrc.Event<double> evt)>();
+        var yBag = new ConcurrentBag<(int i, Nrc.Event<double> evt)>();
+
+        Parallel.For(0, beats.Count, i =>
+        {
+            var beat = beats[i];
+            var next = beat + step > max ? max : beat + step;
+            var (xEvt, yEvt) = ComputeBeatSegment(beat, next, ch);
+            xBag.Add((i, xEvt));
+            yBag.Add((i, yEvt));
+        });
+
+        return (xBag.OrderBy(x => x.i).Select(x => x.evt).ToList(),
+            yBag.OrderBy(x => x.i).Select(x => x.evt).ToList());
+    }
+
+    /// <summary>
+    /// 计算单个采样段 [<paramref name="beat"/>, <paramref name="next"/>] 的 X/Y 绝对坐标事件。
+    /// 段起点取 GetValIn（正在生效的插值），段终点取 GetValOut（即将结束的插值）。
+    /// </summary>
+    internal static (Nrc.Event<double> x, Nrc.Event<double> y) ComputeBeatSegment(
+        Beat beat, Beat next, EventChannels ch)
+    {
+        var (startAbsX, startAbsY) = GetLinePos(
+            GetValIn(ch.Fx, beat), GetValIn(ch.Fy, beat), GetValIn(ch.Fr, beat),
+            GetValIn(ch.Tx, beat), GetValIn(ch.Ty, beat));
+        var (endAbsX, endAbsY) = GetLinePos(
+            GetValOut(ch.Fx, next), GetValOut(ch.Fy, next), GetValOut(ch.Fr, next),
+            GetValOut(ch.Tx, next), GetValOut(ch.Ty, next));
+
+        return (
+            new Nrc.Event<double> { StartBeat = beat, EndBeat = next, StartValue = startAbsX, EndValue = endAbsX },
+            new Nrc.Event<double> { StartBeat = beat, EndBeat = next, StartValue = startAbsY, EndValue = endAbsY }
+        );
+    }
+
+    // ─── 自适应采样算法 ──────────────────────────────────────────────────────
+
+    /// <summary>
+    /// 尝试计算五个通道的总体拍范围。若所有通道均为空则返回 <see langword="null"/>。
+    /// </summary>
+    internal static (Beat min, Beat max)? TryGetOverallRange(EventChannels ch)
+    {
+        Beat overallMin = new(0), overallMax = new(0);
+        var hasEvents = false;
+        foreach (var list in new[] { ch.Tx, ch.Ty, ch.Fx, ch.Fy, ch.Fr })
+        {
+            if (list.Count == 0) continue;
+            var (mn, mx) = GetEventRange(list);
+            if (!hasEvents)
+            {
+                overallMin = mn;
+                overallMax = mx;
+                hasEvents = true;
+            }
+            else
+            {
+                if (mn < overallMin) overallMin = mn;
+                if (mx > overallMax) overallMax = mx;
+            }
+        }
+
+        return hasEvents ? (overallMin, overallMax) : null;
+    }
+
+    /// <summary>
+    /// 收集所有通道事件的起止拍作为关键帧，在 [<paramref name="overallMin"/>, <paramref name="overallMax"/>]
+    /// 范围内去重排序后返回。关键帧是自适应采样的强制切割点。
+    /// </summary>
+    internal static List<Beat> CollectKeyBeats(Beat overallMin, Beat overallMax, EventChannels ch)
+    {
+        var keyBeatsList = new List<Beat> { overallMin, overallMax };
+        foreach (var list in new[] { ch.Tx, ch.Ty, ch.Fx, ch.Fy, ch.Fr })
+        {
+            foreach (var e in list)
+            {
+                if (e.StartBeat >= overallMin && e.StartBeat <= overallMax) keyBeatsList.Add(e.StartBeat);
+                if (e.EndBeat >= overallMin && e.EndBeat <= overallMax) keyBeatsList.Add(e.EndBeat);
+            }
+        }
+
+        return keyBeatsList.Distinct().OrderBy(b => b).ToList();
+    }
+
+    /// <summary>
+    /// 并行自适应采样：对 <paramref name="keyBeats"/> 中的每个区间调用
+    /// <see cref="AdaptiveSampleInterval"/>，汇总后返回 X/Y 事件列表。
+    /// </summary>
+    internal static (List<Nrc.Event<double>> x, List<Nrc.Event<double>> y) RunAdaptiveSampling(
+        List<Beat> keyBeats, Beat step, double tolerance, EventChannels ch)
+    {
+        var segmentCount = keyBeats.Count - 1;
+        var segmentsX = new List<Nrc.Event<double>>[segmentCount];
+        var segmentsY = new List<Nrc.Event<double>>[segmentCount];
+        for (var i = 0; i < segmentCount; i++)
+        {
+            segmentsX[i] = [];
+            segmentsY[i] = [];
+        }
+
+        // 捕获 EventChannels 到局部函数，避免闭包捕获可变变量
+        (double X, double Y) AbsPosIn(Beat b) => GetLinePos(
+            GetValIn(ch.Fx, b), GetValIn(ch.Fy, b), GetValIn(ch.Fr, b),
+            GetValIn(ch.Tx, b), GetValIn(ch.Ty, b));
+
+        (double X, double Y) AbsPosOut(Beat b) => GetLinePos(
+            GetValOut(ch.Fx, b), GetValOut(ch.Fy, b), GetValOut(ch.Fr, b),
+            GetValOut(ch.Tx, b), GetValOut(ch.Ty, b));
+
+        Parallel.For(0, segmentCount, ki =>
+        {
+            if (keyBeats[ki] >= keyBeats[ki + 1]) return;
+            var (sx, sy) = AdaptiveSampleInterval(
+                keyBeats[ki], keyBeats[ki + 1], step, tolerance, AbsPosIn, AbsPosOut);
+            segmentsX[ki].AddRange(sx);
+            segmentsY[ki].AddRange(sy);
+        });
+
+        var resX = new List<Nrc.Event<double>>();
+        var resY = new List<Nrc.Event<double>>();
+        foreach (var seg in segmentsX) resX.AddRange(seg);
+        foreach (var seg in segmentsY) resY.AddRange(seg);
+        return (resX, resY);
+    }
+
+    /// <summary>
+    /// 对单个区间 [<paramref name="iStart"/>, <paramref name="iEnd"/>] 进行自适应分段采样：
+    /// 以 <paramref name="step"/> 推进，当相邻采样点误差超出容差时插入切割点，否则延续当前段。
+    /// </summary>
+    private static (List<Nrc.Event<double>> x, List<Nrc.Event<double>> y) AdaptiveSampleInterval(
+        Beat iStart, Beat iEnd, Beat step, double tolerance,
+        Func<Beat, (double X, double Y)> absPosIn,
+        Func<Beat, (double X, double Y)> absPosOut)
+    {
+        var localX = new List<Nrc.Event<double>>();
+        var localY = new List<Nrc.Event<double>>();
+
+        var end = absPosOut(iEnd);
+        var segStart = iStart;
+        var seg = absPosIn(iStart);
+
+        for (var cur = iStart; cur < iEnd;)
+        {
+            var next = cur + step > iEnd ? iEnd : cur + step;
+            var isLast = next >= iEnd;
+            var nextPos = isLast ? end : absPosIn(next);
+
+            if (isLast || NeedsAdaptiveCut(seg, nextPos, end, segStart, iEnd, next, tolerance))
+            {
+                localX.Add(new Nrc.Event<double>
+                    { StartBeat = segStart, EndBeat = next, StartValue = seg.X, EndValue = nextPos.X });
+                localY.Add(new Nrc.Event<double>
+                    { StartBeat = segStart, EndBeat = next, StartValue = seg.Y, EndValue = nextPos.Y });
+                segStart = next;
+                seg = nextPos;
+            }
+
+            cur = next;
+        }
+
+        return (localX, localY);
     }
 }

@@ -79,7 +79,7 @@ app.Configure(config =>
     config.AddBranch("rpe", rpe =>
     {
         rpe.SetDescription(Strings.cli_branch_rpe_desc);
-        rpe.AddCommand<RpeUnbindFatherCommand>("unbind-father")
+        rpe.AddCommand<VersionCommand>("unbind-father")
             .WithDescription(Strings.cli_cmd_rpe_unbind_father_desc)
             .WithAlias("unbind")
             .IsHidden();

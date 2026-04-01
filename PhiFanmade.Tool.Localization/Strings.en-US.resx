@@ -170,7 +170,7 @@
     <value>v0.1.x — GUI Edition</value>
   </data>
   <data name="cli_cmd_rpe_unbind_father_desc" xml:space="preserve">
-    <value>Unbind the judgment line from its parent.</value>
+    <value>Unbind the judgment line from its parent.(Deprecated)</value>
   </data>
   <data name="cli_opt_tolerance_desc" xml:space="preserve">
     <value>Fitting tolerance percentage (default: 5)</value>

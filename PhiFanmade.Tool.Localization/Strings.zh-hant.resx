@@ -37,7 +37,7 @@
     <value>RPE 譜面操作</value>
   </data>
   <data name="cli_cmd_rpe_unbind_father_desc" xml:space="preserve">
-    <value>將判定線與父級解綁</value>
+    <value>將判定線與父級解綁(已弃用)</value>
   </data>
   <data name="cli_cmd_rpe_layer_merge_desc" xml:space="preserve">
     <value>將所有判定線的多個事件層級合併為單一層級。</value>
