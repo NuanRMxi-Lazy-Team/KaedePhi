@@ -28,52 +28,38 @@ public sealed class FitEventCommand : AsyncCommand<FitEventCommand.Settings>
         }
 
         var nrcCopy = nrc.Clone();
-        // 订阅日志
-        var onDebug = writer.Info;
-        var onError = writer.Error;
-        var onInfo = writer.Info;
-        var onWarning = writer.Warn;
-        NrcToolLog.OnDebug += onDebug;
-        NrcToolLog.OnError += onError;
-        NrcToolLog.OnInfo += onInfo;
-        NrcToolLog.OnWarning += onWarning;
+        using var logSubscription = NrcToolLog.Subscribe(
+            info: writer.Info,
+            warning: writer.Warn,
+            error: writer.Error,
+            debug: writer.Info);
 
-        try
+        for (var i = 0; i < nrc.JudgeLineList.Count; i++)
         {
-            for (var i = 0; i < nrc.JudgeLineList.Count; i++)
+            var jdl = nrc.JudgeLineList[i];
+            for (var index = 0; index < jdl.EventLayers.Count; index++)
             {
-                var jdl = nrc.JudgeLineList[i];
-                for (var index = 0; index < jdl.EventLayers.Count; index++)
-                {
-                    var eventLayer = jdl.EventLayers[index];
-                    if (eventLayer == null) continue;
-                    nrcCopy.JudgeLineList[i].EventLayers[index].MoveXEvents = NrcTool.Events.NrcEventTools.EventListFit(eventLayer.MoveXEvents,
-                        settings.Precision, settings.Tolerance);
-                    nrcCopy.JudgeLineList[i].EventLayers[index].MoveYEvents = NrcTool.Events.NrcEventTools.EventListFit(eventLayer.MoveYEvents,
-                        settings.Precision, settings.Tolerance);
-                    nrcCopy.JudgeLineList[i].EventLayers[index].AlphaEvents = NrcTool.Events.NrcEventTools.EventListFit(eventLayer.AlphaEvents,
-                        settings.Precision, settings.Tolerance);
-                    nrcCopy.JudgeLineList[i].EventLayers[index].RotateEvents = NrcTool.Events.NrcEventTools.EventListFit(eventLayer.RotateEvents,
-                        settings.Precision, settings.Tolerance);
-                }
+                var eventLayer = jdl.EventLayers[index];
+                if (eventLayer == null) continue;
+                nrcCopy.JudgeLineList[i].EventLayers[index].MoveXEvents = NrcTool.Events.NrcEventTools.EventListFit(eventLayer.MoveXEvents,
+                    settings.Precision, settings.Tolerance);
+                nrcCopy.JudgeLineList[i].EventLayers[index].MoveYEvents = NrcTool.Events.NrcEventTools.EventListFit(eventLayer.MoveYEvents,
+                    settings.Precision, settings.Tolerance);
+                nrcCopy.JudgeLineList[i].EventLayers[index].AlphaEvents = NrcTool.Events.NrcEventTools.EventListFit(eventLayer.AlphaEvents,
+                    settings.Precision, settings.Tolerance);
+                nrcCopy.JudgeLineList[i].EventLayers[index].RotateEvents = NrcTool.Events.NrcEventTools.EventListFit(eventLayer.RotateEvents,
+                    settings.Precision, settings.Tolerance);
             }
-
-            var output = await settings.SaveFromNrcAsync(nrcCopy, cancellationToken);
-            if (output == null)
-            {
-                writer.Warn(Strings.cli_warn_rpe_convert);
-                return 2;
-            }
-
-            writer.Info(string.Format(Strings.cli_msg_written, output));
-            return 0;
         }
-        finally
+
+        var output = await settings.SaveFromNrcAsync(nrcCopy, cancellationToken);
+        if (output == null)
         {
-            NrcToolLog.OnDebug -= onDebug;
-            NrcToolLog.OnError -= onError;
-            NrcToolLog.OnInfo -= onInfo;
-            NrcToolLog.OnWarning -= onWarning;
+            writer.Warn(Strings.cli_warn_rpe_convert);
+            return 2;
         }
+
+        writer.Info(string.Format(Strings.cli_msg_written, output));
+        return 0;
     }
 }

@@ -36,45 +36,31 @@ public sealed class UnbindFatherCommand : AsyncCommand<UnbindFatherCommand.Setti
         }
 
         var nrcCopy = nrc.Clone();
-        // 订阅日志
-        var onDebug = writer.Info;
-        var onError = writer.Error;
-        var onInfo = writer.Info;
-        var onWarning = writer.Warn;
-        NrcToolLog.OnDebug += onDebug;
-        NrcToolLog.OnError += onError;
-        NrcToolLog.OnInfo += onInfo;
-        NrcToolLog.OnWarning += onWarning;
+        using var logSubscription = NrcToolLog.Subscribe(
+            info: writer.Info,
+            warning: writer.Warn,
+            error: writer.Error,
+            debug: writer.Info);
 
-        try
+        for (var i = 0; i < nrc.JudgeLineList.Count; i++)
         {
-            for (var i = 0; i < nrc.JudgeLineList.Count; i++)
-            {
-                if (nrc.JudgeLineList[i].Father != -1)
-                    if (settings.Classic)
-                        nrcCopy.JudgeLineList[i] = await NrcJudgeLineTools.FatherUnbindAsync(
-                            i, nrc.JudgeLineList, settings.Precision, settings.Tolerance, !settings.DisableCompress);
-                    else
-                        nrcCopy.JudgeLineList[i] = await NrcJudgeLineTools.FatherUnbindPlusAsync(
-                            i, nrc.JudgeLineList, settings.Precision, settings.Tolerance);
-            }
-
-            var output = await settings.SaveFromNrcAsync(nrcCopy, cancellationToken);
-            if (output == null)
-            {
-                writer.Warn(Strings.cli_warn_rpe_convert);
-                return 2;
-            }
-
-            writer.Info(string.Format(Strings.cli_msg_written, output));
-            return 0;
+            if (nrc.JudgeLineList[i].Father != -1)
+                if (settings.Classic)
+                    nrcCopy.JudgeLineList[i] = await NrcJudgeLineTools.FatherUnbindAsync(
+                        i, nrc.JudgeLineList, settings.Precision, settings.Tolerance, !settings.DisableCompress);
+                else
+                    nrcCopy.JudgeLineList[i] = await NrcJudgeLineTools.FatherUnbindPlusAsync(
+                        i, nrc.JudgeLineList, settings.Precision, settings.Tolerance);
         }
-        finally
+
+        var output = await settings.SaveFromNrcAsync(nrcCopy, cancellationToken);
+        if (output == null)
         {
-            NrcToolLog.OnDebug -= onDebug;
-            NrcToolLog.OnError -= onError;
-            NrcToolLog.OnInfo -= onInfo;
-            NrcToolLog.OnWarning -= onWarning;
+            writer.Warn(Strings.cli_warn_rpe_convert);
+            return 2;
         }
+
+        writer.Info(string.Format(Strings.cli_msg_written, output));
+        return 0;
     }
 }

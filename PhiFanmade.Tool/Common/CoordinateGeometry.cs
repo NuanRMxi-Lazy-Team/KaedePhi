@@ -141,6 +141,7 @@ internal static class CoordinateGeometry
     /// <param name="target">目标坐标配置。</param>
     /// <returns>目标坐标系下的 X 坐标。</returns>
     internal static double ToTargetX(double x, in CoordinateProfile target) => ToTargetXCore(x, target);
+
     /// <summary>
     /// 将 NRC Y 坐标转换为指定坐标系 Y 坐标。
     /// </summary>
@@ -148,6 +149,7 @@ internal static class CoordinateGeometry
     /// <param name="target">目标坐标配置。</param>
     /// <returns>目标坐标系下的 Y 坐标。</returns>
     internal static double ToTargetY(double y, in CoordinateProfile target) => ToTargetYCore(y, target);
+
     /// <summary>
     /// 将 NRC X 坐标转换为指定坐标系 X 坐标（单精度）。
     /// </summary>
@@ -155,6 +157,7 @@ internal static class CoordinateGeometry
     /// <param name="target">目标坐标配置。</param>
     /// <returns>目标坐标系下的单精度 X 坐标。</returns>
     internal static float ToTargetXf(double x, in CoordinateProfile target) => (float)ToTargetXCore(x, target);
+
     /// <summary>
     /// 将 NRC Y 坐标转换为指定坐标系 Y 坐标（单精度）。
     /// </summary>
@@ -162,6 +165,7 @@ internal static class CoordinateGeometry
     /// <param name="target">目标坐标配置。</param>
     /// <returns>目标坐标系下的单精度 Y 坐标。</returns>
     internal static float ToTargetYf(double y, in CoordinateProfile target) => (float)ToTargetYCore(y, target);
+
     /// <summary>
     /// 将指定坐标系 X 坐标转换为 NRC X 坐标。
     /// </summary>
@@ -169,6 +173,14 @@ internal static class CoordinateGeometry
     /// <param name="source">源坐标配置。</param>
     /// <returns>NRC X 坐标。</returns>
     internal static double ToNrcX(double x, in CoordinateProfile source) => ToNrcXCore(x, source);
+
+    /// <summary>
+    /// 将默认渲染坐标系 X 坐标转换为 NRC X 坐标。
+    /// </summary>
+    /// <param name="x">默认渲染坐标系 X 坐标。</param>
+    /// <returns>NRC X 坐标。</returns>
+    internal static double ToNrcX(double x) => ToNrcXCore(x, RenderProfileDefault);
+
     /// <summary>
     /// 将指定坐标系 Y 坐标转换为 NRC Y 坐标。
     /// </summary>
@@ -176,6 +188,13 @@ internal static class CoordinateGeometry
     /// <param name="source">源坐标配置。</param>
     /// <returns>NRC Y 坐标。</returns>
     internal static double ToNrcY(double y, in CoordinateProfile source) => ToNrcYCore(y, source);
+
+    /// <summary>
+    /// 将默认渲染坐标系 Y 坐标转换为 NRC Y 坐标。
+    /// </summary>
+    /// <param name="y">默认渲染坐标系 Y 坐标。</param>
+    /// <returns>NRC Y 坐标。</returns>
+    internal static double ToNrcY(double y) => ToNrcYCore(y, RenderProfileDefault);
 
     /// <summary>
     /// 将 NRC 角度转换为指定坐标系角度。
@@ -196,23 +215,34 @@ internal static class CoordinateGeometry
         => ToNrcAngleCore(sourceAngleDegrees, source);
 
     /// <summary>
+    /// 将默认渲染坐标系角度转换为 NRC 角度。
+    /// </summary>
+    /// <param name="sourceAngleDegrees">默认渲染坐标系角度（度）。</param>
+    /// <returns>NRC 角度（度）。</returns>
+    internal static double ToNrcAngle(double sourceAngleDegrees) =>
+        ToNrcAngleCore(sourceAngleDegrees, RenderProfileDefault);
+
+    /// <summary>
     /// 将 NRC X 坐标转换为默认渲染坐标系 X 坐标。
     /// </summary>
     /// <param name="x">NRC X 坐标。</param>
     /// <returns>默认渲染坐标系下的 X 坐标。</returns>
     internal static double ToRenderX(double x) => ToTargetXCore(x, RenderProfileDefault);
+
     /// <summary>
     /// 将 NRC Y 坐标转换为默认渲染坐标系 Y 坐标。
     /// </summary>
     /// <param name="y">NRC Y 坐标。</param>
     /// <returns>默认渲染坐标系下的 Y 坐标。</returns>
     internal static double ToRenderY(double y) => ToTargetYCore(y, RenderProfileDefault);
+
     /// <summary>
     /// 将 NRC X 坐标转换为默认渲染坐标系 X 坐标（单精度）。
     /// </summary>
     /// <param name="x">NRC X 坐标。</param>
     /// <returns>默认渲染坐标系下的单精度 X 坐标。</returns>
     internal static float ToRenderXf(double x) => (float)ToRenderX(x);
+
     /// <summary>
     /// 将 NRC Y 坐标转换为默认渲染坐标系 Y 坐标（单精度）。
     /// </summary>
@@ -220,18 +250,6 @@ internal static class CoordinateGeometry
     /// <returns>默认渲染坐标系下的单精度 Y 坐标。</returns>
     internal static float ToRenderYf(double y) => (float)ToRenderY(y);
 
-    /// <summary>
-    /// 将默认渲染坐标系 X 坐标转换为 NRC X 坐标。
-    /// </summary>
-    /// <param name="x">默认渲染坐标系 X 坐标。</param>
-    /// <returns>NRC X 坐标。</returns>
-    internal static double ToNrcX(double x) => ToNrcXCore(x, RenderProfileDefault);
-    /// <summary>
-    /// 将默认渲染坐标系 Y 坐标转换为 NRC Y 坐标。
-    /// </summary>
-    /// <param name="y">默认渲染坐标系 Y 坐标。</param>
-    /// <returns>NRC Y 坐标。</returns>
-    internal static double ToNrcY(double y) => ToNrcYCore(y, RenderProfileDefault);
 
     /// <summary>
     /// 将 NRC 角度转换为默认渲染坐标系角度。
@@ -241,13 +259,6 @@ internal static class CoordinateGeometry
     internal static double ToRenderAngle(double nrcAngleDegrees) =>
         ToTargetAngleCore(nrcAngleDegrees, RenderProfileDefault);
 
-    /// <summary>
-    /// 将默认渲染坐标系角度转换为 NRC 角度。
-    /// </summary>
-    /// <param name="sourceAngleDegrees">默认渲染坐标系角度（度）。</param>
-    /// <returns>NRC 角度（度）。</returns>
-    internal static double ToNrcAngle(double sourceAngleDegrees) =>
-        ToNrcAngleCore(sourceAngleDegrees, RenderProfileDefault);
 
     /// <summary>
     /// 将 NRC 点坐标转换为默认渲染坐标系点坐标。

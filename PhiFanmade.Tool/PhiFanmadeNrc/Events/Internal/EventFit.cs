@@ -53,7 +53,8 @@ internal static class EventFit
             }
 
             var runEnd = index + 1;
-            while (runEnd < sortedEvents.Count && CanAppendToFitRun(sortedEvents[runEnd - 1], sortedEvents[runEnd], tolerance))
+            while (runEnd < sortedEvents.Count &&
+                   CanAppendToFitRun(sortedEvents[runEnd - 1], sortedEvents[runEnd], tolerance))
             {
                 runEnd++;
             }
@@ -150,7 +151,7 @@ internal static class EventFit
         var sourceProfile = AnalyzeSourceProfile(samples);
 
         var first = runEvents[startIndex];
-        var last  = runEvents[endIndex];
+        var last = runEvents[endIndex];
 
         var startValue = Convert.ToDouble(first.StartValue);
         var endValue = Convert.ToDouble(last.EndValue);
@@ -181,11 +182,8 @@ internal static class EventFit
             if (candidateScore > bestScore + NumericEpsilon)
                 continue;
 
-            if (Math.Abs(candidateScore - bestScore) <= NumericEpsilon && bestCandidate is not null)
-            {
-                if ((int)candidate.Easing >= (int)bestCandidate.Easing)
-                    continue;
-            }
+            if (Math.Abs(candidateScore - bestScore) <= NumericEpsilon && bestCandidate is not null &&
+                (int)candidate.Easing >= (int)bestCandidate.Easing) continue;
 
             bestScore = candidateScore;
             bestCandidate = candidate;
@@ -231,11 +229,12 @@ internal static class EventFit
                 currentEvent.StartBeat,
                 Convert.ToDouble(currentEvent.StartValue));
 
-            var segmentCount = Math.Max(2, (int)Math.Ceiling((double)(currentEvent.EndBeat - currentEvent.StartBeat) * precision));
+            var segmentCount = Math.Max(2,
+                (int)Math.Ceiling((double)(currentEvent.EndBeat - currentEvent.StartBeat) * precision));
             for (var step = 1; step < segmentCount; step++)
             {
                 var ratio = step / (double)segmentCount;
-                var beat  = LerpBeat(currentEvent.StartBeat, currentEvent.EndBeat, ratio);
+                var beat = LerpBeat(currentEvent.StartBeat, currentEvent.EndBeat, ratio);
                 AddSample(
                     samples,
                     globalStartBeat,
@@ -297,7 +296,8 @@ internal static class EventFit
         double tolerance,
         out double score)
     {
-        if (!TryMeasureCandidateError(candidate, samples, errorScale, tolerance, out var normalizedMaxError, out var normalizedRmse))
+        if (!TryMeasureCandidateError(candidate, samples, errorScale, tolerance, out var normalizedMaxError,
+                out var normalizedRmse))
         {
             score = double.PositiveInfinity;
             return false;
@@ -343,13 +343,13 @@ internal static class EventFit
         out double normalizedRmse)
     {
         var allowedError = tolerance / 100d * errorScale;
-        var maxError     = 0d;
+        var maxError = 0d;
         var sumSquaredError = 0d;
 
         foreach (var sample in samples)
         {
             var candidateValue = Convert.ToDouble(candidate.GetValueAtBeat(sample.Beat));
-            var error          = Math.Abs(candidateValue - sample.Value);
+            var error = Math.Abs(candidateValue - sample.Value);
             if (error > allowedError)
             {
                 normalizedMaxError = double.PositiveInfinity;
@@ -440,13 +440,7 @@ internal static class EventFit
 
     private static bool HasOvershoot(IEnumerable<double> progresses)
     {
-        foreach (var progress in progresses)
-        {
-            if (progress < -0.01d || progress > 1.01d)
-                return true;
-        }
-
-        return false;
+        return progresses.Any(progress => progress is < -0.01d or > 1.01d);
     }
 
     private static bool IsMonotonic(IEnumerable<double> progresses)
@@ -512,12 +506,12 @@ internal static class EventFit
     private static Nrc.Event<T> CreateCandidateEvent<T>(Nrc.Event<T> first, Nrc.Event<T> last, int easingId)
         => new()
         {
-            StartBeat  = new Beat((int[])first.StartBeat),
-            EndBeat    = new Beat((int[])last.EndBeat),
+            StartBeat = new Beat((int[])first.StartBeat),
+            EndBeat = new Beat((int[])last.EndBeat),
             StartValue = first.StartValue,
-            EndValue   = last.EndValue,
-            Easing     = new Nrc.Easing(easingId),
-            Font       = first.Font
+            EndValue = last.EndValue,
+            Easing = new Nrc.Easing(easingId),
+            Font = first.Font
         };
 
     private static bool CanParticipateInFit<T>(Nrc.Event<T> evt)

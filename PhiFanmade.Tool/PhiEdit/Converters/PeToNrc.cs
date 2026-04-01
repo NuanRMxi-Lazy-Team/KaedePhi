@@ -101,8 +101,7 @@ public static class PeToNrc
         if (judgeLines == null || judgeLines.Count == 0) return [];
 
         var result = new List<Nrc.JudgeLine>(judgeLines.Count);
-        for (var i = 0; i < judgeLines.Count; i++)
-            result.Add(ConvertJudgeLine(judgeLines[i], i));
+        result.AddRange(judgeLines.Select(ConvertJudgeLine));
         return result;
     }
 

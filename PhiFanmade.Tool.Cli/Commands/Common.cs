@@ -100,9 +100,9 @@ public abstract class OperationSettings : BaseSettings
 
         return chartType switch
         {
-            ChartType.RePhiEdit => PhiFanmade.Tool.RePhiEdit.Converters.RpeToNrc.Convert(
+            ChartType.RePhiEdit => RePhiEdit.Converters.RpeToNrc.Convert(
                 await RpeCore.Chart.LoadFromJsonAsync(chartText)),
-            ChartType.PhiEdit => PhiFanmade.Tool.PhiEdit.Converters.PeToNrc.Convert(
+            ChartType.PhiEdit => PhiEdit.Converters.PeToNrc.Convert(
                 await PeCore.Chart.LoadAsync(chartText)),
             _ => null
         };
@@ -118,18 +118,16 @@ public abstract class OperationSettings : BaseSettings
 
         var rpeChart = NrcTool.Converters.NrcToRpe.Convert(chart);
 
-        if (!DryRun)
+        if (DryRun) return output;
+        if (StreamOutput)
         {
-            if (StreamOutput)
-            {
-                await using var stream = new FileStream(output, FileMode.Create);
-                await rpeChart.ExportToJsonStreamAsync(stream, FormatOutput);
-            }
-            else
-            {
-                var json = await rpeChart.ExportToJsonAsync(FormatOutput);
-                await File.WriteAllTextAsync(output, json, cancellationToken);
-            }
+            await using var stream = new FileStream(output, FileMode.Create);
+            await rpeChart.ExportToJsonStreamAsync(stream, FormatOutput);
+        }
+        else
+        {
+            var json = await rpeChart.ExportToJsonAsync(FormatOutput);
+            await File.WriteAllTextAsync(output, json, cancellationToken);
         }
 
         return output;
