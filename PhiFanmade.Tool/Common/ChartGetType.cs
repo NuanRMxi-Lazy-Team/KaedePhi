@@ -24,7 +24,7 @@ public static class ChartGetType
         if (!chartText.TrimStart().StartsWith('{'))
         {
             // 也不一定，如果第一行不是纯数字，那么这就是个无效文件
-            if (chartText.Split('\n')[0].Trim().All(char.IsDigit))
+            if (int.TryParse(chartText.Split('\n')[0].Trim(), out _))
                 return ChartType.PhiEdit;
 
             throw new NotSupportedException(UnsupportedChartMessage);

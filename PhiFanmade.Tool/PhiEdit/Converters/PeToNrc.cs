@@ -26,6 +26,11 @@ public static class PeToNrc
         Pe.Chart.CoordinateSystem.ClockwiseRotation);
 
     /// <summary>
+    /// 偏移的偏移常数。
+    /// </summary>
+    private const int OffsetOffset = 175;
+
+    /// <summary>
     /// 将 PhiEdit 谱面转换为 NRC 谱面。
     /// </summary>
     /// <param name="pe">待转换的 PhiEdit 谱面。</param>
@@ -88,7 +93,7 @@ public static class PeToNrc
     /// <returns>NRC 元数据。</returns>
     private static Nrc.Meta ConvertMeta(Pe.Chart src) => new()
     {
-        Offset = -src.Offset
+        Offset = src.Offset - OffsetOffset // WTF
     };
 
     /// <summary>

@@ -20,7 +20,7 @@ namespace PhiFanmade.Core.PhiEdit
             public const float MinX = 0f;
             public const float MaxY = 1400f;
             public const float MinY = 0f;
-            public const bool ClockwiseRotation = false;
+            public const bool ClockwiseRotation = true;
         }
 
         /// <summary>

@@ -21,41 +21,49 @@ namespace PhiFanmade.Core.RePhiEdit
         /// <summary>
         /// BPM列表
         /// </summary>
-        [JsonProperty("BPMList")] public List<BpmItem> BpmList { get; set; }
+        [JsonProperty("BPMList")]
+        public List<BpmItem> BpmList { get; set; }
 
         /// <summary>
         /// 元数据
         /// </summary>
-        [JsonProperty("META")] public Meta Meta = new Meta();
+        [JsonProperty("META")]
+        public Meta Meta { get; set; } = new Meta();
 
         /// <summary>
         /// 判定线列表
         /// </summary>
-        [JsonProperty("judgeLineList")] public List<JudgeLine> JudgeLineList { get; set; }
+        [JsonProperty("judgeLineList")]
+        public List<JudgeLine> JudgeLineList { get; set; }
 
         /// <summary>
         /// 制谱时长（秒）
         /// </summary>
-        [JsonProperty("chartTime")] public double ChartTime = 0d;
+        [JsonProperty("chartTime")]
+        public double ChartTime { get; set; } = 0d;
 
         /// <summary>
         /// 判定线组
         /// </summary>
-        [JsonProperty("judgeLineGroup")] public string[] JudgeLineGroup = { "Default" };
+        [JsonProperty("judgeLineGroup")]
+        public string[] JudgeLineGroup { get; set; } = { "Default" };
 
         /// <summary>
         /// 多线编辑判定线列表（以空格为分割，或使用x:y选中x~y所有判定线）
         /// </summary>
-        [JsonProperty("multiLineString")] public string MultiLineString = "1";
+        [JsonProperty("multiLineString")]
+        public string MultiLineString { get; set; } = "1";
 
         /// <summary>
         /// 多线编辑页面缩放比例
         /// </summary>
-        [JsonProperty("multiScale")] public float MultiScale = 1.0f;
+        [JsonProperty("multiScale")]
+        public float MultiScale { get; set; } = 1.0f;
 
         /// <summary>
         /// XY事件是否一一对应
         /// </summary>
-        [JsonProperty("xybind")] public bool XyBind = true;
+        [JsonProperty("xybind")]
+        public bool XyBind { get; set; } = true;
     }
 }

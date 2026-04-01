@@ -6,9 +6,13 @@ using Spectre.Console.Cli;
 namespace PhiFanmade.Tool.Cli.Commands;
 
 // Description set via WithDescription(Strings.cli_cmd_version_desc) in Program.cs
-public sealed class VersionCommand : AsyncCommand<CommandSettings>
+public sealed class VersionCommand : AsyncCommand<VersionCommand.Settings>
 {
-    public override Task<int> ExecuteAsync(CommandContext context, CommandSettings settings,
+    public sealed class Settings : CommandSettings
+    {
+    }
+
+    public override Task<int> ExecuteAsync(CommandContext context, Settings settings,
         CancellationToken cancellationToken)
     {
 #if PreRelease || Release

@@ -70,9 +70,13 @@ public sealed class SaveCommand : AsyncCommand<SaveCommand.Settings>
 // ─── Workspace List ───────────────────────────────────────────────────────────
 
 // Description set via WithDescription(Strings.cli_cmd_workspace_list_desc) in Program.cs
-public sealed class WorkspaceListCommand : Command<CommandSettings>
+public sealed class WorkspaceListCommand : Command<WorkspaceListCommand.Settings>
 {
-    public override int Execute(CommandContext context, CommandSettings settings,CancellationToken cancellationToken)
+    public sealed class Settings : CommandSettings
+    {
+    }
+
+    public override int Execute(CommandContext context, Settings settings,CancellationToken cancellationToken)
     {
         var ws = new WorkspaceService();
         foreach (var id in ws.List())
