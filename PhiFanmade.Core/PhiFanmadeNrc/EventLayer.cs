@@ -1,20 +1,19 @@
 ﻿using System.Collections.Generic;
 using PhiFanmade.Core.Common;
 
-
 namespace PhiFanmade.Core.PhiFanmadeNrc
 {
     public class EventLayer
     {
-        public List<Event<float>> MoveXEvents; // 移动事件
+        public List<Event<double>> MoveXEvents { get; set; } // 移动事件
 
-        public List<Event<float>> MoveYEvents; // 移动事件
+        public List<Event<double>> MoveYEvents { get; set; } // 移动事件
 
-        public List<Event<float>> RotateEvents; // 旋转事件
+        public List<Event<double>> RotateEvents { get; set; } // 旋转事件
 
-        public List<Event<int>> AlphaEvents; // 透明度事件
+        public List<Event<int>> AlphaEvents { get; set; } // 透明度事件
 
-        public List<Event<float>> SpeedEvents; // 速度事件
+        public List<Event<float>> SpeedEvents { get; set; } // 速度事件
 
         /// <summary>
         /// 获取某个拍时，指定事件层级指定事件列表的数值
@@ -44,13 +43,15 @@ namespace PhiFanmade.Core.PhiFanmadeNrc
         /// </summary>
         public void Sort()
         {
-            var eventLists = new List<List<Event<float>>>
+            var eventLists = new List<List<Event<double>>>
             {
-                MoveXEvents, MoveYEvents, RotateEvents, SpeedEvents
+                MoveXEvents, MoveYEvents, RotateEvents
             };
             var alphaEventList = AlphaEvents;
+            var speedEventList = SpeedEvents;
             eventLists.ForEach(events => { events?.Sort((a, b) => a.StartBeat.CompareTo(b.StartBeat)); });
             alphaEventList?.Sort((a, b) => a.StartBeat.CompareTo(b.StartBeat));
+            speedEventList?.Sort((a, b) => a.StartBeat.CompareTo(b.StartBeat));
         }
 
         /// <summary>

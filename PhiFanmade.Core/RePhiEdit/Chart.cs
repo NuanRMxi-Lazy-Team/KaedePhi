@@ -15,17 +15,13 @@ namespace PhiFanmade.Core.RePhiEdit
             public const float MinX = -675f;
             public const float MaxY = 450f;
             public const float MinY = -450f;
-            public const CoordinateSystemAnchor Anchor = CoordinateSystemAnchor.ScreenCenter;
             public const bool ClockwiseRotation = true;
         }
 
         /// <summary>
         /// BPM列表
         /// </summary>
-        [JsonProperty("BPMList")] public List<BpmItem> BpmList = new List<BpmItem>
-        {
-            new BpmItem()
-        };
+        [JsonProperty("BPMList")] public List<BpmItem> BpmList { get; set; }
 
         /// <summary>
         /// 元数据
@@ -35,7 +31,7 @@ namespace PhiFanmade.Core.RePhiEdit
         /// <summary>
         /// 判定线列表
         /// </summary>
-        [JsonProperty("judgeLineList")] public List<JudgeLine> JudgeLineList = new List<JudgeLine>();
+        [JsonProperty("judgeLineList")] public List<JudgeLine> JudgeLineList { get; set; }
 
         /// <summary>
         /// 制谱时长（秒）

@@ -1,21 +1,42 @@
-﻿using System.Collections.Generic;
-
-// STJ 特性使用完全限定名，避免命名冲突
+﻿using System;
+using System.Collections.Generic;
 
 namespace PhiFanmade.Core.PhiFanmadeNrc
 {
     public abstract class ControlBase
     {
-        public Easing Easing = new Easing(1);
+        protected readonly Guid Id = Guid.NewGuid();
+        public Easing Easing { get; set; } = new(1);
 
-        public float X = 0.0f;
+        public float X { get; set; }
 
         public abstract ControlBase Clone();
     }
 
-    public class AlphaControl : ControlBase
+    public sealed class AlphaControl : ControlBase, IEquatable<AlphaControl>
     {
-        public float Alpha = 1.0f;
+        public override int GetHashCode()
+        {
+            return Id.GetHashCode();
+        }
+
+        public bool Equals(AlphaControl other)
+        {
+            if (other == null) return false;
+            if (other.GetHashCode() == GetHashCode()) return true;
+
+            // 比较所有需要比较的数值属性
+            return Math.Abs(Alpha - other.Alpha) < 1e-6
+                   && Math.Abs(X - other.X) < 1e-6
+                   && (Easing?.Equals(other.Easing) ?? other.Easing == null);
+        }
+
+        public override bool Equals(object obj)
+        {
+            return Equals(obj as AlphaControl);
+        }
+
+        public float Alpha { get; set; } = 1.0f;
 
         public static List<AlphaControl> Default
         {
@@ -23,13 +44,13 @@ namespace PhiFanmade.Core.PhiFanmadeNrc
             {
                 return new List<AlphaControl>
                 {
-                    new AlphaControl
+                    new()
                     {
                         Easing = new Easing(1),
                         Alpha = 1.0f,
                         X = 0.0f
                     },
-                    new AlphaControl
+                    new()
                     {
                         Easing = new Easing(1),
                         Alpha = 1.0f,
@@ -51,9 +72,29 @@ namespace PhiFanmade.Core.PhiFanmadeNrc
         }
     }
 
-    public class XControl : ControlBase
+    public sealed class XControl : ControlBase, IEquatable<XControl>
     {
-        public float Pos = 1.0f;
+        public override int GetHashCode()
+        {
+            return Id.GetHashCode();
+        }
+
+        public bool Equals(XControl other)
+        {
+            if (other == null) return false;
+            if (other.GetHashCode() == GetHashCode()) return true;
+            
+            return Math.Abs(Pos - other.Pos) < 1e-6
+                   && Math.Abs(X - other.X) < 1e-6
+                   && (Easing?.Equals(other.Easing) ?? other.Easing == null);
+        }
+
+        public override bool Equals(object obj)
+        {
+            return Equals(obj as XControl);
+        }
+
+        public float Pos { get; set; } = 1.0f;
 
         public static List<XControl> Default
         {
@@ -61,13 +102,13 @@ namespace PhiFanmade.Core.PhiFanmadeNrc
             {
                 return new List<XControl>
                 {
-                    new XControl
+                    new()
                     {
                         Easing = new Easing(1),
                         Pos = 1.0f,
                         X = 0.0f
                     },
-                    new XControl
+                    new()
                     {
                         Easing = new Easing(1),
                         Pos = 1.0f,
@@ -89,9 +130,29 @@ namespace PhiFanmade.Core.PhiFanmadeNrc
         }
     }
 
-    public class SizeControl : ControlBase
+    public sealed class SizeControl : ControlBase, IEquatable<SizeControl>
     {
-        public float Size = 1.0f;
+        public override int GetHashCode()
+        {
+            return Id.GetHashCode();
+        }
+
+        public bool Equals(SizeControl other)
+        {
+            if (other == null) return false;
+            if (other.GetHashCode() == GetHashCode()) return true;
+
+            return Math.Abs(Size - other.Size) < 1e-6
+                   && Math.Abs(X - other.X) < 1e-6
+                   && (Easing?.Equals(other.Easing) ?? other.Easing == null);
+        }
+
+        public override bool Equals(object obj)
+        {
+            return Equals(obj as SizeControl);
+        }
+
+        public float Size { get; set; } = 1.0f;
 
         public static List<SizeControl> Default
         {
@@ -99,13 +160,13 @@ namespace PhiFanmade.Core.PhiFanmadeNrc
             {
                 return new List<SizeControl>
                 {
-                    new SizeControl
+                    new()
                     {
                         Easing = new Easing(1),
                         Size = 1.0f,
                         X = 0.0f
                     },
-                    new SizeControl
+                    new()
                     {
                         Easing = new Easing(1),
                         Size = 1.0f,
@@ -127,9 +188,29 @@ namespace PhiFanmade.Core.PhiFanmadeNrc
         }
     }
 
-    public class SkewControl : ControlBase
+    public sealed class SkewControl : ControlBase, IEquatable<SkewControl>
     {
-        public float Skew = 1.0f;
+        public override int GetHashCode()
+        {
+            return Id.GetHashCode();
+        }
+
+        public bool Equals(SkewControl other)
+        {
+            if (other == null) return false;
+            if (other.GetHashCode() == GetHashCode()) return true;
+            
+            return Math.Abs(Skew - other.Skew) < 1e-6
+                   && Math.Abs(X - other.X) < 1e-6
+                   && (Easing?.Equals(other.Easing) ?? other.Easing == null);
+        }
+
+        public override bool Equals(object obj)
+        {
+            return Equals(obj as SkewControl);
+        }
+
+        public float Skew { get; set; } = 1.0f;
 
         public static List<SkewControl> Default
         {
@@ -137,13 +218,13 @@ namespace PhiFanmade.Core.PhiFanmadeNrc
             {
                 return new List<SkewControl>
                 {
-                    new SkewControl
+                    new()
                     {
                         Easing = new Easing(1),
                         Skew = 0.0f,
                         X = 0.0f
                     },
-                    new SkewControl
+                    new()
                     {
                         Easing = new Easing(1),
                         Skew = 0.0f,
@@ -165,9 +246,30 @@ namespace PhiFanmade.Core.PhiFanmadeNrc
         }
     }
 
-    public class YControl : ControlBase
+    public sealed class YControl : ControlBase, IEquatable<YControl>
     {
-        public float Y = 1.0f;
+        public override int GetHashCode()
+        {
+            return Id.GetHashCode();
+        }
+
+        public bool Equals(YControl other)
+        {
+            if (other == null) return false;
+            if (other.GetHashCode() == GetHashCode()) return true;
+
+            return Math.Abs(Y - other.Y) < 1e-6
+                   && Math.Abs(X - other.X) < 1e-6
+                   && (Easing?.Equals(other.Easing) ?? other.Easing == null);
+        }
+
+        public override bool Equals(object obj)
+        {
+            return Equals(obj as YControl);
+        }
+
+
+        public float Y { get; set; } = 1.0f;
 
         public static List<YControl> Default
         {
@@ -175,13 +277,13 @@ namespace PhiFanmade.Core.PhiFanmadeNrc
             {
                 return new List<YControl>
                 {
-                    new YControl
+                    new()
                     {
                         Easing = new Easing(1),
                         Y = 1.0f,
                         X = 0.0f
                     },
-                    new YControl
+                    new()
                     {
                         Easing = new Easing(1),
                         Y = 1.0f,

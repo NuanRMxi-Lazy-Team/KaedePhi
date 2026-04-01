@@ -1,9 +1,4 @@
-﻿using System;
-using System.IO;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace PhiFanmade.Core.PhiFanmadeNrc
+﻿namespace PhiFanmade.Core.PhiFanmadeNrc
 {
     public partial class Chart
     {
@@ -36,6 +31,16 @@ namespace PhiFanmade.Core.PhiFanmadeNrc
                 if (judgeLine.YControls == null || judgeLine.YControls.Count == 0)
                     judgeLine.YControls = YControl.Default;
             }
+        }
+        
+        public Chart Clone()
+        {
+            return new Chart
+            {
+                BpmList = BpmList.ConvertAll(bpm => bpm.Clone()),
+                Meta = Meta.Clone(),
+                JudgeLineList = JudgeLineList.ConvertAll(judgeLine => judgeLine.Clone()),
+            };
         }
     }
 }

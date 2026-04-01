@@ -7,67 +7,67 @@ namespace PhiFanmade.Core.PhiFanmadeNrc
         /// <summary>
         /// 判定线名称
         /// </summary>
-        public string Name = "PhiFanmadeCoreJudgeLine";
+        public string Name { get; set; } = "NrcJudgeLine";
 
         /// <summary>
         /// 判定线纹理相对路径，默认值为line.png
         /// </summary>
-        public string Texture = "line.png"; // 判定线纹理路径
+        public string Texture { get; set; } = "line.png"; // 判定线纹理路径
 
         /// <summary>
         /// 判定线纹理锚点(0~1之间)，默认值为中心点(0.5, 0.5)
         /// </summary>
-        public float[] Anchor = { 0.5f, 0.5f }; // 判定线纹理锚点
+        public float[] Anchor { get; set; } = { 0.5f, 0.5f }; // 判定线纹理锚点
 
         /// <summary>
         /// 判定线事件层列表
         /// </summary>
-        public List<EventLayer> EventLayers = new List<EventLayer>(); // 事件层
+        public List<EventLayer> EventLayers { get; set; } = new List<EventLayer>(); // 事件层
 
         /// <summary>
         /// 父级判定线索引，-1表示无父级
         /// </summary>
-        public int Father = -1; // 父级
+        public int Father { get; set; } = -1; // 父级
 
         /// <summary>
         /// 是否遮罩越过判定线的音符（已被打击的除外）
         /// </summary>
-        public bool IsCover = true; // 是否遮罩
+        public bool IsCover { get; set; } = true; // 是否遮罩
 
         /// <summary>
         /// 判定线音符列表
         /// </summary>
-        public List<Note> Notes = new List<Note>();
+        public List<Note> Notes { get; set; } = new List<Note>();
 
         /// <summary>
         /// 特殊事件层（故事板）
         /// </summary>
-        public ExtendLayer Extended = new ExtendLayer();
+        public ExtendLayer Extended { get; set; } = new ExtendLayer();
 
         /// <summary>
         /// 判定线的Z轴顺序
         /// </summary>
-        public int ZOrder; // Z轴顺序
+        public int ZOrder { get; set; } // Z轴顺序
 
         /// <summary>
         /// 判定线是否绑定UI
         /// </summary>
-        public AttachUi? AttachUi = null; // 绑定UI名，当不绑定时为null
+        public AttachUi? AttachUi { get; set; } = null; // 绑定UI名，当不绑定时为null
 
         /// <summary>
         /// 判定线纹理是否为GIF
         /// </summary>
-        public bool IsGif; // 纹理是否为GIF
+        public bool IsGif { get; set; } // 纹理是否为GIF
 
         /// <summary>
         /// 当前判定线相对于当前BPM的因子。判定线BPM = 谱面BPM / BpmFactor
         /// </summary>
-        public float BpmFactor = 1.0f; // BPM因子
+        public float BpmFactor { get; set; } = 1.0f; // BPM因子
 
         /// <summary>
         /// 是否跟随父线旋转
         /// </summary>
-        public bool RotateWithFather = false; // 是否随父级旋转
+        public bool RotateWithFather { get; set; } // 是否随父级旋转
 
         /// <summary>
         /// Position（X） Control 控制点列表

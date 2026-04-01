@@ -5,8 +5,6 @@ using System.Reflection;
 using PhiFanmade.Core.Common;
 using PhiFanmade.Core.Utils;
 
-// STJ 特性使用完全限定名
-
 namespace PhiFanmade.Core.PhiFanmadeNrc
 {
     public class Event<T>
@@ -14,53 +12,53 @@ namespace PhiFanmade.Core.PhiFanmadeNrc
         /// <summary>
         /// 是否为贝塞尔曲线
         /// </summary>
-        public bool IsBezier = false; // 是否为贝塞尔曲线
+        public bool IsBezier { get; set; } // 是否为贝塞尔曲线
 
         /// <summary>
         /// 贝塞尔曲线控制点
         /// </summary>
-        public float[] BezierPoints = new float[4]; // 贝塞尔曲线点
+        public float[] BezierPoints { get; set; } = new float[4]; // 贝塞尔曲线点
 
         /// <summary>
         /// 缓动截取左界限
         /// </summary>
-        public float EasingLeft = 0.0f; // 缓动开始
+        public float EasingLeft { get; set; } // 缓动开始
 
         /// <summary>
         /// 缓动截取右界限
         /// </summary>
-        public float EasingRight = 1.0f; // 缓动结束
+        public float EasingRight { get; set; } = 1.0f; // 缓动结束
 
         /// <summary>
         /// 缓动类型
         /// </summary>
-        public Easing Easing = new Easing(1); // 缓动类型
+        public Easing Easing { get; set; } = new(1); // 缓动类型
 
         /// <summary>
         /// 事件开始数值
         /// </summary>
-        public T StartValue; // 开始值
+        public T StartValue { get; set; } // 开始值
 
         /// <summary>
         /// 事件结束数值
         /// </summary>
-         public T EndValue; // 结束值
+        public T EndValue { get; set; } // 结束值
 
         /// <summary>
         /// 事件开始拍
         /// </summary>
-         public Beat StartBeat = new Beat(new[] { 0, 0, 1 }); // 开始时间
+        public Beat StartBeat { get; set; } = new(new[] { 0, 0, 1 }); // 开始时间
 
         /// <summary>
         /// 事件结束拍
         /// </summary>
-        public Beat EndBeat = new Beat(new[] { 1, 0, 1 }); // 结束时间
+        public Beat EndBeat { get; set; } = new(new[] { 1, 0, 1 }); // 结束时间
 
         /// <summary>
         /// 当此事件为文字事件时，此值为字体文件相对路径，默认cmdysj.ttf
         /// </summary>
 #nullable enable
-        public string? Font = null;
+        public string? Font { get; set; } = null;
 #nullable disable
         /// <summary>
         /// 获取某个拍在这个事件中的值
@@ -104,15 +102,15 @@ namespace PhiFanmade.Core.PhiFanmadeNrc
 
             // 检查 T 的类型并调用相应的方法
             if (typeof(T) == typeof(float))
-                return (T)(object)Easing.Do(EasingLeft, EasingRight, Convert.ToSingle(StartValue),
+                return (T)(object)Easing.Interpolate(EasingLeft, EasingRight, Convert.ToSingle(StartValue),
                     Convert.ToSingle(EndValue),
                     t);
             else if (typeof(T) == typeof(double))
-                return (T)(object)Easing.Do(EasingLeft, EasingRight, Convert.ToDouble(StartValue),
+                return (T)(object)Easing.Interpolate(EasingLeft, EasingRight, Convert.ToDouble(StartValue),
                     Convert.ToDouble(EndValue),
                     t);
             else if (typeof(T) == typeof(int))
-                return (T)(object)Easing.Do(EasingLeft, EasingRight, Convert.ToInt32(StartValue),
+                return (T)(object)Easing.Interpolate(EasingLeft, EasingRight, Convert.ToInt32(StartValue),
                     Convert.ToInt32(EndValue), t);
             else if (typeof(T) == typeof(byte[]))
             {
@@ -125,7 +123,7 @@ namespace PhiFanmade.Core.PhiFanmadeNrc
                         "Byte arrays must be of the same length for interpolation.");
                 byte[] result = new byte[startBytes.Length];
                 for (int i = 0; i < startBytes.Length; i++)
-                    result[i] = Easing.Do(EasingLeft, EasingRight, startBytes[i], endBytes[i], t);
+                    result[i] = Easing.Interpolate(EasingLeft, EasingRight, startBytes[i], endBytes[i], t);
                 return (T)(object)result;
             }
             else

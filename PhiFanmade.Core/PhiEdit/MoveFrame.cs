@@ -4,19 +4,15 @@ namespace PhiFanmade.Core.PhiEdit
 {
     public class MoveFrame
     {
-        public float Beat = 0f;
-        public float XValue = 0f;
-        public float YValue = 0f;
+        public float Beat { get; set; }
+        public float XValue { get; set; }
+        public float YValue { get; set; }
 
         /// <summary>
-        /// DO NOT USE THIS METHOD
+        /// 调试用方法，不要调用，请改用<see cref="ToString(int)"/>
         /// </summary>
-        /// <returns>DO NOT USE THIS METHOD</returns>
-        /// <exception cref="ArgumentException">BECAUSE YOU USED A REMOVED METHOD</exception>
-        [Obsolete("请使用 ToString(int judgeLineIndex) 方法", true)]
         public override string ToString()
-            => throw new ArgumentException("请使用 ToString(int judgeLineIndex) 方法");
-
+            => $"MoveFrame(Beat={Beat}, XValue={XValue}, YValue={YValue})";
 
         /// <summary>
         /// 用于将瞬时事件转换为PhiEditor Chart格式的字符串

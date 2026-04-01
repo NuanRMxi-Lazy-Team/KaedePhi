@@ -4,11 +4,11 @@ namespace PhiFanmade.Core.PhiEdit
 {
     public class MoveEvent
     {
-        public float StartBeat = 0f;
-        public float EndBeat = 0f;
-        public Easing EasingType = new Easing(1);
-        public float EndXValue = 0f;
-        public float EndYValue = 0f;
+        public float StartBeat { get; set; }
+        public float EndBeat { get; set; }
+        public Easing EasingType { get; set; } = new(1);
+        public float EndXValue { get; set; }
+        public float EndYValue { get; set; }
 
         /// <summary>
         /// 获取某个拍在这个事件中的值
@@ -21,18 +21,16 @@ namespace PhiFanmade.Core.PhiEdit
         {
             //获得这个拍在这个事件的时间轴上的位置
             float t = (beat - StartBeat) / (EndBeat - StartBeat);
-            var xValue = EasingType.Do(startXValue, EndXValue, t);
-            var yValue = EasingType.Do(startYValue, EndYValue, t);
+            var xValue = EasingType.Interpolate(startXValue, EndXValue, t);
+            var yValue = EasingType.Interpolate(startYValue, EndYValue, t);
             return (xValue, yValue);
         }
 
         /// <summary>
-        /// DO NOT USE THIS METHOD
+        /// 调试用方法，不要调用，请改用<see cref="ToString(int)"/>
         /// </summary>
-        /// <returns>DO NOT USE THIS METHOD</returns>
-        /// <exception cref="ArgumentException">BECAUSE YOU USED A REMOVED METHOD</exception>
         public override string ToString()
-            => throw new ArgumentException("请使用 ToString(int judgeLineIndex) 方法");
+            => $"MoveEvent(StartBeat={StartBeat}, EndBeat={EndBeat}, EasingType={EasingType}, EndXValue={EndXValue}, EndYValue={EndYValue})";
 
 
         /// <summary>

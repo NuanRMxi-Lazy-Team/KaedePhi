@@ -166,155 +166,11 @@
 {0}</value>
   </data>
   <!-- ── GUI ───────────────────────────────────────────────────────────────── -->
-  <data name="gui_app_subtitle" xml:space="preserve">
-    <value>Open Source Toolkit</value>
-  </data>
   <data name="gui_version_label" xml:space="preserve">
     <value>v0.1.x — GUI Edition</value>
   </data>
-  <data name="gui_nav_rpe_unbind_father" xml:space="preserve">
-    <value>RPE Unbind Parent</value>
-  </data>
-  <data name="gui_nav_rpe_layer_merge" xml:space="preserve">
-    <value>RPE Layer Merge</value>
-  </data>
-  <data name="gui_nav_workspace" xml:space="preserve">
-    <value>Workspace</value>
-  </data>
-  <data name="gui_page_unbind_subtitle" xml:space="preserve">
-    <value>Unbind judgment lines from their parent while preserving movement behavior</value>
-  </data>
-  <data name="gui_page_merge_subtitle" xml:space="preserve">
-    <value>Merge all event layers of judgment lines into a single layer</value>
-  </data>
-  <data name="gui_page_workspace_subtitle" xml:space="preserve">
-    <value>Load, save and manage RPE chart workspaces</value>
-  </data>
-  <data name="gui_section_input_source" xml:space="preserve">
-    <value>Input Source</value>
-  </data>
-  <data name="gui_section_output" xml:space="preserve">
-    <value>Output</value>
-  </data>
-  <data name="gui_section_params" xml:space="preserve">
-    <value>Parameters</value>
-  </data>
-  <data name="gui_section_run_log" xml:space="preserve">
-    <value>Run Log</value>
-  </data>
-  <data name="gui_section_op_log" xml:space="preserve">
-    <value>Operation Log</value>
-  </data>
-  <data name="gui_section_load_chart" xml:space="preserve">
-    <value>Load Chart</value>
-  </data>
-  <data name="gui_section_save_workspace" xml:space="preserve">
-    <value>Save Workspace</value>
-  </data>
-  <data name="gui_section_workspace_list" xml:space="preserve">
-    <value>Workspace List</value>
-  </data>
-  <data name="gui_label_file_path" xml:space="preserve">
-    <value>File Path</value>
-  </data>
-  <data name="gui_label_workspace_id" xml:space="preserve">
-    <value>Workspace ID</value>
-  </data>
-  <data name="gui_label_output_path" xml:space="preserve">
-    <value>Output Path</value>
-  </data>
-  <data name="gui_label_precision" xml:space="preserve">
-    <value>Precision</value>
-  </data>
-  <data name="gui_label_tolerance" xml:space="preserve">
-    <value>Tolerance %</value>
-  </data>
-  <data name="gui_label_clear_id" xml:space="preserve">
-    <value>Clear ID</value>
-  </data>
-  <data name="gui_watermark_input_from_workspace" xml:space="preserve">
-    <value>Leave blank to read from workspace</value>
-  </data>
-  <data name="gui_watermark_workspace_or_file" xml:space="preserve">
-    <value>(mutually exclusive with file path)</value>
-  </data>
-  <data name="gui_watermark_output_auto" xml:space="preserve">
-    <value>Leave blank to auto-generate with _PFC.json suffix</value>
-  </data>
-  <data name="gui_watermark_workspace_default" xml:space="preserve">
-    <value>default</value>
-  </data>
-  <data name="gui_watermark_select_json" xml:space="preserve">
-    <value>Select RPE chart JSON file</value>
-  </data>
-  <data name="gui_watermark_select_output" xml:space="preserve">
-    <value>Select output file location</value>
-  </data>
-  <data name="gui_watermark_clear_all" xml:space="preserve">
-    <value>Leave blank to clear all</value>
-  </data>
-  <data name="gui_tooltip_precision" xml:space="preserve">
-    <value>Subdivisions per beat, default 64 (each step is 1/64 beat)</value>
-  </data>
-  <data name="gui_tooltip_tolerance" xml:space="preserve">
-    <value>Fitting tolerance percentage, default 5</value>
-  </data>
-  <data name="gui_check_dry_run" xml:space="preserve">
-    <value>Dry run (no files written)</value>
-  </data>
-  <data name="gui_check_stream_output" xml:space="preserve">
-    <value>Stream output (reduces memory usage)</value>
-  </data>
-  <data name="gui_btn_browse" xml:space="preserve">
-    <value>Browse</value>
-  </data>
-  <data name="gui_btn_clear_log" xml:space="preserve">
-    <value>Clear</value>
-  </data>
-  <data name="gui_btn_cancel" xml:space="preserve">
-    <value>Cancel</value>
-  </data>
-  <data name="gui_btn_start_unbind" xml:space="preserve">
-    <value>Start Unbind</value>
-  </data>
-  <data name="gui_btn_start_merge" xml:space="preserve">
-    <value>Start Merge</value>
-  </data>
-  <data name="gui_btn_load_to_workspace" xml:space="preserve">
-    <value>Load to Workspace</value>
-  </data>
-  <data name="gui_btn_save_to_file" xml:space="preserve">
-    <value>Save to File</value>
-  </data>
-  <data name="gui_btn_refresh" xml:space="preserve">
-    <value>Refresh</value>
-  </data>
-  <data name="gui_btn_clear" xml:space="preserve">
-    <value>Clear</value>
-  </data>
-  <data name="gui_status_ready" xml:space="preserve">
-    <value>Ready</value>
-  </data>
-  <data name="gui_status_loading" xml:space="preserve">
-    <value>Loading…</value>
-  </data>
-  <data name="gui_status_load_success" xml:space="preserve">
-    <value>Chart loaded successfully! You can now use the other features.</value>
-  </data>
-  <data name="gui_status_load_error" xml:space="preserve">
-    <value>Load failed: {0}</value>
-  </data>
-  <data name="gui_btn_load_chart" xml:space="preserve">
-    <value>Load Chart</value>
-  </data>
-  <data name="gui_label_chart_file" xml:space="preserve">
-    <value>Chart File</value>
-  </data>
-  <data name="gui_hint_nav_locked" xml:space="preserve">
-    <value>Please load a chart first on the "Import Chart" page</value>
-  </data>
   <data name="cli_cmd_rpe_unbind_father_desc" xml:space="preserve">
-    <value>Unbind the judgment line from its parent.</value>
+    <value>Unbind the judgment line from its parent.(Deprecated)</value>
   </data>
   <data name="cli_opt_tolerance_desc" xml:space="preserve">
     <value>Fitting tolerance percentage (default: 5)</value>
@@ -325,12 +181,6 @@
   <data name="cli_err_out_of_memory" xml:space="preserve">
     <value>The output might be a bit large~ Try adding the "--stream" option to reduce memory usage! If this doesn't solve your problem, please send the following information to https://github.com/NuanRMxi-Lazy-Team/PhiFanmadeTool/issues, and we'll fix the issue as soon as possible!
 {0}</value>
-  </data>
-  <data name="gui_page_start" xml:space="preserve">
-    <value>Import beatmap</value>
-  </data>
-  <data name="gui_page_start_subtitle" xml:space="preserve">
-    <value>Please import a chart file first to use other features.</value>
   </data>
   <data name="cli_opt_classic_mode_desc" xml:space="preserve">
     <value>Legacy behavior mode. This mode typically consumes more performance, but the output is usually more stable.</value>

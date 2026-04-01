@@ -1,10 +1,13 @@
-﻿using static PhiFanmade.Core.Utils.Easings;
+﻿using System;
+using JetBrains.Annotations;
+using static PhiFanmade.Core.Utils.Easings;
 
 namespace PhiFanmade.Core.PhiEdit
 {
     public static class Easings
     {
         // Method to evaluate easing between any start and end point
+        [PublicAPI]
         public static double Evaluate(EasingFunction function, double t)
         {
             return function(t);
@@ -53,28 +56,42 @@ namespace PhiFanmade.Core.PhiEdit
 
     public class Easing
     {
+        // ReSharper disable once FieldCanBeMadeReadOnly.Local
+        private int _easingNumber;
+        private readonly EasingFunction _function;
+
         public Easing(int easingNumber)
         {
             _easingNumber = easingNumber;
+            // 缓存缓动函数
+            _function = t => Easings.Evaluate(easingNumber, t);
         }
 
-        public int _easingNumber;
-
-        public float Do( float start, float end, float t)
+        /// <summary>对 [start, end] 区间在 t 处进行插值</summary>
+        public float Interpolate(float start, float end, float t)
         {
-            var easedTime = Easings.Evaluate(_easingNumber, t);
-            //插值后返回
+            var easedTime = _function(t);
             return (float)(start + (end - start) * easedTime);
         }
 
-        public double Do(double start, double end, double t)
+        /// <inheritdoc cref="Interpolate(float,float,float)"/>
+        public double Interpolate(double start, double end, double t)
         {
-            var easedTime = Easings.Evaluate(_easingNumber, t);
-            //插值后返回
+            var easedTime = _function(t);
             return start + (end - start) * easedTime;
         }
 
-        // 以int访问时，返回缓动编号
+        /// <inheritdoc cref="Interpolate(float,float,float)"/>
+        [Obsolete("请使用 Interpolate 方法替代 Do 方法")]
+        public float Do(float start, float end, float t)
+            => Interpolate(start, end, t);
+
+        /// <inheritdoc cref="Interpolate(float,float,float)"/>
+        [Obsolete("请使用 Interpolate 方法替代 Do 方法")]
+        public double Do(double start, double end, double t)
+            => Interpolate(start, end, t);
+
         public static implicit operator int(Easing easing) => easing._easingNumber;
+        public static implicit operator Easing(int easingNumber) => new(easingNumber);
     }
 }

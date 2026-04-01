@@ -14,26 +14,22 @@ namespace PhiFanmade.Core.PhiFanmadeNrc
             public const float MinX = -1f;
             public const float MaxY = 1f;
             public const float MinY = -1f;
-            public const CoordinateSystemAnchor Anchor = CoordinateSystemAnchor.ScreenCenter;
             public const bool ClockwiseRotation = false;
         }
 
         /// <summary>
         /// BPM列表
         /// </summary>
-        public List<BpmItem> BpmList = new List<BpmItem>
-        {
-            new BpmItem()
-        };
+        public List<BpmItem> BpmList { get; set; }
 
         /// <summary>
         /// 元数据
         /// </summary>
-        public Meta Meta = new Meta();
+        public Meta Meta { get; set; } = new Meta();
 
         /// <summary>
         /// 判定线列表
         /// </summary>
-        public List<JudgeLine> JudgeLineList = new List<JudgeLine>();
+        public List<JudgeLine> JudgeLineList { get; set; }
     }
 }

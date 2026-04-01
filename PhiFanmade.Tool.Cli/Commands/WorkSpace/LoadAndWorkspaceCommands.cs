@@ -5,12 +5,10 @@ using Spectre.Console.Cli;
 
 namespace PhiFanmade.Tool.Cli.Commands.WorkSpace;
 
-// ─── Load ────────────────────────────────────────────────────────────────────
-
 // Description set via WithDescription(Strings.cli_cmd_load_desc) in Program.cs
 public sealed class LoadCommand : AsyncCommand<LoadCommand.Settings>
 {
-    public sealed class Settings : BaseSettings
+    public sealed class Settings : CommandSettings
     {
         [CommandOption("-i|--input <PATH>")]
         [LocalizedDescription("cli_opt_input_phiedit_desc")]
@@ -28,9 +26,9 @@ public sealed class LoadCommand : AsyncCommand<LoadCommand.Settings>
         }
     }
 
-    protected override async Task<int> ExecuteAsync(CommandContext context, Settings settings,CancellationToken cancellationToken)
+    public override async Task<int> ExecuteAsync(CommandContext context, Settings settings,CancellationToken cancellationToken)
     {
-        var writer = settings.CreateWriter();
+        var writer = new ConsoleWriter();
         var ws = new WorkspaceService();
         await ws.LoadAsync(settings.Workspace, settings.Input!);
         writer.Info(string.Format(Strings.cli_msg_loaded, settings.Workspace));
@@ -38,12 +36,10 @@ public sealed class LoadCommand : AsyncCommand<LoadCommand.Settings>
     }
 }
 
-// ─── Save ────────────────────────────────────────────────────────────────────
-
 // Description set via WithDescription(Strings.cli_cmd_save_desc) in Program.cs
 public sealed class SaveCommand : AsyncCommand<SaveCommand.Settings>
 {
-    public sealed class Settings : BaseSettings
+    public sealed class Settings : CommandSettings
     {
         [CommandOption("-o|--output <PATH>")]
         [LocalizedDescription("cli_opt_output_path_desc")]
@@ -61,9 +57,9 @@ public sealed class SaveCommand : AsyncCommand<SaveCommand.Settings>
         }
     }
 
-    protected override async Task<int> ExecuteAsync(CommandContext context, Settings settings,CancellationToken cancellationToken)
+    public override async Task<int> ExecuteAsync(CommandContext context, Settings settings,CancellationToken cancellationToken)
     {
-        var writer = settings.CreateWriter();
+        var writer = new ConsoleWriter();
         var ws = new WorkspaceService();
         await ws.SaveAsync(settings.Workspace, settings.Output!);
         writer.Info(string.Format(Strings.cli_msg_saved, settings.Workspace, settings.Output!));
@@ -74,9 +70,9 @@ public sealed class SaveCommand : AsyncCommand<SaveCommand.Settings>
 // ─── Workspace List ───────────────────────────────────────────────────────────
 
 // Description set via WithDescription(Strings.cli_cmd_workspace_list_desc) in Program.cs
-public sealed class WorkspaceListCommand : Command<BaseSettings>
+public sealed class WorkspaceListCommand : Command<CommandSettings>
 {
-    protected override int Execute(CommandContext context, BaseSettings settings,CancellationToken cancellationToken)
+    public override int Execute(CommandContext context, CommandSettings settings,CancellationToken cancellationToken)
     {
         var ws = new WorkspaceService();
         foreach (var id in ws.List())
@@ -90,16 +86,16 @@ public sealed class WorkspaceListCommand : Command<BaseSettings>
 // Description set via WithDescription(Strings.cli_cmd_workspace_clear_desc) in Program.cs
 public sealed class WorkspaceClearCommand : Command<WorkspaceClearCommand.Settings>
 {
-    public sealed class Settings : BaseSettings
+    public sealed class Settings : CommandSettings
     {
         [CommandOption("--id <ID>")]
         [LocalizedDescription("cli_opt_workspace_clear_id_desc")]
         public string? Id { get; set; }
     }
 
-    protected override int Execute(CommandContext context, Settings settings,CancellationToken cancellationToken)
+    public override int Execute(CommandContext context, Settings settings,CancellationToken cancellationToken)
     {
-        var writer = settings.CreateWriter();
+        var writer = new ConsoleWriter();
         var ws = new WorkspaceService();
         ws.Clear(settings.Id);
         writer.Info(Strings.cli_msg_cleared);
