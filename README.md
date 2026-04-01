@@ -5,13 +5,16 @@
 NuanR_Star Ciallo Team（以下简称“我们”）开发的PhiFanmadeTool（以下简称“本软件”）其源码遵循[GNU LGPL 2.1](https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html)开源协议发布，
 作为一个刚刚起步的项目，我们不建议您将本软件代码fork进行自行二次开发，我们非常希望可以保持社区的集中性，不分化社区资源，
 使使用者无需在众多分叉中寻找最合适的版本，或是担心某个分叉不再维护而导致的后续问题，
-我们非常希望您向本软件的主分支提交pull request来参与开发，或是加入我们的开发群来进行讨论，或是通过邮件来联系我们，来参与到本软件的开发中来，
+我们非常希望您向本软件的主分支提交pull request来参与开发，或是加入我们的聊天群来进行讨论，或是通过邮件来联系我们，来参与到本软件的开发中来，
 总之，以上都是建议，我们完全遵循开源协议，感谢支持。
 
 ## 使用
 从 `Release` 中获得 nuget 包，或从源码编译。  
-<span style="color:yellow">**注意：此项目仍然处于早期阶段，字段名称与行为随时有可能更改，请斟酌后再使用！**</span>  
-<span style="color:red">**如果您使用本软件进行低质量创作，本软件将对您进行道德谴责，受限于开源协议，项目维护者无权阻止您的任何行为！**</span>
+> [!WARNING]
+> <span style="color:yellow">**注意：此项目仍然处于早期阶段，字段名称与行为随时有可能更改，请斟酌后再使用！**</span>
+
+> [!CAUTION]
+> <span style="color:red">**如果您使用本软件进行低质量创作，本软件将对您进行道德谴责，受限于开源协议，项目维护者无权阻止您的任何行为！**</span>
 
 ## CLI使用
 --help就好了，应该不需要什么教程。
@@ -25,7 +28,7 @@ PhiFanmade.Tool.Cli: .NET8.0, .NET10.0
 
 ## 招新
 本项目需要更多人开发与维护，欢迎发送邮件到 nrlt@nuanr-mxi.com 来加入开发！  
-也欢迎加入我的小群！QQ群号: 821169450
+也欢迎加入我的小群！QQ群号: 390530513
 
 ## TODO
 - [x] RePhiEdit反序列化功能
@@ -34,11 +37,11 @@ PhiFanmade.Tool.Cli: .NET8.0, .NET10.0
 - [x] RePhiEdit旋转跟随父子线解绑
 - [x] RePhiEdit层级合并
 - [x] PhiEdit反序列化
-- [ ] PhiEdit序列化
+- [x] PhiEdit序列化
 - [ ] PhiFans反序列化
 - [ ] PhiFans序列化  
-- [ ] ~~PhiChain反序列化~~（格式构造有点奇异，基本上只有自家可以读写，搁置，PhiChain本身有导出为RePhiEdit的功能，后期无优化则彻底放弃）  
-- [ ] ~~PhiChain序列化~~（格式构造有点奇异，基本上只有自家可以读写，搁置，PhiChain本身有导出为RePhiEdit的功能，后期无优化则彻底放弃）  
+- [ ] PhiChain反序列化（搁置，提上日程）  
+- [ ] PhiChain序列化（搁置，提上日程）  
 - [ ] 本家谱面反序列化
 - [ ] 本家谱面序列化
 - [ ] CLI工具（当前已初步可用）
@@ -66,7 +69,8 @@ NuanR_Star Lazy Team Copyright © 2026 PhiFanmadeTool Project.
 NuanR_Star Ciallo Team Copyright © 2026 PhiFanmadeTool Project.
 
 ## 免责声明
-本软件与南京鸽游网络有限公司（厦门鸽游网络有限公司）无任何关联。
+本软件与南京鸽游网络有限公司（厦门鸽游网络有限公司）无任何关联。  
+本软件以及其维护者、贡献者不承担您使用本软件进行任何行为的责任。
 
 ## 致谢
 [cmdysj](https://space.bilibili.com/252635690)  
