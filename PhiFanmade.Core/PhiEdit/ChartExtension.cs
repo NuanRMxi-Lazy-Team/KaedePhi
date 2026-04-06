@@ -250,7 +250,8 @@ namespace PhiFanmade.Core.PhiEdit
         /// <param name="stream"></param>
         public void ExportToStream(Stream stream)
         {
-            using var writer = new StreamWriter(stream, Encoding.UTF8, bufferSize: 1024, leaveOpen: true);
+            using var writer =
+                new StreamWriter(stream, new UTF8Encoding(false), 1024, leaveOpen: true);
             foreach (var line in GetExportLines())
                 writer.WriteLine(line);
         }
@@ -261,7 +262,8 @@ namespace PhiFanmade.Core.PhiEdit
         /// <param name="stream"></param>
         public async Task ExportToStreamAsync(Stream stream)
         {
-            await using var writer = new StreamWriter(stream, Encoding.UTF8, bufferSize: 1024, leaveOpen: true);
+            await using var writer =
+                new StreamWriter(stream, new UTF8Encoding(false), 1024, leaveOpen: true);
             foreach (var line in GetExportLines())
                 await writer.WriteLineAsync(line);
         }

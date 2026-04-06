@@ -21,6 +21,12 @@ public sealed class ConvertCommand : AsyncCommand<ConvertCommand.Settings>
             writer.Error(string.Format(Strings.cli_err_unimplemented));
             return 1;
         }
+        // 订阅NRC日志
+        using var logSubscription = NrcTool.NrcToolLog.Subscribe(
+            info: writer.Info,
+            warning: writer.Warn,
+            error: writer.Error,
+            debug: writer.Info);
 
         var output = await settings.SaveFromNrcAsync(nrc, cancellationToken);
         if (output == null)

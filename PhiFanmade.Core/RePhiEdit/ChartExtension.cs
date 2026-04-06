@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -27,8 +28,9 @@ namespace PhiFanmade.Core.RePhiEdit
                     // 若事件层级0上某个事件类别完全为空，且不存在其它事件层级，则创建一个垫底事件
                     if (index == 0 && judgeLine.EventLayers.Count == 1)
                     {
-                        if (eventLayer.AlphaEvents.Count == 0)
+                        if (eventLayer.AlphaEvents == null || eventLayer.AlphaEvents.Count == 0)
                         {
+                            eventLayer.AlphaEvents = new();
                             eventLayer.AlphaEvents.Add(new Event<int>
                             {
                                 StartBeat = new Beat(0),

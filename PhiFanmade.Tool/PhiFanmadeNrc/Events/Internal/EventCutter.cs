@@ -22,30 +22,30 @@ internal static class EventCutter
         foreach (var evt in eventsToCut)
         {
             var cutStart = evt.StartBeat < startBeat ? startBeat : evt.StartBeat;
-            var cutEnd   = evt.EndBeat   > endBeat   ? endBeat   : evt.EndBeat;
+            var cutEnd = evt.EndBeat > endBeat ? endBeat : evt.EndBeat;
 
-            var totalBeats    = cutEnd - cutStart;
-            var segmentCount  = (int)Math.Ceiling((totalBeats / cutLength));
+            var totalBeats = cutEnd - cutStart;
+            var segmentCount = (int)Math.Ceiling((totalBeats / cutLength));
 
             for (var i = 0; i < segmentCount; i++)
             {
                 var currentBeat = new Beat(cutStart + (cutLength * i));
-                var segmentEnd  = new Beat(cutStart + (cutLength * (i + 1)));
+                var segmentEnd = new Beat(cutStart + (cutLength * (i + 1)));
                 if (segmentEnd > cutEnd) segmentEnd = cutEnd;
 
                 cutEvents.Add(new Nrc.Event<T>
                 {
-                    StartBeat  = currentBeat,
-                    EndBeat    = segmentEnd,
+                    StartBeat = currentBeat,
+                    EndBeat = segmentEnd,
                     StartValue = evt.GetValueAtBeat(currentBeat),
-                    EndValue   = evt.GetValueAtBeat(segmentEnd),
+                    EndValue = evt.GetValueAtBeat(segmentEnd),
                 });
             }
         }
 
         return cutEvents;
     }
-     
+
     /// <see cref="CutEventsInRange{T}(List{Nrc.Event{T}}, Beat, Beat, Beat)"/>
     internal static List<Nrc.Event<T>> CutEventsInRange<T>(
         List<Nrc.Event<T>> events,
@@ -56,5 +56,37 @@ internal static class EventCutter
         var cutLengthBeat = new Beat(cutLength);
         return CutEventsInRange(events, startBeat, endBeat, cutLengthBeat);
     }
-}
 
+    internal static List<Nrc.Event<T>> CutEventToLiner<T>(
+        Nrc.Event<T> evt, double cutLength)
+        => CutEventToLiner(evt, new Beat(cutLength));
+
+    internal static List<Nrc.Event<T>> CutEventToLiner<T>(
+        Nrc.Event<T> evt,
+        Beat cutLength)
+    {
+        var cutEvents = new List<Nrc.Event<T>>();
+        // 在evt中均匀采样，并返回
+        var nowBeat = evt.StartBeat;
+        while (nowBeat < evt.EndBeat)
+        {
+            var segmentEnd = nowBeat + cutLength;
+            if (segmentEnd > evt.EndBeat)
+            {
+                segmentEnd = evt.EndBeat;
+            }
+
+            cutEvents.Add(new Nrc.Event<T>()
+            {
+                StartBeat = nowBeat,
+                EndBeat = segmentEnd,
+                StartValue = evt.GetValueAtBeat(nowBeat),
+                EndValue = evt.GetValueAtBeat(segmentEnd),
+            });
+
+            nowBeat = segmentEnd;
+        }
+
+        return cutEvents;
+    }
+}

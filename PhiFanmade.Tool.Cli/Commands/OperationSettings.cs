@@ -38,7 +38,7 @@ public abstract class OperationSettings : CommandSettings
     [CommandOption("--stream")]
     [LocalizedDescription("cli_opt_stream_output_desc")]
     public bool StreamOutput { get; set; }
-    
+
     [CommandOption("--format")]
     [LocalizedDescription("cli_opt_format_desc")]
     public bool FormatOutput { get; set; }
@@ -46,7 +46,7 @@ public abstract class OperationSettings : CommandSettings
     [CommandOption("--target <TYPE>")]
     [LocalizedDescription("convert_command_opt_target")]
     public ChartType TargetType { get; set; } = ChartType.RePhiEdit;
-    
+
     public override ValidationResult Validate()
     {
         if (string.IsNullOrWhiteSpace(Input) && string.IsNullOrWhiteSpace(Workspace))
@@ -107,22 +107,44 @@ public abstract class OperationSettings : CommandSettings
     {
         var output = ResolveOutputPath();
 
-        if (TargetType != ChartType.RePhiEdit)
-            return null;
-
-        var rpeChart = NrcTool.Converters.NrcToRpe.Convert(chart);
-
-        if (DryRun) return output;
-        if (StreamOutput)
+        switch (TargetType)
         {
-            await using var stream = new FileStream(output, FileMode.Create);
-            await rpeChart.ExportToJsonStreamAsync(stream, FormatOutput);
+            case ChartType.RePhiEdit:
+            {
+                var rpeChart = NrcTool.Converters.NrcToRpe.Convert(chart);
+                if (DryRun) return output;
+                if (StreamOutput)
+                {
+                    await using var stream = new FileStream(output, FileMode.Create);
+                    await rpeChart.ExportToJsonStreamAsync(stream, FormatOutput);
+                }
+                else
+                {
+                    var json = await rpeChart.ExportToJsonAsync(FormatOutput);
+                    await File.WriteAllTextAsync(output, json, cancellationToken);
+                }
+            }
+                break;
+            case ChartType.PhiEdit:
+            {
+                var peChart = NrcTool.Converters.NrcToPe.Convert(chart);
+                if (DryRun) return output;
+                if (StreamOutput)
+                {
+                    await using var stream = new FileStream(output, FileMode.Create);
+                    await peChart.ExportToStreamAsync(stream);
+                }
+                else
+                {
+                    var pec = await peChart.ExportAsync();
+                    await File.WriteAllTextAsync(output, pec, cancellationToken);
+                }
+            }
+                break;
+            default:
+                return null;
         }
-        else
-        {
-            var json = await rpeChart.ExportToJsonAsync(FormatOutput);
-            await File.WriteAllTextAsync(output, json, cancellationToken);
-        }
+
 
         return output;
     }

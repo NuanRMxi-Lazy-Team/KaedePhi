@@ -1,4 +1,5 @@
-﻿using PhiFanmade.Tool.PhiFanmadeNrc.Events.Internal;
+﻿using PhiFanmade.Core.Common;
+using PhiFanmade.Tool.PhiFanmadeNrc.Events.Internal;
 
 namespace PhiFanmade.Tool.PhiFanmadeNrc.Events;
 
@@ -8,6 +9,42 @@ namespace PhiFanmade.Tool.PhiFanmadeNrc.Events;
 public static class NrcEventTools
 {
     /// <summary>
+    /// 在指定拍范围内将事件按固定拍长切割。
+    /// </summary>
+    public static List<Nrc.Event<T>> CutEventsInRange<T>(
+        List<Nrc.Event<T>> events,
+        Beat startBeat,
+        Beat endBeat,
+        Beat cutLength)
+        => EventCutter.CutEventsInRange(events, startBeat, endBeat, cutLength);
+
+    /// <summary>
+    /// 在指定拍范围内将事件按固定拍长切割。
+    /// </summary>
+    public static List<Nrc.Event<T>> CutEventsInRange<T>(
+        List<Nrc.Event<T>> events,
+        Beat startBeat,
+        Beat endBeat,
+        double cutLength)
+        => EventCutter.CutEventsInRange(events, startBeat, endBeat, cutLength);
+
+    /// <summary>
+    /// 将单个事件切割为固定拍长线性事件
+    /// </summary>
+    public static List<Nrc.Event<T>> CutEventToLiner<T>(
+        Nrc.Event<T> evt,
+        Beat cutLength)
+        => EventCutter.CutEventToLiner(evt, cutLength);
+
+    /// <summary>
+    /// 将单个事件切割为固定拍长线性事件
+    /// </summary>
+    public static List<Nrc.Event<T>> CutEventToLiner<T>(
+        Nrc.Event<T> evt,
+        double cutLength)
+        => EventCutter.CutEventToLiner(evt, cutLength);
+
+    /// <summary>
     /// 对事件列表做缓动拟合；仅会拟合连续线性事件，原有非线性事件会被保留。
     /// </summary>
     public static List<Nrc.Event<T>> EventListFit<T>(
@@ -15,8 +52,8 @@ public static class NrcEventTools
         => EventFit.EventListFit(events, precision, tolerance);
 
     /// <summary>根据容差压缩事件列表，合并变化率相近的相邻线性事件。</summary>
-    public static List<Nrc.Event<double>> EventListCompress(
-        List<Nrc.Event<double>> events, double tolerance = 5)
+    public static List<Nrc.Event<T>> EventListCompress<T>(
+        List<Nrc.Event<T>> events, double tolerance = 5)
         => EventCompressor.EventListCompress(events, tolerance);
 
     /// <summary>
