@@ -1,7 +1,6 @@
 ﻿using PhiFanmade.Tool.Cli.Infrastructure;
 using PhiFanmade.Tool.Localization;
 using PhiFanmade.Tool.PhiFanmadeNrc;
-using PhiFanmade.Tool.PhiFanmadeNrc.JudgeLines;
 using Spectre.Console.Cli;
 
 namespace PhiFanmade.Tool.Cli.Commands;
@@ -9,9 +8,13 @@ namespace PhiFanmade.Tool.Cli.Commands;
 /// <summary>
 /// 事件拟合命令
 /// </summary>
-public sealed class FitEventCommand : AsyncCommand<OperationSettings>
+public sealed class FitEventCommand : AsyncCommand<FitEventCommand.Settings>
 {
-    public override async Task<int> ExecuteAsync(CommandContext context, OperationSettings settings,
+    public sealed class Settings : OperationSettings
+    {
+    }
+
+    public override async Task<int> ExecuteAsync(CommandContext context, Settings settings,
         CancellationToken cancellationToken)
     {
         var writer = new ConsoleWriter();
@@ -30,6 +33,8 @@ public sealed class FitEventCommand : AsyncCommand<OperationSettings>
             error: writer.Error,
             debug: writer.Info);
 
+        var fitTaskDegree = Math.Max(1, Environment.ProcessorCount);
+
         for (var i = 0; i < nrc.JudgeLineList.Count; i++)
         {
             var jdl = nrc.JudgeLineList[i];
@@ -37,14 +42,25 @@ public sealed class FitEventCommand : AsyncCommand<OperationSettings>
             {
                 var eventLayer = jdl.EventLayers[index];
                 if (eventLayer == null) continue;
-                nrcCopy.JudgeLineList[i].EventLayers[index].MoveXEvents = NrcTool.Events.NrcEventTools.EventListFit(eventLayer.MoveXEvents,
-                    settings.Precision, settings.Tolerance);
-                nrcCopy.JudgeLineList[i].EventLayers[index].MoveYEvents = NrcTool.Events.NrcEventTools.EventListFit(eventLayer.MoveYEvents,
-                    settings.Precision, settings.Tolerance);
-                nrcCopy.JudgeLineList[i].EventLayers[index].AlphaEvents = NrcTool.Events.NrcEventTools.EventListFit(eventLayer.AlphaEvents,
-                    settings.Precision, settings.Tolerance);
-                nrcCopy.JudgeLineList[i].EventLayers[index].RotateEvents = NrcTool.Events.NrcEventTools.EventListFit(eventLayer.RotateEvents,
-                    settings.Precision, settings.Tolerance);
+
+                cancellationToken.ThrowIfCancellationRequested();
+
+                // 4 个通道完全独立，并发异步启动；每个通道内部 Phase 1 再利用多核预计算。
+                var moveXTask = NrcTool.Events.NrcEventTools.EventListFitAsync(
+                    eventLayer.MoveXEvents, settings.Tolerance, fitTaskDegree, cancellationToken);
+                var moveYTask = NrcTool.Events.NrcEventTools.EventListFitAsync(
+                    eventLayer.MoveYEvents, settings.Tolerance, fitTaskDegree, cancellationToken);
+                var alphaTask = NrcTool.Events.NrcEventTools.EventListFitAsync(
+                    eventLayer.AlphaEvents, settings.Tolerance, fitTaskDegree, cancellationToken);
+                var rotateTask = NrcTool.Events.NrcEventTools.EventListFitAsync(
+                    eventLayer.RotateEvents, settings.Tolerance, fitTaskDegree, cancellationToken);
+
+                await Task.WhenAll(moveXTask, moveYTask, alphaTask, rotateTask);
+
+                nrcCopy.JudgeLineList[i].EventLayers[index].MoveXEvents = moveXTask.Result;
+                nrcCopy.JudgeLineList[i].EventLayers[index].MoveYEvents = moveYTask.Result;
+                nrcCopy.JudgeLineList[i].EventLayers[index].AlphaEvents = alphaTask.Result;
+                nrcCopy.JudgeLineList[i].EventLayers[index].RotateEvents = rotateTask.Result;
             }
         }
 

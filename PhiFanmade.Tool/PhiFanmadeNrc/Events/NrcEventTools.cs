@@ -48,8 +48,29 @@ public static class NrcEventTools
     /// 对事件列表做缓动拟合；仅会拟合连续线性事件，原有非线性事件会被保留。
     /// </summary>
     public static List<Nrc.Event<T>> EventListFit<T>(
-        List<Nrc.Event<T>> events, double precision = 64d, double tolerance = 5d)
-        => EventFit.EventListFit(events, precision, tolerance);
+        List<Nrc.Event<T>> events,
+        double tolerance = 5d)
+        => EventFit.EventListFit(events, tolerance);
+
+    /// <summary>
+    /// 对事件列表做缓动拟合（多核版）；maxDegreeOfParallelism 为并行线程数。
+    /// </summary>
+    public static List<Nrc.Event<T>> EventListFit<T>(
+        List<Nrc.Event<T>> events,
+        double tolerance,
+        int? maxDegreeOfParallelism)
+        => EventFit.EventListFit(events, tolerance, maxDegreeOfParallelism);
+
+    /// <summary>
+    /// 对事件列表做缓动拟合（异步版）。
+    /// </summary>
+    public static Task<List<Nrc.Event<T>>> EventListFitAsync<T>(
+        List<Nrc.Event<T>> events,
+        double tolerance = 5d,
+        int? maxDegreeOfParallelism = null,
+        CancellationToken cancellationToken = default)
+        => EventFit.EventListFitAsync(events, tolerance, maxDegreeOfParallelism, cancellationToken);
+
 
     /// <summary>根据容差压缩事件列表，合并变化率相近的相邻线性事件。</summary>
     public static List<Nrc.Event<T>> EventListCompress<T>(

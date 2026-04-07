@@ -30,4 +30,7 @@
     <data name="convert_command_opt_target" xml:space="preserve">
         <value>目标格式（如：RePhiEdit、PhiEdit、PhigrosV3）</value>
     </data>
+    <data name="err_unknown" xml:space="preserve">
+        <value>咦？是写错命令了吗？</value>
+    </data>
 </root>

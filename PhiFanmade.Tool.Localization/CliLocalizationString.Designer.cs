@@ -87,6 +87,15 @@ namespace PhiFanmade.Tool.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to 咦？是写错命令了吗？.
+        /// </summary>
+        public static string err_unknown {
+            get {
+                return ResourceManager.GetString("err_unknown", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to 拟合谱面中线性事件.
         /// </summary>
         public static string fit_command_desc {

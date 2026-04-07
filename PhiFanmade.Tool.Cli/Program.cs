@@ -28,7 +28,7 @@ app.Configure(config =>
         // 未知命令/参数：引导用户使用 --help
         if (ex is CommandParseException)
         {
-            writer.Error(Strings.cli_err_unknown);
+            writer.Error(CliLocalizationString.err_unknown);
             writer.Info(Strings.cli_hint_use_help);
             return 1;
         }

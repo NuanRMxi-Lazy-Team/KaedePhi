@@ -3,7 +3,8 @@
 namespace PhiFanmade.Tool.PhiFanmadeNrc.Events.Internal;
 
 /// <summary>
-/// NRC 事件拟合器：将连续线性事件拟合为更少的缓动事件，并保留原有非线性事件不变。
+/// NRC 事件拟合器。
+/// 新模型：在容差约束下，通过有界动态规划寻找较优分段，并对每段做缓动回归。
 /// </summary>
 internal static class EventFit
 {
@@ -11,25 +12,59 @@ internal static class EventFit
     private const int MaxEasingId = 31;
     private const double NumericEpsilon = 1e-9;
 
+    // DP 中每增加一个段的惩罚；越大越倾向于更少事件。
+    private const double SegmentPenalty = 1.0d;
+    // 保留原事件的轻微偏置，避免在边界条件下过拟合复杂缓动。
+    private const double KeepOriginalPenalty = 1.02d;
+
+    // 长段时限制回看窗口，避免 O(n^2) 爆炸。
+    private const int FullSearchRunLengthThreshold = 160;
+    private const int LongRunSearchWindow = 160;
+
     /// <summary>
-    /// 对事件列表执行缓动拟合。仅会拟合连续、线性、数值型的事件段；原有非线性事件会被原样保留。
+    /// 对事件列表执行同步拟合。
     /// </summary>
     internal static List<Nrc.Event<T>> EventListFit<T>(
         List<Nrc.Event<T>>? events,
-        double precision = 64d,
         double tolerance = 5d)
+        => EventListFitCore(events, tolerance, null, CancellationToken.None);
+
+    /// <summary>
+    /// 对事件列表执行同步拟合（可指定并行度）。
+    /// </summary>
+    internal static List<Nrc.Event<T>> EventListFit<T>(
+        List<Nrc.Event<T>>? events,
+        double tolerance,
+        int? maxDegreeOfParallelism)
+        => EventListFitCore(events, tolerance, maxDegreeOfParallelism, CancellationToken.None);
+
+    /// <summary>
+    /// 对事件列表执行异步拟合。
+    /// </summary>
+    internal static Task<List<Nrc.Event<T>>> EventListFitAsync<T>(
+        List<Nrc.Event<T>>? events,
+        double tolerance = 5d,
+        int? maxDegreeOfParallelism = null,
+        CancellationToken cancellationToken = default)
+        => Task.Run(() => EventListFitCore(events, tolerance, maxDegreeOfParallelism, cancellationToken),
+            cancellationToken);
+
+    private static List<Nrc.Event<T>> EventListFitCore<T>(
+        List<Nrc.Event<T>>? events,
+        double tolerance,
+        int? maxDegreeOfParallelism,
+        CancellationToken cancellationToken)
     {
         if (tolerance is > 100 or < 0)
             throw new ArgumentOutOfRangeException(nameof(tolerance), "Tolerance must be between 0 and 100.");
-        if (precision <= 0)
-            throw new ArgumentOutOfRangeException(nameof(precision), "Precision must be greater than 0.");
 
         EnsureSupportedNumericType<T>();
 
         if (events == null || events.Count == 0)
             return [];
 
-        NrcToolLog.OnInfo($"EventListFit: 开始拟合，共 {events.Count} 个事件，精度={precision}，容差={tolerance}%");
+        var degree = ResolveMaxDegreeOfParallelism(maxDegreeOfParallelism);
+        NrcToolLog.OnInfo($"EventListFit: 开始拟合，共 {events.Count} 个事件，容差={tolerance}% ，并行度={degree}");
 
         var sortedEvents = events
             .Select(e => e.Clone())
@@ -37,17 +72,65 @@ internal static class EventFit
             .ThenBy(e => e.EndBeat)
             .ToList();
 
+        var units = BuildFitUnits(sortedEvents, tolerance);
+        var outputs = new List<Nrc.Event<T>>[units.Count];
+
+        if (units.Count == 1 && units[0].NeedsFit)
+        {
+            // 单个超长 run 时，把所有核心预算给 run 内部 DP 并行。
+            outputs[0] = FitLinearRun(
+                sortedEvents,
+                units[0].Start,
+                units[0].EndExclusive,
+                tolerance,
+                degree,
+                cancellationToken);
+        }
+        else
+        {
+            // 多个 run 时并行 run，避免 run 内外嵌套并行导致线程池抖动。
+            var options = new ParallelOptions
+            {
+                CancellationToken = cancellationToken,
+                MaxDegreeOfParallelism = degree
+            };
+
+            Parallel.For(0, units.Count, options, unitIndex =>
+            {
+                var unit = units[unitIndex];
+                if (!unit.NeedsFit)
+                {
+                    outputs[unitIndex] = [sortedEvents[unit.Start].Clone()];
+                    return;
+                }
+
+                outputs[unitIndex] = FitLinearRun(
+                    sortedEvents,
+                    unit.Start,
+                    unit.EndExclusive,
+                    tolerance,
+                    1,
+                    cancellationToken);
+            });
+        }
+
         var result = new List<Nrc.Event<T>>(sortedEvents.Count);
+        for (var i = 0; i < outputs.Length; i++)
+            result.AddRange(outputs[i]);
+
+        NrcToolLog.OnInfo($"EventListFit: 拟合完成，{events.Count} -> {result.Count} 个事件");
+        return result;
+    }
+
+    private static List<FitUnit> BuildFitUnits<T>(List<Nrc.Event<T>> sortedEvents, double tolerance)
+    {
+        var units = new List<FitUnit>(sortedEvents.Count);
 
         for (var index = 0; index < sortedEvents.Count;)
         {
             if (!CanParticipateInFit(sortedEvents[index]))
             {
-                var skipped = sortedEvents[index];
-                NrcToolLog.OnDebug(
-                    $"EventListFit: 跳过非线性事件 [{skipped.StartBeat} -> {skipped.EndBeat}]，" +
-                    $"缓动={(int)skipped.Easing}，贝塞尔={skipped.IsBezier}");
-                result.Add(skipped);
+                units.Add(new FitUnit(index, index + 1, false));
                 index++;
                 continue;
             }
@@ -61,198 +144,335 @@ internal static class EventFit
 
             if (runEnd - index < 2)
             {
-                NrcToolLog.OnDebug(
-                    $"EventListFit: 线性段过短（1 个事件），直接保留 " +
-                    $"[{sortedEvents[index].StartBeat} -> {sortedEvents[index].EndBeat}]");
-                result.Add(sortedEvents[index]);
-                index++;
-                continue;
-            }
-
-            NrcToolLog.OnDebug(
-                $"EventListFit: 发现可拟合线性段 " +
-                $"[{sortedEvents[index].StartBeat} -> {sortedEvents[runEnd - 1].EndBeat}]，" +
-                $"共 {runEnd - index} 个事件");
-
-            result.AddRange(FitLinearRun(sortedEvents, index, runEnd, precision, tolerance));
-            index = runEnd;
-        }
-
-        NrcToolLog.OnInfo($"EventListFit: 拟合完成，{events.Count} → {result.Count} 个事件");
-        return result;
-    }
-
-    private static List<Nrc.Event<T>> FitLinearRun<T>(
-        List<Nrc.Event<T>> runEvents,
-        int startIndex,
-        int endExclusive,
-        double precision,
-        double tolerance)
-    {
-        var result = new List<Nrc.Event<T>>();
-
-        for (var index = startIndex; index < endExclusive;)
-        {
-            var fitted = TryFitLongestRange(runEvents, index, endExclusive, precision, tolerance);
-            if (fitted is null)
-            {
-                NrcToolLog.OnDebug(
-                    $"EventListFit: 段 [{runEvents[index].StartBeat} -> {runEvents[index].EndBeat}] " +
-                    $"无法拟合，保留原事件");
-                result.Add(runEvents[index]);
+                units.Add(new FitUnit(index, index + 1, false));
                 index++;
                 continue;
             }
 
             NrcToolLog.OnInfo(
-                $"EventListFit: 拟合成功 [{fitted.Value.Event.StartBeat} -> {fitted.Value.Event.EndBeat}]，" +
-                $"{fitted.Value.Length} 个事件 → 1 个事件，缓动={(int)fitted.Value.Event.Easing}");
-            result.Add(fitted.Value.Event);
-            index += fitted.Value.Length;
+                $"EventListFit: 发现可拟合线性段 [{sortedEvents[index].StartBeat} -> {sortedEvents[runEnd - 1].EndBeat}]，共 {runEnd - index} 个事件");
+            units.Add(new FitUnit(index, runEnd, true));
+            index = runEnd;
         }
 
-        return result;
+        return units;
     }
 
-    private static (Nrc.Event<T> Event, int Length)? TryFitLongestRange<T>(
+    /// <summary>
+    /// 对单个连续线性 run 执行拟合：并行预计算候选段，随后顺序 DP 选择最优分段。
+    /// </summary>
+    private static List<Nrc.Event<T>> FitLinearRun<T>(
         List<Nrc.Event<T>> runEvents,
         int startIndex,
         int endExclusive,
-        double precision,
-        double tolerance)
+        double tolerance,
+        int degree,
+        CancellationToken cancellationToken)
     {
-        for (var endIndex = endExclusive - 1; endIndex > startIndex; endIndex--)
-        {
-            if (!TryCreateBestFittedEvent(runEvents, startIndex, endIndex, precision, tolerance, out var fittedEvent))
-                continue;
+        var runLength = endExclusive - startIndex;
+        var window = runLength <= FullSearchRunLengthThreshold ? runLength : LongRunSearchWindow;
 
-            return (fittedEvent, endIndex - startIndex + 1);
+        if (runLength > FullSearchRunLengthThreshold)
+            NrcToolLog.OnInfo(
+                $"EventListFit: 长线性段优化模式启用，长度={runLength}，回看窗口={window}");
+
+        // ---- Phase 1: 并行预计算所有候选段 ----
+        // 所有 (start, end) 候选段的拟合结果完全独立于 DP 状态，可以一次性完全并行。
+        // 避免旧方案"DP 步骤内反复启动并行任务"的线程池抖动，以及
+        // ConcurrentDictionary.GetOrAdd 对同一 key 多次调用 factory 的冗余计算。
+        var pairs = BuildSegmentPairs(runLength, window, startIndex);
+        var fitResults = new FittedSegment<T>?[pairs.Length];
+
+        Parallel.For(0, pairs.Length, new ParallelOptions
+        {
+            CancellationToken = cancellationToken,
+            MaxDegreeOfParallelism = degree
+        }, i =>
+        {
+            var (absStart, absEnd) = pairs[i];
+            fitResults[i] = CreateFittedSegment(runEvents, absStart, absEnd, tolerance);
+        });
+
+        // 将并行结果整理为普通字典，Phase 2 顺序查找无锁开销
+        var fitCache = new Dictionary<(int Start, int End), FittedSegment<T>?>(pairs.Length);
+        for (var i = 0; i < pairs.Length; i++)
+            fitCache[pairs[i]] = fitResults[i];
+
+        // ---- Phase 2: 顺序 DP，全部命中缓存，速度极快 ----
+        var dpCost = new double[runLength + 1];
+        var dpSegments = new int[runLength + 1];
+        var prev = new int[runLength + 1];
+        var chosen = new Nrc.Event<T>?[runLength + 1];
+
+        dpCost[0] = 0d;
+        dpSegments[0] = 0;
+        prev[0] = -1;
+        chosen[0] = null;
+
+        for (var i = 1; i <= runLength; i++)
+        {
+            dpCost[i] = double.PositiveInfinity;
+            dpSegments[i] = int.MaxValue;
+            prev[i] = -1;
+            chosen[i] = null;
         }
 
-        return null;
+        for (var endLocal = 1; endLocal <= runLength; endLocal++)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            var bestPlan = CreateKeepPlan(runEvents, startIndex, endLocal, dpCost, dpSegments);
+            bestPlan = ImprovePlanByFittedSegments(
+                fitCache,
+                startIndex,
+                endLocal,
+                window,
+                dpCost,
+                dpSegments,
+                bestPlan);
+
+            dpCost[endLocal] = bestPlan.Cost;
+            dpSegments[endLocal] = bestPlan.Segments;
+            prev[endLocal] = bestPlan.Prev;
+            chosen[endLocal] = bestPlan.Event;
+        }
+
+        var reversed = new List<Nrc.Event<T>>();
+        for (var cursor = runLength; cursor > 0; cursor = prev[cursor])
+        {
+            var evt = chosen[cursor];
+            if (evt == null)
+                break;
+            reversed.Add(evt);
+        }
+
+        reversed.Reverse();
+        return reversed;
     }
 
+    /// <summary>
+    /// 以“保留最后一个原事件”作为 DP 初始方案。
+    /// </summary>
+    private static PlanChoice<T> CreateKeepPlan<T>(
+        List<Nrc.Event<T>> runEvents,
+        int startIndex,
+        int endLocal,
+        IReadOnlyList<double> dpCost,
+        IReadOnlyList<int> dpSegments)
+    {
+        var absoluteEnd = startIndex + endLocal - 1;
+        return new PlanChoice<T>(
+            dpCost[endLocal - 1] + KeepOriginalPenalty,
+            dpSegments[endLocal - 1] + 1,
+            endLocal - 1,
+            runEvents[absoluteEnd].Clone());
+    }
+
+    /// <summary>
+    /// 通过缓存的拟合段尝试改进当前最佳方案。
+    /// </summary>
+    private static PlanChoice<T> ImprovePlanByFittedSegments<T>(
+        IReadOnlyDictionary<(int Start, int End), FittedSegment<T>?> fitCache,
+        int startIndex,
+        int endLocal,
+        int window,
+        IReadOnlyList<double> dpCost,
+        IReadOnlyList<int> dpSegments,
+        PlanChoice<T> currentBest)
+    {
+        var absoluteEnd = startIndex + endLocal - 1;
+        var startMin = Math.Max(0, endLocal - window);
+
+        for (var startLocal = startMin; startLocal < endLocal - 1; startLocal++)
+        {
+            var absoluteStart = startIndex + startLocal;
+            if (!fitCache.TryGetValue((absoluteStart, absoluteEnd), out var fitted) || fitted is null)
+                continue;
+
+            var candidate = new PlanChoice<T>(
+                dpCost[startLocal] + SegmentPenalty + fitted.Value.Score,
+                dpSegments[startLocal] + 1,
+                startLocal,
+                fitted.Value.Event);
+
+            if (IsBetterPlan(candidate, currentBest))
+                currentBest = candidate;
+        }
+
+        return currentBest;
+    }
+
+    /// <summary>
+    /// 枚举回看窗口内所有需要预计算的候选段对 (absoluteStart, absoluteEnd)。
+    /// 段长至少覆盖 2 个原始事件，方可进行有意义的拟合。
+    /// </summary>
+    private static (int AbsStart, int AbsEnd)[] BuildSegmentPairs(int runLength, int window, int startIndex)
+    {
+        // 先统计总数，一次性分配数组，避免 List 扩容
+        var count = 0;
+        for (var endLocal = 2; endLocal <= runLength; endLocal++)
+        {
+            var startMin = Math.Max(0, endLocal - window);
+            count += endLocal - 1 - startMin; // startLocal 从 startMin 到 endLocal - 2
+        }
+
+        var pairs = new (int AbsStart, int AbsEnd)[count];
+        var idx = 0;
+        for (var endLocal = 2; endLocal <= runLength; endLocal++)
+        {
+            var startMin = Math.Max(0, endLocal - window);
+            var absoluteEnd = startIndex + endLocal - 1;
+            for (var startLocal = startMin; startLocal < endLocal - 1; startLocal++)
+                pairs[idx++] = (startIndex + startLocal, absoluteEnd);
+        }
+
+        return pairs;
+    }
+
+    /// <summary>
+    /// 比较两种 DP 方案优先级。
+    /// 优先顺序：总成本 -> 分段数 -> 前驱位置（更长段）-> 缓动编号。
+    /// </summary>
+    private static bool IsBetterPlan<T>(PlanChoice<T> candidate, PlanChoice<T> currentBest)
+    {
+        if (candidate.Cost < currentBest.Cost - NumericEpsilon)
+            return true;
+        if (Math.Abs(candidate.Cost - currentBest.Cost) > NumericEpsilon)
+            return false;
+
+        if (candidate.Segments < currentBest.Segments)
+            return true;
+        if (candidate.Segments > currentBest.Segments)
+            return false;
+
+        // 相同代价和段数时优先更长段（更小 prev），保证 deterministic 且更压缩。
+        if (candidate.Prev < currentBest.Prev)
+            return true;
+        if (candidate.Prev > currentBest.Prev)
+            return false;
+
+        return (int)candidate.Event.Easing < (int)currentBest.Event.Easing;
+    }
+
+    /// <summary>
+    /// 构建并评分一个候选拟合段；若无可用缓动则返回 null。
+    /// </summary>
+    private static FittedSegment<T>? CreateFittedSegment<T>(
+        List<Nrc.Event<T>> runEvents,
+        int startIndex,
+        int endIndex,
+        double tolerance)
+    {
+        if (!TryCreateBestFittedEvent(runEvents, startIndex, endIndex, tolerance, out var fittedEvent, out var score))
+            return null;
+
+        return new FittedSegment<T>(fittedEvent, score);
+    }
+
+    /// <summary>
+    /// 在允许缓动集合中选择分数最低的拟合事件。
+    /// </summary>
     private static bool TryCreateBestFittedEvent<T>(
         List<Nrc.Event<T>> runEvents,
         int startIndex,
         int endIndex,
-        double precision,
         double tolerance,
-        out Nrc.Event<T> fittedEvent)
+        out Nrc.Event<T> fittedEvent,
+        out double bestScore)
     {
-        var samples = BuildSamples(runEvents, startIndex, endIndex, precision);
+        var samples = BuildSamples(runEvents, startIndex, endIndex);
         if (samples.Count < 2)
         {
             fittedEvent = runEvents[startIndex].Clone();
+            bestScore = double.PositiveInfinity;
             return false;
         }
 
-        var errorScale = GetErrorScale(samples);
         var sourceProfile = AnalyzeSourceProfile(samples);
+        var errorScale = GetErrorScale(samples);
 
         var first = runEvents[startIndex];
         var last = runEvents[endIndex];
-
         var startValue = Convert.ToDouble(first.StartValue);
         var endValue = Convert.ToDouble(last.EndValue);
 
+        // 平段仅允许线性，避免无意义的 IN/OUT 噪声。
         if (Math.Abs(endValue - startValue) <= NumericEpsilon)
         {
-            // Flat segments do not have meaningful IN/OUT phase; keep them linear only.
             var linear = CreateCandidateEvent(first, last, MinEasingId);
-            if (TryMeasureCandidateError(linear, samples, errorScale, tolerance, out _, out _))
+            if (TryScoreCandidate(linear, samples, sourceProfile, errorScale, tolerance, out bestScore))
             {
                 fittedEvent = linear;
                 return true;
             }
 
             fittedEvent = first.Clone();
+            bestScore = double.PositiveInfinity;
             return false;
         }
 
-        Nrc.Event<T>? bestCandidate = null;
-        var bestScore = double.PositiveInfinity;
+        fittedEvent = first.Clone();
+        bestScore = double.PositiveInfinity;
+        var hasCandidate = false;
 
         for (var easingId = MinEasingId; easingId <= MaxEasingId; easingId++)
         {
+            var candidatePhase = GetEasingPhase(easingId);
+            if (sourceProfile.Phase is not EasingPhase.Unknown &&
+                sourceProfile.Phase != candidatePhase &&
+                candidatePhase != EasingPhase.Linear)
+            {
+                continue;
+            }
+
             var candidate = CreateCandidateEvent(first, last, easingId);
             if (!TryScoreCandidate(candidate, samples, sourceProfile, errorScale, tolerance, out var candidateScore))
                 continue;
 
-            if (candidateScore > bestScore + NumericEpsilon)
-                continue;
-
-            if (Math.Abs(candidateScore - bestScore) <= NumericEpsilon && bestCandidate is not null &&
-                (int)candidate.Easing >= (int)bestCandidate.Easing) continue;
-
-            bestScore = candidateScore;
-            bestCandidate = candidate;
+            if (!hasCandidate || candidateScore < bestScore - NumericEpsilon ||
+                (Math.Abs(candidateScore - bestScore) <= NumericEpsilon &&
+                 (int)candidate.Easing < (int)fittedEvent.Easing))
+            {
+                fittedEvent = candidate;
+                bestScore = candidateScore;
+                hasCandidate = true;
+            }
         }
 
-        if (bestCandidate is null)
-        {
-            fittedEvent = first.Clone();
-            return false;
-        }
-
-        fittedEvent = bestCandidate;
-        return true;
+        return hasCandidate;
     }
 
     private static List<SamplePoint> BuildSamples<T>(
         List<Nrc.Event<T>> runEvents,
         int startIndex,
-        int endIndex,
-        double precision)
+        int endIndex)
     {
+        var samples = new List<SamplePoint>((endIndex - startIndex + 1) * 3);
+
         var first = runEvents[startIndex];
         var last = runEvents[endIndex];
 
-        var globalStartBeat = first.StartBeat;
-        var globalEndBeat = last.EndBeat;
-        var totalBeatSpan = (double)(globalEndBeat - globalStartBeat);
-        var startValue = Convert.ToDouble(first.StartValue);
-        var endValue = Convert.ToDouble(last.EndValue);
-        var totalValueDelta = endValue - startValue;
+        var globalStart = first.StartBeat;
+        var globalEnd = last.EndBeat;
+        var beatSpan = (double)(globalEnd - globalStart);
 
-        var samples = new List<SamplePoint>();
+        var sourceStartValue = Convert.ToDouble(first.StartValue);
+        var sourceEndValue = Convert.ToDouble(last.EndValue);
+        var valueDelta = sourceEndValue - sourceStartValue;
 
-        for (var index = startIndex; index <= endIndex; index++)
+        for (var i = startIndex; i <= endIndex; i++)
         {
-            var currentEvent = runEvents[index];
-            AddSample(
-                samples,
-                globalStartBeat,
-                totalBeatSpan,
-                startValue,
-                totalValueDelta,
-                currentEvent.StartBeat,
-                Convert.ToDouble(currentEvent.StartValue));
+            var evt = runEvents[i];
 
-            var segmentCount = Math.Max(2,
-                (int)Math.Ceiling((double)(currentEvent.EndBeat - currentEvent.StartBeat) * precision));
-            for (var step = 1; step < segmentCount; step++)
-            {
-                var ratio = step / (double)segmentCount;
-                var beat = LerpBeat(currentEvent.StartBeat, currentEvent.EndBeat, ratio);
-                AddSample(
-                    samples,
-                    globalStartBeat,
-                    totalBeatSpan,
-                    startValue,
-                    totalValueDelta,
-                    beat,
-                    Convert.ToDouble(currentEvent.GetValueAtBeat(beat)));
-            }
+            AddSample(samples, globalStart, beatSpan, sourceStartValue, valueDelta,
+                evt.StartBeat, Convert.ToDouble(evt.StartValue));
 
-            AddSample(
-                samples,
-                globalStartBeat,
-                totalBeatSpan,
-                startValue,
-                totalValueDelta,
-                currentEvent.EndBeat,
-                Convert.ToDouble(currentEvent.EndValue));
+            var midBeat = LerpBeat(evt.StartBeat, evt.EndBeat, 0.5d);
+            var midValue = Convert.ToDouble(evt.GetValueAtBeat(midBeat));
+            AddSample(samples, globalStart, beatSpan, sourceStartValue, valueDelta, midBeat, midValue);
+
+            AddSample(samples, globalStart, beatSpan, sourceStartValue, valueDelta,
+                evt.EndBeat, Convert.ToDouble(evt.EndValue));
         }
 
         return samples;
@@ -260,34 +480,34 @@ internal static class EventFit
 
     private static void AddSample(
         List<SamplePoint> samples,
-        Beat globalStartBeat,
-        double totalBeatSpan,
-        double startValue,
-        double totalValueDelta,
+        Beat globalStart,
+        double beatSpan,
+        double sourceStartValue,
+        double valueDelta,
         Beat beat,
         double value)
     {
-        var normalizedTime = totalBeatSpan <= NumericEpsilon ? 0d : ((double)(beat - globalStartBeat)) / totalBeatSpan;
-        var progress = Math.Abs(totalValueDelta) <= NumericEpsilon ? 0d : (value - startValue) / totalValueDelta;
+        var time = beatSpan <= NumericEpsilon ? 0d : ((double)(beat - globalStart)) / beatSpan;
+        var progress = Math.Abs(valueDelta) <= NumericEpsilon ? 0d : (value - sourceStartValue) / valueDelta;
 
         if (samples.Count != 0 && samples[^1].Beat == beat)
         {
-            samples[^1] = new SamplePoint(beat, normalizedTime, value, progress);
+            samples[^1] = new SamplePoint(beat, time, value, progress);
             return;
         }
 
-        samples.Add(new SamplePoint(beat, normalizedTime, value, progress));
+        samples.Add(new SamplePoint(beat, time, value, progress));
     }
-
-    private static Beat LerpBeat(Beat startBeat, Beat endBeat, double t)
-        => new((double)startBeat + ((double)endBeat - (double)startBeat) * t);
 
     private static double GetErrorScale(List<SamplePoint> samples)
     {
-        var maxAbsValue = samples.Count == 0 ? 0d : samples.Max(sample => Math.Abs(sample.Value));
+        var maxAbsValue = samples.Count == 0 ? 0d : samples.Max(s => Math.Abs(s.Value));
         return Math.Max(maxAbsValue, 1d);
     }
 
+    /// <summary>
+    /// 在容差约束下对候选事件打分；失败返回 false。
+    /// </summary>
     private static bool TryScoreCandidate<T>(
         Nrc.Event<T> candidate,
         List<SamplePoint> samples,
@@ -303,7 +523,7 @@ internal static class EventFit
             return false;
         }
 
-        var candidateProfile = AnalyzeCandidateProfile(candidate, samples, sourceProfile.TotalValueDelta);
+        var candidateProfile = AnalyzeCandidateProfile(candidate, samples);
 
         if (!sourceProfile.HasOvershootValue && candidateProfile.HasOvershootValue)
         {
@@ -317,20 +537,12 @@ internal static class EventFit
             return false;
         }
 
-        var sourcePhase = sourceProfile.Phase;
-        var candidatePhase = GetEasingPhase((int)candidate.Easing);
-        if (sourcePhase is not EasingPhase.Unknown && sourcePhase != candidatePhase)
-        {
-            score = double.PositiveInfinity;
-            return false;
-        }
-
         var semanticDistance =
             Math.Abs(sourceProfile.Progress25 - candidateProfile.Progress25) +
             Math.Abs(sourceProfile.Progress50 - candidateProfile.Progress50) +
             Math.Abs(sourceProfile.Progress75 - candidateProfile.Progress75);
 
-        score = normalizedMaxError * 100d + normalizedRmse * 40d + semanticDistance * 4d;
+        score = normalizedMaxError * 90d + normalizedRmse * 35d + semanticDistance * 8d;
         return true;
     }
 
@@ -359,12 +571,11 @@ internal static class EventFit
 
             if (error > maxError)
                 maxError = error;
-
             sumSquaredError += error * error;
         }
 
         normalizedMaxError = maxError / errorScale;
-        normalizedRmse = Math.Sqrt(sumSquaredError / samples.Count) / errorScale;
+        normalizedRmse = Math.Sqrt(sumSquaredError / Math.Max(1, samples.Count)) / errorScale;
         return true;
     }
 
@@ -380,24 +591,22 @@ internal static class EventFit
             p75,
             DetectPhase(p25, p75),
             HasOvershoot(samples.Select(s => s.Progress)),
-            IsMonotonic(samples.Select(s => s.Progress)),
-            samples[^1].Value - samples[0].Value);
+            IsMonotonic(samples.Select(s => s.Progress)));
     }
 
     private static CandidateProfile AnalyzeCandidateProfile<T>(
         Nrc.Event<T> candidate,
-        List<SamplePoint> samples,
-        double totalValueDelta)
+        List<SamplePoint> samples)
     {
         var startValue = Convert.ToDouble(candidate.StartValue);
-        var progresses = new List<double>(samples.Count);
+        var endValue = Convert.ToDouble(candidate.EndValue);
+        var totalDelta = endValue - startValue;
 
+        var progresses = new List<double>(samples.Count);
         foreach (var sample in samples)
         {
-            var candidateValue = Convert.ToDouble(candidate.GetValueAtBeat(sample.Beat));
-            var progress = Math.Abs(totalValueDelta) <= NumericEpsilon
-                ? 0d
-                : (candidateValue - startValue) / totalValueDelta;
+            var value = Convert.ToDouble(candidate.GetValueAtBeat(sample.Beat));
+            var progress = Math.Abs(totalDelta) <= NumericEpsilon ? 0d : (value - startValue) / totalDelta;
             progresses.Add(progress);
         }
 
@@ -439,9 +648,7 @@ internal static class EventFit
     }
 
     private static bool HasOvershoot(IEnumerable<double> progresses)
-    {
-        return progresses.Any(progress => progress is < -0.01d or > 1.01d);
-    }
+        => progresses.Any(p => p is < -0.01d or > 1.01d);
 
     private static bool IsMonotonic(IEnumerable<double> progresses)
     {
@@ -514,10 +721,11 @@ internal static class EventFit
             Font = first.Font
         };
 
+    private static Beat LerpBeat(Beat startBeat, Beat endBeat, double t)
+        => new((double)startBeat + ((double)endBeat - (double)startBeat) * t);
+
     private static bool CanParticipateInFit<T>(Nrc.Event<T> evt)
-        => evt.EndBeat > evt.StartBeat &&
-           !evt.IsBezier &&
-           evt.Easing == 1;
+        => evt.EndBeat > evt.StartBeat && !evt.IsBezier && evt.Easing == 1;
 
     private static bool CanAppendToFitRun<T>(
         Nrc.Event<T> previousEvent,
@@ -540,6 +748,18 @@ internal static class EventFit
         return Math.Abs(left - right) <= tolerance / 100d * scale;
     }
 
+    private static int ResolveMaxDegreeOfParallelism(int? maxDegreeOfParallelism)
+    {
+        if (maxDegreeOfParallelism is null)
+            return Math.Max(1, Environment.ProcessorCount);
+
+        if (maxDegreeOfParallelism <= 0)
+            throw new ArgumentOutOfRangeException(nameof(maxDegreeOfParallelism),
+                "MaxDegreeOfParallelism must be greater than 0.");
+
+        return maxDegreeOfParallelism.Value;
+    }
+
     private static void EnsureSupportedNumericType<T>()
     {
         if (typeof(T) != typeof(int) && typeof(T) != typeof(float) && typeof(T) != typeof(double))
@@ -554,8 +774,7 @@ internal static class EventFit
         double Progress75,
         EasingPhase Phase,
         bool HasOvershootValue,
-        bool IsMonotonicValue,
-        double TotalValueDelta);
+        bool IsMonotonicValue);
 
     private readonly record struct CandidateProfile(
         double Progress25,
@@ -563,6 +782,12 @@ internal static class EventFit
         double Progress75,
         bool HasOvershootValue,
         bool IsMonotonicValue);
+
+    private readonly record struct FittedSegment<T>(Nrc.Event<T> Event, double Score);
+
+    private readonly record struct PlanChoice<T>(double Cost, int Segments, int Prev, Nrc.Event<T> Event);
+
+    private readonly record struct FitUnit(int Start, int EndExclusive, bool NeedsFit);
 
     private enum EasingPhase
     {
@@ -573,3 +798,4 @@ internal static class EventFit
         InOut
     }
 }
+
