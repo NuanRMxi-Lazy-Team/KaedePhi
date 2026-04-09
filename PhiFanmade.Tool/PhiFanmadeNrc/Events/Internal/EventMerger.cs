@@ -332,42 +332,114 @@ internal static class EventMerger
         List<Nrc.Event<T>> toEventsForOffsetLookup,
         List<(Beat Start, Beat End)> overlapIntervals)
     {
-        bool IsInOverlap(Nrc.Event<T> evt)
+        // 返回一个事件在所有重叠区间之外的时间片段列表（即"空隙"）。
+        // 例如事件 [223.5, 225.5]、重叠区间 [223.5, 224.0]，空隙为 [(224.0, 225.5)]。
+        List<(Beat Start, Beat End)> GapsOutsideOverlap(Nrc.Event<T> evt)
+        {
+            var gaps = new List<(Beat Start, Beat End)>();
+            var cursor = evt.StartBeat;
+            // overlapIntervals 已按 Start 排序
+            foreach (var iv in overlapIntervals)
+            {
+                if (iv.Start > cursor && iv.Start < evt.EndBeat)
+                    gaps.Add((cursor, iv.Start));       // 空隙在重叠区间左侧
+                if (iv.End > cursor)
+                    cursor = iv.End;                    // 推进游标越过当前重叠区间
+                if (cursor >= evt.EndBeat) break;
+            }
+            if (cursor < evt.EndBeat)
+                gaps.Add((cursor, evt.EndBeat));        // 末尾剩余空隙
+            return gaps;
+        }
+
+        bool TouchesAnyOverlap(Nrc.Event<T> evt)
             => overlapIntervals.Any(iv => evt.StartBeat < iv.End && evt.EndBeat > iv.Start);
 
-        var newEvents = (from toEvent in toEventsCopy
-            where !IsInOverlap(toEvent)
-            let prevForm = fromEventsCopy.FindLast(e => e.EndBeat <= toEvent.StartBeat)
-            let formOffset = prevForm.EndValue ?? default
-            select new Nrc.Event<T>
-            {
-                StartBeat = toEvent.StartBeat,
-                EndBeat = toEvent.EndBeat,
-                StartValue = (dynamic)toEvent.StartValue + (dynamic)formOffset,
-                EndValue = (dynamic)toEvent.EndValue + (dynamic)formOffset,
-                BezierPoints = toEvent.BezierPoints,
-                Easing = toEvent.Easing,
-                EasingLeft = toEvent.EasingLeft,
-                EasingRight = toEvent.EasingRight,
-                IsBezier = toEvent.IsBezier,
-            }).ToList();
+        var newEvents = new List<Nrc.Event<T>>();
 
-        newEvents.AddRange(from formEvent in fromEventsCopy
-            where !IsInOverlap(formEvent)
-            let prevTo = toEventsForOffsetLookup.FindLast(e => e.EndBeat <= formEvent.StartBeat)
-            let toEventValue = prevTo.EndValue ?? default
-            select new Nrc.Event<T>
+        foreach (var toEvent in toEventsCopy)
+        {
+            if (!TouchesAnyOverlap(toEvent))
             {
-                StartBeat = formEvent.StartBeat,
-                EndBeat = formEvent.EndBeat,
-                StartValue = (dynamic)formEvent.StartValue + (dynamic)toEventValue,
-                EndValue = (dynamic)formEvent.EndValue + (dynamic)toEventValue,
-                BezierPoints = formEvent.BezierPoints,
-                Easing = formEvent.Easing,
-                EasingLeft = formEvent.EasingLeft,
-                EasingRight = formEvent.EasingRight,
-                IsBezier = formEvent.IsBezier,
-            });
+                // 整条事件在重叠区间外，直接输出（原逻辑）
+                var prevForm = fromEventsCopy.FindLast(e => e.EndBeat <= toEvent.StartBeat);
+                var formOffset = prevForm != null ? prevForm.EndValue : default;
+                newEvents.Add(new Nrc.Event<T>
+                {
+                    StartBeat = toEvent.StartBeat,
+                    EndBeat   = toEvent.EndBeat,
+                    StartValue = (dynamic)toEvent.StartValue + (dynamic?)formOffset,
+                    EndValue   = (dynamic)toEvent.EndValue   + (dynamic?)formOffset,
+                    BezierPoints = toEvent.BezierPoints,
+                    Easing       = toEvent.Easing,
+                    EasingLeft   = toEvent.EasingLeft,
+                    EasingRight  = toEvent.EasingRight,
+                    IsBezier     = toEvent.IsBezier,
+                });
+            }
+            else
+            {
+                // 事件与重叠区间有交叉：补出超出重叠区间的片段
+                foreach (var (gapStart, gapEnd) in GapsOutsideOverlap(toEvent))
+                {
+                    var prevForm = fromEventsCopy.FindLast(e => e.EndBeat <= gapStart);
+                    var formOffset = prevForm != null ? prevForm.EndValue : default;
+                    newEvents.Add(new Nrc.Event<T>
+                    {
+                        StartBeat = gapStart,
+                        EndBeat   = gapEnd,
+                        StartValue = (dynamic)toEvent.GetValueAtBeat(gapStart) + (dynamic?)formOffset,
+                        EndValue   = (dynamic)toEvent.GetValueAtBeat(gapEnd)   + (dynamic?)formOffset,
+                        BezierPoints = toEvent.BezierPoints,
+                        Easing       = toEvent.Easing,
+                        EasingLeft   = toEvent.EasingLeft,
+                        EasingRight  = toEvent.EasingRight,
+                        IsBezier     = toEvent.IsBezier,
+                    });
+                }
+            }
+        }
+
+        foreach (var formEvent in fromEventsCopy)
+        {
+            if (!TouchesAnyOverlap(formEvent))
+            {
+                var prevTo = toEventsForOffsetLookup.FindLast(e => e.EndBeat <= formEvent.StartBeat);
+                var toEventValue = prevTo != null ? prevTo.EndValue : default;
+                newEvents.Add(new Nrc.Event<T>
+                {
+                    StartBeat = formEvent.StartBeat,
+                    EndBeat   = formEvent.EndBeat,
+                    StartValue = (dynamic)formEvent.StartValue + (dynamic?)toEventValue,
+                    EndValue   = (dynamic)formEvent.EndValue   + (dynamic?)toEventValue,
+                    BezierPoints = formEvent.BezierPoints,
+                    Easing       = formEvent.Easing,
+                    EasingLeft   = formEvent.EasingLeft,
+                    EasingRight  = formEvent.EasingRight,
+                    IsBezier     = formEvent.IsBezier,
+                });
+            }
+            else
+            {
+                foreach (var (gapStart, gapEnd) in GapsOutsideOverlap(formEvent))
+                {
+                    var prevTo = toEventsForOffsetLookup.FindLast(e => e.EndBeat <= gapStart);
+                    var toEventValue = prevTo != null ? prevTo.EndValue : default;
+                    newEvents.Add(new Nrc.Event<T>
+                    {
+                        StartBeat = gapStart,
+                        EndBeat   = gapEnd,
+                        StartValue = (dynamic)formEvent.GetValueAtBeat(gapStart) + (dynamic?)toEventValue,
+                        EndValue   = (dynamic)formEvent.GetValueAtBeat(gapEnd)   + (dynamic?)toEventValue,
+                        BezierPoints = formEvent.BezierPoints,
+                        Easing       = formEvent.Easing,
+                        EasingLeft   = formEvent.EasingLeft,
+                        EasingRight  = formEvent.EasingRight,
+                        IsBezier     = formEvent.IsBezier,
+                    });
+                }
+            }
+        }
 
         return newEvents;
     }
