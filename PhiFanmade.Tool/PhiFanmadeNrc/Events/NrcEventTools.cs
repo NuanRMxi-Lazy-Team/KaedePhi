@@ -73,17 +73,37 @@ public static class NrcEventTools
 
 
     /// <summary>根据容差压缩事件列表，合并变化率相近的相邻线性事件。</summary>
+    [Obsolete("已废弃，请改用 EventListCompressSqrt 或 EventListCompressSlope 方法，EventListCompress 方法将被移除。")]
     public static List<Nrc.Event<T>> EventListCompress<T>(
         List<Nrc.Event<T>> events, double tolerance = 5)
-        => EventCompressor.EventListCompress(events, tolerance);
+        => EventCompressor.EventListCompressSqrt(events, tolerance);
+
+    /// <summary>
+    /// 使用了欧几里得距离做算法，对空间更敏感，适用于移动类事件
+    /// </summary>
+    /// <param name="events"></param>
+    /// <param name="tolerance"></param>
+    /// <typeparam name="T"></typeparam>
+    /// <returns></returns>
+    public static List<Nrc.Event<T>> EventListCompressSqrt<T>(List<Nrc.Event<T>> events, double tolerance = 5)
+        => EventCompressor.EventListCompressSqrt(events, tolerance);
+    /// <summary>
+    /// 使用了普通变化率算法的压缩算法，适用于非移动类事件
+    /// </summary>
+    /// <param name="events"></param>
+    /// <param name="tolerance"></param>
+    /// <typeparam name="T"></typeparam>
+    /// <returns></returns>
+    public static List<Nrc.Event<T>> EventListCompressSlope<T>(List<Nrc.Event<T>> events, double tolerance = 5)
+        => EventCompressor.EventListCompressSlope(events, tolerance);
 
     /// <summary>
     /// 将两个事件列表合并（固定采样策略）。有重叠区间时按等长切片逐段相加，可选压缩。
     /// </summary>
     public static List<Nrc.Event<T>> EventListMerge<T>(
         List<Nrc.Event<T>> toEvents, List<Nrc.Event<T>> fromEvents,
-        double precision = 64d, double tolerance = 5d, bool compress = true)
-        => EventMerger.EventListMerge(toEvents, fromEvents, precision, tolerance, compress);
+        double precision = 64d)
+        => EventMerger.EventListMerge(toEvents, fromEvents, precision);
 
     /// <summary>
     /// 将两个事件列表合并（自适应采样策略）。性能更优，天然压缩，不支持禁用压缩。

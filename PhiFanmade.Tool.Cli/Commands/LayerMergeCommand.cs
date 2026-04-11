@@ -1,8 +1,5 @@
-﻿using PhiFanmade.Tool.Cli.Infrastructure;
-using PhiFanmade.Tool.Cli.Settings.Operation;
-using PhiFanmade.Tool.Localization;
+﻿using PhiFanmade.Tool.Cli.Settings.Operation;
 using PhiFanmade.Tool.PhiFanmadeNrc.Layers;
-using Spectre.Console.Cli;
 
 namespace PhiFanmade.Tool.Cli.Commands;
 
@@ -20,7 +17,7 @@ public sealed class LayerMergeCommand : AsyncCommand<LayerMergeCommand.Settings>
         protected override bool? GetConfigDryRunDefault() => AppConfig.LayerMergeConfig?.DryRun;
     }
 
-    public override async Task<int> ExecuteAsync(CommandContext context, Settings settings,
+    protected override async Task<int> ExecuteAsync(CommandContext context, Settings settings,
         CancellationToken cancellationToken)
     {
         settings.ApplyConfigDefaults();
@@ -47,8 +44,7 @@ public sealed class LayerMergeCommand : AsyncCommand<LayerMergeCommand.Settings>
             line.EventLayers =
             [
                 settings.Classic
-                    ? NrcLayerTools.LayerMerge(line.EventLayers, settings.Precision, settings.Tolerance,
-                        !settings.DisableCompress)
+                    ? NrcLayerTools.LayerMerge(line.EventLayers, settings.Precision)
                     : NrcLayerTools.LayerMergePlus(line.EventLayers, settings.Precision, settings.Tolerance)
             ];
         }

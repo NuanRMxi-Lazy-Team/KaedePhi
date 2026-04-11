@@ -1,9 +1,6 @@
-﻿using PhiFanmade.Tool.Cli.Infrastructure;
-using PhiFanmade.Tool.Cli.Settings.Operation;
-using PhiFanmade.Tool.Localization;
+﻿using PhiFanmade.Tool.Cli.Settings.Operation;
 using PhiFanmade.Tool.PhiFanmadeNrc;
 using PhiFanmade.Tool.PhiFanmadeNrc.JudgeLines;
-using Spectre.Console.Cli;
 
 namespace PhiFanmade.Tool.Cli.Commands;
 
@@ -21,7 +18,7 @@ public sealed class UnbindFatherCommand : AsyncCommand<UnbindFatherCommand.Setti
         protected override bool? GetConfigDryRunDefault() => AppConfig.UnbindConfig.DryRun;
     }
 
-    public override async Task<int> ExecuteAsync(CommandContext context, Settings settings,
+    protected override async Task<int> ExecuteAsync(CommandContext context, Settings settings,
         CancellationToken cancellationToken)
     {
         settings.ApplyConfigDefaults();
@@ -50,10 +47,10 @@ public sealed class UnbindFatherCommand : AsyncCommand<UnbindFatherCommand.Setti
         {
             if (nrc.JudgeLineList[i].Father != -1)
                 if (settings.Classic)
-                    nrcCopy.JudgeLineList[i] = await NrcJudgeLineTools.FatherUnbindAsync(
-                        i, nrc.JudgeLineList, settings.Precision, settings.Tolerance, !settings.DisableCompress);
+                    nrcCopy.JudgeLineList[i] = NrcJudgeLineTools.FatherUnbind(
+                        i, nrc.JudgeLineList, settings.Precision);
                 else
-                    nrcCopy.JudgeLineList[i] = await NrcJudgeLineTools.FatherUnbindPlusAsync(
+                    nrcCopy.JudgeLineList[i] = NrcJudgeLineTools.FatherUnbindPlus(
                         i, nrc.JudgeLineList, settings.Precision, settings.Tolerance);
         }
 
@@ -68,4 +65,3 @@ public sealed class UnbindFatherCommand : AsyncCommand<UnbindFatherCommand.Setti
         return 0;
     }
 }
-

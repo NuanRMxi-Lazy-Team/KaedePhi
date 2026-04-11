@@ -1,8 +1,6 @@
-﻿using PhiFanmade.Tool.Cli.Infrastructure;
-using PhiFanmade.Tool.Cli.Settings.Operation;
-using PhiFanmade.Tool.Localization;
+﻿using PhiFanmade.Tool.Cli.Settings.Operation;
+using PhiFanmade.Tool.PhiFanmadeNrc.Events;
 using PhiFanmade.Tool.PhiFanmadeNrc.Layers;
-using Spectre.Console.Cli;
 
 namespace PhiFanmade.Tool.Cli.Commands;
 
@@ -19,7 +17,7 @@ public sealed class CutEventCommand : AsyncCommand<CutEventCommand.Settings>
         protected override bool? GetConfigDryRunDefault() => AppConfig.CutConfig?.DryRun;
     }
 
-    public override async Task<int> ExecuteAsync(CommandContext context, Settings settings,
+    protected override async Task<int> ExecuteAsync(CommandContext context, Settings settings,
         CancellationToken cancellationToken)
     {
         settings.ApplyConfigDefaults();
@@ -36,8 +34,15 @@ public sealed class CutEventCommand : AsyncCommand<CutEventCommand.Settings>
         for (var i = 0; i < nrcCopy.JudgeLineList.Count; i++)
         {
             var line = nrcCopy.JudgeLineList[i];
-            line.EventLayers = NrcLayerTools.CutLayerEvents(line.EventLayers, settings.Precision, settings.Tolerance,
-                !settings.DisableCompress);
+            line.EventLayers = NrcLayerTools.CutLayerEvents(line.EventLayers, settings.Precision);
+            if (settings.DisableCompress) continue;
+            foreach (var eventLayer in line.EventLayers.OfType<NrcCore.EventLayer>())
+            {
+                eventLayer.MoveXEvents = NrcEventTools.EventListCompress(eventLayer.MoveXEvents ?? [], settings.Tolerance);
+                eventLayer.MoveYEvents = NrcEventTools.EventListCompress(eventLayer.MoveYEvents ?? [], settings.Tolerance);
+                eventLayer.RotateEvents = NrcEventTools.EventListCompress(eventLayer.RotateEvents ?? [], settings.Tolerance);
+                eventLayer.AlphaEvents = NrcEventTools.EventListCompress(eventLayer.AlphaEvents ?? [], settings.Tolerance);
+            }
         }
 
         var output = await settings.SaveFromNrcAsync(nrcCopy, cancellationToken);

@@ -151,7 +151,7 @@ public static class RpeToNrc
     private static Nrc.Event<float> ConvertFloatEvent(Rpe.Event<float> src) => ConvertEvent(src);
     private static Nrc.Event<int> ConvertIntEvent(Rpe.Event<int> src) => ConvertEvent(src);
     private static Nrc.Event<string> ConvertStringEvent(Rpe.Event<string> src) => ConvertEvent(src);
-    private static Nrc.Event<byte[]> ConvertByteArrayEvent(Rpe.Event<byte[]> src) => ConvertEvent(src, v => v?.ToArray());
+    private static Nrc.Event<byte[]> ConvertByteArrayEvent(Rpe.Event<byte[]> src) => ConvertEvent(src, v => v.ToArray());
     private static Nrc.XControl ConvertXControl(Rpe.XControl src) => new() { Easing = ConvertEasing(src.Easing), X = src.X, Pos = src.Pos };
     private static Nrc.AlphaControl ConvertAlphaControl(Rpe.AlphaControl src) => new() { Easing = ConvertEasing(src.Easing), X = src.X, Alpha = src.Alpha };
     private static Nrc.SizeControl ConvertSizeControl(Rpe.SizeControl src) => new() { Easing = ConvertEasing(src.Easing), X = src.X, Size = src.Size };

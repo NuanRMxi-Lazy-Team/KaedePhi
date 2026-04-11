@@ -14,9 +14,9 @@ internal static class LayerProcessor
         var layersCopy = layers.Select(l => l.Clone()).ToList();
         foreach (var layer in layersCopy)
         {
-            layer.AlphaEvents  = EventCompressor.RemoveUselessEvent(layer.AlphaEvents);
-            layer.MoveXEvents  = EventCompressor.RemoveUselessEvent(layer.MoveXEvents);
-            layer.MoveYEvents  = EventCompressor.RemoveUselessEvent(layer.MoveYEvents);
+            layer.AlphaEvents = EventCompressor.RemoveUselessEvent(layer.AlphaEvents);
+            layer.MoveXEvents = EventCompressor.RemoveUselessEvent(layer.MoveXEvents);
+            layer.MoveYEvents = EventCompressor.RemoveUselessEvent(layer.MoveYEvents);
             layer.RotateEvents = EventCompressor.RemoveUselessEvent(layer.RotateEvents);
         }
 
@@ -25,20 +25,20 @@ internal static class LayerProcessor
 
     /// <summary>将多个事件层级各通道的事件切割到指定精度。</summary>
     internal static List<Nrc.EventLayer> CutLayerEvents(
-        List<Nrc.EventLayer> layers, double precision = 64d, double tolerance = 5d, bool compress = true)
+        List<Nrc.EventLayer> layers, double precision = 64d)
     {
         layers.RemoveAll(layer => layer == null);
         layers = RemoveUnlessLayer(layers) ?? layers;
-        return layers.Select(layer => CutLayerEvents(layer, precision, tolerance, compress)).ToList();
+        return layers.Select(layer => CutLayerEvents(layer, precision)).ToList();
     }
 
-    /// <summary>将单个事件层级各通道的事件切割到指定精度。</summary>
+    /// <summary>将单个事件层级各类型事件切割到指定精度。</summary>
     internal static Nrc.EventLayer CutLayerEvents(
-        Nrc.EventLayer? layer, double precision = 64d, double tolerance = 5d, bool compress = true)
+        Nrc.EventLayer? layer, double precision = 64d)
     {
         if (layer == null) return new Nrc.EventLayer();
 
-        var cutLength     = new PhiFanmade.Core.Common.Beat(1d / precision);
+        var cutLength = new PhiFanmade.Core.Common.Beat(1d / precision);
         var cutEventLayer = new Nrc.EventLayer();
 
         if (layer.AlphaEvents is { Count: > 0 })
@@ -71,21 +71,12 @@ internal static class LayerProcessor
                 layer.SpeedEvents.Min(e => e.StartBeat),
                 layer.SpeedEvents.Max(e => e.EndBeat), cutLength);
 
-        if (compress)
-        {
-            cutEventLayer.AlphaEvents  = EventCompressor.EventListCompress(cutEventLayer.AlphaEvents,  tolerance);
-            cutEventLayer.MoveXEvents  = EventCompressor.EventListCompress(cutEventLayer.MoveXEvents,  tolerance);
-            cutEventLayer.MoveYEvents  = EventCompressor.EventListCompress(cutEventLayer.MoveYEvents,  tolerance);
-            cutEventLayer.RotateEvents = EventCompressor.EventListCompress(cutEventLayer.RotateEvents, tolerance);
-            cutEventLayer.SpeedEvents  = EventCompressor.EventListCompress(cutEventLayer.SpeedEvents,  tolerance);
-        }
-
         return cutEventLayer;
     }
 
     /// <summary>合并多个事件层级（固定采样）。</summary>
     internal static Nrc.EventLayer LayerMerge(
-        List<Nrc.EventLayer> layers, double precision = 64d, double tolerance = 5d, bool compress = true)
+        List<Nrc.EventLayer> layers, double precision = 64d)
     {
         layers.RemoveAll(layer => layer == null);
         if (layers.Count <= 1) return layers.FirstOrDefault() ?? new Nrc.EventLayer();
@@ -94,16 +85,21 @@ internal static class LayerProcessor
         var mergedLayer = new Nrc.EventLayer();
         foreach (var layer in layers)
         {
-            if (layer.AlphaEvents  is { Count: > 0 })
-                mergedLayer.AlphaEvents  = EventMerger.EventListMerge(mergedLayer.AlphaEvents,  layer.AlphaEvents,  precision, tolerance, compress);
-            if (layer.MoveXEvents  is { Count: > 0 })
-                mergedLayer.MoveXEvents  = EventMerger.EventListMerge(mergedLayer.MoveXEvents,  layer.MoveXEvents,  precision, tolerance, compress);
-            if (layer.MoveYEvents  is { Count: > 0 })
-                mergedLayer.MoveYEvents  = EventMerger.EventListMerge(mergedLayer.MoveYEvents,  layer.MoveYEvents,  precision, tolerance, compress);
+            if (layer.AlphaEvents is { Count: > 0 })
+                mergedLayer.AlphaEvents =
+                    EventMerger.EventListMerge(mergedLayer.AlphaEvents, layer.AlphaEvents, precision);
+            if (layer.MoveXEvents is { Count: > 0 })
+                mergedLayer.MoveXEvents =
+                    EventMerger.EventListMerge(mergedLayer.MoveXEvents, layer.MoveXEvents, precision);
+            if (layer.MoveYEvents is { Count: > 0 })
+                mergedLayer.MoveYEvents =
+                    EventMerger.EventListMerge(mergedLayer.MoveYEvents, layer.MoveYEvents, precision);
             if (layer.RotateEvents is { Count: > 0 })
-                mergedLayer.RotateEvents = EventMerger.EventListMerge(mergedLayer.RotateEvents, layer.RotateEvents, precision, tolerance, compress);
-            if (layer.SpeedEvents  is { Count: > 0 })
-                mergedLayer.SpeedEvents  = EventMerger.EventListMerge(mergedLayer.SpeedEvents,  layer.SpeedEvents,  precision, tolerance, compress);
+                mergedLayer.RotateEvents =
+                    EventMerger.EventListMerge(mergedLayer.RotateEvents, layer.RotateEvents, precision);
+            if (layer.SpeedEvents is { Count: > 0 })
+                mergedLayer.SpeedEvents =
+                    EventMerger.EventListMerge(mergedLayer.SpeedEvents, layer.SpeedEvents, precision);
         }
 
         return mergedLayer;
@@ -111,7 +107,7 @@ internal static class LayerProcessor
 
     /// <summary>合并多个事件层级（自适应采样，性能更优）。</summary>
     internal static Nrc.EventLayer LayerMergePlus(
-        List<Nrc.EventLayer> layers, double precision = 64d, double tolerance = 5d)
+        List<Nrc.EventLayer> layers, double precision, double tolerance)
     {
         layers.RemoveAll(layer => layer == null);
         if (layers.Count <= 1) return layers.FirstOrDefault() ?? new Nrc.EventLayer();
@@ -120,19 +116,43 @@ internal static class LayerProcessor
         var mergedLayer = new Nrc.EventLayer();
         foreach (var layer in layers)
         {
-            if (layer.AlphaEvents  is { Count: > 0 })
-                mergedLayer.AlphaEvents  = EventMerger.EventMergePlus(mergedLayer.AlphaEvents,  layer.AlphaEvents,  precision, tolerance);
-            if (layer.MoveXEvents  is { Count: > 0 })
-                mergedLayer.MoveXEvents  = EventMerger.EventMergePlus(mergedLayer.MoveXEvents,  layer.MoveXEvents,  precision, tolerance);
-            if (layer.MoveYEvents  is { Count: > 0 })
-                mergedLayer.MoveYEvents  = EventMerger.EventMergePlus(mergedLayer.MoveYEvents,  layer.MoveYEvents,  precision, tolerance);
+            if (layer.AlphaEvents is { Count: > 0 })
+                mergedLayer.AlphaEvents =
+                    EventMerger.EventMergePlus(mergedLayer.AlphaEvents, layer.AlphaEvents, precision, tolerance);
+            if (layer.MoveXEvents is { Count: > 0 })
+                mergedLayer.MoveXEvents =
+                    EventMerger.EventMergePlus(mergedLayer.MoveXEvents, layer.MoveXEvents, precision, tolerance);
+            if (layer.MoveYEvents is { Count: > 0 })
+                mergedLayer.MoveYEvents =
+                    EventMerger.EventMergePlus(mergedLayer.MoveYEvents, layer.MoveYEvents, precision, tolerance);
             if (layer.RotateEvents is { Count: > 0 })
-                mergedLayer.RotateEvents = EventMerger.EventMergePlus(mergedLayer.RotateEvents, layer.RotateEvents, precision, tolerance);
-            if (layer.SpeedEvents  is { Count: > 0 })
-                mergedLayer.SpeedEvents  = EventMerger.EventMergePlus(mergedLayer.SpeedEvents,  layer.SpeedEvents,  precision, tolerance);
+                mergedLayer.RotateEvents =
+                    EventMerger.EventMergePlus(mergedLayer.RotateEvents, layer.RotateEvents, precision, tolerance);
+            if (layer.SpeedEvents is { Count: > 0 })
+                mergedLayer.SpeedEvents =
+                    EventMerger.EventMergePlus(mergedLayer.SpeedEvents, layer.SpeedEvents, precision, tolerance);
         }
 
         return mergedLayer;
     }
-}
 
+    /// <summary>
+    /// 将事件层中的事件进行压缩
+    /// </summary>
+    /// <param name="layer">事件层</param>
+    /// <param name="tolerance">容差百分比</param>
+    internal static void LayerEventsCompress(
+        Nrc.EventLayer layer, double tolerance)
+    {
+        if (layer.AlphaEvents is { Count: > 0 })
+            layer.AlphaEvents = EventCompressor.EventListCompressSlope(layer.AlphaEvents, tolerance);
+        if (layer.MoveXEvents is { Count: > 0 })
+            layer.MoveXEvents = EventCompressor.EventListCompressSqrt(layer.MoveXEvents, tolerance);
+        if (layer.MoveYEvents is { Count: > 0 })
+            layer.MoveYEvents = EventCompressor.EventListCompressSqrt(layer.MoveYEvents, tolerance);
+        if (layer.RotateEvents is { Count: > 0 })
+            layer.RotateEvents = EventCompressor.EventListCompressSlope(layer.RotateEvents, tolerance);
+        if (layer.SpeedEvents is { Count: > 0 })
+            layer.SpeedEvents = EventCompressor.EventListCompressSlope(layer.SpeedEvents, tolerance);
+    }
+}

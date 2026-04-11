@@ -1,7 +1,4 @@
 ﻿using System.Reflection;
-using PhiFanmade.Tool.Localization;
-using PhiFanmade.Tool.Cli.Infrastructure;
-using Spectre.Console.Cli;
 
 namespace PhiFanmade.Tool.Cli.Commands;
 
@@ -12,7 +9,7 @@ public sealed class VersionCommand : AsyncCommand<VersionCommand.Settings>
     {
     }
 
-    public override Task<int> ExecuteAsync(CommandContext context, Settings settings,
+    protected override Task<int> ExecuteAsync(CommandContext context, Settings settings,
         CancellationToken cancellationToken)
     {
 #if PreRelease || Release

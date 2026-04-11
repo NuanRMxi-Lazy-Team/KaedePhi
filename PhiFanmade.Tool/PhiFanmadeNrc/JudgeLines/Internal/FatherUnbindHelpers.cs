@@ -125,7 +125,7 @@ internal static class FatherUnbindHelpers
     }
 
     /// <summary>
-    /// 按层顺序将某一通道的事件列表串行叠加合并。层间叠加不满足交换律，必须顺序处理。
+    /// 按层顺序将某一类型的事件列表串行叠加合并。层间叠加不满足交换律，必须顺序处理。
     /// </summary>
     internal static List<Nrc.Event<double>> MergeLayerChannel(
         List<Nrc.EventLayer> layers,
@@ -196,7 +196,7 @@ internal static class FatherUnbindHelpers
     /// RotateWithFather 为 true 时叠加父线旋转事件；最后置 Father = -1 完成解绑。
     /// <para>
     /// 位置通道 X/Y 使用 <see cref="CompressXYPosition"/> 联合压缩，以屏幕空间欧几里得距离
-    /// 同时感知两轴偏差；旋转通道为单轴，仍使用 <see cref="EventCompressor.EventListCompress"/>。
+    /// 同时感知两轴偏差；旋转通道为单轴，仍使用 <see cref="EventCompressor.EventListCompressSqrt{T}"/>。
     /// </para>
     /// </summary>
     internal static void WriteResultToLine(
@@ -204,9 +204,7 @@ internal static class FatherUnbindHelpers
         List<Nrc.Event<double>> newXEvents,
         List<Nrc.Event<double>> newYEvents,
         List<Nrc.Event<double>> fatherRotateEvents,
-        double tolerance,
-        Func<List<Nrc.Event<double>>, List<Nrc.Event<double>>, List<Nrc.Event<double>>> merge,
-        bool compress = true)
+        Func<List<Nrc.Event<double>>, List<Nrc.Event<double>>, List<Nrc.Event<double>>> merge)
     {
         for (var i = 1; i < line.EventLayers.Count; i++)
         {
@@ -219,19 +217,13 @@ internal static class FatherUnbindHelpers
 
         // 使用单轴独立压缩。CompressXYPosition 已实现联合 2D 屏幕距离压缩，
         // 但属于独立优化，保留为可选项，待单独测试后启用。
-        line.EventLayers[0].MoveXEvents = compress
-            ? EventCompressor.EventListCompress(newXEvents, tolerance)
-            : newXEvents;
-        line.EventLayers[0].MoveYEvents = compress
-            ? EventCompressor.EventListCompress(newYEvents, tolerance)
-            : newYEvents;
+        line.EventLayers[0].MoveXEvents = newXEvents;
+        line.EventLayers[0].MoveYEvents = newYEvents;
 
         if (line.RotateWithFather)
         {
             var merged = merge(line.EventLayers[0].RotateEvents, fatherRotateEvents);
-            line.EventLayers[0].RotateEvents = compress
-                ? EventCompressor.EventListCompress(merged, tolerance)
-                : merged;
+            line.EventLayers[0].RotateEvents = merged;
         }
 
         line.Father = -1;
@@ -246,7 +238,7 @@ internal static class FatherUnbindHelpers
     /// 使用局部尺度可避免远离原点时阈值被放大，从而产生位置相关的外偏/内偏。
     /// </para>
     /// <para>
-    /// 若 X/Y 长度不一致（对齐失败），退回到各自调用 <see cref="EventCompressor.EventListCompress"/>。
+    /// 若 X/Y 长度不一致（对齐失败），退回到各自调用 <see cref="EventCompressor.EventListCompressSqrt{T}"/>。
     /// </para>
     /// </summary>
     /// <param name="xEvents">X 通道事件列表（与 yEvents 按拍对齐）。</param>
@@ -260,8 +252,8 @@ internal static class FatherUnbindHelpers
     {
         // 若 X/Y 未对齐，退回独立 1D 压缩
         if (xEvents.Count != yEvents.Count || xEvents.Count == 0)
-            return (EventCompressor.EventListCompress(xEvents, tolerance),
-                    EventCompressor.EventListCompress(yEvents, tolerance));
+            return (EventCompressor.EventListCompressSqrt(xEvents, tolerance),
+                EventCompressor.EventListCompressSqrt(yEvents, tolerance));
 
         var compX = new List<Nrc.Event<double>> { xEvents[0] };
         var compY = new List<Nrc.Event<double>> { yEvents[0] };
@@ -271,12 +263,12 @@ internal static class FatherUnbindHelpers
         {
             var lastX = compX[^1];
             var lastY = compY[^1];
-            var curX  = xEvents[i];
-            var curY  = yEvents[i];
+            var curX = xEvents[i];
+            var curY = yEvents[i];
 
             // 仅合并相邻线性段，且 X/Y 拍边界需一致
             if (lastX.Easing != 1 || lastY.Easing != 1 ||
-                curX.Easing  != 1 || curY.Easing  != 1 ||
+                curX.Easing != 1 || curY.Easing != 1 ||
                 lastX.EndBeat != curX.StartBeat ||
                 lastY.EndBeat != curY.StartBeat)
             {
@@ -310,9 +302,9 @@ internal static class FatherUnbindHelpers
                 continue;
             }
 
-            var tA    = (double)lastX.StartBeat;
-            var tB    = (double)lastX.EndBeat;
-            var tC    = (double)curX.EndBeat;
+            var tA = (double)lastX.StartBeat;
+            var tB = (double)lastX.EndBeat;
+            var tC = (double)curX.EndBeat;
             var tSpan = tC - tA;
 
             bool canMerge;
@@ -340,9 +332,9 @@ internal static class FatherUnbindHelpers
 
             if (canMerge)
             {
-                lastX.EndBeat  = curX.EndBeat;
+                lastX.EndBeat = curX.EndBeat;
                 lastX.EndValue = curX.EndValue;
-                lastY.EndBeat  = curY.EndBeat;
+                lastY.EndBeat = curY.EndBeat;
                 lastY.EndValue = curY.EndValue;
             }
             else
@@ -355,7 +347,7 @@ internal static class FatherUnbindHelpers
         return (compX, compY);
     }
 
-    // ─── 共享数据结构 ────────────────────────────────────────────────────────
+    #region MyRegion
 
     /// <summary>
     /// 封装解绑计算所需的五个事件通道：父线 X/Y/旋转 和子线 X/Y。
@@ -382,7 +374,9 @@ internal static class FatherUnbindHelpers
             Tx: MergeLayerChannel(targetLayers, l => l.MoveXEvents, merge),
             Ty: MergeLayerChannel(targetLayers, l => l.MoveYEvents, merge));
 
-    // ─── 等间隔采样算法 ──────────────────────────────────────────────────────
+    #endregion 共享数据结构
+
+    #region 等间隔采样算法
 
     /// <summary>
     /// 生成从 <paramref name="min"/> 到 <paramref name="max"/>（不含）以 <paramref name="step"/> 为步长的拍列表。
@@ -436,7 +430,9 @@ internal static class FatherUnbindHelpers
         );
     }
 
-    // ─── 自适应采样算法 ──────────────────────────────────────────────────────
+    #endregion 等间隔采样算法
+
+    #region 自适应采样算法
 
     /// <summary>
     /// 尝试计算五个通道的总体拍范围。若所有通道均为空则返回 <see langword="null"/>。
@@ -562,4 +558,6 @@ internal static class FatherUnbindHelpers
 
         return (localX, localY);
     }
+
+    #endregion 自适应采样算法
 }

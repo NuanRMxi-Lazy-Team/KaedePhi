@@ -88,12 +88,7 @@ public class NrcToPe
         };
 
         if (!string.Equals(trueSrc.Texture, "line.png", StringComparison.Ordinal) ||
-            _options.LineFilter.RemoveTextureLine)
-        {
-            return pe;
-        }
-
-        if (trueSrc.AttachUi.HasValue || _options.LineFilter.RemoveAttachUiLine)
+            _options.LineFilter.RemoveTextureLine || trueSrc.AttachUi.HasValue || _options.LineFilter.RemoveAttachUiLine)
         {
             return pe;
         }
@@ -102,11 +97,14 @@ public class NrcToPe
         if (trueSrc.Father != -1)
         {
             Warn($"PE 不支持 JudgeLine.Father（值={src.Father}），将自动解除父子绑定");
-            trueSrc = _options.FatherLineUnbind.ClassicMode
-                ? NrcJudgeLineTools.FatherUnbind(allLine.FindIndex(l => l.GetHashCode() == src.GetHashCode()),
-                    allLine, _options.FatherLineUnbind.Precision, _options.FatherLineUnbind.Tolerance,
-                    _options.FatherLineUnbind.Compress)
-                : NrcJudgeLineTools.FatherUnbindPlus(allLine.FindIndex(l => l.GetHashCode() == src.GetHashCode()),
+            if (_options.FatherLineUnbind.ClassicMode)
+            {
+                trueSrc = NrcJudgeLineTools.FatherUnbind(allLine.FindIndex(l => l.GetHashCode() == src.GetHashCode()),
+                    allLine, _options.FatherLineUnbind.Precision);
+            }
+            else
+                trueSrc = NrcJudgeLineTools.FatherUnbindPlus(
+                    allLine.FindIndex(l => l.GetHashCode() == src.GetHashCode()),
                     allLine, _options.FatherLineUnbind.Tolerance);
         }
 
@@ -131,7 +129,7 @@ public class NrcToPe
             EndBeat = (float)(double)src.EndBeat,
             IsFake = src.IsFake,
             PositionX = ToPeX(src.PositionX - Nrc.Chart.CoordinateSystem.MaxX),
-            WidthRatio = src.Size,
+            WidthRatio = src.WidthRatio,
             SpeedMultiplier = src.SpeedMultiplier,
             Type = (Pe.NoteType)(int)src.Type
         };
@@ -150,15 +148,25 @@ public class NrcToPe
             if (!HasAnyEventData(layers[i])) continue;
             Warn("JudgeLine 存在多个事件层；PE 仅支持单层，将自动合并为一层");
             // 使用Nrc工具将层级合并
-            primaryLayer = _options.MultiLayerMerge.ClassicMode
-                ? Layers.NrcLayerTools.LayerMerge(layers,
-                    _options.MultiLayerMerge.Precision,
-                    _options.MultiLayerMerge.Tolerance,
-                    _options.MultiLayerMerge.Compress)
-                : Layers.NrcLayerTools.LayerMergePlus(
+            if (_options.MultiLayerMerge.ClassicMode)
+            {
+                if (_options.MultiLayerMerge.Compress)
+                {
+                    var layer = Layers.NrcLayerTools.LayerMerge(layers,
+                        _options.MultiLayerMerge.Precision);
+                    Layers.NrcLayerTools.LayerEventsCompress(layer);
+                    primaryLayer = layer;
+                }
+                else
+                    primaryLayer = Layers.NrcLayerTools.LayerMerge(layers,
+                        _options.MultiLayerMerge.Precision);
+            }
+            else
+                primaryLayer = Layers.NrcLayerTools.LayerMergePlus(
                     layers,
                     _options.MultiLayerMerge.Precision,
                     _options.MultiLayerMerge.Tolerance);
+
             break;
         }
 
@@ -185,7 +193,7 @@ public class NrcToPe
                 // Slice each source alpha event independently, then compress once before merging.
                 var sliced = NrcEventTools.CutEventToLiner(srcEvent, 1d / _options.Alpha.CutPrecision);
                 return _options.Alpha.CutCompress
-                    ? NrcEventTools.EventListCompress(sliced, _options.Alpha.CutTolerance)
+                    ? NrcEventTools.EventListCompressSlope(sliced, _options.Alpha.CutTolerance)
                     : sliced;
             })
             .ToList();

@@ -13,7 +13,7 @@ public class CutConfig
     /// <summary>
     /// 切割后压缩拟合容差
     /// </summary>
-    public double Tolerance { get; set; } = 5d;
+    public double Tolerance { get; set; } = 0.1d;
     
     /// <summary>
     /// 切割后是否禁用压缩行为

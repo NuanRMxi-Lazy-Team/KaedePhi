@@ -7,7 +7,6 @@ namespace PhiFanmade.Tool.PhiFanmadeNrc.Events.Internal;
 /// </summary>
 internal static class EventMerger
 {
-    // ─── 公开入口 ────────────────────────────────────────────────────────────
 
     /// <summary>
     /// 将两个事件列表合并（固定采样）。有重叠区间时按等长切片逐段相加，可选压缩。
@@ -15,9 +14,7 @@ internal static class EventMerger
     internal static List<Nrc.Event<T>> EventListMerge<T>(
         List<Nrc.Event<T>>? toEvents,
         List<Nrc.Event<T>>? fromEvents,
-        double precision = 64d,
-        double tolerance = 5d,
-        bool compress = true)
+        double precision = 64d)
     {
         if (TryGetMergeEarlyReturn(toEvents, fromEvents, out var earlyReturn)) return earlyReturn;
         if (toEvents == null || fromEvents == null) return [];
@@ -31,7 +28,7 @@ internal static class EventMerger
             return MergeWithoutOverlap(toEventsCopy, fromEventsCopy);
 
         return MergeWithOverlapFixedSampling(
-            toEvents, toEventsCopy, fromEventsCopy, precision, tolerance, compress);
+            toEvents, toEventsCopy, fromEventsCopy, precision);
     }
 
     /// <summary>
@@ -292,9 +289,7 @@ internal static class EventMerger
         List<Nrc.Event<T>> toEventsForOffsetLookup,
         List<Nrc.Event<T>> toEventsCopy,
         List<Nrc.Event<T>> fromEventsCopy,
-        double precision,
-        double tolerance,
-        bool compress)
+        double precision)
     {
         var overlapIntervals = BuildOverlapIntervals(toEventsCopy, fromEventsCopy);
         var newEvents = BuildBaseEventsOutsideOverlap(
@@ -305,13 +300,6 @@ internal static class EventMerger
             CutAndRemoveOverlapEvents(toEventsCopy, fromEventsCopy, overlapIntervals, cutLength);
         newEvents.AddRange(
             MergeCutOverlapSegments(toEventsCopy, fromEventsCopy, cutTo, cutFrom, overlapIntervals, cutLength));
-
-        if (compress)
-        {
-            var floatEvents = newEvents as List<Nrc.Event<float>> ?? throw new InvalidCastException(nameof(newEvents));
-            newEvents = EventCompressor.EventListCompress(floatEvents, tolerance)
-                .Select(e => (Nrc.Event<T>)(object)e).ToList();
-        }
 
         SortByStartBeat(newEvents);
         return newEvents;

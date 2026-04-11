@@ -28,10 +28,10 @@ public static class NrcJudgeLineTools
     /// <summary>将判定线与父判定线解绑并保持行为一致（等间隔采样，同步）。</summary>
     public static Nrc.JudgeLine FatherUnbind(
         int targetJudgeLineIndex, List<Nrc.JudgeLine> allJudgeLines,
-        double precision = 64d, double tolerance = 5d, bool compress = true)
+        double precision = 64d)
         => FatherUnbindProcessor.FatherUnbind(
-            targetJudgeLineIndex, allJudgeLines, precision, tolerance,
-            FatherUnbindHelpers.ChartCacheTable.GetOrCreateValue(allJudgeLines), compress);
+            targetJudgeLineIndex, allJudgeLines, precision,
+            FatherUnbindHelpers.ChartCacheTable.GetOrCreateValue(allJudgeLines));
 
     /// <summary>将判定线与父判定线解绑并保持行为一致（等间隔采样，同步，指定渲染坐标系）。</summary>
     public static Nrc.JudgeLine FatherUnbind(
@@ -40,7 +40,7 @@ public static class NrcJudgeLineTools
     {
         using var _ = FatherUnbindHelpers.UseRenderProfile(renderProfile);
         return FatherUnbind(
-            targetJudgeLineIndex, allJudgeLines, precision, tolerance, compress);
+            targetJudgeLineIndex, allJudgeLines, precision);
     }
 
     #endregion

@@ -1,7 +1,4 @@
 ﻿using System.ComponentModel;
-using PhiFanmade.Tool.Cli.Infrastructure;
-using PhiFanmade.Tool.Common;
-using Spectre.Console.Cli;
 
 namespace PhiFanmade.Tool.Cli.Commands.Test;
 
@@ -14,7 +11,7 @@ public class GetTypeTestCommand : AsyncCommand<GetTypeTestCommand.Settings>
         public string? Input { get; set; }
     }
 
-    public override async Task<int> ExecuteAsync(CommandContext context, Settings settings,
+    protected override async Task<int> ExecuteAsync(CommandContext context, Settings settings,
         CancellationToken cancellationToken)
     {
         var writer = new ConsoleWriter();

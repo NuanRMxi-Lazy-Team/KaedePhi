@@ -8,7 +8,7 @@ public class FitConfig
     /// <summary>
     /// 拟合容差
     /// </summary>
-    public double Tolerance { get; set; } = 1d;
+    public double Tolerance { get; set; } = 0.5d;
 
     /// <summary>
     /// 是否为干运行（仅计算不写入）

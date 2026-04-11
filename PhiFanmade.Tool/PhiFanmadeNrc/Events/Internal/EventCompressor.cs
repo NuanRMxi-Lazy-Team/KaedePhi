@@ -5,6 +5,75 @@
 /// </summary>
 internal static class EventCompressor
 {
+    private static void ValidateParams<T>(double tolerance)
+    {
+        if (tolerance is > 100 or < 0)
+            throw new ArgumentOutOfRangeException(nameof(tolerance), "Tolerance must be between 0 and 100.");
+        if (typeof(T) != typeof(int) && typeof(T) != typeof(float) && typeof(T) != typeof(double))
+            throw new NotSupportedException("EventListCompress only supports int, float, and double types.");
+    }
+
+    /// <summary>
+    /// 判断两段线性事件能否合并（归一化垂直距离算法）。
+    /// </summary>
+    private static bool TryMergeSqrt<T>(Nrc.Event<T> last, Nrc.Event<T> cur, double relTol)
+    {
+        var startBeat = (double)last.StartBeat;
+        var midBeat = (double)last.EndBeat;
+        var endBeat = (double)cur.EndBeat;
+        var startValue = Convert.ToDouble(last.StartValue);
+        var midValueEnd = Convert.ToDouble(last.EndValue);
+        var midValueStart = Convert.ToDouble(cur.StartValue);
+        var endValue = Convert.ToDouble(cur.EndValue);
+
+        var scale = Math.Max(Math.Max(Math.Abs(startValue), Math.Abs(midValueEnd)),
+            Math.Max(Math.Abs(endValue), 1e-3));
+
+        if (Math.Abs(midValueEnd - midValueStart) / scale > relTol)
+            return false;
+
+        var totalBeatSpan = endBeat - startBeat;
+        if (totalBeatSpan < 1e-12) return true;
+
+        var normalizedMidBeat = (midBeat - startBeat) / totalBeatSpan;
+        var normalizedValueDelta = (endValue - startValue) / scale;
+        var normalizedMidValue = (midValueEnd - startValue) / scale;
+        var linearDeviation = normalizedMidValue - normalizedValueDelta * normalizedMidBeat;
+        var mergedLineLength = Math.Sqrt(1.0 + normalizedValueDelta * normalizedValueDelta);
+        return Math.Abs(linearDeviation) / mergedLineLength <= relTol;
+    }
+
+    /// <summary>
+    /// 判断两段线性事件能否合并（归一化斜率差算法）。
+    /// </summary>
+    private static bool TryMergeSlope<T>(Nrc.Event<T> last, Nrc.Event<T> cur, double relTol)
+    {
+        var startBeat = (double)last.StartBeat;
+        var midBeat = (double)last.EndBeat;
+        var endBeat = (double)cur.EndBeat;
+        var startValue = Convert.ToDouble(last.StartValue);
+        var midValueEnd = Convert.ToDouble(last.EndValue);
+        var midValueStart = Convert.ToDouble(cur.StartValue);
+        var endValue = Convert.ToDouble(cur.EndValue);
+
+        var scale = Math.Max(Math.Max(Math.Abs(startValue), Math.Abs(midValueEnd)),
+            Math.Max(Math.Abs(endValue), 1e-3));
+
+        if (Math.Abs(midValueEnd - midValueStart) / scale > relTol)
+            return false;
+
+        var totalBeatSpan = endBeat - startBeat;
+        if (totalBeatSpan < 1e-12) return true;
+
+        var firstSegmentDuration = midBeat - startBeat;
+        var secondSegmentDuration = endBeat - midBeat;
+        var firstSlope = firstSegmentDuration < 1e-12 ? 0.0 : (midValueEnd - startValue) / firstSegmentDuration / scale;
+        var secondSlope = secondSegmentDuration < 1e-12
+            ? 0.0
+            : (endValue - midValueStart) / secondSegmentDuration / scale;
+        return Math.Abs(firstSlope - secondSlope) <= relTol;
+    }
+
     /// <summary>
     /// 压缩事件列表，合并相连的线性事件。
     /// 使用归一化 (拍, 值) 空间中的垂直距离度量误差：
@@ -12,18 +81,15 @@ internal static class EventCompressor
     /// 与原来的斜率比较方法相比，本算法对长段误差更敏感，且不受坐标系 X/Y 轴缩放影响。
     /// </summary>
     /// <param name="events">事件列表</param>
-    /// <param name="tolerance">拟合容差百分比，越大拟合精细度越低</param>
-    internal static List<Nrc.Event<T>> EventListCompress<T>(
-        List<Nrc.Event<T>>? events, double tolerance = 5)
+    /// <param name="tolerance">容差百分比，越大拟合精细度越低</param>
+    internal static List<Nrc.Event<T>> EventListCompressSqrt<T>(
+        List<Nrc.Event<T>>? events, double tolerance)
     {
-        if (tolerance is > 100 or < 0)
-            throw new ArgumentOutOfRangeException(nameof(tolerance), "Tolerance must be between 0 and 100.");
-        if (typeof(T) != typeof(int) && typeof(T) != typeof(float) && typeof(T) != typeof(double))
-            throw new NotSupportedException("EventListCompress only supports int, float, and double types.");
-
+        ValidateParams<T>(tolerance);
         if (events == null || events.Count == 0) return [];
 
         var compressed = new List<Nrc.Event<T>> { events[0] };
+        var relTol = tolerance / 100.0;
 
         for (var i = 1; i < events.Count; i++)
         {
@@ -31,57 +97,48 @@ internal static class EventCompressor
             var currentEvent = events[i];
 
             if (lastEvent.Easing == 1 && currentEvent.Easing == 1 &&
-                lastEvent.EndBeat == currentEvent.StartBeat)
+                lastEvent.EndBeat == currentEvent.StartBeat &&
+                TryMergeSqrt(lastEvent, currentEvent, relTol))
             {
-                var tA = (double)lastEvent.StartBeat;
-                var tB = (double)lastEvent.EndBeat;
-                var tC = (double)currentEvent.EndBeat;
-                var vA     = Convert.ToDouble(lastEvent.StartValue);
-                var vBend  = Convert.ToDouble(lastEvent.EndValue);
-                var vBstart = Convert.ToDouble(currentEvent.StartValue);
-                var vC     = Convert.ToDouble(currentEvent.EndValue);
+                lastEvent.EndBeat = currentEvent.EndBeat;
+                lastEvent.EndValue = currentEvent.EndValue;
+                continue;
+            }
 
-                // 归一化比例尺：所有端点绝对值的最大值。
-                // 下限设为 1e-3（NRC 坐标全范围 [-1,1] 的 0.1%），避免坐标趋零时
-                // 浮点残差被放大 10^6 倍导致 perpDist 爆炸、永远无法合并。
-                var scale  = Math.Max(Math.Max(Math.Abs(vA), Math.Abs(vBend)),
-                                      Math.Max(Math.Abs(vC), 1e-3));
-                var relTol = tolerance / 100.0;
+            compressed.Add(currentEvent);
+        }
 
-                // 检查交界处的连续性：在归一化值域中，两段交界点的间距需在容差内
-                var normalizedGap = Math.Abs(vBend - vBstart) / scale;
+        return compressed;
+    }
 
-                if (normalizedGap <= relTol)
-                {
-                    var tSpan = tC - tA;
-                    bool canMerge;
+    /// <summary>
+    /// 压缩事件列表，合并相连的线性事件。
+    /// 使用归一化斜率差度量误差：比较两段的归一化斜率之差是否在容差之内。
+    /// 适用于空间不敏感的数据（如透明度），不依赖垂直距离计算，无需开方。
+    /// </summary>
+    /// <param name="events">事件列表</param>
+    /// <param name="tolerance">容差百分比，越大拟合精细度越低</param>
+    internal static List<Nrc.Event<T>> EventListCompressSlope<T>(
+        List<Nrc.Event<T>>? events, double tolerance)
+    {
+        ValidateParams<T>(tolerance);
+        if (events == null || events.Count == 0) return [];
 
-                    if (tSpan < 1e-12)
-                    {
-                        // 合并后长度趋零，直接合并
-                        canMerge = true;
-                    }
-                    else
-                    {
-                        // 在归一化 (拍, 值) 空间中计算交界点到合并段的垂直距离：
-                        //   归一化后 A'=(0,0)，C'=(1, dvNorm)，B'=(tNorm, byNorm)
-                        //   垂直距离 d = |byNorm − dvNorm·tNorm| / sqrt(1 + dvNorm²)
-                        var tNorm  = (tB - tA) / tSpan;
-                        var dvNorm = (vC    - vA) / scale;
-                        var byNorm = (vBend - vA) / scale;
-                        var det    = byNorm - dvNorm * tNorm;
-                        var len    = Math.Sqrt(1.0 + dvNorm * dvNorm);
-                        var perpDist = Math.Abs(det) / len;
-                        canMerge = perpDist <= relTol;
-                    }
+        var compressed = new List<Nrc.Event<T>> { events[0] };
+        var relTol = tolerance / 100.0;
 
-                    if (canMerge)
-                    {
-                        lastEvent.EndBeat  = currentEvent.EndBeat;
-                        lastEvent.EndValue = currentEvent.EndValue;
-                        continue;
-                    }
-                }
+        for (var i = 1; i < events.Count; i++)
+        {
+            var lastEvent = compressed[^1];
+            var currentEvent = events[i];
+
+            if (lastEvent.Easing == 1 && currentEvent.Easing == 1 &&
+                lastEvent.EndBeat == currentEvent.StartBeat &&
+                TryMergeSlope(lastEvent, currentEvent, relTol))
+            {
+                lastEvent.EndBeat = currentEvent.EndBeat;
+                lastEvent.EndValue = currentEvent.EndValue;
+                continue;
             }
 
             compressed.Add(currentEvent);

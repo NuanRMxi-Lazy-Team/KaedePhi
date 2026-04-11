@@ -13,7 +13,7 @@ public class LayerMergeConfig
     /// <summary>
     /// 合并后压缩拟合容差
     /// </summary>
-    public double Tolerance { get; set; } = 5d;
+    public double Tolerance { get; set; } = 0.1d;
     
     /// <summary>
     /// 合并后是否禁用压缩行为

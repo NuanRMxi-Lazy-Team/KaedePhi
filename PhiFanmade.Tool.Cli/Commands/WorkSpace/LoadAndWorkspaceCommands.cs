@@ -1,7 +1,4 @@
-﻿using PhiFanmade.Tool.Cli.Infrastructure;
-using PhiFanmade.Tool.Localization;
-using Spectre.Console;
-using Spectre.Console.Cli;
+﻿using Spectre.Console;
 
 namespace PhiFanmade.Tool.Cli.Commands.WorkSpace;
 
@@ -26,7 +23,7 @@ public sealed class LoadCommand : AsyncCommand<LoadCommand.Settings>
         }
     }
 
-    public override async Task<int> ExecuteAsync(CommandContext context, Settings settings,CancellationToken cancellationToken)
+    protected override async Task<int> ExecuteAsync(CommandContext context, Settings settings,CancellationToken cancellationToken)
     {
         var writer = new ConsoleWriter();
         var ws = new WorkspaceService();
@@ -57,7 +54,7 @@ public sealed class SaveCommand : AsyncCommand<SaveCommand.Settings>
         }
     }
 
-    public override async Task<int> ExecuteAsync(CommandContext context, Settings settings,CancellationToken cancellationToken)
+    protected override async Task<int> ExecuteAsync(CommandContext context, Settings settings,CancellationToken cancellationToken)
     {
         var writer = new ConsoleWriter();
         var ws = new WorkspaceService();
@@ -76,7 +73,7 @@ public sealed class WorkspaceListCommand : Command<WorkspaceListCommand.Settings
     {
     }
 
-    public override int Execute(CommandContext context, Settings settings,CancellationToken cancellationToken)
+    protected override int Execute(CommandContext context, Settings settings,CancellationToken cancellationToken)
     {
         var ws = new WorkspaceService();
         foreach (var id in ws.List())
@@ -97,7 +94,7 @@ public sealed class WorkspaceClearCommand : Command<WorkspaceClearCommand.Settin
         public string? Id { get; set; }
     }
 
-    public override int Execute(CommandContext context, Settings settings,CancellationToken cancellationToken)
+    protected override int Execute(CommandContext context, Settings settings,CancellationToken cancellationToken)
     {
         var writer = new ConsoleWriter();
         var ws = new WorkspaceService();

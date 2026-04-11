@@ -78,7 +78,7 @@ public static class NrcToRpe
         EndBeat = new Beat((int[])src.EndBeat),
         IsFake = src.IsFake,
         PositionX = FloatTransformX(src.PositionX),
-        Size = src.Size,
+        Size = src.WidthRatio,
         JudgeArea = src.JudgeArea,
         SpeedMultiplier = src.SpeedMultiplier,
         Type = (Rpe.NoteType)(int)src.Type,

@@ -62,41 +62,31 @@ internal static class FatherUnbindProcessor
     /// <param name="targetJudgeLineIndex">目标判定线在列表中的索引。</param>
     /// <param name="allJudgeLines">当前谱面的全部判定线。</param>
     /// <param name="precision">每拍内的采样步数；越大精度越高，计算量越大。</param>
-    /// <param name="tolerance">误差容差百分比，用于事件压缩。</param>
     /// <param name="cache">同一谱面所有调用共享的解绑结果缓存。</param>
-    /// <param name="compress">是否在写回前压缩冗余事件。</param>
     internal static Nrc.JudgeLine FatherUnbind(
         int targetJudgeLineIndex,
         List<Nrc.JudgeLine> allJudgeLines,
-        double precision, double tolerance,
-        ConcurrentDictionary<int, Nrc.JudgeLine> cache,
-        bool compress = true)
+        double precision,
+        ConcurrentDictionary<int, Nrc.JudgeLine> cache)
     {
         Nrc.JudgeLine judgeLineCopy;
         try
         {
             // 统一前置流程，减少同步/自适应两个入口重复代码。
-            var prepare = PrepareUnbindContext(
+            var (judgeLine, fatherLine, shouldReturn) = PrepareUnbindContext(
                 targetJudgeLineIndex,
                 allJudgeLines,
                 cache,
                 logTag: "FatherUnbind",
                 startAction: "开始解绑",
-                recursiveUnbind: (idx, lines) => FatherUnbind(idx, lines, precision, tolerance, cache, compress));
+                recursiveUnbind: (idx, lines) => FatherUnbind(idx, lines, precision, cache));
 
-            judgeLineCopy = prepare.JudgeLine;
-            if (prepare.ShouldReturn)
+            judgeLineCopy = judgeLine;
+            if (shouldReturn || fatherLine is null)
                 return judgeLineCopy;
 
-            var fatherLine = prepare.FatherLine;
-            if (fatherLine is null)
-                return judgeLineCopy;
-
-            // 等间隔版使用 EventListMerge 进行层间事件合并
-            List<Nrc.Event<double>> Merge(List<Nrc.Event<double>> a, List<Nrc.Event<double>> b)
-                => EventMerger.EventListMerge(a, b, precision, tolerance, compress);
-
-            var mergedChannels = FatherUnbindHelpers.MergeChannels(judgeLineCopy.EventLayers, fatherLine.EventLayers, Merge);
+            var mergedChannels =
+                FatherUnbindHelpers.MergeChannels(judgeLineCopy.EventLayers, fatherLine.EventLayers, Merge);
 
             // 将各通道按精度步长切割，保证等间隔采样时每个步长内只有一段事件
             var cutLength = new Beat(1d / precision);
@@ -130,11 +120,15 @@ internal static class FatherUnbindProcessor
             var (sortedX, sortedY) = FatherUnbindHelpers.EqualSpacingSampling(beats, overallMax, step, cutChannels);
 
             NrcToolLog.OnDebug($"FatherUnbind[{targetJudgeLineIndex}]: 采样完成，写回");
-            FatherUnbindHelpers.WriteResultToLine(judgeLineCopy, sortedX, sortedY, cutChannels.Fr, tolerance, Merge, compress);
+            FatherUnbindHelpers.WriteResultToLine(judgeLineCopy, sortedX, sortedY, cutChannels.Fr, Merge);
 
             cache.TryAdd(targetJudgeLineIndex, judgeLineCopy);
             NrcToolLog.OnInfo($"FatherUnbind[{targetJudgeLineIndex}]: 解绑完成");
             return judgeLineCopy;
+
+            // 等间隔版使用 EventListMerge 进行层间事件合并
+            List<Nrc.Event<double>> Merge(List<Nrc.Event<double>> a, List<Nrc.Event<double>> b)
+                => EventMerger.EventListMerge(a, b, precision);
         }
         catch (Exception ex)
         {
@@ -200,7 +194,7 @@ internal static class FatherUnbindProcessor
             NrcToolLog.OnDebug(
                 $"FatherUnbindPlus[{targetJudgeLineIndex}]: 采样完成（生成 {resultX.Count} 段），压缩并写回");
             FatherUnbindHelpers.WriteResultToLine(
-                judgeLineCopy, resultX, resultY, ch.Fr, tolerance, Merge, compress: true);
+                judgeLineCopy, resultX, resultY, ch.Fr, Merge);
 
             cache.TryAdd(targetJudgeLineIndex, judgeLineCopy);
             NrcToolLog.OnInfo($"FatherUnbindPlus[{targetJudgeLineIndex}]: 解绑完成");

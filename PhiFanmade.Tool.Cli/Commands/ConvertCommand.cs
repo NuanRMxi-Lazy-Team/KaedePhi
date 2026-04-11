@@ -1,7 +1,4 @@
-﻿using PhiFanmade.Tool.Cli.Infrastructure;
-using PhiFanmade.Tool.Cli.Settings.Operation;
-using PhiFanmade.Tool.Localization;
-using Spectre.Console.Cli;
+﻿using PhiFanmade.Tool.Cli.Settings.Operation;
 
 namespace PhiFanmade.Tool.Cli.Commands;
 
@@ -15,7 +12,7 @@ public sealed class ConvertCommand : AsyncCommand<ConvertCommand.Settings>
         protected override bool? GetConfigDryRunDefault() => AppConfig.ConvertConfig?.DryRun;
     }
 
-    public override async Task<int> ExecuteAsync(CommandContext context, Settings settings,
+    protected override async Task<int> ExecuteAsync(CommandContext context, Settings settings,
         CancellationToken cancellationToken)
     {
         settings.ApplyConfigDefaults();

@@ -1,8 +1,5 @@
-﻿using PhiFanmade.Tool.Cli.Infrastructure;
-using PhiFanmade.Tool.Cli.Settings.Operation;
-using PhiFanmade.Tool.Localization;
+﻿using PhiFanmade.Tool.Cli.Settings.Operation;
 using PhiFanmade.Tool.PhiFanmadeNrc;
-using Spectre.Console.Cli;
 
 namespace PhiFanmade.Tool.Cli.Commands;
 
@@ -17,7 +14,7 @@ public sealed class FitEventCommand : AsyncCommand<FitEventCommand.Settings>
         protected override bool? GetConfigDryRunDefault() => AppConfig.FitConfig?.DryRun;
     }
 
-    public override async Task<int> ExecuteAsync(CommandContext context, Settings settings,
+    protected override async Task<int> ExecuteAsync(CommandContext context, Settings settings,
         CancellationToken cancellationToken)
     {
         settings.ApplyConfigDefaults();

@@ -152,7 +152,7 @@ public static class PeToNrc
         EndBeat = new Beat(src.EndBeat),
         IsFake = src.IsFake,
         PositionX = TransformX(src.PositionX) + Nrc.Chart.CoordinateSystem.MaxX,
-        Size = src.WidthRatio,
+        WidthRatio = src.WidthRatio,
         SpeedMultiplier = src.SpeedMultiplier,
         Type = (Nrc.NoteType)(int)src.Type
     };
@@ -272,7 +272,7 @@ public static class PeToNrc
             }
         }
 
-        return result.Count == 0 ? null : NrcEventTools.EventListCompress(result, 0d);
+        return result.Count == 0 ? null : NrcEventTools.EventListCompressSqrt(result,0d);
     }
 
     /// <summary>

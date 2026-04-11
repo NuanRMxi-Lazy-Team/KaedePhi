@@ -15,6 +15,7 @@
 
     <ItemGroup>
       <PackageReference Include="JetBrains.Annotations" Version="2025.2.4" />
+      <PackageReference Include="SkiaSharp" Version="3.119.2" />
     </ItemGroup>
 
 </Project>
