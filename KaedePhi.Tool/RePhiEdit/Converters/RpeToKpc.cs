@@ -1,28 +1,29 @@
 ﻿using System.Diagnostics.Contracts;
 using KaedePhi.Core.Common;
 using KaedePhi.Tool.Common;
-using AlphaControl = KaedePhi.Core.Kpc.AlphaControl;
-using AttachUi = KaedePhi.Core.Kpc.AttachUi;
-using BpmItem = KaedePhi.Core.Kpc.BpmItem;
-using Chart = KaedePhi.Core.Kpc.Chart;
-using Easing = KaedePhi.Core.Kpc.Easing;
-using EventLayer = KaedePhi.Core.Kpc.EventLayer;
-using ExtendLayer = KaedePhi.Core.Kpc.ExtendLayer;
-using JudgeLine = KaedePhi.Core.Kpc.JudgeLine;
-using Meta = KaedePhi.Core.Kpc.Meta;
-using Note = KaedePhi.Core.Kpc.Note;
-using NoteType = KaedePhi.Core.Kpc.NoteType;
-using SizeControl = KaedePhi.Core.Kpc.SizeControl;
-using SkewControl = KaedePhi.Core.Kpc.SkewControl;
-using XControl = KaedePhi.Core.Kpc.XControl;
-using YControl = KaedePhi.Core.Kpc.YControl;
+using KaedePhi.Tool.Interface;
+using AlphaControl = KaedePhi.Core.KaedePhi.AlphaControl;
+using AttachUi = KaedePhi.Core.KaedePhi.AttachUi;
+using BpmItem = KaedePhi.Core.KaedePhi.BpmItem;
+using Chart = KaedePhi.Core.KaedePhi.Chart;
+using Easing = KaedePhi.Core.KaedePhi.Easing;
+using EventLayer = KaedePhi.Core.KaedePhi.EventLayer;
+using ExtendLayer = KaedePhi.Core.KaedePhi.ExtendLayer;
+using JudgeLine = KaedePhi.Core.KaedePhi.JudgeLine;
+using Meta = KaedePhi.Core.KaedePhi.Meta;
+using Note = KaedePhi.Core.KaedePhi.Note;
+using NoteType = KaedePhi.Core.KaedePhi.NoteType;
+using SizeControl = KaedePhi.Core.KaedePhi.SizeControl;
+using SkewControl = KaedePhi.Core.KaedePhi.SkewControl;
+using XControl = KaedePhi.Core.KaedePhi.XControl;
+using YControl = KaedePhi.Core.KaedePhi.YControl;
 
 namespace KaedePhi.Tool.RePhiEdit.Converters;
 
 /// <summary>
 /// RPE 格式 → NRC 格式转换器。
 /// </summary>
-public static class RpeToNrc
+public static class RpeToKpc
 {
     [Pure]
     public static Chart Convert(Rpe.Chart rpe) => new()
@@ -33,7 +34,7 @@ public static class RpeToNrc
     };
 
     [Pure]
-    private static int MapEasingNumber(int rpe) => rpe switch
+    public static int MapEasingNumber(int rpe) => rpe switch
     {
         1 => 1, 2 => 3, 3 => 2, 4 => 6, 5 => 5, 6 => 4, 7 => 7,
         8 => 9, 9 => 8, 10 => 12, 11 => 11, 12 => 10, 13 => 13,

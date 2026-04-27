@@ -2,14 +2,14 @@
 using KaedePhi.Core.Common;
 using KaedePhi.Tool.Common;
 using KaedePhi.Tool.KaedePhi.Events;
-using BpmItem = KaedePhi.Core.Kpc.BpmItem;
-using Chart = KaedePhi.Core.Kpc.Chart;
-using Easing = KaedePhi.Core.Kpc.Easing;
-using EventLayer = KaedePhi.Core.Kpc.EventLayer;
-using JudgeLine = KaedePhi.Core.Kpc.JudgeLine;
-using Meta = KaedePhi.Core.Kpc.Meta;
-using Note = KaedePhi.Core.Kpc.Note;
-using NoteType = KaedePhi.Core.Kpc.NoteType;
+using BpmItem = KaedePhi.Core.KaedePhi.BpmItem;
+using Chart = KaedePhi.Core.KaedePhi.Chart;
+using Easing = KaedePhi.Core.KaedePhi.Easing;
+using EventLayer = KaedePhi.Core.KaedePhi.EventLayer;
+using JudgeLine = KaedePhi.Core.KaedePhi.JudgeLine;
+using Meta = KaedePhi.Core.KaedePhi.Meta;
+using Note = KaedePhi.Core.KaedePhi.Note;
+using NoteType = KaedePhi.Core.KaedePhi.NoteType;
 
 namespace KaedePhi.Tool.PhiEdit.Converters;
 

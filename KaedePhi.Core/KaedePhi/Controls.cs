@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace KaedePhi.Core.Kpc
+namespace KaedePhi.Core.KaedePhi
 {
     public abstract class ControlBase
     {

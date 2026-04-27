@@ -1,5 +1,5 @@
 ﻿using KaedePhi.Core.Common;
-using Easing = KaedePhi.Core.Kpc.Easing;
+using Easing = KaedePhi.Core.KaedePhi.Easing;
 
 namespace KaedePhi.Tool.KaedePhi.Events.Internal;
 

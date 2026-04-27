@@ -1,4 +1,4 @@
-﻿using Chart = KaedePhi.Core.Kpc.Chart;
+﻿using Chart = KaedePhi.Core.KaedePhi.Chart;
 namespace KaedePhi.Tool.Common;
 
 /// <summary>

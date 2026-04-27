@@ -1,7 +1,7 @@
 ﻿using System;
 using static KaedePhi.Core.Utils.Easings;
 
-namespace KaedePhi.Core.Kpc
+namespace KaedePhi.Core.KaedePhi
 {
     public static class Easings
     {

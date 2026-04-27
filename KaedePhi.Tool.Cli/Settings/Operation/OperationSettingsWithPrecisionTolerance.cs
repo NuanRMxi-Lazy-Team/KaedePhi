@@ -1,6 +1,6 @@
 ﻿using KaedePhi.Tool.Cli.Infrastructure;
 using KaedePhi.Tool.KaedePhi.Converters;
-using Chart = KaedePhi.Core.Kpc.Chart;
+using Chart = KaedePhi.Core.KaedePhi.Chart;
 
 namespace KaedePhi.Tool.Cli.Settings.Operation;
 

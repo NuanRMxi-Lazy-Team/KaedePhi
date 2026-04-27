@@ -1,6 +1,6 @@
 ﻿using KaedePhi.Core.Common;
 using KaedePhi.Tool.KaedePhi.Events.Internal;
-using EventLayer = KaedePhi.Core.Kpc.EventLayer;
+using EventLayer = KaedePhi.Core.KaedePhi.EventLayer;
 
 namespace KaedePhi.Tool.KaedePhi.Layers.Internal;
 

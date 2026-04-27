@@ -1,7 +1,7 @@
 ﻿using System.Collections.Concurrent;
 using KaedePhi.Core.Common;
 using KaedePhi.Tool.KaedePhi.Events.Internal;
-using JudgeLine = KaedePhi.Core.Kpc.JudgeLine;
+using JudgeLine = KaedePhi.Core.KaedePhi.JudgeLine;
 
 namespace KaedePhi.Tool.KaedePhi.JudgeLines.Internal;
 

@@ -2,7 +2,7 @@
 using JetBrains.Annotations;
 using KaedePhi.Core.Common;
 
-namespace KaedePhi.Core.Kpc
+namespace KaedePhi.Core.KaedePhi
 {
     public class BpmItem
     {

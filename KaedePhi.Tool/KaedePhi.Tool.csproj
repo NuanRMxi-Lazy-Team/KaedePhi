@@ -21,4 +21,8 @@
       <PackageReference Include="SkiaSharp.NativeAssets.Win32" Version="3.119.2" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Converters\" />
+    </ItemGroup>
+
 </Project>

@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace KaedePhi.Core.Kpc
+namespace KaedePhi.Core.KaedePhi
 {
     public class JudgeLine
     {

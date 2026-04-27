@@ -5,7 +5,7 @@ on:
     branches:
       - main
     paths:
-      - 'PhiFanmade.Tool/PhiFanmade.Tool.csproj'
+      - 'KaedePhi.Tool/KaedePhi.Tool.csproj'
   workflow_dispatch:
     inputs:
       test_build:
@@ -52,7 +52,7 @@ jobs:
           IS_TEST_BUILD: ${{ github.event_name == 'workflow_dispatch' && inputs.test_build == true }}
           SHOULD_RELEASE: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.create_release == true && inputs.test_build == false) }}
         run: |
-          CSPROJ="PhiFanmade.Tool/PhiFanmade.Tool.csproj"
+          CSPROJ="KaedePhi.Tool/KaedePhi.Tool.csproj"
 
           get_version() {
             grep -oP '<Version>\K[^<]+' "$1" || grep -oP '<AssemblyVersion>\K[^<]+' "$1"

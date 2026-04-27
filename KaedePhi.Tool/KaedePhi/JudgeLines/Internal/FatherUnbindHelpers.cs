@@ -4,8 +4,8 @@ using KaedePhi.Core.Common;
 using KaedePhi.Tool.Common;
 using KaedePhi.Tool.KaedePhi.Events.Internal;
 using KaedePhi.Tool.KaedePhi.Layers.Internal;
-using EventLayer = KaedePhi.Core.Kpc.EventLayer;
-using JudgeLine = KaedePhi.Core.Kpc.JudgeLine;
+using EventLayer = KaedePhi.Core.KaedePhi.EventLayer;
+using JudgeLine = KaedePhi.Core.KaedePhi.JudgeLine;
 
 namespace KaedePhi.Tool.KaedePhi.JudgeLines.Internal;
 
@@ -215,7 +215,7 @@ internal static class FatherUnbindHelpers
         }
 
         if (line.EventLayers.Count == 0)
-            line.EventLayers.Add(new Kpc.EventLayer());
+            line.EventLayers.Add(new EventLayer());
 
         // 使用单轴独立压缩。CompressXYPosition 已实现联合 2D 屏幕距离压缩，
         // 但属于独立优化，保留为可选项，待单独测试后启用。

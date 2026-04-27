@@ -2,7 +2,7 @@
 using KaedePhi.Tool.Common;
 using KaedePhi.Tool.KaedePhi.Converters;
 using KaedePhi.Tool.KaedePhi.Converters.Model;
-using Chart = KaedePhi.Core.Kpc.Chart;
+using Chart = KaedePhi.Core.KaedePhi.Chart;
 using KpcToPe = KaedePhi.Tool.KaedePhi.Converters.KpcToPe;
 
 namespace KaedePhi.Tool.Cli.Settings.Operation;

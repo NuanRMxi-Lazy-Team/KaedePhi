@@ -3,7 +3,7 @@ using KaedePhi.Tool.Cli.Model;
 using KaedePhi.Tool.Common;
 using KaedePhi.Tool.PhiEdit.Converters;
 using Spectre.Console;
-using Chart = KaedePhi.Core.Kpc.Chart;
+using Chart = KaedePhi.Core.KaedePhi.Chart;
 
 namespace KaedePhi.Tool.Cli.Settings.Operation;
 
@@ -98,7 +98,7 @@ public abstract class OperationSettingsBase : CommandSettings
 
         return chartType switch
         {
-            ChartType.RePhiEdit => RePhiEdit.Converters.RpeToNrc.Convert(
+            ChartType.RePhiEdit => RePhiEdit.Converters.RpeToKpc.Convert(
                 await global::KaedePhi.Core.RePhiEdit.Chart.LoadFromJsonAsync(chartText)),
             ChartType.PhiEdit => PeToNrc.Convert(
                 await global::KaedePhi.Core.PhiEdit.Chart.LoadAsync(chartText)),

@@ -5,7 +5,7 @@ using System.Reflection;
 using KaedePhi.Core.Common;
 using KaedePhi.Core.Utils;
 
-namespace KaedePhi.Core.Kpc
+namespace KaedePhi.Core.KaedePhi
 {
     public class Event<T>
     {

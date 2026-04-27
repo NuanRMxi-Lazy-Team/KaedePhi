@@ -1,4 +1,4 @@
-﻿namespace KaedePhi.Core.Kpc
+﻿namespace KaedePhi.Core.KaedePhi
 {
     public partial class Chart
     {

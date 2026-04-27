@@ -1,6 +1,6 @@
 ﻿using KaedePhi.Core.Common;
 using KaedePhi.Tool.KaedePhi.Events.Internal;
-using BpmItem = KaedePhi.Core.Kpc.BpmItem;
+using BpmItem = KaedePhi.Core.KaedePhi.BpmItem;
 
 namespace KaedePhi.Tool.KaedePhi.Events;
 

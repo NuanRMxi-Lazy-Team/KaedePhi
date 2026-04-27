@@ -5,7 +5,7 @@ on:
     branches:
       - main
     paths:
-      - 'PhiFanmade.Tool.Cli/PhiFanmade.Tool.Cli.csproj'
+      - 'KaedePhi.Tool.Cli/KaedePhi.Tool.Cli.csproj'
   workflow_dispatch:
     inputs:
       force_release_type:
@@ -41,7 +41,7 @@ jobs:
       - name: Detect version change
         id: version
         run: |
-          CSPROJ="PhiFanmade.Tool.Cli/PhiFanmade.Tool.Cli.csproj"
+          CSPROJ="KaedePhi.Tool.Cli/KaedePhi.Tool.Cli.csproj"
           FORCE="${{ github.event.inputs.force_release_type || 'auto' }}"
 
           get_version() {
@@ -113,7 +113,7 @@ jobs:
           BUILD_TYPE: ${{ steps.version.outputs.build_type }}
           VERSION: ${{ steps.version.outputs.version }}
         run: |
-          CSPROJ="PhiFanmade.Tool.Cli/PhiFanmade.Tool.Cli.csproj"
+          CSPROJ="KaedePhi.Tool.Cli/KaedePhi.Tool.Cli.csproj"
           output_dir="./artifacts/cli"
           frameworks=("net8.0" "net10.0")
           runtimes=("win-x64" "linux-x64")
@@ -134,7 +134,7 @@ jobs:
                 -o "$output_dir/$framework-$runtime-fdd"
 
               cd "$output_dir/$framework-$runtime-fdd"
-              zip -r "../PhiFanmade.OpenTool.Cli-$framework-$runtime-fdd.zip" .
+              zip -r "../KaedePhi.Tool.Cli-$framework-$runtime-fdd.zip" .
               cd -
             done
           done

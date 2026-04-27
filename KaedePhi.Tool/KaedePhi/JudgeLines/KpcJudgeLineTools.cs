@@ -1,6 +1,6 @@
 ﻿using KaedePhi.Tool.Common;
 using KaedePhi.Tool.KaedePhi.JudgeLines.Internal;
-using JudgeLine = KaedePhi.Core.Kpc.JudgeLine;
+using JudgeLine = KaedePhi.Core.KaedePhi.JudgeLine;
 
 namespace KaedePhi.Tool.KaedePhi.JudgeLines;
 

@@ -4,7 +4,7 @@ using KaedePhi.Core.Common;
 
 // STJ 特性均使用完全限定名，避免命名冲突
 
-namespace KaedePhi.Core.Kpc
+namespace KaedePhi.Core.KaedePhi
 {
     public class Note
     {

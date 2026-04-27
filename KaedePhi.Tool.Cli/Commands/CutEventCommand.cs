@@ -2,7 +2,7 @@
 using KaedePhi.Tool.Cli.Settings.Operation;
 using KaedePhi.Tool.KaedePhi.Events;
 using KaedePhi.Tool.KaedePhi.Layers;
-using EventLayer = KaedePhi.Core.Kpc.EventLayer;
+using EventLayer = KaedePhi.Core.KaedePhi.EventLayer;
 
 namespace KaedePhi.Tool.Cli.Commands;
 
@@ -40,10 +40,10 @@ public sealed class CutEventCommand : AsyncCommand<CutEventCommand.Settings>
             if (settings.DisableCompress) continue;
             foreach (var eventLayer in line.EventLayers.OfType<EventLayer>())
             {
-                eventLayer.MoveXEvents = KpcEventTools.EventListCompress(eventLayer.MoveXEvents ?? [], settings.Tolerance);
-                eventLayer.MoveYEvents = KpcEventTools.EventListCompress(eventLayer.MoveYEvents ?? [], settings.Tolerance);
-                eventLayer.RotateEvents = KpcEventTools.EventListCompress(eventLayer.RotateEvents ?? [], settings.Tolerance);
-                eventLayer.AlphaEvents = KpcEventTools.EventListCompress(eventLayer.AlphaEvents ?? [], settings.Tolerance);
+                eventLayer.MoveXEvents = KpcEventTools.EventListCompressSqrt(eventLayer.MoveXEvents ?? [], settings.Tolerance);
+                eventLayer.MoveYEvents = KpcEventTools.EventListCompressSqrt(eventLayer.MoveYEvents ?? [], settings.Tolerance);
+                eventLayer.RotateEvents = KpcEventTools.EventListCompressSlope(eventLayer.RotateEvents ?? [], settings.Tolerance);
+                eventLayer.AlphaEvents = KpcEventTools.EventListCompressSlope(eventLayer.AlphaEvents ?? [], settings.Tolerance);
             }
         }
 

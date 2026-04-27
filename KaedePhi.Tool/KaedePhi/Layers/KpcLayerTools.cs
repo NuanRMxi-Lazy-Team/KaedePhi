@@ -1,5 +1,5 @@
 ﻿using KaedePhi.Tool.KaedePhi.Layers.Internal;
-using EventLayer = KaedePhi.Core.Kpc.EventLayer;
+using EventLayer = KaedePhi.Core.KaedePhi.EventLayer;
 
 namespace KaedePhi.Tool.KaedePhi.Layers;
 
