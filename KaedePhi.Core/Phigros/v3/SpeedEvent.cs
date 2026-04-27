@@ -1,0 +1,25 @@
+﻿using Newtonsoft.Json;
+
+namespace KaedePhi.Core.Phigros.v3
+{
+    public class SpeedEvent
+    {
+        /// <summary>
+        /// 事件开始时间
+        /// </summary>
+        [JsonProperty("startTime")]
+        public float StartTime { get; set; }
+
+        /// <summary>
+        /// 事件结束时间
+        /// </summary>
+        [JsonProperty("endTime")]
+        public float EndTime { get; set; }
+
+        /// <summary>
+        /// 事件值
+        /// </summary>
+        [JsonProperty("value")]
+        public float Value { get; set; }
+    }
+}

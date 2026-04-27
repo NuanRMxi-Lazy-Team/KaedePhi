@@ -1,0 +1,43 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KaedePhi.Core", "KaedePhi.Core\KaedePhi.Core.csproj", "{832E0B60-8DCC-4E10-A090-32B7258829C4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KaedePhi.Tool", "KaedePhi.Tool\KaedePhi.Tool.csproj", "{65D83983-76C2-4F64-95BE-FE04E0BCA8B4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KaedePhi.Tool.Cli", "KaedePhi.Tool.Cli\KaedePhi.Tool.Cli.csproj", "{05F42F98-A797-480B-9994-9FE5CA23A8D4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KaedePhi.Tool.Localization", "KaedePhi.Tool.Localization\KaedePhi.Tool.Localization.csproj", "{E68B6C62-910B-4321-8994-2E04F5939C50}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Release|x64 = Release|x64
+		PreRelease|x64 = PreRelease|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{832E0B60-8DCC-4E10-A090-32B7258829C4}.Debug|x64.ActiveCfg = Debug|x64
+		{832E0B60-8DCC-4E10-A090-32B7258829C4}.Debug|x64.Build.0 = Debug|x64
+		{832E0B60-8DCC-4E10-A090-32B7258829C4}.Release|x64.ActiveCfg = Release|x64
+		{832E0B60-8DCC-4E10-A090-32B7258829C4}.Release|x64.Build.0 = Release|x64
+		{832E0B60-8DCC-4E10-A090-32B7258829C4}.PreRelease|x64.ActiveCfg = PreRelease|x64
+		{832E0B60-8DCC-4E10-A090-32B7258829C4}.PreRelease|x64.Build.0 = PreRelease|x64
+		{65D83983-76C2-4F64-95BE-FE04E0BCA8B4}.Debug|x64.ActiveCfg = Debug|x64
+		{65D83983-76C2-4F64-95BE-FE04E0BCA8B4}.Debug|x64.Build.0 = Debug|x64
+		{65D83983-76C2-4F64-95BE-FE04E0BCA8B4}.Release|x64.ActiveCfg = Release|x64
+		{65D83983-76C2-4F64-95BE-FE04E0BCA8B4}.Release|x64.Build.0 = Release|x64
+		{65D83983-76C2-4F64-95BE-FE04E0BCA8B4}.PreRelease|x64.ActiveCfg = PreRelease|x64
+		{65D83983-76C2-4F64-95BE-FE04E0BCA8B4}.PreRelease|x64.Build.0 = PreRelease|x64
+		{05F42F98-A797-480B-9994-9FE5CA23A8D4}.Debug|x64.ActiveCfg = Debug|x64
+		{05F42F98-A797-480B-9994-9FE5CA23A8D4}.Debug|x64.Build.0 = Debug|x64
+		{05F42F98-A797-480B-9994-9FE5CA23A8D4}.Release|x64.ActiveCfg = Release|x64
+		{05F42F98-A797-480B-9994-9FE5CA23A8D4}.Release|x64.Build.0 = Release|x64
+		{05F42F98-A797-480B-9994-9FE5CA23A8D4}.PreRelease|x64.ActiveCfg = PreRelease|x64
+		{05F42F98-A797-480B-9994-9FE5CA23A8D4}.PreRelease|x64.Build.0 = PreRelease|x64
+		{E68B6C62-910B-4321-8994-2E04F5939C50}.Debug|x64.ActiveCfg = Debug|x64
+		{E68B6C62-910B-4321-8994-2E04F5939C50}.Debug|x64.Build.0 = Debug|x64
+		{E68B6C62-910B-4321-8994-2E04F5939C50}.Release|x64.ActiveCfg = Release|x64
+		{E68B6C62-910B-4321-8994-2E04F5939C50}.Release|x64.Build.0 = Release|x64
+		{E68B6C62-910B-4321-8994-2E04F5939C50}.PreRelease|x64.ActiveCfg = PreRelease|x64
+		{E68B6C62-910B-4321-8994-2E04F5939C50}.PreRelease|x64.Build.0 = PreRelease|x64
+	EndGlobalSection
+EndGlobal
