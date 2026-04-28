@@ -1,5 +1,6 @@
 ﻿using KaedePhi.Tool.Cli.Infrastructure;
-using KaedePhi.Tool.KaedePhi.Converters;
+using KaedePhi.Tool.Converter.RePhiEdit;
+using KaedePhi.Tool.Converter.RePhiEdit.Model;
 using Chart = KaedePhi.Core.KaedePhi.Chart;
 
 namespace KaedePhi.Tool.Cli.Settings.Operation;
@@ -87,7 +88,7 @@ public abstract class OperationSettingsWithPrecisionTolerance : OperationSetting
 
         if (DryRun) return output;
 
-        var rpeChart = KpcToRpe.Convert(chart);
+        var rpeChart = new RePhiEditConverter().FromKpc(chart, new ConvertOption());
         var json = await rpeChart.ExportToJsonAsync(false);
         await File.WriteAllTextAsync(output, json, cancellationToken);
 

@@ -1,5 +1,4 @@
-﻿using System.Diagnostics.Contracts;
-using KaedePhi.Core.Common;
+﻿using KaedePhi.Core.Common;
 using KaedePhi.Tool.Common;
 using KaedePhi.Tool.KaedePhi.Events;
 using BpmItem = KaedePhi.Core.KaedePhi.BpmItem;
@@ -14,9 +13,9 @@ using NoteType = KaedePhi.Core.KaedePhi.NoteType;
 namespace KaedePhi.Tool.PhiEdit.Converters;
 
 /// <summary>
-/// PhiEdit 格式 → NRC 格式转换器。
+/// PhiEdit 格式 → KPC 格式转换器。
 /// </summary>
-public static class PeToNrc
+public class PeToKpc
 {
     /// <summary>
     /// 在末尾额外补齐的拍点长度，避免最后一个关键帧/事件在 NRC 中没有后续区间可承载。
@@ -48,21 +47,16 @@ public static class PeToNrc
     /// </summary>
     private const int OffsetOffset = 175;
 
-    /// <summary>
-    /// 将 PhiEdit 谱面转换为 NRC 谱面。
-    /// </summary>
-    /// <param name="pe">待转换的 PhiEdit 谱面。</param>
-    /// <returns>转换后的 NRC 谱面对象。</returns>
-    [Pure]
-    public static Chart Convert(Pe.Chart pe)
+    /// <inheritdoc />
+    public Chart Import(Pe.Chart source)
     {
-        ArgumentNullException.ThrowIfNull(pe);
+        ArgumentNullException.ThrowIfNull(source);
 
         return new Chart
         {
-            BpmList = pe.BpmList?.ConvertAll(ConvertBpmItem) ?? [],
-            Meta = ConvertMeta(pe),
-            JudgeLineList = ConvertJudgeLines(pe.JudgeLineList)
+            BpmList = source.BpmList?.ConvertAll(ConvertBpmItem) ?? [],
+            Meta = ConvertMeta(source),
+            JudgeLineList = ConvertJudgeLines(source.JudgeLineList)
         };
     }
 
@@ -71,7 +65,6 @@ public static class PeToNrc
     /// </summary>
     /// <param name="pe">PhiEdit 缓动编号。</param>
     /// <returns>对应的 NRC 缓动编号；未知编号时回退为线性。</returns>
-    [Pure]
     private static int MapEasingNumber(int pe) => pe switch
     {
         1 => 1, 2 => 3, 3 => 2, 4 => 6, 5 => 5, 6 => 4, 7 => 7,
@@ -217,12 +210,6 @@ public static class PeToNrc
     /// <summary>
     /// 构建 Move 轴（X 或 Y）事件列表。
     /// </summary>
-    /// <param name="frames">Move 帧列表。</param>
-    /// <param name="events">Move 事件列表。</param>
-    /// <param name="horizonBeat">用于补尾区间的终止拍点。</param>
-    /// <param name="selector">从二维坐标中提取目标轴值的选择器。</param>
-    /// <param name="valueTransformer">坐标值转换器（例如坐标系归一化）。</param>
-    /// <returns>构建后的 NRC 事件列表；无有效区间时返回 <see langword="null"/>。</returns>
     private static List<Kpc.Event<double>>? BuildMoveAxisEvents(
         List<Pe.MoveFrame>? frames,
         List<Pe.MoveEvent>? events,
@@ -274,24 +261,14 @@ public static class PeToNrc
                         selector))
                 });
             }
-            else
-            {
-                // NRC 在无事件区间会沿用上一个事件结束值，这里不再填充冗余常值事件。
-            }
         }
 
-        return result.Count == 0 ? null : KpcEventTools.EventListCompressSqrt(result,0d);
+        return result.Count == 0 ? null : KpcEventTools.EventListCompressSqrt(result, 0d);
     }
 
     /// <summary>
     /// 构建标量通道（旋转、透明度、速度）事件列表。
     /// </summary>
-    /// <typeparam name="T">目标 NRC 通道数值类型。</typeparam>
-    /// <param name="frames">标量帧列表。</param>
-    /// <param name="events">标量事件列表。</param>
-    /// <param name="horizonBeat">用于补尾区间的终止拍点。</param>
-    /// <param name="valueTransformer">标量值转换器。</param>
-    /// <returns>构建后的 NRC 事件列表；无有效区间时返回 <see langword="null"/>。</returns>
     private static List<Kpc.Event<T>>? BuildScalarEvents<T>(
         List<Pe.Frame>? frames,
         List<Pe.Event>? events,
@@ -339,10 +316,6 @@ public static class PeToNrc
                     EndValue = valueTransformer(InterpolateScalarValue(activeEvent, endBeat, eventStartSource))
                 });
             }
-            else
-            {
-                // NRC 在无事件区间会沿用上一个事件结束值，这里不再填充冗余常值事件。
-            }
         }
 
         return result.Count == 0 ? null : result;
@@ -351,10 +324,6 @@ public static class PeToNrc
     /// <summary>
     /// 合并帧边界与事件边界，并补齐尾部边界。
     /// </summary>
-    /// <param name="frameBoundaries">帧边界拍点。</param>
-    /// <param name="eventBoundaries">事件起止边界拍点。</param>
-    /// <param name="horizonBeat">用于补尾区间的候选终止拍点。</param>
-    /// <returns>升序去重后的边界列表；无输入边界时返回空列表。</returns>
     private static List<double> BuildBoundaries(
         IEnumerable<double> frameBoundaries,
         IEnumerable<double> eventBoundaries,
@@ -393,23 +362,11 @@ public static class PeToNrc
         return expandedBoundaries.ToList();
     }
 
-    /// <summary>
-    /// 获取区间中点拍。
-    /// </summary>
-    /// <param name="startBeat">区间起点拍。</param>
-    /// <param name="endBeat">区间终点拍。</param>
-    /// <returns>中点拍。</returns>
     private static double GetMidBeat(double startBeat, double endBeat) => startBeat + (endBeat - startBeat) / 2d;
 
-    /// <summary>
-    /// 判断两个拍点是否近似相等。
-    /// </summary>
     private static bool IsSameBeat(double leftBeat, double rightBeat)
         => Math.Abs(leftBeat - rightBeat) <= BeatComparisonEpsilon;
 
-    /// <summary>
-    /// 在按拍点升序的列表中，查找最后一个 &lt;= 指定拍点（含容差）的位置。
-    /// </summary>
     private static int FindLastIndexAtOrBeforeBeat<T>(List<T> items, double beat, Func<T, double> beatSelector)
     {
         var lo = 0;
@@ -433,22 +390,12 @@ public static class PeToNrc
         return result;
     }
 
-    /// <summary>
-    /// 在按拍点升序的列表中，判断是否存在与目标拍点近似相等的元素。
-    /// </summary>
     private static bool ContainsBeat(List<double> sortedBeats, double beat)
     {
         var idx = FindLastIndexAtOrBeforeBeat(sortedBeats, beat, value => value);
         return idx >= 0 && IsSameBeat(sortedBeats[idx], beat);
     }
 
-    /// <summary>
-    /// 将绝对拍点映射为事件内部归一化边界（供 NRC 的 EasingLeft/EasingRight 使用）。
-    /// </summary>
-    /// <param name="eventStartBeat">事件起点拍。</param>
-    /// <param name="eventEndBeat">事件终点拍。</param>
-    /// <param name="beat">待映射拍点。</param>
-    /// <returns>归一化边界值；零时长事件返回 <c>1</c>。</returns>
     private static float GetEventBoundary(float eventStartBeat, float eventEndBeat, double beat)
     {
         var duration = eventEndBeat - eventStartBeat;
@@ -456,14 +403,6 @@ public static class PeToNrc
         return (float)((beat - eventStartBeat) / duration);
     }
 
-    /// <summary>
-    /// 创建常值线性事件（起止值相同）。
-    /// </summary>
-    /// <typeparam name="T">事件值类型。</typeparam>
-    /// <param name="startBeat">事件起点拍。</param>
-    /// <param name="endBeat">事件终点拍。</param>
-    /// <param name="value">常值。</param>
-    /// <returns>常值 NRC 事件。</returns>
     private static Kpc.Event<T> CreateConstantEvent<T>(double startBeat, double endBeat, T value) => new()
     {
         StartBeat = new Beat(startBeat),
@@ -475,12 +414,6 @@ public static class PeToNrc
         EndValue = value
     };
 
-    /// <summary>
-    /// 查找指定拍点正在生效的 Move 事件。
-    /// </summary>
-    /// <param name="events">已按起点排序的 Move 事件列表。</param>
-    /// <param name="beat">目标拍点。</param>
-    /// <returns>命中的事件；若不存在返回 <see langword="null"/>。</returns>
     private static Pe.MoveEvent? FindActiveMoveEvent(List<Pe.MoveEvent> events, double beat)
     {
         var lo = 0;
@@ -494,18 +427,11 @@ public static class PeToNrc
                 hi = mid - 1;
         }
 
-        // hi 现在指向最后一个 StartBeat <= beat 的事件
         if (hi >= 0 && events[hi].EndBeat >= beat)
             return events[hi];
         return null;
     }
 
-    /// <summary>
-    /// 查找指定拍点正在生效的标量事件。
-    /// </summary>
-    /// <param name="events">已按起点排序的标量事件列表。</param>
-    /// <param name="beat">目标拍点。</param>
-    /// <returns>命中的事件；若不存在返回 <see langword="null"/>。</returns>
     private static Pe.Event? FindActiveScalarEvent(List<Pe.Event> events, double beat)
     {
         var lo = 0;
@@ -524,14 +450,6 @@ public static class PeToNrc
         return null;
     }
 
-    /// <summary>
-    /// 解析某边界拍之后 Move 通道的生效值。
-    /// 优先级：最近结束事件 > 最近前置帧 > 默认值 (0,0)。
-    /// </summary>
-    /// <param name="frames">Move 帧列表。</param>
-    /// <param name="events">Move 事件列表。</param>
-    /// <param name="boundaryBeat">边界拍点。</param>
-    /// <returns>边界拍后的生效坐标。</returns>
     private static (float X, float Y) ResolveMoveValueAfterBoundary(
         List<Pe.MoveFrame> frames,
         List<Pe.MoveEvent> events,
@@ -552,14 +470,6 @@ public static class PeToNrc
         return (0f, 0f);
     }
 
-    /// <summary>
-    /// 解析某边界拍之后标量通道的生效值。
-    /// 优先级：最近结束事件 > 最近前置帧 > 默认值 0。
-    /// </summary>
-    /// <param name="frames">标量帧列表。</param>
-    /// <param name="events">标量事件列表。</param>
-    /// <param name="boundaryBeat">边界拍点。</param>
-    /// <returns>边界拍后的生效值。</returns>
     private static float ResolveScalarValueAfterBoundary(
         List<Pe.Frame> frames,
         List<Pe.Event> events,
@@ -580,9 +490,6 @@ public static class PeToNrc
         return 0f;
     }
 
-    /// <summary>
-    /// 解析 Move 事件的起始源值；若事件起点存在 Frame，则优先使用该 Frame。
-    /// </summary>
     private static (float X, float Y) ResolveMoveEventStartValue(
         Pe.MoveEvent ev,
         List<Pe.MoveFrame> frames,
@@ -595,9 +502,6 @@ public static class PeToNrc
         return ResolveMoveValueAfterBoundary(frames, events, ev.StartBeat);
     }
 
-    /// <summary>
-    /// 解析标量事件的起始源值；若事件起点存在 Frame，则优先使用该 Frame。
-    /// </summary>
     private static float ResolveScalarEventStartValue(Pe.Event ev, List<Pe.Frame> frames, List<Pe.Event> events)
     {
         var frameAtStart = FindScalarFrameAtBeat(frames, ev.StartBeat);
@@ -607,50 +511,30 @@ public static class PeToNrc
         return ResolveScalarValueAfterBoundary(frames, events, ev.StartBeat);
     }
 
-    /// <summary>
-    /// 判断拍点是否正好位于某个 Move 事件起点。
-    /// </summary>
     private static bool IsMoveEventStartBeat(List<Pe.MoveEvent> events, double beat)
     {
         var idx = FindLastIndexAtOrBeforeBeat(events, beat, ev => ev.StartBeat);
         return idx >= 0 && IsSameBeat(events[idx].StartBeat, beat);
     }
 
-    /// <summary>
-    /// 判断拍点是否正好位于某个标量事件起点。
-    /// </summary>
     private static bool IsScalarEventStartBeat(List<Pe.Event> events, double beat)
     {
         var idx = FindLastIndexAtOrBeforeBeat(events, beat, ev => ev.StartBeat);
         return idx >= 0 && IsSameBeat(events[idx].StartBeat, beat);
     }
 
-    /// <summary>
-    /// 获取指定拍点上的 Move Frame。
-    /// </summary>
     private static Pe.MoveFrame? FindMoveFrameAtBeat(List<Pe.MoveFrame> frames, double beat)
     {
         var idx = FindLastIndexAtOrBeforeBeat(frames, beat, frame => frame.Beat);
         return idx >= 0 && IsSameBeat(frames[idx].Beat, beat) ? frames[idx] : null;
     }
 
-    /// <summary>
-    /// 获取指定拍点上的标量 Frame。
-    /// </summary>
     private static Pe.Frame? FindScalarFrameAtBeat(List<Pe.Frame> frames, double beat)
     {
         var idx = FindLastIndexAtOrBeforeBeat(frames, beat, frame => frame.Beat);
         return idx >= 0 && IsSameBeat(frames[idx].Beat, beat) ? frames[idx] : null;
     }
 
-    /// <summary>
-    /// 在指定拍点对 Move 事件进行插值。
-    /// </summary>
-    /// <param name="ev">Move 事件。</param>
-    /// <param name="beat">采样拍点。</param>
-    /// <param name="intervalStartSource">当前区间的起始源值。</param>
-    /// <param name="selector">轴选择器（X 或 Y）。</param>
-    /// <returns>插值结果。</returns>
     private static float InterpolateMoveValue(
         Pe.MoveEvent ev,
         double beat,
@@ -663,13 +547,6 @@ public static class PeToNrc
         return selector(ev.GetValueAtBeat((float)beat, intervalStartSource.X, intervalStartSource.Y));
     }
 
-    /// <summary>
-    /// 在指定拍点对标量事件进行插值。
-    /// </summary>
-    /// <param name="ev">标量事件。</param>
-    /// <param name="beat">采样拍点。</param>
-    /// <param name="intervalStartSource">当前区间的起始源值。</param>
-    /// <returns>插值结果。</returns>
     private static float InterpolateScalarValue(Pe.Event ev, double beat, float intervalStartSource)
     {
         if (Math.Abs(ev.EndBeat - ev.StartBeat) < 1e-6f)

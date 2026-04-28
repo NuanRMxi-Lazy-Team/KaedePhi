@@ -1,5 +1,6 @@
 ﻿using KaedePhi.Tool.Cli.Infrastructure;
 using KaedePhi.Tool.Common;
+using KaedePhi.Tool.Converter.RePhiEdit.Model;
 using KaedePhi.Tool.KaedePhi.Converters;
 using KaedePhi.Tool.KaedePhi.Converters.Model;
 using Chart = KaedePhi.Core.KaedePhi.Chart;
@@ -113,7 +114,8 @@ public abstract class OperationSettingsWithFormatting : OperationSettingsBase
         {
             case ChartType.RePhiEdit:
             {
-                var rpeChart = KpcToRpe.Convert(chart);
+                Converter.RePhiEdit.RePhiEditConverter converter = new();
+                var rpeChart = converter.FromKpc(chart,new ConvertOption());
                 if (DryRun) return output;
                 if (StreamOutput)
                 {
