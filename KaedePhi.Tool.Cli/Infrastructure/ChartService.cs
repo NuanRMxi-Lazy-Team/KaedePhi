@@ -61,7 +61,7 @@ public sealed class ChartService
                 return ChartPipeline
                     .From(phiEditChart, phiEditConverter, null)
                     .To(kaedePhiConverter, null);
-                return new PhiEditConverter().ToKpc(await global::KaedePhi.Core.PhiEdit.Chart.LoadAsync(text));
+                //return new PhiEditConverter().ToKpc(await global::KaedePhi.Core.PhiEdit.Chart.LoadAsync(text));
             }
 
         
