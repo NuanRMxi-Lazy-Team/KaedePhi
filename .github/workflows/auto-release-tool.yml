@@ -6,6 +6,7 @@ on:
       - main
     paths:
       - 'KaedePhi.Tool/KaedePhi.Tool.csproj'
+      - 'Directory.Build.props'
   workflow_dispatch:
     inputs:
       test_build:
@@ -53,9 +54,10 @@ jobs:
           SHOULD_RELEASE: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.create_release == true && inputs.test_build == false) }}
         run: |
           CSPROJ="KaedePhi.Tool/KaedePhi.Tool.csproj"
+          PROPS="Directory.Build.props"
 
           get_version() {
-            grep -oP '<Version>\K[^<]+' "$1" || grep -oP '<AssemblyVersion>\K[^<]+' "$1"
+            grep -oP '<Version>\K[^<]+' "$1" 2>/dev/null || echo ""
           }
 
           is_prerelease() {
@@ -65,7 +67,10 @@ jobs:
           }
 
           VERSION=$(get_version "$CSPROJ")
-          if [ -z "$VERSION" ]; then echo "Could not extract version, skipping."; exit 0; fi
+          if [ -z "$VERSION" ]; then
+            VERSION=$(get_version "$PROPS")
+          fi
+          if [ -z "$VERSION" ]; then echo "Could not extract version from $CSPROJ or $PROPS, skipping."; exit 0; fi
 
           TAG="Tool-v${VERSION}"
           mkdir -p ./artifacts
