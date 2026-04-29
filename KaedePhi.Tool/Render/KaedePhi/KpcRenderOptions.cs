@@ -1,12 +1,11 @@
 ﻿using SkiaSharp;
 
-namespace KaedePhi.Tool.KaedePhi.Render;
+namespace KaedePhi.Tool.Render.KaedePhi;
 
 /// <summary>
-/// NRC谱面事件通道渲染配置
+/// NRC 谱面事件通道渲染配置。
 /// </summary>
-[Obsolete("请改用 KaedePhi.Tool.Render.KaedePhi.KpcRenderOptions")]
-public class RenderOptions
+public class KpcRenderOptions
 {
     /// <summary>每拍对应的像素高度</summary>
     public float PixelsPerBeat { get; set; } = 100f;
@@ -17,7 +16,12 @@ public class RenderOptions
     /// <summary>每个事件的采样点数（越高曲线越平滑）</summary>
     public int SamplesPerEvent { get; set; } = 64;
 
-    /// <summary>每拍的细分格线数</summary>
+    /// <summary>
+    /// 每拍的细分格线数。
+    /// 1 = 只绘制节拍线（每拍一条）；
+    /// 4 = 每拍绘制四条（四分音符位置）；
+    /// 默认 2（半拍）。
+    /// </summary>
     public int BeatSubdivisions { get; set; } = 2;
 
     /// <summary>曲线描边宽度</summary>
@@ -59,45 +63,18 @@ public class RenderOptions
     /// <summary>标注文字颜色</summary>
     public SKColor TextColor { get; set; } = new(180, 180, 190);
 
-    /// <summary>MoveX通道颜色</summary>
+    /// <summary>MoveX 通道颜色</summary>
     public SKColor MoveXColor { get; set; } = new(90, 180, 255);
 
-    /// <summary>MoveY通道颜色</summary>
+    /// <summary>MoveY 通道颜色</summary>
     public SKColor MoveYColor { get; set; } = new(80, 230, 160);
 
-    /// <summary>Rotate通道颜色</summary>
+    /// <summary>Rotate 通道颜色</summary>
     public SKColor RotateColor { get; set; } = new(255, 200, 80);
 
-    /// <summary>Alpha通道颜色</summary>
+    /// <summary>Alpha 通道颜色</summary>
     public SKColor AlphaColor { get; set; } = new(200, 100, 255);
 
-    /// <summary>Speed通道颜色</summary>
+    /// <summary>Speed 通道颜色</summary>
     public SKColor SpeedColor { get; set; } = new(255, 110, 110);
-
-    internal global::KaedePhi.Tool.Render.KaedePhi.KpcRenderOptions ToNewOptions()
-        => new()
-        {
-            PixelsPerBeat = PixelsPerBeat,
-            ChannelWidth = ChannelWidth,
-            SamplesPerEvent = SamplesPerEvent,
-            BeatSubdivisions = BeatSubdivisions,
-            StrokeWidth = StrokeWidth,
-            LeftMargin = LeftMargin,
-            HeaderHeight = HeaderHeight,
-            BottomPadding = BottomPadding,
-            ChannelPadding = ChannelPadding,
-            BackgroundColor = BackgroundColor,
-            BeatGridColor = BeatGridColor,
-            SubBeatGridColor = SubBeatGridColor,
-            ChannelBackgroundColor = ChannelBackgroundColor,
-            CenterLineColor = CenterLineColor,
-            EventBlockColor = EventBlockColor,
-            ConnectionColor = ConnectionColor,
-            TextColor = TextColor,
-            MoveXColor = MoveXColor,
-            MoveYColor = MoveYColor,
-            RotateColor = RotateColor,
-            AlphaColor = AlphaColor,
-            SpeedColor = SpeedColor,
-        };
 }

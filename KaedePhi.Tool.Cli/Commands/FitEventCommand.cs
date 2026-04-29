@@ -1,75 +1,53 @@
 ﻿using KaedePhi.Tool.Cli.Infrastructure;
-using KaedePhi.Tool.Cli.Settings.Operation;
+using KaedePhi.Tool.Cli.Settings;
 using KaedePhi.Tool.KaedePhi;
 using KaedePhi.Tool.KaedePhi.Events;
 
 namespace KaedePhi.Tool.Cli.Commands;
 
-/// <summary>
-/// 事件拟合命令
-/// </summary>
 public sealed class FitEventCommand : AsyncCommand<FitEventCommand.Settings>
 {
-    public sealed class Settings : OperationSettingsWithTolerance
-    {
-        protected override double? GetConfigToleranceDefault() => AppConfig.FitConfig?.Tolerance;
-        protected override bool? GetConfigDryRunDefault() => AppConfig.FitConfig?.DryRun;
-    }
+    public sealed class Settings : OperationSettings;
 
-    protected override async Task<int> ExecuteAsync(CommandContext context, Settings settings,
-        CancellationToken cancellationToken)
+    protected override async Task<int> ExecuteAsync(CommandContext context, Settings s, CancellationToken ct)
     {
-        settings.ApplyConfigDefaults();
+        var c = s.AppConfig.FitConfig;
+        s.Tolerance ??= c.Tolerance;
+        s.DryRun ??= c.DryRun;
+
         var writer = new ConsoleWriter();
-        var nrc = await settings.LoadNrcChartAsync(cancellationToken);
-
-        if (nrc == null)
-        {
-            writer.Error(string.Format(Strings.cli_err_unimplemented));
-            return 1;
-        }
+        var svc = new ChartService();
+        var nrc = await svc.LoadNrcAsync(s.Input, s.Workspace, ct);
+        if (nrc == null) { writer.Error(Strings.cli_err_unimplemented); return 1; }
 
         var nrcCopy = nrc.Clone();
-        using var logSubscription = KpcToolLog.Subscribe(
-            info: writer.Info,
-            warning: writer.Warn,
-            error: writer.Error,
-            debug: writer.Info);
+        using var _ = KpcToolLog.Subscribe(info: writer.Info, warning: writer.Warn, error: writer.Error, debug: writer.Info);
 
-        var fitTaskDegree = Math.Max(1, Environment.ProcessorCount);
+        var degree = Math.Max(1, Environment.ProcessorCount);
+        var tol = s.Tolerance ?? 0.5d;
 
         for (var i = 0; i < nrc.JudgeLineList.Count; i++)
         {
-            var jdl = nrc.JudgeLineList[i];
-            for (var index = 0; index < jdl.EventLayers.Count; index++)
+            for (var j = 0; j < nrc.JudgeLineList[i].EventLayers.Count; j++)
             {
-                var eventLayer = jdl.EventLayers[index];
-                if (eventLayer == null) continue;
+                var el = nrc.JudgeLineList[i].EventLayers[j];
+                if (el == null) continue;
+                ct.ThrowIfCancellationRequested();
 
-                cancellationToken.ThrowIfCancellationRequested();
+                var mx = Task.Run(() => KpcEventTools.EventListFit(el.MoveXEvents, tol, degree), ct);
+                var my = Task.Run(() => KpcEventTools.EventListFit(el.MoveYEvents, tol, degree), ct);
+                var al = Task.Run(() => KpcEventTools.EventListFit(el.AlphaEvents, tol, degree), ct);
+                var ro = Task.Run(() => KpcEventTools.EventListFit(el.RotateEvents, tol, degree), ct);
+                await Task.WhenAll(mx, my, al, ro);
 
-                // 4 个通道完全独立，并发异步启动；每个通道内部 Phase 1 再利用多核预计算。
-                var moveXTask = Task.Run(() => KpcEventTools.EventListFit(eventLayer.MoveXEvents, settings.Tolerance, fitTaskDegree),cancellationToken);
-                var moveYTask = Task.Run(() => KpcEventTools.EventListFit(eventLayer.MoveYEvents, settings.Tolerance, fitTaskDegree),cancellationToken);
-                var alphaTask = Task.Run(() => KpcEventTools.EventListFit(eventLayer.AlphaEvents, settings.Tolerance, fitTaskDegree),cancellationToken);
-                var rotateTask = Task.Run(() => KpcEventTools.EventListFit(eventLayer.RotateEvents, settings.Tolerance, fitTaskDegree),cancellationToken);
-
-                await Task.WhenAll(moveXTask, moveYTask, alphaTask, rotateTask);
-
-                nrcCopy.JudgeLineList[i].EventLayers[index].MoveXEvents = moveXTask.Result;
-                nrcCopy.JudgeLineList[i].EventLayers[index].MoveYEvents = moveYTask.Result;
-                nrcCopy.JudgeLineList[i].EventLayers[index].AlphaEvents = alphaTask.Result;
-                nrcCopy.JudgeLineList[i].EventLayers[index].RotateEvents = rotateTask.Result;
+                nrcCopy.JudgeLineList[i].EventLayers[j].MoveXEvents = mx.Result;
+                nrcCopy.JudgeLineList[i].EventLayers[j].MoveYEvents = my.Result;
+                nrcCopy.JudgeLineList[i].EventLayers[j].AlphaEvents = al.Result;
+                nrcCopy.JudgeLineList[i].EventLayers[j].RotateEvents = ro.Result;
             }
         }
 
-        var output = await settings.SaveFromNrcAsync(nrcCopy, cancellationToken);
-        if (output == null)
-        {
-            writer.Warn(Strings.cli_warn_rpe_convert);
-            return 2;
-        }
-
+        var output = await svc.SaveAsRpeAsync(nrcCopy, svc.ResolveOutputPath(s.Input, s.Output, s.Workspace), s.DryRun ?? false, ct);
         writer.Info(string.Format(Strings.cli_msg_written, output));
         return 0;
     }

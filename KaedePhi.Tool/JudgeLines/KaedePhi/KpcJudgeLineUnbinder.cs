@@ -1,23 +1,23 @@
 ﻿using KaedePhi.Tool.Common;
+using KaedePhi.Tool.KaedePhi;
 using KaedePhi.Tool.KaedePhi.JudgeLines.Internal;
 using JudgeLine = KaedePhi.Core.KaedePhi.JudgeLine;
 
-namespace KaedePhi.Tool.KaedePhi.JudgeLines;
+namespace KaedePhi.Tool.JudgeLines.KaedePhi;
 
 /// <summary>
-/// NRC 格式判定线操作工具。提供父子关系解绑功能。
+/// NRC（KaedePhi）谱面判定线父子解绑器。
 /// </summary>
-[Obsolete("请改用 KaedePhi.Tool.JudgeLines.KaedePhi.KpcJudgeLineUnbinder")]
-public static class KpcJudgeLineTools
+public class KpcJudgeLineUnbinder : IJudgeLineUnbinder<JudgeLine>
 {
-    [Obsolete("请改用 KpcJudgeLineUnbinder.GetLinePos")]
-    public static (double X, double Y) GetLinePos(
+    /// <inheritdoc/>
+    public (double X, double Y) GetLinePos(
         double fatherLineX, double fatherLineY, double angleDegrees,
         double lineX, double lineY)
         => FatherUnbindHelpers.GetLinePos(fatherLineX, fatherLineY, angleDegrees, lineX, lineY);
 
-    [Obsolete("请改用 KpcJudgeLineUnbinder.GetLinePos")]
-    public static (double X, double Y) GetLinePos(
+    /// <inheritdoc/>
+    public (double X, double Y) GetLinePos(
         double fatherLineX, double fatherLineY, double angleDegrees,
         double lineX, double lineY, CoordinateProfile renderProfile)
     {
@@ -25,47 +25,37 @@ public static class KpcJudgeLineTools
         return FatherUnbindHelpers.GetLinePos(fatherLineX, fatherLineY, angleDegrees, lineX, lineY);
     }
 
-    #region 经典（固定采样）
-
-    [Obsolete("请改用 KpcJudgeLineUnbinder.FatherUnbind")]
-    public static JudgeLine FatherUnbind(
+    /// <inheritdoc/>
+    public JudgeLine FatherUnbind(
         int targetJudgeLineIndex, List<JudgeLine> allJudgeLines,
-        double precision = 64d)
+        double precision)
         => FatherUnbindProcessor.FatherUnbind(
             targetJudgeLineIndex, allJudgeLines, precision,
             FatherUnbindHelpers.ChartCacheTable.GetOrCreateValue(allJudgeLines));
 
-    [Obsolete("请改用 KpcJudgeLineUnbinder.FatherUnbind")]
-    public static JudgeLine FatherUnbind(
+    /// <inheritdoc/>
+    public JudgeLine FatherUnbind(
         int targetJudgeLineIndex, List<JudgeLine> allJudgeLines, CoordinateProfile renderProfile,
-        double precision = 64d, double tolerance = 5d, bool compress = true)
+        double precision)
     {
         using var _ = FatherUnbindHelpers.UseRenderProfile(renderProfile);
-        return FatherUnbind(
-            targetJudgeLineIndex, allJudgeLines, precision);
+        return FatherUnbind(targetJudgeLineIndex, allJudgeLines, precision);
     }
 
-    #endregion
-
-    #region Plus（自适应采样）
-
-    [Obsolete("请改用 KpcJudgeLineUnbinder.FatherUnbindPlus")]
-    public static JudgeLine FatherUnbindPlus(
+    /// <inheritdoc/>
+    public JudgeLine FatherUnbindPlus(
         int targetJudgeLineIndex, List<JudgeLine> allJudgeLines,
-        double precision = 64d, double tolerance = 5d)
+        double precision, double tolerance)
         => FatherUnbindProcessor.FatherUnbindPlus(
             targetJudgeLineIndex, allJudgeLines, precision, tolerance,
             FatherUnbindHelpers.ChartCacheTable.GetOrCreateValue(allJudgeLines));
 
-    [Obsolete("请改用 KpcJudgeLineUnbinder.FatherUnbindPlus")]
-    public static JudgeLine FatherUnbindPlus(
+    /// <inheritdoc/>
+    public JudgeLine FatherUnbindPlus(
         int targetJudgeLineIndex, List<JudgeLine> allJudgeLines, CoordinateProfile renderProfile,
-        double precision = 64d, double tolerance = 5d)
+        double precision, double tolerance)
     {
         using var _ = FatherUnbindHelpers.UseRenderProfile(renderProfile);
         return FatherUnbindPlus(targetJudgeLineIndex, allJudgeLines, precision, tolerance);
     }
-
-    #endregion
 }
-

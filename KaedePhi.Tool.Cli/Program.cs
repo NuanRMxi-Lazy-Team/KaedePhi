@@ -47,6 +47,8 @@ app.Configure(config =>
         .WithAlias("ver");
     config.AddCommand<GetTypeTestCommand>("test")
         .IsHidden();
+    config.AddCommand<OnlyStreamLoadCommand>("pestream")
+        .IsHidden();
 
     config.AddCommand<LoadCommand>("load")
         .WithDescription(Strings.cli_cmd_load_desc);

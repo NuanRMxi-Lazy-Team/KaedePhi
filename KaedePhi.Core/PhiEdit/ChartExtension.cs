@@ -67,6 +67,207 @@ namespace KaedePhi.Core.PhiEdit
             return chart;
         }
 
+        /// <summary>
+        /// 从流中加载PhiEditChart
+        /// </summary>
+        /// <param name="stream">文件流</param>
+        /// <returns>已反序列化谱面</returns>
+        /// <exception cref="FormatException">格式不正确</exception>
+        [PublicAPI]
+        public static Chart LoadStream(Stream stream)
+        {
+            using var reader = new StreamReader(stream, new UTF8Encoding(false), detectEncodingFromByteOrderMarks: true,
+                1024, leaveOpen: true);
+
+            var chart = new Chart();
+            var judgeDict = new Dictionary<int, JudgeLine>();
+
+            // 第一行：offset
+            var firstLine = reader.ReadLine();
+            if (!int.TryParse(firstLine, out var offset))
+                throw new FormatException("Malformed chart file: first line is not a valid integer offset.");
+            chart.Offset = offset;
+
+            // 逐行解析，但 ParseNote 可能需要向后看最多2行（当inline参数不存在时）
+            // 用一个单行缓冲来支持"预读"
+            string pendingLine = null;
+
+            string line;
+            while ((line = ReadNextLine()) != null)
+            {
+                if (string.IsNullOrWhiteSpace(line))
+                    continue;
+
+                var part = line.Split(' ');
+                int judgeLineIndex = -1;
+                if (part[0] != "bp")
+                    judgeLineIndex = part.Length > 1 ? int.Parse(part[1]) : -1;
+
+                if (part[0] == "bp")
+                {
+                    chart.BpmList.Add(new BpmItem
+                    {
+                        StartBeat = float.Parse(part[1]),
+                        Bpm = float.Parse(part[2])
+                    });
+                }
+                else if (line.StartsWith('n'))
+                {
+                    var hashIndex = Array.IndexOf(part, "#");
+                    var ampIndex = Array.IndexOf(part, "&");
+
+                    string[] noteSpeedMultiplierPart;
+                    string[] noteWidthRatioPart;
+
+                    if (hashIndex != -1 && ampIndex != -1)
+                    {
+                        // inline 参数，无需预读
+                        noteSpeedMultiplierPart = new[] { "#", part[hashIndex + 1] };
+                        noteWidthRatioPart = new[] { "&", part[ampIndex + 1] };
+                    }
+                    else
+                    {
+                        // 需要额外读取后续两行
+                        noteSpeedMultiplierPart = reader.ReadLine()?.Split(' ');
+                        noteWidthRatioPart = reader.ReadLine()?.Split(' ');
+                    }
+
+                    var noteType = (NoteType)int.Parse(part[0].Substring(1, 1));
+                    var isHold = noteType == NoteType.Hold;
+                    var note = new Note
+                    {
+                        StartBeat = float.Parse(part[2]),
+                        EndBeat = isHold ? float.Parse(part[3]) : float.Parse(part[2]),
+                        PositionX = float.Parse(part[isHold ? 4 : 3]),
+                        Above = part[isHold ? 5 : 4] == "1",
+                        IsFake = part[isHold ? 6 : 5] == "1",
+                        SpeedMultiplier = float.Parse(noteSpeedMultiplierPart[1]),
+                        WidthRatio = float.Parse(noteWidthRatioPart[1]),
+                        Type = noteType
+                    };
+
+                    if (!judgeDict.ContainsKey(judgeLineIndex)) judgeDict[judgeLineIndex] = new JudgeLine();
+                    judgeDict[judgeLineIndex].NoteList.Add(note);
+                }
+                else
+                    ParseLineCommand(part, judgeLineIndex, judgeDict);
+                
+            }
+
+            SortAndBuild(chart, judgeDict);
+            return chart;
+
+            string ReadNextLine()
+            {
+                if (pendingLine is null) return reader.ReadLine();
+                var tmp = pendingLine;
+                pendingLine = null;
+                return tmp;
+
+            }
+        }
+        
+        /// <summary>
+        /// 异步从流中加载PhiEditChart
+        /// </summary>
+        /// <param name="stream">文件流</param>
+        /// <returns>已反序列化谱面</returns>
+        /// <exception cref="FormatException">格式不正确</exception>
+        [PublicAPI]
+        public static async Task<Chart> LoadStreamAsync(Stream stream)
+        {
+            using var reader = new StreamReader(stream, new UTF8Encoding(false), detectEncodingFromByteOrderMarks: true,
+                1024, leaveOpen: true);
+
+            var chart = new Chart();
+            var judgeDict = new Dictionary<int, JudgeLine>();
+
+            // 第一行：offset
+            var firstLine = await reader.ReadLineAsync();
+            if (!int.TryParse(firstLine, out var offset))
+                throw new FormatException("Malformed chart file: first line is not a valid integer offset.");
+            chart.Offset = offset;
+
+            // 逐行解析，但 ParseNote 可能需要向后看最多2行（当inline参数不存在时）
+            // 用一个单行缓冲来支持"预读"
+            string pendingLine = null;
+
+            string line;
+            while ((line = await ReadNextLine()) != null)
+            {
+                if (string.IsNullOrWhiteSpace(line))
+                    continue;
+
+                var part = line.Split(' ');
+                int judgeLineIndex = -1;
+                if (part[0] != "bp")
+                    judgeLineIndex = part.Length > 1 ? int.Parse(part[1]) : -1;
+
+                if (part[0] == "bp")
+                {
+                    chart.BpmList.Add(new BpmItem
+                    {
+                        StartBeat = float.Parse(part[1]),
+                        Bpm = float.Parse(part[2])
+                    });
+                }
+                else if (line.StartsWith('n'))
+                {
+                    var hashIndex = Array.IndexOf(part, "#");
+                    var ampIndex = Array.IndexOf(part, "&");
+
+                    string[] noteSpeedMultiplierPart;
+                    string[] noteWidthRatioPart;
+
+                    if (hashIndex != -1 && ampIndex != -1)
+                    {
+                        // inline 参数，无需预读
+                        noteSpeedMultiplierPart = new[] { "#", part[hashIndex + 1] };
+                        noteWidthRatioPart = new[] { "&", part[ampIndex + 1] };
+                    }
+                    else
+                    {
+                        // 需要额外读取后续两行
+                        noteSpeedMultiplierPart = (await reader.ReadLineAsync())?.Split(' ');
+                        noteWidthRatioPart = (await reader.ReadLineAsync())?.Split(' ');
+                    }
+
+                    var noteType = (NoteType)int.Parse(part[0].Substring(1, 1));
+                    var isHold = noteType == NoteType.Hold;
+                    var note = new Note
+                    {
+                        StartBeat = float.Parse(part[2]),
+                        EndBeat = isHold ? float.Parse(part[3]) : float.Parse(part[2]),
+                        PositionX = float.Parse(part[isHold ? 4 : 3]),
+                        Above = part[isHold ? 5 : 4] == "1",
+                        IsFake = part[isHold ? 6 : 5] == "1",
+                        SpeedMultiplier = float.Parse(noteSpeedMultiplierPart[1]),
+                        WidthRatio = float.Parse(noteWidthRatioPart[1]),
+                        Type = noteType
+                    };
+
+                    if (!judgeDict.ContainsKey(judgeLineIndex)) judgeDict[judgeLineIndex] = new JudgeLine();
+                    judgeDict[judgeLineIndex].NoteList.Add(note);
+                }
+                else
+                    ParseLineCommand(part, judgeLineIndex, judgeDict);
+                
+            }
+
+            SortAndBuild(chart, judgeDict);
+            return chart;
+
+            async Task<string> ReadNextLine()
+            {
+                // ReSharper disable once AccessToDisposedClosure
+                if (pendingLine is null) return await reader.ReadLineAsync();
+                var tmp = pendingLine;
+                pendingLine = null;
+                return tmp;
+            }
+        }
+        
+
         private static void ParseLineCommand(string[] part, int judgeLineIndex, Dictionary<int, JudgeLine> judgeDict)
         {
             switch (part[0])

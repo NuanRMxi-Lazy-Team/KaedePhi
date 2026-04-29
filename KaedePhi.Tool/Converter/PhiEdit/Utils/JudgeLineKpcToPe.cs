@@ -1,6 +1,6 @@
 using KaedePhi.Core.Common;
 using global::KaedePhi.Tool.Converter.PhiEdit.Model;
-using global::KaedePhi.Tool.KaedePhi.JudgeLines;
+using global::KaedePhi.Tool.JudgeLines.KaedePhi;
 using global::KaedePhi.Tool.KaedePhi.Events;
 using global::KaedePhi.Tool.KaedePhi;
 using AlphaControl = KaedePhi.Core.KaedePhi.AlphaControl;
@@ -50,15 +50,16 @@ public class JudgeLineKpcToPe
         if (trueSrc.Father != -1)
         {
             Warn($"PE 不支持 JudgeLine.Father（值={src.Father}），将自动解除父子绑定");
+            var unbinder = new KpcJudgeLineUnbinder();
             if (_options.FatherLineUnbind.ClassicMode)
             {
-                trueSrc = KpcJudgeLineTools.FatherUnbind(allLine.FindIndex(l => l.GetHashCode() == src.GetHashCode()),
+                trueSrc = unbinder.FatherUnbind(allLine.FindIndex(l => l.GetHashCode() == src.GetHashCode()),
                     allLine, _options.FatherLineUnbind.Precision);
             }
             else
-                trueSrc = KpcJudgeLineTools.FatherUnbindPlus(
+                trueSrc = unbinder.FatherUnbindPlus(
                     allLine.FindIndex(l => l.GetHashCode() == src.GetHashCode()),
-                    allLine, _options.FatherLineUnbind.Tolerance);
+                    allLine, _options.FatherLineUnbind.Precision, _options.FatherLineUnbind.Tolerance);
         }
 
         _eventBuilder.ConvertLineEvents(pe, trueSrc.EventLayers ?? []);

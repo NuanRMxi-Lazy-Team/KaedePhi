@@ -1,5 +1,7 @@
 using KaedePhi.Core.Common;
 using global::KaedePhi.Tool.KaedePhi.Converters.Utils;
+using global::KaedePhi.Tool.Event.KaedePhi;
+using global::KaedePhi.Tool.Layer.KaedePhi;
 using global::KaedePhi.Tool.KaedePhi.Events;
 using global::KaedePhi.Tool.KaedePhi;
 using KaedePhi.Tool.Converter.PhiEdit.Model;
@@ -33,21 +35,22 @@ public class LineEventBuilder
         {
             if (!HasAnyEventData(layers[i])) continue;
             Warn("JudgeLine 存在多个事件层；PE 仅支持单层，将自动合并为一层");
+            var layerProcessor = new KpcLayerProcessor();
             if (_options.MultiLayerMerge.ClassicMode)
             {
                 if (_options.MultiLayerMerge.Compress)
                 {
-                    var layer = global::KaedePhi.Tool.KaedePhi.Layers.KpcLayerTools.LayerMerge(layers,
+                    var layer = layerProcessor.LayerMerge(layers,
                         _options.MultiLayerMerge.Precision);
-                    global::KaedePhi.Tool.KaedePhi.Layers.KpcLayerTools.LayerEventsCompress(layer);
+                    layerProcessor.LayerEventsCompress(layer, 0.1d);
                     primaryLayer = layer;
                 }
                 else
-                    primaryLayer = global::KaedePhi.Tool.KaedePhi.Layers.KpcLayerTools.LayerMerge(layers,
+                    primaryLayer = layerProcessor.LayerMerge(layers,
                         _options.MultiLayerMerge.Precision);
             }
             else
-                primaryLayer = global::KaedePhi.Tool.KaedePhi.Layers.KpcLayerTools.LayerMergePlus(
+                primaryLayer = layerProcessor.LayerMergePlus(
                     layers,
                     _options.MultiLayerMerge.Precision,
                     _options.MultiLayerMerge.Tolerance);

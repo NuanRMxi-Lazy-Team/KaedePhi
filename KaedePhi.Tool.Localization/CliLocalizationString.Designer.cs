@@ -60,7 +60,7 @@ namespace KaedePhi.Tool.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to 臀饭制工具集.
+        ///   Looks up a localized string similar to KaedePhi.
         /// </summary>
         public static string app_title {
             get {

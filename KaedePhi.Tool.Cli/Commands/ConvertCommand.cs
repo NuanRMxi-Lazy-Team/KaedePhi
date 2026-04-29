@@ -1,5 +1,5 @@
 ﻿using KaedePhi.Tool.Cli.Infrastructure;
-using KaedePhi.Tool.Cli.Settings.Operation;
+using KaedePhi.Tool.Cli.Settings;
 using KaedePhi.Tool.Common;
 using KaedePhi.Tool.KaedePhi;
 
@@ -7,43 +7,35 @@ namespace KaedePhi.Tool.Cli.Commands;
 
 public sealed class ConvertCommand : AsyncCommand<ConvertCommand.Settings>
 {
-    public sealed class Settings : OperationSettingsWithFormatting
+    public sealed class Settings : OperationSettings
     {
-        protected override ChartType? GetConfigTargetTypeDefault() => AppConfig.ConvertConfig?.TargetType;
-        protected override bool? GetConfigFormatOutputDefault() => AppConfig.ConvertConfig?.FormatOutput;
-        protected override bool? GetConfigStreamOutputDefault() => AppConfig.ConvertConfig?.StreamOutput;
-        protected override bool? GetConfigDryRunDefault() => AppConfig.ConvertConfig?.DryRun;
+        [CommandOption("--target <TYPE>")]
+        [LocalizedDescription("convert_command_opt_target")]
+        public ChartType? TargetType { get; set; }
     }
 
-    protected override async Task<int> ExecuteAsync(CommandContext context, Settings settings,
-        CancellationToken cancellationToken)
+    protected override async Task<int> ExecuteAsync(CommandContext context, Settings s, CancellationToken ct)
     {
-        settings.ApplyConfigDefaults();
+        var c = s.AppConfig.ConvertConfig;
+        s.TargetType ??= c.TargetType;
+        s.StreamOutput ??= c.StreamOutput;
+        s.FormatOutput ??= c.FormatOutput;
+        s.DryRun ??= c.DryRun;
+
         var writer = new ConsoleWriter();
+        var svc = new ChartService();
 
-        var kpc = await settings.LoadNrcChartAsync(cancellationToken);
-        if (kpc == null)
-        {
-            writer.Error(string.Format(Strings.cli_err_unimplemented));
-            return 1;
-        }
+        var kpc = await svc.LoadNrcAsync(s.Input, s.Workspace, ct);
+        if (kpc == null) { writer.Error(Strings.cli_err_unimplemented); return 1; }
 
-        // 订阅NRC日志
-        using var logSubscription = KpcToolLog.Subscribe(
-            info: writer.Info,
-            warning: writer.Warn,
-            error: writer.Error,
-            debug: writer.Info);
+        using var _ = KpcToolLog.Subscribe(info: writer.Info, warning: writer.Warn, error: writer.Error, debug: writer.Info);
 
-        var output = await settings.SaveFromNrcAsync(kpc, cancellationToken);
-        if (output == null)
-        {
-            writer.Warn(Strings.cli_warn_rpe_convert);
-            return 2;
-        }
+        var output = svc.ResolveOutputPath(s.Input, s.Output, s.Workspace);
+        var result = await svc.SaveAsAsync(kpc, output, s.TargetType ?? ChartType.RePhiEdit,
+            s.StreamOutput ?? false, s.FormatOutput ?? false, s.DryRun ?? false, ct);
 
-        writer.Info(string.Format(Strings.cli_msg_written, output));
+        if (result == null) { writer.Warn(Strings.cli_warn_rpe_convert); return 2; }
+        writer.Info(string.Format(Strings.cli_msg_written, result));
         return 0;
     }
 }
-

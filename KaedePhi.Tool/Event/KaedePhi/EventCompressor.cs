@@ -133,4 +133,20 @@ public class EventCompressor<TPayload> : IEventCompressor<Kpc.Event<TPayload>>
 
         return compressed;
     }
+
+    /// <summary>
+    /// 移除无用事件（起始值和结束值都为默认值的事件）。
+    /// </summary>
+    public List<Kpc.Event<TPayload>>? RemoveUselessEvent(List<Kpc.Event<TPayload>>? events)
+    {
+        var eventsCopy = events?.Select(e => e.Clone()).ToList();
+        if (eventsCopy is { Count: 1 } &&
+            EqualityComparer<TPayload>.Default.Equals(eventsCopy[0].StartValue, default) &&
+            EqualityComparer<TPayload>.Default.Equals(eventsCopy[0].EndValue, default))
+        {
+            eventsCopy.RemoveAt(0);
+        }
+
+        return eventsCopy;
+    }
 }

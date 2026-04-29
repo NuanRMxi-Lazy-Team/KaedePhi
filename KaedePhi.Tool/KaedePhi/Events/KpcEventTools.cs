@@ -104,14 +104,13 @@ public static class KpcEventTools
     /// <summary>
     /// 将两个事件列表合并（固定采样策略）。有重叠区间时按等长切片逐段相加，可选压缩。
     /// </summary>
+    [Obsolete("此方法弃用，请使用KaedePhi.Tool.Event.KaedePhi.EventMerger<T>中的EventListMerge", false)]
     public static List<Kpc.Event<T>> EventListMerge<T>(
         List<Kpc.Event<T>> toEvents, List<Kpc.Event<T>> fromEvents,
         double precision = 64d)
         => EventMerger.EventListMerge(toEvents, fromEvents, precision);
 
-    /// <summary>
-    /// 将两个事件列表合并（自适应采样策略）。性能更优，天然压缩，不支持禁用压缩。
-    /// </summary>
+    [Obsolete("此方法弃用，请使用KaedePhi.Tool.Event.KaedePhi.EventMerger<T>中的EventMergePlus", false)]
     public static List<Kpc.Event<T>> EventMergePlus<T>(
         List<Kpc.Event<T>> toEvents, List<Kpc.Event<T>> fromEvents,
         double precision = 64d, double tolerance = 5d)
