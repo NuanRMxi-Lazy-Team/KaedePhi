@@ -10,7 +10,7 @@ using JudgeLine = KaedePhi.Core.KaedePhi.JudgeLine;
 namespace KaedePhi.Tool.KaedePhi.JudgeLines.Internal;
 
 /// <summary>
-/// NRC 父子解绑共用辅助方法：缓存表、坐标计算、通道合并、范围统计、采样算法、结果写回。
+/// Kpc 父子解绑共用辅助方法：缓存表、坐标计算、通道合并、范围统计、采样算法、结果写回。
 /// </summary>
 internal static class FatherUnbindHelpers
 {
@@ -48,11 +48,11 @@ internal static class FatherUnbindHelpers
     internal static (double X, double Y) GetLinePos(
         double fatherLineX, double fatherLineY, double angleDegrees,
         double lineX, double lineY)
-        => CoordinateGeometry.GetNrcAbsolutePos(
+        => CoordinateGeometry.GetKpcAbsolutePos(
             fatherLineX, fatherLineY, angleDegrees, lineX, lineY, CurrentRenderProfile);
 
     /// <summary>
-    /// NRC 虽然以归一化坐标存储，但几何误差必须在当前渲染坐标系评估，
+    /// Kpc 虽然以归一化坐标存储，但几何误差必须在当前渲染坐标系评估，
     /// 否则 X/Y 轴缩放不一致会导致切段阈值偏斜。
     /// </summary>
     internal static bool NeedsAdaptiveCut(
@@ -71,11 +71,11 @@ internal static class FatherUnbindHelpers
         var predicted = (
             X: segmentStart.X + (intervalEnd.X - segmentStart.X) * progress,
             Y: segmentStart.Y + (intervalEnd.Y - segmentStart.Y) * progress);
-        var error = CoordinateGeometry.GetNrcScreenDistance(next, predicted, CurrentRenderProfile);
+        var error = CoordinateGeometry.GetKpcScreenDistance(next, predicted, CurrentRenderProfile);
 
         var localScale = Math.Max(
-            CoordinateGeometry.GetNrcScreenDistance(segmentStart, intervalEnd, CurrentRenderProfile),
-            CoordinateGeometry.GetNrcScreenDistance(segmentStart, next, CurrentRenderProfile));
+            CoordinateGeometry.GetKpcScreenDistance(segmentStart, intervalEnd, CurrentRenderProfile),
+            CoordinateGeometry.GetKpcScreenDistance(segmentStart, next, CurrentRenderProfile));
         var threshold = tolerance / 100.0 * Math.Max(localScale, 1e-3);
         return error > threshold;
     }
@@ -281,18 +281,18 @@ internal static class FatherUnbindHelpers
 
             // 使用局部位移尺度，避免离原点越远阈值越大而导致过度压缩。
             var screenScale = Math.Max(
-                CoordinateGeometry.GetNrcScreenDistance(
+                CoordinateGeometry.GetKpcScreenDistance(
                     (lastX.StartValue, lastY.StartValue),
                     (curX.EndValue, curY.EndValue),
                     CurrentRenderProfile),
-                CoordinateGeometry.GetNrcScreenDistance(
+                CoordinateGeometry.GetKpcScreenDistance(
                     (lastX.StartValue, lastY.StartValue),
                     (lastX.EndValue, lastY.EndValue),
                     CurrentRenderProfile));
             var threshold = relTol * Math.Max(screenScale, 1e-9);
 
             // 检查交界处连续性（屏幕空间间距）
-            var junctionGap = CoordinateGeometry.GetNrcScreenDistance(
+            var junctionGap = CoordinateGeometry.GetKpcScreenDistance(
                 (lastX.EndValue, lastY.EndValue),
                 (curX.StartValue, curY.StartValue),
                 CurrentRenderProfile);
@@ -324,7 +324,7 @@ internal static class FatherUnbindHelpers
                 var predY = lastY.StartValue + (curY.EndValue - lastY.StartValue) * p;
 
                 // 屏幕空间欧几里得距离：交界实际位置 vs 合并段预测位置
-                var junctionDev = CoordinateGeometry.GetNrcScreenDistance(
+                var junctionDev = CoordinateGeometry.GetKpcScreenDistance(
                     (lastX.EndValue, lastY.EndValue),
                     (predX, predY),
                     CurrentRenderProfile);

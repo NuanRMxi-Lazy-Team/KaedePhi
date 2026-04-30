@@ -4,9 +4,9 @@ namespace KaedePhi.Tool.Converter.RePhiEdit.Utils;
 
 public static class Transform
 {
-    public static double TransformToKpcX(float x) => CoordinateGeometry.ToNrcX(x);
-    public static double TransformToKpcY(float y) => CoordinateGeometry.ToNrcY(y);
-    public static double TransformToKpcAngle(float angle) => CoordinateGeometry.ToNrcAngle(angle);
+    public static double TransformToKpcX(float x) => CoordinateGeometry.ToKpcX(x);
+    public static double TransformToKpcY(float y) => CoordinateGeometry.ToKpcY(y);
+    public static double TransformToKpcAngle(float angle) => CoordinateGeometry.ToKpcAngle(angle);
 
     public static double TransformToRpeX(double x) => CoordinateGeometry.ToRenderX(x);
     public static double TransformToRpeY(double y) => CoordinateGeometry.ToRenderY(y);

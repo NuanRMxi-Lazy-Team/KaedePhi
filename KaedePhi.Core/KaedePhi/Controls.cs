@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace KaedePhi.Core.KaedePhi
 {
     public abstract class ControlBase
     {
-        protected readonly Guid Id = Guid.NewGuid();
         public Easing Easing { get; set; } = new(1);
 
         public float X { get; set; }
@@ -13,29 +11,8 @@ namespace KaedePhi.Core.KaedePhi
         public abstract ControlBase Clone();
     }
 
-    public sealed class AlphaControl : ControlBase, IEquatable<AlphaControl>
+    public sealed class AlphaControl : ControlBase
     {
-        public override int GetHashCode()
-        {
-            return Id.GetHashCode();
-        }
-
-        public bool Equals(AlphaControl other)
-        {
-            if (other == null) return false;
-            if (other.GetHashCode() == GetHashCode()) return true;
-
-            // 比较所有需要比较的数值属性
-            return Math.Abs(Alpha - other.Alpha) < 1e-6
-                   && Math.Abs(X - other.X) < 1e-6
-                   && (Easing?.Equals(other.Easing) ?? other.Easing == null);
-        }
-
-        public override bool Equals(object obj)
-        {
-            return Equals(obj as AlphaControl);
-        }
-
         public float Alpha { get; set; } = 1.0f;
 
         public static List<AlphaControl> Default
@@ -72,28 +49,8 @@ namespace KaedePhi.Core.KaedePhi
         }
     }
 
-    public sealed class XControl : ControlBase, IEquatable<XControl>
+    public sealed class XControl : ControlBase
     {
-        public override int GetHashCode()
-        {
-            return Id.GetHashCode();
-        }
-
-        public bool Equals(XControl other)
-        {
-            if (other == null) return false;
-            if (other.GetHashCode() == GetHashCode()) return true;
-            
-            return Math.Abs(Pos - other.Pos) < 1e-6
-                   && Math.Abs(X - other.X) < 1e-6
-                   && (Easing?.Equals(other.Easing) ?? other.Easing == null);
-        }
-
-        public override bool Equals(object obj)
-        {
-            return Equals(obj as XControl);
-        }
-
         public float Pos { get; set; } = 1.0f;
 
         public static List<XControl> Default
@@ -130,28 +87,8 @@ namespace KaedePhi.Core.KaedePhi
         }
     }
 
-    public sealed class SizeControl : ControlBase, IEquatable<SizeControl>
+    public sealed class SizeControl : ControlBase
     {
-        public override int GetHashCode()
-        {
-            return Id.GetHashCode();
-        }
-
-        public bool Equals(SizeControl other)
-        {
-            if (other == null) return false;
-            if (other.GetHashCode() == GetHashCode()) return true;
-
-            return Math.Abs(Size - other.Size) < 1e-6
-                   && Math.Abs(X - other.X) < 1e-6
-                   && (Easing?.Equals(other.Easing) ?? other.Easing == null);
-        }
-
-        public override bool Equals(object obj)
-        {
-            return Equals(obj as SizeControl);
-        }
-
         public float Size { get; set; } = 1.0f;
 
         public static List<SizeControl> Default
@@ -188,28 +125,8 @@ namespace KaedePhi.Core.KaedePhi
         }
     }
 
-    public sealed class SkewControl : ControlBase, IEquatable<SkewControl>
+    public sealed class SkewControl : ControlBase
     {
-        public override int GetHashCode()
-        {
-            return Id.GetHashCode();
-        }
-
-        public bool Equals(SkewControl other)
-        {
-            if (other == null) return false;
-            if (other.GetHashCode() == GetHashCode()) return true;
-            
-            return Math.Abs(Skew - other.Skew) < 1e-6
-                   && Math.Abs(X - other.X) < 1e-6
-                   && (Easing?.Equals(other.Easing) ?? other.Easing == null);
-        }
-
-        public override bool Equals(object obj)
-        {
-            return Equals(obj as SkewControl);
-        }
-
         public float Skew { get; set; } = 1.0f;
 
         public static List<SkewControl> Default
@@ -246,29 +163,8 @@ namespace KaedePhi.Core.KaedePhi
         }
     }
 
-    public sealed class YControl : ControlBase, IEquatable<YControl>
+    public sealed class YControl : ControlBase
     {
-        public override int GetHashCode()
-        {
-            return Id.GetHashCode();
-        }
-
-        public bool Equals(YControl other)
-        {
-            if (other == null) return false;
-            if (other.GetHashCode() == GetHashCode()) return true;
-
-            return Math.Abs(Y - other.Y) < 1e-6
-                   && Math.Abs(X - other.X) < 1e-6
-                   && (Easing?.Equals(other.Easing) ?? other.Easing == null);
-        }
-
-        public override bool Equals(object obj)
-        {
-            return Equals(obj as YControl);
-        }
-
-
         public float Y { get; set; } = 1.0f;
 
         public static List<YControl> Default

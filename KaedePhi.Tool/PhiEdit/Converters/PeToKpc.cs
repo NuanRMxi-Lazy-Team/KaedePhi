@@ -19,12 +19,12 @@ namespace KaedePhi.Tool.PhiEdit.Converters;
 public class PeToKpc
 {
     /// <summary>
-    /// 在末尾额外补齐的拍点长度，避免最后一个关键帧/事件在 NRC 中没有后续区间可承载。
+    /// 在末尾额外补齐的拍点长度，避免最后一个关键帧/事件在 Kpc 中没有后续区间可承载。
     /// </summary>
     private const double TrailingBeatPadding = 1d / 64d;
 
     /// <summary>
-    /// 非事件起点 Frame 在 NRC 中保留的最小可编辑区间长度（拍）。
+    /// 非事件起点 Frame 在 Kpc 中保留的最小可编辑区间长度（拍）。
     /// </summary>
     private const double FrameEditableSliceBeat = 0.0125d;
 
@@ -34,7 +34,7 @@ public class PeToKpc
     private const double BeatComparisonEpsilon = 1e-6d;
 
     /// <summary>
-    /// PhiEdit 坐标系配置，用于将 PE 坐标统一映射到 NRC 归一化坐标系。
+    /// PhiEdit 坐标系配置，用于将 PE 坐标统一映射到 Kpc 归一化坐标系。
     /// </summary>
     private static readonly CoordinateProfile PeCoordinateProfile = new(
         Pe.Chart.CoordinateSystem.MinX,
@@ -61,10 +61,10 @@ public class PeToKpc
     }
 
     /// <summary>
-    /// 将 PhiEdit 缓动编号映射为 NRC 缓动编号。
+    /// 将 PhiEdit 缓动编号映射为 Kpc 缓动编号。
     /// </summary>
     /// <param name="pe">PhiEdit 缓动编号。</param>
-    /// <returns>对应的 NRC 缓动编号；未知编号时回退为线性。</returns>
+    /// <returns>对应的 Kpc 缓动编号；未知编号时回退为线性。</returns>
     private static int MapEasingNumber(int pe) => pe switch
     {
         1 => 1, 2 => 3, 3 => 2, 4 => 6, 5 => 5, 6 => 4, 7 => 7,
@@ -74,23 +74,23 @@ public class PeToKpc
         26 => 30, 27 => 29, 28 => 31, 29 => 28, _ => 1
     };
 
-    /// <summary>将 PhiEdit 缓动对象转换为 NRC 缓动对象。</summary>
+    /// <summary>将 PhiEdit 缓动对象转换为 Kpc 缓动对象。</summary>
     private static Easing ConvertEasing(Pe.Easing src) => new(MapEasingNumber((int)src));
 
-    /// <summary>将 PhiEdit X 坐标转换为 NRC X 坐标。</summary>
-    private static double TransformX(float x) => CoordinateGeometry.ToNrcX(x, PeCoordinateProfile);
+    /// <summary>将 PhiEdit X 坐标转换为 Kpc X 坐标。</summary>
+    private static double TransformX(float x) => CoordinateGeometry.ToKpcX(x, PeCoordinateProfile);
 
-    /// <summary>将 PhiEdit Y 坐标转换为 NRC Y 坐标。</summary>
-    private static double TransformY(float y) => CoordinateGeometry.ToNrcY(y, PeCoordinateProfile);
+    /// <summary>将 PhiEdit Y 坐标转换为 Kpc Y 坐标。</summary>
+    private static double TransformY(float y) => CoordinateGeometry.ToKpcY(y, PeCoordinateProfile);
 
-    /// <summary>将 PhiEdit 角度转换为 NRC 角度方向。</summary>
-    private static double TransformAngle(float angle) => CoordinateGeometry.ToNrcAngle(angle, PeCoordinateProfile);
+    /// <summary>将 PhiEdit 角度转换为 Kpc 角度方向。</summary>
+    private static double TransformAngle(float angle) => CoordinateGeometry.ToKpcAngle(angle, PeCoordinateProfile);
 
     /// <summary>
     /// 转换单个 BPM 点。
     /// </summary>
     /// <param name="src">PhiEdit BPM 点。</param>
-    /// <returns>NRC BPM 点。</returns>
+    /// <returns>Kpc BPM 点。</returns>
     private static BpmItem ConvertBpmItem(Pe.BpmItem src) => new()
     {
         Bpm = src.Bpm,
@@ -98,10 +98,10 @@ public class PeToKpc
     };
 
     /// <summary>
-    /// 生成 NRC 元数据。PhiEdit 缺失的大部分元信息保持 NRC 默认值，仅覆盖可直接映射项。
+    /// 生成 Kpc 元数据。PhiEdit 缺失的大部分元信息保持 Kpc 默认值，仅覆盖可直接映射项。
     /// </summary>
     /// <param name="src">PhiEdit 谱面。</param>
-    /// <returns>NRC 元数据。</returns>
+    /// <returns>Kpc 元数据。</returns>
     private static Meta ConvertMeta(Pe.Chart src) => new()
     {
         Offset = src.Offset - OffsetOffset // WTF
@@ -111,7 +111,7 @@ public class PeToKpc
     /// 转换全部判定线。
     /// </summary>
     /// <param name="judgeLines">PhiEdit 判定线列表。</param>
-    /// <returns>转换后的 NRC 判定线列表；输入为空时返回空列表。</returns>
+    /// <returns>转换后的 Kpc 判定线列表；输入为空时返回空列表。</returns>
     private static List<JudgeLine> ConvertJudgeLines(List<Pe.JudgeLine>? judgeLines)
     {
         if (judgeLines == null || judgeLines.Count == 0) return [];
@@ -122,11 +122,11 @@ public class PeToKpc
     }
 
     /// <summary>
-    /// 转换单条判定线，并合成为单事件层的 NRC 判定线。
+    /// 转换单条判定线，并合成为单事件层的 Kpc 判定线。
     /// </summary>
     /// <param name="src">PhiEdit 判定线。</param>
     /// <param name="index">判定线索引，用于生成默认名称。</param>
-    /// <returns>转换后的 NRC 判定线。</returns>
+    /// <returns>转换后的 Kpc 判定线。</returns>
     private static JudgeLine ConvertJudgeLine(Pe.JudgeLine src, int index)
     {
         var horizonBeat = GetJudgeLineHorizonBeat(src);
@@ -145,7 +145,7 @@ public class PeToKpc
     /// 转换单个音符。
     /// </summary>
     /// <param name="src">PhiEdit 音符。</param>
-    /// <returns>NRC 音符。</returns>
+    /// <returns>Kpc 音符。</returns>
     private static Note ConvertNote(Pe.Note src) => new()
     {
         Above = src.Above,
@@ -159,11 +159,11 @@ public class PeToKpc
     };
 
     /// <summary>
-    /// 将 PhiEdit 判定线上的各通道帧/事件规范化为 NRC 事件层。
+    /// 将 PhiEdit 判定线上的各通道帧/事件规范化为 Kpc 事件层。
     /// </summary>
     /// <param name="src">PhiEdit 判定线。</param>
     /// <param name="horizonBeat">用于补尾区间的终止拍点。</param>
-    /// <returns>构建后的 NRC 事件层。</returns>
+    /// <returns>构建后的 Kpc 事件层。</returns>
     private static EventLayer ConvertEventLayer(Pe.JudgeLine src, double horizonBeat) => new()
     {
         MoveXEvents = BuildMoveAxisEvents(src.MoveFrames, src.MoveEvents, horizonBeat, point => point.X, TransformX),

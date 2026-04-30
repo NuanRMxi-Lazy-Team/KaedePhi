@@ -14,9 +14,9 @@ public readonly record struct CoordinateProfile(
     bool ClockwiseRotation)
 {
     /// <summary>
-    /// NRC 的归一化坐标系配置。
+    /// KPC 的归一化坐标系配置。
     /// </summary>
-    public static readonly CoordinateProfile NrcProfile = new(
+    public static readonly CoordinateProfile KpcProfile = new(
         Chart.CoordinateSystem.MinX,
         Chart.CoordinateSystem.MaxX,
         Chart.CoordinateSystem.MinY,

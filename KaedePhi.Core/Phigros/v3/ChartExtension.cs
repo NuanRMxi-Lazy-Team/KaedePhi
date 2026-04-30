@@ -1,65 +1,14 @@
 ﻿using System;
 using System.IO;
-using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using KaedePhi.Core.Common;
 using Newtonsoft.Json;
 
-namespace KaedePhi.Core.RePhiEdit
+namespace KaedePhi.Core.Phigros.v3
 {
     public partial class Chart
     {
-        /// <summary>
-        /// 对判定线及其事件层级进行预处理。
-        /// </summary>
-        [PublicAPI]
-        public void Anticipation()
-        {
-            foreach (var judgeLine in JudgeLineList)
-            {
-                // 如果这个判定线层级上有null层级，移除它们
-                judgeLine.EventLayers.RemoveAll(layer => layer == null);
-                // 对所有判定线的所有事件层级执行Anticipation()方法
-                for (var index = 0; index < judgeLine.EventLayers.Count; index++)
-                {
-                    var eventLayer = judgeLine.EventLayers[index];
-                    eventLayer.Anticipation();
-                    // 若事件层级0上Alpha事件类别完全为空，则创建一个垫底事件
-                    if (index == 0 && judgeLine.EventLayers.Count == 1)
-                    {
-                        if (eventLayer.AlphaEvents == null || eventLayer.AlphaEvents.Count == 0)
-                        {
-                            eventLayer.AlphaEvents = new();
-                            eventLayer.AlphaEvents.Add(new Event<int>
-                            {
-                                StartBeat = new Beat(0),
-                                EndBeat = new Beat(1),
-                                StartValue = 0,
-                                EndValue = 0
-                            });
-                        }
-                    }
-
-                    eventLayer.Sort();
-                }
-
-                judgeLine.Extended.Anticipation();
-                // 如果判定线上有任何类型的Control组为空或null，则设定一个默认值
-                if (judgeLine.AlphaControls == null || judgeLine.AlphaControls.Count == 0)
-                    judgeLine.AlphaControls = AlphaControl.Default;
-                if (judgeLine.PositionControls == null || judgeLine.PositionControls.Count == 0)
-                    judgeLine.PositionControls = XControl.Default;
-                if (judgeLine.SizeControls == null || judgeLine.SizeControls.Count == 0)
-                    judgeLine.SizeControls = SizeControl.Default;
-                if (judgeLine.SkewControls == null || judgeLine.SkewControls.Count == 0)
-                    judgeLine.SkewControls = SkewControl.Default;
-                if (judgeLine.YControls == null || judgeLine.YControls.Count == 0)
-                    judgeLine.YControls = YControl.Default;
-            }
-        }
-
         /// <summary>
         /// 序列化谱面
         /// </summary>
@@ -68,7 +17,6 @@ namespace KaedePhi.Core.RePhiEdit
         [PublicAPI]
         public string ExportToJson(bool format)
         {
-            Anticipation();
             return JsonConvert.SerializeObject(this, format ? Formatting.Indented : Formatting.None);
         }
 
@@ -79,7 +27,6 @@ namespace KaedePhi.Core.RePhiEdit
         /// <param name="format">是否需要格式化</param>
         public void ExportToJsonStream(Stream stream, bool format)
         {
-            Anticipation();
             using var streamWriter = new StreamWriter(stream, new UTF8Encoding(false), 1024, leaveOpen: true);
             var serializer = new JsonSerializer
             {
@@ -99,7 +46,6 @@ namespace KaedePhi.Core.RePhiEdit
         /// <param name="format">是否需要格式化</param>
         public async Task ExportToJsonStreamAsync(Stream stream, bool format)
         {
-            Anticipation();
             await using var streamWriter =
                 new StreamWriter(stream, new UTF8Encoding(false), 1024, leaveOpen: true);
             var serializer = new JsonSerializer
@@ -132,19 +78,12 @@ namespace KaedePhi.Core.RePhiEdit
         /// <param name="json">谱面Json数据</param>
         /// <returns>谱面对象</returns>
         /// <exception cref="InvalidOperationException">谱面json数据无法正确序列化</exception>
+        [PublicAPI]
         public static Chart LoadFromJson(string json)
         {
             var chart = JsonConvert.DeserializeObject<Chart>(json) ??
                         throw new InvalidOperationException(
                             "Failed to deserialize Chart from JSON.");
-            foreach (var judgeLine in chart.JudgeLineList)
-            {
-                // 如果这个判定线层级上有null层级，移除它们
-                judgeLine.EventLayers.RemoveAll(layer => layer == null);
-                foreach (var eventLayer in judgeLine.EventLayers)
-                    eventLayer.Sort();
-            }
-
             return chart;
         }
 
@@ -175,15 +114,6 @@ namespace KaedePhi.Core.RePhiEdit
             var chart = serializer.Deserialize<Chart>(jsonReader) ??
                         throw new InvalidOperationException(
                             "Failed to deserialize Chart from stream.");
-
-            foreach (var judgeLine in chart.JudgeLineList)
-            {
-                // 如果这个判定线层级上有null层级，移除它们
-                judgeLine.EventLayers.RemoveAll(layer => layer == null);
-                foreach (var eventLayer in judgeLine.EventLayers)
-                    eventLayer.Sort();
-            }
-
             return chart;
         }
 
@@ -209,35 +139,12 @@ namespace KaedePhi.Core.RePhiEdit
                             throw new InvalidOperationException(
                                 "Failed to deserialize Chart from stream.");
 
-                foreach (var judgeLine in chart.JudgeLineList)
-                {
-                    // 如果这个判定线层级上有null层级，移除它们
-                    judgeLine.EventLayers.RemoveAll(layer => layer == null);
-                    foreach (var eventLayer in judgeLine.EventLayers)
-                        eventLayer.Sort();
-                }
-
                 return Task.FromResult(chart);
             }
             catch (Exception exception)
             {
                 return Task.FromException<Chart>(exception);
             }
-        }
-        
-        public Chart Clone()
-        {
-            return new Chart
-            {
-                BpmList = BpmList.ConvertAll(bpm => bpm.Clone()),
-                Meta = Meta.Clone(),
-                JudgeLineList = JudgeLineList.ConvertAll(judgeLine => judgeLine.Clone()),
-                ChartTime = ChartTime,
-                JudgeLineGroup = JudgeLineGroup.ToArray(),
-                MultiLineString = MultiLineString,
-                MultiScale = MultiScale,
-                XyBind = XyBind
-            };
         }
     }
 }

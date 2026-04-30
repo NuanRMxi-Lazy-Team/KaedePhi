@@ -3,6 +3,7 @@ using KaedePhi.Tool.Converter;
 using KaedePhi.Tool.Converter.KaedePhi;
 using KaedePhi.Tool.Converter.PhiEdit;
 using KaedePhi.Tool.Converter.PhiEdit.Model;
+using KaedePhi.Tool.Converter.Phigros.v3;
 using KaedePhi.Tool.Converter.RePhiEdit;
 using KaedePhi.Tool.Converter.RePhiEdit.Model;
 using Chart = KaedePhi.Core.KaedePhi.Chart;
@@ -62,6 +63,16 @@ public sealed class ChartService
                     .From(phiEditChart, phiEditConverter, null)
                     .To(kaedePhiConverter, null);
                 //return new PhiEditConverter().ToKpc(await global::KaedePhi.Core.PhiEdit.Chart.LoadAsync(text));
+            }
+
+            case ChartType.PhigrosV3:
+            {
+                var phigrosV3Converter = new PhigrosV3Converter();
+                var kaedePhiConverter = new KaedePhiConverter();
+                var phigrosV3Chart = await Core.Phigros.v3.Chart.LoadFromJsonAsync(text);
+                return ChartPipeline
+                    .From(phigrosV3Chart, phigrosV3Converter, null)
+                    .To(kaedePhiConverter, null);
             }
 
         

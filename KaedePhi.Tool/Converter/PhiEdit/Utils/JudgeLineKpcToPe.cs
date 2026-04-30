@@ -125,19 +125,74 @@ public class JudgeLineKpcToPe
            && Math.Abs(anchor[1] - 0.5f) <= FloatEpsilon;
 
     private static bool IsDefaultXControls(List<XControl>? controls)
-        => XControl.Default.Equals(controls);
+    {
+        var def = XControl.Default;
+        if (controls == null || controls.Count != def.Count) return false;
+        for (var i = 0; i < def.Count; i++)
+        {
+            var d = def[i]; var c = controls[i];
+            if ((int)d.Easing != (int)c.Easing) return false;
+            if (Math.Abs(d.X - c.X) > FloatEpsilon) return false;
+            if (Math.Abs(d.Pos - c.Pos) > FloatEpsilon) return false;
+        }
+        return true;
+    }
 
     private static bool IsDefaultAlphaControls(List<AlphaControl>? controls)
-        => AlphaControl.Default.Equals(controls);
+    {
+        var def = AlphaControl.Default;
+        if (controls == null || controls.Count != def.Count) return false;
+        for (var i = 0; i < def.Count; i++)
+        {
+            var d = def[i]; var c = controls[i];
+            if ((int)d.Easing != (int)c.Easing) return false;
+            if (Math.Abs(d.X - c.X) > FloatEpsilon) return false;
+            if (Math.Abs(d.Alpha - c.Alpha) > FloatEpsilon) return false;
+        }
+        return true;
+    }
 
     private static bool IsDefaultSizeControls(List<SizeControl>? controls)
-        => SizeControl.Default.Equals(controls);
+    {
+        var def = SizeControl.Default;
+        if (controls == null || controls.Count != def.Count) return false;
+        for (var i = 0; i < def.Count; i++)
+        {
+            var d = def[i]; var c = controls[i];
+            if ((int)d.Easing != (int)c.Easing) return false;
+            if (Math.Abs(d.X - c.X) > FloatEpsilon) return false;
+            if (Math.Abs(d.Size - c.Size) > FloatEpsilon) return false;
+        }
+        return true;
+    }
 
     private static bool IsDefaultSkewControls(List<SkewControl>? controls)
-        => SkewControl.Default.Equals(controls);
+    {
+        var def = SkewControl.Default;
+        if (controls == null || controls.Count != def.Count) return false;
+        for (var i = 0; i < def.Count; i++)
+        {
+            var d = def[i]; var c = controls[i];
+            if ((int)d.Easing != (int)c.Easing) return false;
+            if (Math.Abs(d.X - c.X) > FloatEpsilon) return false;
+            if (Math.Abs(d.Skew - c.Skew) > FloatEpsilon) return false;
+        }
+        return true;
+    }
 
     private static bool IsDefaultYControls(List<YControl>? controls)
-        => YControl.Default.Equals(controls);
+    {
+        var def = YControl.Default;
+        if (controls == null || controls.Count != def.Count) return false;
+        for (var i = 0; i < def.Count; i++)
+        {
+            var d = def[i]; var c = controls[i];
+            if ((int)d.Easing != (int)c.Easing) return false;
+            if (Math.Abs(d.X - c.X) > FloatEpsilon) return false;
+            if (Math.Abs(d.Y - c.Y) > FloatEpsilon) return false;
+        }
+        return true;
+    }
 
     private static void Warn(string message) => KpcToolLog.OnWarning($"[ToPe] {message}");
 }

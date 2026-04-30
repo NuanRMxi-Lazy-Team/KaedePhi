@@ -11,9 +11,9 @@ public static class Transform
         Pe.Chart.CoordinateSystem.MaxY,
         Pe.Chart.CoordinateSystem.ClockwiseRotation);
 
-    public static double TransformToKpcX(float x) => CoordinateGeometry.ToNrcX(x, PeCoordinateProfile);
-    public static double TransformToKpcY(float y) => CoordinateGeometry.ToNrcY(y, PeCoordinateProfile);
-    public static double TransformToKpcAngle(float angle) => CoordinateGeometry.ToNrcAngle(angle, PeCoordinateProfile);
+    public static double TransformToKpcX(float x) => CoordinateGeometry.ToKpcX(x, PeCoordinateProfile);
+    public static double TransformToKpcY(float y) => CoordinateGeometry.ToKpcY(y, PeCoordinateProfile);
+    public static double TransformToKpcAngle(float angle) => CoordinateGeometry.ToKpcAngle(angle, PeCoordinateProfile);
 
     public static float TransformToPeX(double x) => CoordinateGeometry.ToTargetXf(x, PeCoordinateProfile);
     public static float TransformToPeY(double y) => CoordinateGeometry.ToTargetYf(y, PeCoordinateProfile);

@@ -1,7 +1,7 @@
 ﻿using System;
 using Newtonsoft.Json;
 
-namespace KaedePhi.Core.Phigros.v3
+namespace KaedePhi.Core.Phigros.v3.JsonConverter
 {
     /// <summary>
     /// 用于转换音符类型枚举的转换器
