@@ -15,7 +15,8 @@ public class PhigrosV3Converter : IChartConverter<PhigrosChart, Unit?, Unit?>
             BpmList = BpmItem.ConvertBpmList(input.JudgeLineList),
             Meta = Meta.ConvertMeta(input),
             JudgeLineList = input.JudgeLineList?
-                .Select(JudgeLine.ConvertJudgeLine)
+                .Select((j, i) =>
+                    JudgeLine.ConvertJudgeLine(j, i, input.JudgeLineList.Count > 0 ? input.JudgeLineList[0].Bpm : 120))
                 .ToList() ?? []
         };
     }

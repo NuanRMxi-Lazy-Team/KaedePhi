@@ -4,7 +4,7 @@ namespace KaedePhi.Tool.Converter.Phigros.v3.Utils;
 
 public static class JudgeLine
 {
-    public static Kpc.JudgeLine ConvertJudgeLine(PhigrosJudgeLine src, int index)
+    public static Kpc.JudgeLine ConvertJudgeLine(PhigrosJudgeLine src, int index,float defaultBpm)
     {
         var horizonBeat = Event.GetJudgeLineHorizonBeat(src);
 
@@ -12,7 +12,8 @@ public static class JudgeLine
         {
             Name = $"PhigrosLine_{index}",
             Notes = Note.ConvertNotes(src.NotesAbove, src.NotesBelow),
-            EventLayers = [EventLayer.ConvertEventLayer(src, horizonBeat)]
+            EventLayers = [EventLayer.ConvertEventLayer(src, horizonBeat)],
+            BpmFactor = defaultBpm / src.Bpm
         };
     }
 }
