@@ -1,6 +1,6 @@
 ﻿namespace KaedePhi.Tool.Converter.PhiEdit.Model;
 
-public class PhiEditConvertOptions
+public class KpcToPhiEditConvertOptions
 {
     public const double DefaultPrecision = 64d;
     public const double DefaultTolerancePercent = 0.1d;

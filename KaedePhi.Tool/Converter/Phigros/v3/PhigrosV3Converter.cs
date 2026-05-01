@@ -4,7 +4,7 @@ using PhigrosChart = KaedePhi.Core.Phigros.v3.Chart;
 
 namespace KaedePhi.Tool.Converter.Phigros.v3;
 
-public class PhigrosV3Converter : IChartConverter<PhigrosChart, Unit?, Unit?>
+public class PhigrosV3Converter : LoggableBase, IChartConverter<PhigrosChart, Unit?, Unit?>
 {
     public Kpc.Chart ToKpc(PhigrosChart input, Unit? options)
     {

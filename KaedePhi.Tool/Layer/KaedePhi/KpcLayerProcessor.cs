@@ -1,4 +1,5 @@
 ﻿using KaedePhi.Core.Common;
+using KaedePhi.Tool.Common;
 using KaedePhi.Tool.Event.KaedePhi;
 using EventLayer = KaedePhi.Core.KaedePhi.EventLayer;
 
@@ -7,7 +8,7 @@ namespace KaedePhi.Tool.Layer.KaedePhi;
 /// <summary>
 /// NRC（KaedePhi）谱面事件层处理器。
 /// </summary>
-public class KpcLayerProcessor : ILayerProcessor<EventLayer>
+public class KpcLayerProcessor : LoggableBase, ILayerProcessor<EventLayer>
 {
     private readonly EventMerger<double> _doubleMerger = new();
     private readonly EventMerger<int> _intMerger = new();

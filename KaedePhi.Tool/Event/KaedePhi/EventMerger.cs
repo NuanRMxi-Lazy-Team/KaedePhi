@@ -1,9 +1,10 @@
 ﻿using KaedePhi.Core.Common;
+using KaedePhi.Tool.Common;
 using KaedePhi.Tool.KaedePhi.Events.Internal;
 
 namespace KaedePhi.Tool.Event.KaedePhi;
 
-public class EventMerger<TPayload> : IEventMerger<Kpc.Event<TPayload>>
+public class EventMerger<TPayload> : LoggableBase, IEventMerger<Kpc.Event<TPayload>>
 {
     #region 入口
 

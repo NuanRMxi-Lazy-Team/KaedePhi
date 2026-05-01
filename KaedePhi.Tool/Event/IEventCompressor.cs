@@ -1,6 +1,8 @@
-﻿namespace KaedePhi.Tool.Event;
+﻿using KaedePhi.Tool.Common;
 
-public interface IEventCompressor<TEvent>
+namespace KaedePhi.Tool.Event;
+
+public interface IEventCompressor<TEvent> : ILoggable
 {
     /// <summary>
     /// 使用归一化垂直距离算法对事件列表进行压缩

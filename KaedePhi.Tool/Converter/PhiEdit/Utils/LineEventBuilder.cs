@@ -16,9 +16,9 @@ namespace KaedePhi.Tool.Converter.PhiEdit.Utils;
 public class LineEventBuilder
 {
     private const float FloatEpsilon = 1e-6f;
-    private readonly PhiEditConvertOptions _options;
+    private readonly KpcToPhiEditConvertOptions _options;
 
-    public LineEventBuilder(PhiEditConvertOptions options)
+    public LineEventBuilder(KpcToPhiEditConvertOptions options)
     {
         _options = options;
     }

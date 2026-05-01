@@ -1,6 +1,5 @@
 ﻿using KaedePhi.Tool.Common;
-using KaedePhi.Tool.KaedePhi;
-using KaedePhi.Tool.KaedePhi.JudgeLines.Internal;
+using KaedePhi.Tool.JudgeLines.KaedePhi.Utils;
 using JudgeLine = KaedePhi.Core.KaedePhi.JudgeLine;
 
 namespace KaedePhi.Tool.JudgeLines.KaedePhi;
@@ -8,8 +7,9 @@ namespace KaedePhi.Tool.JudgeLines.KaedePhi;
 /// <summary>
 /// NRC（KaedePhi）谱面判定线父子解绑器。
 /// </summary>
-public class KpcJudgeLineUnbinder : IJudgeLineUnbinder<JudgeLine>
+public class KpcJudgeLineUnbinder : LoggableBase, IJudgeLineUnbinder<JudgeLine>
 {
+
     /// <inheritdoc/>
     public (double X, double Y) GetLinePos(
         double fatherLineX, double fatherLineY, double angleDegrees,
@@ -31,7 +31,8 @@ public class KpcJudgeLineUnbinder : IJudgeLineUnbinder<JudgeLine>
         double precision)
         => FatherUnbindProcessor.FatherUnbind(
             targetJudgeLineIndex, allJudgeLines, precision,
-            FatherUnbindHelpers.ChartCacheTable.GetOrCreateValue(allJudgeLines));
+            FatherUnbindHelpers.ChartCacheTable.GetOrCreateValue(allJudgeLines),
+            LogInfo, LogWarning, LogError, LogDebug);
 
     /// <inheritdoc/>
     public JudgeLine FatherUnbind(
@@ -48,7 +49,8 @@ public class KpcJudgeLineUnbinder : IJudgeLineUnbinder<JudgeLine>
         double precision, double tolerance)
         => FatherUnbindProcessor.FatherUnbindPlus(
             targetJudgeLineIndex, allJudgeLines, precision, tolerance,
-            FatherUnbindHelpers.ChartCacheTable.GetOrCreateValue(allJudgeLines));
+            FatherUnbindHelpers.ChartCacheTable.GetOrCreateValue(allJudgeLines),
+            LogInfo, LogWarning, LogError, LogDebug);
 
     /// <inheritdoc/>
     public JudgeLine FatherUnbindPlus(

@@ -127,7 +127,7 @@ public sealed class ChartService
             }
             case ChartType.PhiEdit:
             {
-                var peChart = new PhiEditConverter().FromKpc(chart, new PhiEditConvertOptions());
+                var peChart = new PhiEditConverter().FromKpc(chart, new KpcToPhiEditConvertOptions());
                 if (dryRun) return outputPath;
                 if (stream)
                 {

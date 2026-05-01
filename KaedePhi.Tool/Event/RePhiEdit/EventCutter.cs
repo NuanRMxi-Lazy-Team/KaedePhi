@@ -1,11 +1,12 @@
 ﻿using KaedePhi.Core.Common;
+using KaedePhi.Tool.Common;
 
 namespace KaedePhi.Tool.Event.RePhiEdit;
 
 /// <summary>
 /// NRC 事件切割器：将事件列表按指定拍长切割为等长段。
 /// </summary>
-public class EventCutter<TPayload> : IEventCutter<Rpe.Event<TPayload>, Beat>
+public class EventCutter<TPayload> : LoggableBase, IEventCutter<Rpe.Event<TPayload>, Beat>
 {
     /// <inheritdoc/>
     public List<Rpe.Event<TPayload>> CutEventsInRange(

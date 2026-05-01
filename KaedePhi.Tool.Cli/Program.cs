@@ -6,14 +6,14 @@ using KaedePhi.Tool.Cli.Infrastructure;
 
 var writer = new ConsoleWriter();
 #if !Release
-writer.Warn(string.Format(Strings.cli_warn_unstable_version, Strings.cli_app_title));
+writer.Warn(Strings.cli_warn_unstable_version);
 #endif
 
 var app = new CommandApp();
 app.SetDefaultCommand<VersionCommand>();
 app.Configure(config =>
 {
-    config.SetApplicationName(Strings.cli_app_title);
+    config.SetApplicationName(CliLocalizationString.app_title);
     config.SetApplicationVersion(
         Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "unknown");
 

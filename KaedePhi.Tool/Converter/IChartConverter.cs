@@ -1,6 +1,8 @@
-﻿namespace KaedePhi.Tool.Converter;
+﻿using KaedePhi.Tool.Common;
 
-public interface IChartConverter<T, TInOptions, TOutOptions>
+namespace KaedePhi.Tool.Converter;
+
+public interface IChartConverter<T, in TInOptions, in TOutOptions> : ILoggable
 {
     Kpc.Chart ToKpc(T input, TInOptions options);
     T FromKpc(Kpc.Chart input, TOutOptions options);

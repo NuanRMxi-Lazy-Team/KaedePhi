@@ -2,8 +2,8 @@
 using System.Runtime.CompilerServices;
 using KaedePhi.Core.Common;
 using KaedePhi.Tool.Common;
-using KaedePhi.Tool.KaedePhi.Events.Internal;
-using KaedePhi.Tool.KaedePhi.Layers.Internal;
+using KaedePhi.Tool.KaedePhi;
+using NewHelpers = KaedePhi.Tool.JudgeLines.KaedePhi.Utils.FatherUnbindHelpers;
 using EventLayer = KaedePhi.Core.KaedePhi.EventLayer;
 using JudgeLine = KaedePhi.Core.KaedePhi.JudgeLine;
 
@@ -12,35 +12,21 @@ namespace KaedePhi.Tool.KaedePhi.JudgeLines.Internal;
 /// <summary>
 /// Kpc 父子解绑共用辅助方法：缓存表、坐标计算、通道合并、范围统计、采样算法、结果写回。
 /// </summary>
+[Obsolete("请使用 KaedePhi.Tool.JudgeLines.KaedePhi.Internal.FatherUnbindHelpers")]
 internal static class FatherUnbindHelpers
 {
-    private static readonly AsyncLocal<CoordinateProfile?> RenderProfileContext = new();
-
     internal static CoordinateProfile CurrentRenderProfile
-        => RenderProfileContext.Value ?? CoordinateProfile.DefaultRenderProfile;
+        => NewHelpers.CurrentRenderProfile;
 
     internal static IDisposable UseRenderProfile(CoordinateProfile renderProfile)
-        => new RenderProfileScope(renderProfile);
-
-    private sealed class RenderProfileScope : IDisposable
-    {
-        private readonly CoordinateProfile? _previous;
-
-        public RenderProfileScope(CoordinateProfile nextProfile)
-        {
-            _previous = RenderProfileContext.Value;
-            RenderProfileContext.Value = nextProfile;
-        }
-
-        public void Dispose() => RenderProfileContext.Value = _previous;
-    }
+        => NewHelpers.UseRenderProfile(renderProfile);
 
     /// <summary>
     /// 以 allJudgeLines 实例为 key 自动隔离缓存：
     /// 同一谱面的所有解绑调用共享同一份缓存，allJudgeLines 被 GC 后自动释放。
     /// </summary>
     internal static readonly ConditionalWeakTable<List<JudgeLine>, ConcurrentDictionary<int, JudgeLine>>
-        ChartCacheTable = new();
+        ChartCacheTable = NewHelpers.ChartCacheTable;
 
     /// <summary>
     /// 根据父线绝对坐标和旋转角度，计算子线的绝对坐标。
@@ -48,8 +34,7 @@ internal static class FatherUnbindHelpers
     internal static (double X, double Y) GetLinePos(
         double fatherLineX, double fatherLineY, double angleDegrees,
         double lineX, double lineY)
-        => CoordinateGeometry.GetKpcAbsolutePos(
-            fatherLineX, fatherLineY, angleDegrees, lineX, lineY, CurrentRenderProfile);
+        => NewHelpers.GetLinePos(fatherLineX, fatherLineY, angleDegrees, lineX, lineY);
 
     /// <summary>
     /// Kpc 虽然以归一化坐标存储，但几何误差必须在当前渲染坐标系评估，
@@ -63,68 +48,19 @@ internal static class FatherUnbindHelpers
         Beat intervalEndBeat,
         Beat nextBeat,
         double tolerance)
-    {
-        var segmentLength = (double)(intervalEndBeat - segmentStartBeat);
-        var progress = segmentLength > 1e-12
-            ? (double)(nextBeat - segmentStartBeat) / segmentLength
-            : 1.0;
-        var predicted = (
-            X: segmentStart.X + (intervalEnd.X - segmentStart.X) * progress,
-            Y: segmentStart.Y + (intervalEnd.Y - segmentStart.Y) * progress);
-        var error = CoordinateGeometry.GetKpcScreenDistance(next, predicted, CurrentRenderProfile);
-
-        var localScale = Math.Max(
-            CoordinateGeometry.GetKpcScreenDistance(segmentStart, intervalEnd, CurrentRenderProfile),
-            CoordinateGeometry.GetKpcScreenDistance(segmentStart, next, CurrentRenderProfile));
-        var threshold = tolerance / 100.0 * Math.Max(localScale, 1e-3);
-        return error > threshold;
-    }
+        => NewHelpers.NeedsAdaptiveCut(segmentStart, next, intervalEnd, segmentStartBeat, intervalEndBeat, nextBeat, tolerance);
 
     /// <summary>
     /// 传入语义：取 beat 时刻正在生效的事件插值（用于段起点）。O(log n) 二分查找。
     /// </summary>
     internal static double GetValIn(List<Kpc.Event<double>> events, Beat beat)
-    {
-        if (events.Count == 0) return 0f;
-        int lo = 0, hi = events.Count - 1, idx = -1;
-        while (lo <= hi)
-        {
-            var mid = (lo + hi) >> 1;
-            if (events[mid].StartBeat <= beat)
-            {
-                idx = mid;
-                lo = mid + 1;
-            }
-            else hi = mid - 1;
-        }
-
-        if (idx < 0) return 0f;
-        var e = events[idx];
-        return e.EndBeat > beat ? e.GetValueAtBeat(beat) : e.EndValue;
-    }
+        => NewHelpers.GetValIn(events, beat);
 
     /// <summary>
     /// 传出语义：取 beat 时刻即将结束的事件插值（用于段终点）。O(log n) 二分查找。
     /// </summary>
     internal static double GetValOut(List<Kpc.Event<double>> events, Beat beat)
-    {
-        if (events.Count == 0) return 0f;
-        int lo = 0, hi = events.Count - 1, idx = -1;
-        while (lo <= hi)
-        {
-            var mid = (lo + hi) >> 1;
-            if (events[mid].StartBeat < beat)
-            {
-                idx = mid;
-                lo = mid + 1;
-            }
-            else hi = mid - 1;
-        }
-
-        if (idx < 0) return 0f;
-        var e = events[idx];
-        return e.EndBeat >= beat ? e.GetValueAtBeat(beat) : e.EndValue;
-    }
+        => NewHelpers.GetValOut(events, beat);
 
     /// <summary>
     /// 按层顺序将某一类型的事件列表串行叠加合并。层间叠加不满足交换律，必须顺序处理。
@@ -133,13 +69,7 @@ internal static class FatherUnbindHelpers
         List<EventLayer> layers,
         Func<EventLayer, List<Kpc.Event<double>>?> selector,
         Func<List<Kpc.Event<double>>, List<Kpc.Event<double>>, List<Kpc.Event<double>>> merge)
-    {
-        var result = new List<Kpc.Event<double>>();
-        return layers.Select(selector)
-            .Where(ch => ch is { Count: > 0 })
-            .Select(ch => ch!)
-            .Aggregate(result, (current, ch) => merge(current, ch));
-    }
+        => NewHelpers.MergeLayerChannel(layers, selector, merge);
 
     /// <summary>
     /// 命中缓存时返回克隆结果，避免调用方直接持有缓存实例。
@@ -149,17 +79,7 @@ internal static class FatherUnbindHelpers
         ConcurrentDictionary<int, JudgeLine> cache,
         string logTag,
         out JudgeLine cachedClone)
-    {
-        if (cache.TryGetValue(targetJudgeLineIndex, out var cached))
-        {
-            KpcToolLog.OnDebug($"{logTag}[{targetJudgeLineIndex}]: 命中缓存，直接返回已解绑结果");
-            cachedClone = cached.Clone();
-            return true;
-        }
-
-        cachedClone = null;
-        return false;
-    }
+        => NewHelpers.TryGetCachedClone(targetJudgeLineIndex, cache, logTag, out cachedClone, KpcToolLog.OnDebug);
 
     /// <summary>
     /// 判定线无父线时直接缓存并返回，统一同步/异步处理器的短路分支。
@@ -169,37 +89,21 @@ internal static class FatherUnbindHelpers
         JudgeLine judgeLineCopy,
         ConcurrentDictionary<int, JudgeLine> cache,
         string logTag)
-    {
-        if (judgeLineCopy.Father > -1) return false;
-        KpcToolLog.OnWarning($"{logTag}[{targetJudgeLineIndex}]: 判定线无父线，跳过。");
-        cache.TryAdd(targetJudgeLineIndex, judgeLineCopy);
-        return true;
-    }
+        => NewHelpers.TryReturnWhenNoFather(targetJudgeLineIndex, judgeLineCopy, cache, logTag, KpcToolLog.OnWarning);
 
     /// <summary>
     /// 清理判定线与父线的全零事件层，减少后续通道合并计算量。
     /// </summary>
     internal static void CleanupRedundantLayers(JudgeLine judgeLineCopy, JudgeLine fatherLineCopy)
-    {
-        judgeLineCopy.EventLayers =
-            LayerProcessor.RemoveUnlessLayer(judgeLineCopy.EventLayers) ?? judgeLineCopy.EventLayers;
-        fatherLineCopy.EventLayers =
-            LayerProcessor.RemoveUnlessLayer(fatherLineCopy.EventLayers) ?? fatherLineCopy.EventLayers;
-    }
+        => NewHelpers.CleanupRedundantLayers(judgeLineCopy, fatherLineCopy);
 
     /// <summary>获取事件列表的拍范围（最小 StartBeat，最大 EndBeat）。列表为空时返回 (0, 0)。</summary>
     internal static (Beat Min, Beat Max) GetEventRange(List<Kpc.Event<double>> events)
-        => events.Count == 0
-            ? (new Beat(0), new Beat(0))
-            : (events.Min(e => e.StartBeat) ?? new Beat(0), events.Max(e => e.EndBeat) ?? new Beat(0));
+        => NewHelpers.GetEventRange(events);
 
     /// <summary>
     /// 将计算结果写回判定线：清除第 1 层及以上的 X/Y 事件，将压缩后的结果写入第 0 层。
     /// RotateWithFather 为 true 时叠加父线旋转事件；最后置 Father = -1 完成解绑。
-    /// <para>
-    /// 位置通道 X/Y 使用 <see cref="CompressXYPosition"/> 联合压缩，以屏幕空间欧几里得距离
-    /// 同时感知两轴偏差；旋转通道为单轴，仍使用 <see cref="EventCompressor.EventListCompressSqrt{T}"/>。
-    /// </para>
     /// </summary>
     internal static void WriteResultToLine(
         JudgeLine line,
@@ -207,359 +111,55 @@ internal static class FatherUnbindHelpers
         List<Kpc.Event<double>> newYEvents,
         List<Kpc.Event<double>> fatherRotateEvents,
         Func<List<Kpc.Event<double>>, List<Kpc.Event<double>>, List<Kpc.Event<double>>> merge)
-    {
-        for (var i = 1; i < line.EventLayers.Count; i++)
-        {
-            line.EventLayers[i].MoveXEvents.Clear();
-            line.EventLayers[i].MoveYEvents.Clear();
-        }
-
-        if (line.EventLayers.Count == 0)
-            line.EventLayers.Add(new EventLayer());
-
-        // 使用单轴独立压缩。CompressXYPosition 已实现联合 2D 屏幕距离压缩，
-        // 但属于独立优化，保留为可选项，待单独测试后启用。
-        line.EventLayers[0].MoveXEvents = newXEvents;
-        line.EventLayers[0].MoveYEvents = newYEvents;
-
-        if (line.RotateWithFather)
-        {
-            var merged = merge(line.EventLayers[0].RotateEvents, fatherRotateEvents);
-            line.EventLayers[0].RotateEvents = merged;
-        }
-
-        line.Father = -1;
-    }
-
-    /// <summary>
-    /// 对 X/Y 位置通道进行联合压缩。
-    /// <para>
-    /// 使用屏幕空间欧几里得距离衡量合并误差，同时感知两轴偏差，
-    /// 避免独立单轴压缩时因 X/Y 比例不等而产生的误差失真。
-    /// 误差阈值 = <paramref name="tolerance"/>% × 合并段的局部屏幕位移尺度。
-    /// 使用局部尺度可避免远离原点时阈值被放大，从而产生位置相关的外偏/内偏。
-    /// </para>
-    /// <para>
-    /// 若 X/Y 长度不一致（对齐失败），退回到各自调用 <see cref="EventCompressor.EventListCompressSqrt{T}"/>。
-    /// </para>
-    /// </summary>
-    /// <param name="xEvents">X 通道事件列表（与 yEvents 按拍对齐）。</param>
-    /// <param name="yEvents">Y 通道事件列表（与 xEvents 按拍对齐）。</param>
-    /// <param name="tolerance">误差容差百分比。</param>
-    /// <returns>压缩后的 (X, Y) 事件列表对。</returns>
-    private static (List<Kpc.Event<double>> X, List<Kpc.Event<double>> Y) CompressXYPosition(
-        List<Kpc.Event<double>> xEvents,
-        List<Kpc.Event<double>> yEvents,
-        double tolerance)
-    {
-        // 若 X/Y 未对齐，退回独立 1D 压缩
-        if (xEvents.Count != yEvents.Count || xEvents.Count == 0)
-            return (EventCompressor.EventListCompressSqrt(xEvents, tolerance),
-                EventCompressor.EventListCompressSqrt(yEvents, tolerance));
-
-        var compX = new List<Kpc.Event<double>> { xEvents[0] };
-        var compY = new List<Kpc.Event<double>> { yEvents[0] };
-        var relTol = tolerance / 100.0;
-
-        for (var i = 1; i < xEvents.Count; i++)
-        {
-            var lastX = compX[^1];
-            var lastY = compY[^1];
-            var curX = xEvents[i];
-            var curY = yEvents[i];
-
-            // 仅合并相邻线性段，且 X/Y 拍边界需一致
-            if (lastX.Easing != 1 || lastY.Easing != 1 ||
-                curX.Easing != 1 || curY.Easing != 1 ||
-                lastX.EndBeat != curX.StartBeat ||
-                lastY.EndBeat != curY.StartBeat)
-            {
-                compX.Add(curX);
-                compY.Add(curY);
-                continue;
-            }
-
-            // 使用局部位移尺度，避免离原点越远阈值越大而导致过度压缩。
-            var screenScale = Math.Max(
-                CoordinateGeometry.GetKpcScreenDistance(
-                    (lastX.StartValue, lastY.StartValue),
-                    (curX.EndValue, curY.EndValue),
-                    CurrentRenderProfile),
-                CoordinateGeometry.GetKpcScreenDistance(
-                    (lastX.StartValue, lastY.StartValue),
-                    (lastX.EndValue, lastY.EndValue),
-                    CurrentRenderProfile));
-            var threshold = relTol * Math.Max(screenScale, 1e-9);
-
-            // 检查交界处连续性（屏幕空间间距）
-            var junctionGap = CoordinateGeometry.GetKpcScreenDistance(
-                (lastX.EndValue, lastY.EndValue),
-                (curX.StartValue, curY.StartValue),
-                CurrentRenderProfile);
-
-            if (junctionGap > threshold)
-            {
-                compX.Add(curX);
-                compY.Add(curY);
-                continue;
-            }
-
-            var tA = (double)lastX.StartBeat;
-            var tB = (double)lastX.EndBeat;
-            var tC = (double)curX.EndBeat;
-            var tSpan = tC - tA;
-
-            bool canMerge;
-            if (tSpan < 1e-12)
-            {
-                // 零长度合并段，连续性已通过，直接合并
-                canMerge = true;
-            }
-            else
-            {
-                var p = (tB - tA) / tSpan;
-
-                // 合并段在交界拍的线性插值预测位置
-                var predX = lastX.StartValue + (curX.EndValue - lastX.StartValue) * p;
-                var predY = lastY.StartValue + (curY.EndValue - lastY.StartValue) * p;
-
-                // 屏幕空间欧几里得距离：交界实际位置 vs 合并段预测位置
-                var junctionDev = CoordinateGeometry.GetKpcScreenDistance(
-                    (lastX.EndValue, lastY.EndValue),
-                    (predX, predY),
-                    CurrentRenderProfile);
-
-                canMerge = junctionDev <= threshold;
-            }
-
-            if (canMerge)
-            {
-                lastX.EndBeat = curX.EndBeat;
-                lastX.EndValue = curX.EndValue;
-                lastY.EndBeat = curY.EndBeat;
-                lastY.EndValue = curY.EndValue;
-            }
-            else
-            {
-                compX.Add(curX);
-                compY.Add(curY);
-            }
-        }
-
-        return (compX, compY);
-    }
-
-    #region MyRegion
-
-    /// <summary>
-    /// 封装解绑计算所需的五个事件通道：父线 X/Y/旋转 和子线 X/Y。
-    /// 使用 readonly record struct 保证值语义，可安全在多线程闭包中捕获。
-    /// </summary>
-    internal readonly record struct EventChannels(
-        List<Kpc.Event<double>> Fx,
-        List<Kpc.Event<double>> Fy,
-        List<Kpc.Event<double>> Fr,
-        List<Kpc.Event<double>> Tx,
-        List<Kpc.Event<double>> Ty);
+        => NewHelpers.WriteResultToLine(line, newXEvents, newYEvents, fatherRotateEvents, merge);
 
     /// <summary>
     /// 合并父子线五个通道事件，统一 EventChannels 拼装顺序。
     /// </summary>
-    internal static EventChannels MergeChannels(
+    internal static NewHelpers.EventChannels MergeChannels(
         List<EventLayer> targetLayers,
         List<EventLayer> fatherLayers,
         Func<List<Kpc.Event<double>>, List<Kpc.Event<double>>, List<Kpc.Event<double>>> merge)
-        => new(
-            Fx: MergeLayerChannel(fatherLayers, l => l.MoveXEvents, merge),
-            Fy: MergeLayerChannel(fatherLayers, l => l.MoveYEvents, merge),
-            Fr: MergeLayerChannel(fatherLayers, l => l.RotateEvents, merge),
-            Tx: MergeLayerChannel(targetLayers, l => l.MoveXEvents, merge),
-            Ty: MergeLayerChannel(targetLayers, l => l.MoveYEvents, merge));
-
-    #endregion 共享数据结构
-
-    #region 等间隔采样算法
+        => NewHelpers.MergeChannels(targetLayers, fatherLayers, merge);
 
     /// <summary>
     /// 生成从 <paramref name="min"/> 到 <paramref name="max"/>（不含）以 <paramref name="step"/> 为步长的拍列表。
     /// </summary>
     internal static List<Beat> BuildBeatList(Beat min, Beat max, Beat step)
-    {
-        var beats = new List<Beat>();
-        for (var b = min; b < max; b += step) beats.Add(b);
-        return beats;
-    }
+        => NewHelpers.BuildBeatList(min, max, step);
 
     /// <summary>
     /// 并行等间隔采样：对 <paramref name="beats"/> 中每一段计算绝对坐标，返回按顺序排列的 X/Y 事件列表。
     /// </summary>
     internal static (List<Kpc.Event<double>> x, List<Kpc.Event<double>> y) EqualSpacingSampling(
-        List<Beat> beats, Beat max, Beat step, EventChannels ch)
-    {
-        var xBag = new ConcurrentBag<(int i, Kpc.Event<double> evt)>();
-        var yBag = new ConcurrentBag<(int i, Kpc.Event<double> evt)>();
-
-        Parallel.For(0, beats.Count, i =>
-        {
-            var beat = beats[i];
-            var next = beat + step > max ? max : beat + step;
-            var (xEvt, yEvt) = ComputeBeatSegment(beat, next, ch);
-            xBag.Add((i, xEvt));
-            yBag.Add((i, yEvt));
-        });
-
-        return (xBag.OrderBy(x => x.i).Select(x => x.evt).ToList(),
-            yBag.OrderBy(x => x.i).Select(x => x.evt).ToList());
-    }
+        List<Beat> beats, Beat max, Beat step, NewHelpers.EventChannels ch)
+        => NewHelpers.EqualSpacingSampling(beats, max, step, ch);
 
     /// <summary>
     /// 计算单个采样段 [<paramref name="beat"/>, <paramref name="next"/>] 的 X/Y 绝对坐标事件。
     /// 段起点取 GetValIn（正在生效的插值），段终点取 GetValOut（即将结束的插值）。
     /// </summary>
     internal static (Kpc.Event<double> x, Kpc.Event<double> y) ComputeBeatSegment(
-        Beat beat, Beat next, EventChannels ch)
-    {
-        var (startAbsX, startAbsY) = GetLinePos(
-            GetValIn(ch.Fx, beat), GetValIn(ch.Fy, beat), GetValIn(ch.Fr, beat),
-            GetValIn(ch.Tx, beat), GetValIn(ch.Ty, beat));
-        var (endAbsX, endAbsY) = GetLinePos(
-            GetValOut(ch.Fx, next), GetValOut(ch.Fy, next), GetValOut(ch.Fr, next),
-            GetValOut(ch.Tx, next), GetValOut(ch.Ty, next));
-
-        return (
-            new Kpc.Event<double> { StartBeat = beat, EndBeat = next, StartValue = startAbsX, EndValue = endAbsX },
-            new Kpc.Event<double> { StartBeat = beat, EndBeat = next, StartValue = startAbsY, EndValue = endAbsY }
-        );
-    }
-
-    #endregion 等间隔采样算法
-
-    #region 自适应采样算法
+        Beat beat, Beat next, NewHelpers.EventChannels ch)
+        => NewHelpers.ComputeBeatSegment(beat, next, ch);
 
     /// <summary>
     /// 尝试计算五个通道的总体拍范围。若所有通道均为空则返回 <see langword="null"/>。
     /// </summary>
-    internal static (Beat min, Beat max)? TryGetOverallRange(EventChannels ch)
-    {
-        Beat overallMin = new(0), overallMax = new(0);
-        var hasEvents = false;
-        foreach (var list in new[] { ch.Tx, ch.Ty, ch.Fx, ch.Fy, ch.Fr })
-        {
-            if (list.Count == 0) continue;
-            var (mn, mx) = GetEventRange(list);
-            if (!hasEvents)
-            {
-                overallMin = mn;
-                overallMax = mx;
-                hasEvents = true;
-            }
-            else
-            {
-                if (mn < overallMin) overallMin = mn;
-                if (mx > overallMax) overallMax = mx;
-            }
-        }
-
-        return hasEvents ? (overallMin, overallMax) : null;
-    }
+    internal static (Beat min, Beat max)? TryGetOverallRange(NewHelpers.EventChannels ch)
+        => NewHelpers.TryGetOverallRange(ch);
 
     /// <summary>
     /// 收集所有通道事件的起止拍作为关键帧，在 [<paramref name="overallMin"/>, <paramref name="overallMax"/>]
     /// 范围内去重排序后返回。关键帧是自适应采样的强制切割点。
     /// </summary>
-    internal static List<Beat> CollectKeyBeats(Beat overallMin, Beat overallMax, EventChannels ch)
-    {
-        var keyBeatsList = new List<Beat> { overallMin, overallMax };
-        foreach (var list in new[] { ch.Tx, ch.Ty, ch.Fx, ch.Fy, ch.Fr })
-        {
-            foreach (var e in list)
-            {
-                if (e.StartBeat >= overallMin && e.StartBeat <= overallMax) keyBeatsList.Add(e.StartBeat);
-                if (e.EndBeat >= overallMin && e.EndBeat <= overallMax) keyBeatsList.Add(e.EndBeat);
-            }
-        }
-
-        return keyBeatsList.Distinct().OrderBy(b => b).ToList();
-    }
+    internal static List<Beat> CollectKeyBeats(Beat overallMin, Beat overallMax, NewHelpers.EventChannels ch)
+        => NewHelpers.CollectKeyBeats(overallMin, overallMax, ch);
 
     /// <summary>
-    /// 并行自适应采样：对 <paramref name="keyBeats"/> 中的每个区间调用
-    /// <see cref="AdaptiveSampleInterval"/>，汇总后返回 X/Y 事件列表。
+    /// 并行自适应采样：对 <paramref name="keyBeats"/> 中的每个区间调用自适应采样，汇总后返回 X/Y 事件列表。
     /// </summary>
     internal static (List<Kpc.Event<double>> x, List<Kpc.Event<double>> y) RunAdaptiveSampling(
-        List<Beat> keyBeats, Beat step, double tolerance, EventChannels ch)
-    {
-        var segmentCount = keyBeats.Count - 1;
-        var segmentsX = new List<Kpc.Event<double>>[segmentCount];
-        var segmentsY = new List<Kpc.Event<double>>[segmentCount];
-        for (var i = 0; i < segmentCount; i++)
-        {
-            segmentsX[i] = [];
-            segmentsY[i] = [];
-        }
-
-        // 捕获 EventChannels 到局部函数，避免闭包捕获可变变量
-        (double X, double Y) AbsPosIn(Beat b) => GetLinePos(
-            GetValIn(ch.Fx, b), GetValIn(ch.Fy, b), GetValIn(ch.Fr, b),
-            GetValIn(ch.Tx, b), GetValIn(ch.Ty, b));
-
-        (double X, double Y) AbsPosOut(Beat b) => GetLinePos(
-            GetValOut(ch.Fx, b), GetValOut(ch.Fy, b), GetValOut(ch.Fr, b),
-            GetValOut(ch.Tx, b), GetValOut(ch.Ty, b));
-
-        Parallel.For(0, segmentCount, ki =>
-        {
-            if (keyBeats[ki] >= keyBeats[ki + 1]) return;
-            var (sx, sy) = AdaptiveSampleInterval(
-                keyBeats[ki], keyBeats[ki + 1], step, tolerance, AbsPosIn, AbsPosOut);
-            segmentsX[ki].AddRange(sx);
-            segmentsY[ki].AddRange(sy);
-        });
-
-        var resX = new List<Kpc.Event<double>>();
-        var resY = new List<Kpc.Event<double>>();
-        foreach (var seg in segmentsX) resX.AddRange(seg);
-        foreach (var seg in segmentsY) resY.AddRange(seg);
-        return (resX, resY);
-    }
-
-    /// <summary>
-    /// 对单个区间 [<paramref name="iStart"/>, <paramref name="iEnd"/>] 进行自适应分段采样：
-    /// 以 <paramref name="step"/> 推进，当相邻采样点误差超出容差时插入切割点，否则延续当前段。
-    /// </summary>
-    private static (List<Kpc.Event<double>> x, List<Kpc.Event<double>> y) AdaptiveSampleInterval(
-        Beat iStart, Beat iEnd, Beat step, double tolerance,
-        Func<Beat, (double X, double Y)> absPosIn,
-        Func<Beat, (double X, double Y)> absPosOut)
-    {
-        var localX = new List<Kpc.Event<double>>();
-        var localY = new List<Kpc.Event<double>>();
-
-        var end = absPosOut(iEnd);
-        var segStart = iStart;
-        var seg = absPosIn(iStart);
-
-        for (var cur = iStart; cur < iEnd;)
-        {
-            var next = cur + step > iEnd ? iEnd : cur + step;
-            var isLast = next >= iEnd;
-            var nextPos = isLast ? end : absPosIn(next);
-
-            if (isLast || NeedsAdaptiveCut(seg, nextPos, end, segStart, iEnd, next, tolerance))
-            {
-                localX.Add(new Kpc.Event<double>
-                    { StartBeat = segStart, EndBeat = next, StartValue = seg.X, EndValue = nextPos.X });
-                localY.Add(new Kpc.Event<double>
-                    { StartBeat = segStart, EndBeat = next, StartValue = seg.Y, EndValue = nextPos.Y });
-                segStart = next;
-                seg = nextPos;
-            }
-
-            cur = next;
-        }
-
-        return (localX, localY);
-    }
-
-    #endregion 自适应采样算法
+        List<Beat> keyBeats, Beat step, double tolerance, NewHelpers.EventChannels ch)
+        => NewHelpers.RunAdaptiveSampling(keyBeats, step, tolerance, ch);
 }

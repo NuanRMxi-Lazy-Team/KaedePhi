@@ -5,7 +5,7 @@ namespace KaedePhi.Tool.JudgeLines;
 /// <summary>
 /// 判定线父子解绑器：将子判定线从父判定线的坐标系中解绑，转换为绝对坐标。
 /// </summary>
-public interface IJudgeLineUnbinder<TJudgeLine>
+public interface IJudgeLineUnbinder<TJudgeLine> : ILoggable
 {
     /// <summary>
     /// 根据父线位置与旋转角度，计算子线在绝对坐标系中的位置。

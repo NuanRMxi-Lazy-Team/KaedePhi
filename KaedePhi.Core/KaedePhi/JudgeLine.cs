@@ -7,7 +7,7 @@ namespace KaedePhi.Core.KaedePhi
         /// <summary>
         /// 判定线名称
         /// </summary>
-        public string Name { get; set; } = "NrcJudgeLine";
+        public string Name { get; set; } = "KpcJudgeLine";
 
         /// <summary>
         /// 判定线纹理相对路径，默认值为line.png
@@ -22,7 +22,7 @@ namespace KaedePhi.Core.KaedePhi
         /// <summary>
         /// 判定线事件层列表
         /// </summary>
-        public List<EventLayer> EventLayers { get; set; } = new List<EventLayer>(); // 事件层
+        public List<EventLayer> EventLayers { get; set; } = new(); // 事件层
 
         /// <summary>
         /// 父级判定线索引，-1表示无父级
@@ -37,12 +37,12 @@ namespace KaedePhi.Core.KaedePhi
         /// <summary>
         /// 判定线音符列表
         /// </summary>
-        public List<Note> Notes { get; set; } = new List<Note>();
+        public List<Note> Notes { get; set; } = new();
 
         /// <summary>
         /// 特殊事件层（故事板）
         /// </summary>
-        public ExtendLayer Extended { get; set; } = new ExtendLayer();
+        public ExtendLayer Extended { get; set; } = new();
 
         /// <summary>
         /// 判定线的Z轴顺序

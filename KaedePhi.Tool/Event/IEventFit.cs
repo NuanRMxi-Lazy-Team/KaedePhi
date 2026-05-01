@@ -1,6 +1,8 @@
-﻿namespace KaedePhi.Tool.Event;
+﻿using KaedePhi.Tool.Common;
 
-public interface IEventFit<TEvent>
+namespace KaedePhi.Tool.Event;
+
+public interface IEventFit<TEvent> : ILoggable
 {
     /// <summary>
     /// 将事件列表中存在的线性事件拟合为有缓动函数的事件

@@ -41,7 +41,7 @@ namespace KaedePhi.Core.KaedePhi
         /// <summary>
         /// 音符宽度倍率
         /// </summary>
-        [Obsolete("想出用Size代表Width的已经很神人了，我不应该忘记删这里，总之，请改用WidthRatio。")]
+        [Obsolete("想出用Size代表Width的已经很神人了，我不应该忘记删这里，总之，请改用WidthRatio。",true)]
         [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
         public float Size
         {

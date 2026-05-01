@@ -1,11 +1,13 @@
-﻿namespace KaedePhi.Tool.Render;
+﻿using KaedePhi.Tool.Common;
+
+namespace KaedePhi.Tool.Render;
 
 /// <summary>
 /// 谱面渲染导出器：将谱面各判定线、各事件层渲染为图片并写入目录。
 /// </summary>
 /// <typeparam name="TChart">谱面类型。</typeparam>
 /// <typeparam name="TRenderOptions">渲染配置类型。</typeparam>
-public interface IChartRenderExporter<in TChart, in TRenderOptions>
+public interface IChartRenderExporter<in TChart, in TRenderOptions> : ILoggable
 {
     /// <summary>
     /// 渲染整个谱面（或指定判定线 / 事件层）并写入图片文件。

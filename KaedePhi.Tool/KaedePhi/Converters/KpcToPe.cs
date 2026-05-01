@@ -26,9 +26,9 @@ namespace KaedePhi.Tool.KaedePhi.Converters;
 [Obsolete("请改用 KaedePhi.Tool.Converter.PhiEdit.PhiEditConverter.FromKpc()")]
 public class KpcToPe
 {
-    private readonly PhiEditConvertOptions _options;
+    private readonly KpcToPhiEditConvertOptions _options;
 
-    public KpcToPe(PhiEditConvertOptions options)
+    public KpcToPe(KpcToPhiEditConvertOptions options)
     {
         _options = options;
     }

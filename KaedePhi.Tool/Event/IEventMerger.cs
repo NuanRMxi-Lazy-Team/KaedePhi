@@ -1,6 +1,8 @@
-﻿namespace KaedePhi.Tool.Event;
+﻿using KaedePhi.Tool.Common;
 
-public interface IEventMerger<TEvent>
+namespace KaedePhi.Tool.Event;
+
+public interface IEventMerger<TEvent> : ILoggable
 {
     /// <summary>
     /// 最普通最暴力算法的事件列表拟合算法，将所有事件切成等长事件，然后逐段相加。

@@ -1,4 +1,4 @@
-﻿using KaedePhi.Tool.KaedePhi;
+﻿using KaedePhi.Tool.Common;
 using SkiaSharp;
 using Chart = KaedePhi.Core.KaedePhi.Chart;
 
@@ -7,7 +7,7 @@ namespace KaedePhi.Tool.Render.KaedePhi;
 /// <summary>
 /// NRC 谱面渲染导出器：将谱面各判定线、各事件层渲染为 PNG 图片并写入目录。
 /// </summary>
-public class KpcChartRenderExporter : IChartRenderExporter<Chart, KpcRenderOptions>
+public class KpcChartRenderExporter : LoggableBase, IChartRenderExporter<Chart, KpcRenderOptions>
 {
     /// <inheritdoc/>
     public IReadOnlyList<string> ExportChart(
@@ -40,7 +40,7 @@ public class KpcChartRenderExporter : IChartRenderExporter<Chart, KpcRenderOptio
                 var eventLayer = line.EventLayers[ei];
                 if (eventLayer == null) continue;
 
-                KpcToolLog.OnInfo($"渲染 [{li}]{safeName} 第 {ei} 层...");
+                LogInfo($"渲染 [{li}]{safeName} 第 {ei} 层...");
 
                 using var bitmap = KpcEventChannelRenderer.RenderEventLayer(eventLayer, opts);
                 string filename = $"{safeName}_L{li}_layer{ei}.png";
@@ -48,7 +48,7 @@ public class KpcChartRenderExporter : IChartRenderExporter<Chart, KpcRenderOptio
 
                 SaveBitmap(bitmap, filePath);
                 written.Add(filePath);
-                KpcToolLog.OnInfo($"  已写入: {filePath}");
+                LogInfo($"  已写入: {filePath}");
             }
         }
 

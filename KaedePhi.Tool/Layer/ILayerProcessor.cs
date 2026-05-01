@@ -1,11 +1,12 @@
 ﻿using EventLayer = KaedePhi.Core.KaedePhi.EventLayer;
+using KaedePhi.Tool.Common;
 
 namespace KaedePhi.Tool.Layer;
 
 /// <summary>
 /// 谱面事件层级处理器：提供多层级的合并、切割与压缩功能。
 /// </summary>
-public interface ILayerProcessor<TLayer>
+public interface ILayerProcessor<TLayer> : ILoggable
 {
     /// <summary>
     /// 将多个事件层合并为单层（固定采样）。

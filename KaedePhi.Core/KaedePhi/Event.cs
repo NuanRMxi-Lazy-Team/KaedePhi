@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using KaedePhi.Core.Common;
 using KaedePhi.Core.Utils;
+using System.Runtime.CompilerServices;
 
 namespace KaedePhi.Core.KaedePhi
 {
@@ -61,6 +62,121 @@ namespace KaedePhi.Core.KaedePhi
         public string? Font { get; set; } = null;
 #nullable disable
         /// <summary>
+        /// 获取某个拍在这个事件中的值（返回double，避免装箱和类型检查）
+        /// 专为EventFit等需要频繁调用的场景优化
+        /// </summary>
+        public double GetValueAtBeatAsDouble(Beat beat)
+        {
+            var t = (beat - StartBeat) / (EndBeat - StartBeat);
+            if (t <= 0)
+                return GetStartValueAsDouble();
+            if (t >= 1)
+                return GetEndValueAsDouble();
+
+            // 直接使用double类型的Interpolate，避免类型检查
+            return Easing.Interpolate(EasingLeft, EasingRight,
+                GetStartValueAsDouble(), GetEndValueAsDouble(), t);
+        }
+
+        /// <summary>
+        /// 获取StartValue的double表示，避免Convert.ToDouble的装箱开销
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public double GetStartValueAsDouble()
+        {
+            if (typeof(T) == typeof(double))
+                return (double)(object)StartValue;
+            if (typeof(T) == typeof(float))
+                return (float)(object)StartValue;
+            if (typeof(T) == typeof(int))
+                return (int)(object)StartValue;
+            return Convert.ToDouble(StartValue);
+        }
+
+        /// <summary>
+        /// 获取EndValue的double表示，避免Convert.ToDouble的装箱开销
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public double GetEndValueAsDouble()
+        {
+            if (typeof(T) == typeof(double))
+                return (double)(object)EndValue;
+            if (typeof(T) == typeof(float))
+                return (float)(object)EndValue;
+            if (typeof(T) == typeof(int))
+                return (int)(object)EndValue;
+            return Convert.ToDouble(EndValue);
+        }
+
+        /// <summary>
+        /// 获取StartValue的float表示，避免Convert.ToSingle的装箱开销
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public float GetStartValueAsSingle()
+        {
+            if (typeof(T) == typeof(float))
+                return (float)(object)StartValue;
+            if (typeof(T) == typeof(double))
+                return (float)(double)(object)StartValue;
+            if (typeof(T) == typeof(int))
+                return (int)(object)StartValue;
+            if (typeof(T) == typeof(byte))
+                return (byte)(object)StartValue;
+            return Convert.ToSingle(StartValue);
+        }
+
+        /// <summary>
+        /// 获取EndValue的float表示，避免Convert.ToSingle的装箱开销
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public float GetEndValueAsSingle()
+        {
+            if (typeof(T) == typeof(float))
+                return (float)(object)EndValue;
+            if (typeof(T) == typeof(double))
+                return (float)(double)(object)EndValue;
+            if (typeof(T) == typeof(int))
+                return (int)(object)EndValue;
+            if (typeof(T) == typeof(byte))
+                return (byte)(object)EndValue;
+            return Convert.ToSingle(EndValue);
+        }
+
+        /// <summary>
+        /// 获取StartValue的int表示，避免Convert.ToInt32的装箱开销
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public int GetStartValueAsInt32()
+        {
+            if (typeof(T) == typeof(int))
+                return (int)(object)StartValue;
+            if (typeof(T) == typeof(float))
+                return (int)(float)(object)StartValue;
+            if (typeof(T) == typeof(double))
+                return (int)(double)(object)StartValue;
+            if (typeof(T) == typeof(byte))
+                return (byte)(object)StartValue;
+            return Convert.ToInt32(StartValue);
+        }
+
+        /// <summary>
+        /// 获取EndValue的int表示，避免Convert.ToInt32的装箱开销
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public int GetEndValueAsInt32()
+        {
+            if (typeof(T) == typeof(int))
+                return (int)(object)EndValue;
+            if (typeof(T) == typeof(float))
+                return (int)(float)(object)EndValue;
+            if (typeof(T) == typeof(double))
+                return (int)(double)(object)EndValue;
+            if (typeof(T) == typeof(byte))
+                return (byte)(object)EndValue;
+            return Convert.ToInt32(EndValue);
+        }
+
+        /// <summary>
         /// 获取某个拍在这个事件中的值
         /// </summary>
         /// <param name="beat">指定拍</param>
@@ -76,16 +192,16 @@ namespace KaedePhi.Core.KaedePhi
             // 如果启用了贝塞尔曲线,使用 Bezier.Do
             if (IsBezier)
             {
-                // 检查 T 的类型并调用相应的方法
+                // 针对已知类型优化，避免Convert装箱开销
                 if (typeof(T) == typeof(float))
-                    return (T)(object)Bezier.Do(BezierPoints, t, Convert.ToSingle(StartValue),
-                        Convert.ToSingle(EndValue), EasingLeft, EasingRight);
+                    return (T)(object)Bezier.Do(BezierPoints, t, GetStartValueAsSingle(),
+                        GetEndValueAsSingle(), EasingLeft, EasingRight);
                 else if (typeof(T) == typeof(double))
-                    return (T)(object)Bezier.Do(BezierPoints, t, Convert.ToDouble(StartValue),
-                        Convert.ToDouble(EndValue), EasingLeft, EasingRight);
+                    return (T)(object)Bezier.Do(BezierPoints, t, GetStartValueAsDouble(),
+                        GetEndValueAsDouble(), EasingLeft, EasingRight);
                 else if (typeof(T) == typeof(int))
-                    return (T)(object)Bezier.Do(BezierPoints, t, Convert.ToInt32(StartValue),
-                        Convert.ToInt32(EndValue), EasingLeft, EasingRight);
+                    return (T)(object)Bezier.Do(BezierPoints, t, GetStartValueAsInt32(),
+                        GetEndValueAsInt32(), EasingLeft, EasingRight);
                 else if (typeof(T) == typeof(byte[]))
                 {
                     byte[] startBytes = StartValue as byte[];
@@ -104,18 +220,16 @@ namespace KaedePhi.Core.KaedePhi
                     throw new NotSupportedException($"类型 {typeof(T)} 不受支持。");
             }
 
-            // 检查 T 的类型并调用相应的方法
+            // 针对已知类型优化，避免Convert装箱开销
             if (typeof(T) == typeof(float))
-                return (T)(object)Easing.Interpolate(EasingLeft, EasingRight, Convert.ToSingle(StartValue),
-                    Convert.ToSingle(EndValue),
-                    t);
+                return (T)(object)Easing.Interpolate(EasingLeft, EasingRight, GetStartValueAsSingle(),
+                    GetEndValueAsSingle(), t);
             else if (typeof(T) == typeof(double))
-                return (T)(object)Easing.Interpolate(EasingLeft, EasingRight, Convert.ToDouble(StartValue),
-                    Convert.ToDouble(EndValue),
-                    t);
+                return (T)(object)Easing.Interpolate(EasingLeft, EasingRight, GetStartValueAsDouble(),
+                    GetEndValueAsDouble(), t);
             else if (typeof(T) == typeof(int))
-                return (T)(object)Easing.Interpolate(EasingLeft, EasingRight, Convert.ToInt32(StartValue),
-                    Convert.ToInt32(EndValue), t);
+                return (T)(object)Easing.Interpolate(EasingLeft, EasingRight, GetStartValueAsInt32(),
+                    GetEndValueAsInt32(), t);
             else if (typeof(T) == typeof(byte[]))
             {
                 byte[] startBytes = StartValue as byte[];
@@ -134,149 +248,88 @@ namespace KaedePhi.Core.KaedePhi
                 throw new NotSupportedException($"类型 {typeof(T)} 不受支持。");
         }
 
-        // 各种反射结果缓存，static per Event<T> closed type
-        private static readonly MethodInfo DeepCloneGenericDef =
-            typeof(Event<T>).GetMethod("DeepClone", BindingFlags.NonPublic | BindingFlags.Instance);
-
-        private static readonly Dictionary<Type, bool> _immutableCache = new();
-        private static readonly Dictionary<Type, MethodInfo> _deepCloneMethodCache = new();
-        private static readonly Dictionary<Type, FieldInfo[]> _fieldsCache = new();
-        private static readonly Dictionary<Type, MethodInfo> _typeCloneMethodCache = new();
-
-        private static bool IsImmutableType(Type type)
-        {
-            if (_immutableCache.TryGetValue(type, out var cached))
-                return cached;
-
-            var result = type.IsValueType || type.IsEnum ||
-                         type == typeof(string) ||
-                         type == typeof(DateTime) || type == typeof(DateTimeOffset) ||
-                         type == typeof(TimeSpan) || type == typeof(Guid) ||
-                         type == typeof(Uri) || type == typeof(Version);
-
-            _immutableCache[type] = result;
-            return result;
-        }
-
-        private MethodInfo GetDeepCloneMethod(Type type)
-        {
-            if (!_deepCloneMethodCache.TryGetValue(type, out var method))
-            {
-                method = DeepCloneGenericDef.MakeGenericMethod(type);
-                _deepCloneMethodCache[type] = method;
-            }
-            return method;
-        }
-
+        /// <summary>
+        /// 针对已知T类型（int/byte/byte[]/string/float/double）的DeepClone实现
+        /// 完全避免反射，直接处理已知类型
+        /// </summary>
         private TValue DeepClone<TValue>(TValue value)
         {
             if (value == null)
                 return default;
 
-            // 快速路径：直接处理常见基础类型，避免反射开销和 GC
-            if (value is int or float or double or long or short or byte or sbyte or
-                uint or ulong or ushort or char or bool or decimal or
-                string or DateTime or DateTimeOffset or TimeSpan or Guid)
-                return value;
-
-            // 快速路径：byte[]
-            if (value is byte[] byteArr)
-                return (TValue)(object)byteArr.ToArray();
-
-            // 快速路径：float[]
-            if (value is float[] floatArr)
-                return (TValue)(object)floatArr.ToArray();
-
             var type = typeof(TValue);
 
-            if (IsImmutableType(type))
+            // 值类型：int, float, double, byte
+            if (type == typeof(int) || type == typeof(float) || 
+                type == typeof(double) || type == typeof(byte))
                 return value;
 
-            // 处理数组
-            if (type.IsArray)
+            // 不可变引用类型：string
+            if (type == typeof(string))
+                return value;
+
+            // byte[]：需要深拷贝
+            if (type == typeof(byte[]))
             {
-                var elementType = type.GetElementType();
-                var array = value as Array;
-                var clonedArray = Array.CreateInstance(elementType, array.Length);
-                if (IsImmutableType(elementType))
-                {
-                    Array.Copy(array, clonedArray, array.Length);
-                }
-                else
-                {
-                    var cloneMethod = GetDeepCloneMethod(elementType);
-                    for (int i = 0; i < array.Length; i++)
-                        clonedArray.SetValue(cloneMethod.Invoke(this, new[] { array.GetValue(i) }), i);
-                }
-                return (TValue)(object)clonedArray;
+                var arr = (byte[])(object)value;
+                return (TValue)(object)arr.ToArray();
             }
 
-            // 处理泛型集合 (List<T>, Dictionary<K,V>, etc.)
-            if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(List<>))
-            {
-                var elementType = type.GetGenericArguments()[0];
-                var list = (System.Collections.IList)value;
-                var clonedList = (System.Collections.IList)Activator.CreateInstance(typeof(List<>).MakeGenericType(elementType));
-                if (IsImmutableType(elementType))
-                {
-                    foreach (var item in list) clonedList.Add(item);
-                }
-                else
-                {
-                    var cloneMethod = GetDeepCloneMethod(elementType);
-                    foreach (var item in list)
-                        clonedList.Add(cloneMethod.Invoke(this, new[] { item }));
-                }
-                return (TValue)clonedList;
-            }
-
-            // 尝试调用对象的 Clone() 方法
-            if (!_typeCloneMethodCache.TryGetValue(type, out var cloneMethodInfo))
-            {
-                var m = type.GetMethod("Clone", BindingFlags.Public | BindingFlags.Instance, null, Type.EmptyTypes, null);
-                cloneMethodInfo = m?.ReturnType == type ? m : null;
-                _typeCloneMethodCache[type] = cloneMethodInfo;
-            }
-            if (cloneMethodInfo != null)
-                return (TValue)cloneMethodInfo.Invoke(value, null);
-
-            // 使用反射进行浅拷贝并递归处理引用类型字段
-            if (!_fieldsCache.TryGetValue(type, out var fields))
-            {
-                fields = type.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-                _fieldsCache[type] = fields;
-            }
-
-            var cloned = Activator.CreateInstance(type);
-            foreach (var field in fields)
-            {
-                var fieldValue = field.GetValue(value);
-                if (fieldValue == null) continue;
-                var fieldType = field.FieldType;
-                if (IsImmutableType(fieldType))
-                    field.SetValue(cloned, fieldValue);
-                else
-                    field.SetValue(cloned, GetDeepCloneMethod(fieldType).Invoke(this, new[] { fieldValue }));
-            }
-
-            return (TValue)cloned;
+            // 不应到达此处，但提供兜底
+            return value;
         }
 
         public Event<T> Clone()
         {
-            return new Event<T>
+            var clone = new Event<T>
             {
                 IsBezier = IsBezier,
-                BezierPoints = BezierPoints.ToArray(),
                 EasingLeft = EasingLeft,
                 EasingRight = EasingRight,
                 Easing = Easing,
-                StartValue = DeepClone(StartValue),
-                EndValue = DeepClone(EndValue),
-                StartBeat = new Beat((int[])StartBeat),
-                EndBeat = new Beat((int[])EndBeat),
                 Font = Font
             };
+
+            // BezierPoints: 直接Array.Copy，避免LINQ的ToArray()分配
+            if (BezierPoints != null)
+            {
+                var bp = new float[BezierPoints.Length];
+                Array.Copy(BezierPoints, bp, BezierPoints.Length);
+                clone.BezierPoints = bp;
+            }
+
+            // 针对已知T类型优化：int/float/double/byte直接赋值，byte[]/string特殊处理
+            if (typeof(T) == typeof(int) || typeof(T) == typeof(float) || 
+                typeof(T) == typeof(double) || typeof(T) == typeof(byte))
+            {
+                // 值类型直接赋值，无开销
+                clone.StartValue = StartValue;
+                clone.EndValue = EndValue;
+            }
+            else if (typeof(T) == typeof(byte[]))
+            {
+                // byte[]需要深拷贝
+                clone.StartValue = StartValue != null ? (T)(object)((byte[])(object)StartValue).ToArray() : default;
+                clone.EndValue = EndValue != null ? (T)(object)((byte[])(object)EndValue).ToArray() : default;
+            }
+            else if (typeof(T) == typeof(string))
+            {
+                // string是不可变类型，直接赋值
+                clone.StartValue = StartValue;
+                clone.EndValue = EndValue;
+            }
+            else
+            {
+                // 兜底：使用DeepClone（不应到达此处）
+                clone.StartValue = DeepClone(StartValue);
+                clone.EndValue = DeepClone(EndValue);
+            }
+
+            // Beat拷贝
+            clone.StartBeat = new Beat((int[])StartBeat);
+            clone.EndBeat = new Beat((int[])EndBeat);
+
+            return clone;
         }
     }
 }

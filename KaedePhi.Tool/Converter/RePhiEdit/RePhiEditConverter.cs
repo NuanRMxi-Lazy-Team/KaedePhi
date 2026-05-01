@@ -8,7 +8,7 @@ namespace KaedePhi.Tool.Converter.RePhiEdit;
 /// <summary>
 /// RePhiEdit Converter, 其中，TInOptions无效。
 /// </summary>
-public class RePhiEditConverter : IChartConverter<Rpe.Chart, Unit?, ConvertOption>
+public class RePhiEditConverter : LoggableBase, IChartConverter<Rpe.Chart, Unit?, ConvertOption>
 {
     public Kpc.Chart ToKpc(Rpe.Chart source, Unit? _ = null) => new()
     {

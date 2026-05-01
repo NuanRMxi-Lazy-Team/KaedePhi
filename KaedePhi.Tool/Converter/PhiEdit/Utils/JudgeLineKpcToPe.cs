@@ -20,13 +20,15 @@ namespace KaedePhi.Tool.Converter.PhiEdit.Utils;
 public class JudgeLineKpcToPe
 {
     private const float FloatEpsilon = 1e-6f;
-    private readonly PhiEditConvertOptions _options;
+    private readonly KpcToPhiEditConvertOptions _options;
     private readonly LineEventBuilder _eventBuilder;
+    private readonly Action<string> _warnLogger;
 
-    public JudgeLineKpcToPe(PhiEditConvertOptions options)
+    public JudgeLineKpcToPe(KpcToPhiEditConvertOptions options, Action<string> warnLogger)
     {
         _options = options;
         _eventBuilder = new LineEventBuilder(options);
+        _warnLogger = warnLogger;
     }
 
     /// <summary>
@@ -38,11 +40,12 @@ public class JudgeLineKpcToPe
         var trueSrc = src;
         var pe = new Pe.JudgeLine
         {
-            NoteList = trueSrc.Notes?.ConvertAll(Note.ConvertNote) ?? []
+            NoteList = trueSrc.Notes?.ConvertAll(n => Note.ConvertNote(n, _warnLogger)) ?? []
         };
 
         if (!string.Equals(trueSrc.Texture, "line.png", StringComparison.Ordinal) ||
-            _options.LineFilter.RemoveTextureLine || trueSrc.AttachUi.HasValue || _options.LineFilter.RemoveAttachUiLine)
+            _options.LineFilter.RemoveTextureLine || trueSrc.AttachUi.HasValue ||
+            _options.LineFilter.RemoveAttachUiLine)
         {
             return pe;
         }
@@ -130,11 +133,13 @@ public class JudgeLineKpcToPe
         if (controls == null || controls.Count != def.Count) return false;
         for (var i = 0; i < def.Count; i++)
         {
-            var d = def[i]; var c = controls[i];
+            var d = def[i];
+            var c = controls[i];
             if ((int)d.Easing != (int)c.Easing) return false;
             if (Math.Abs(d.X - c.X) > FloatEpsilon) return false;
             if (Math.Abs(d.Pos - c.Pos) > FloatEpsilon) return false;
         }
+
         return true;
     }
 
@@ -144,11 +149,13 @@ public class JudgeLineKpcToPe
         if (controls == null || controls.Count != def.Count) return false;
         for (var i = 0; i < def.Count; i++)
         {
-            var d = def[i]; var c = controls[i];
+            var d = def[i];
+            var c = controls[i];
             if ((int)d.Easing != (int)c.Easing) return false;
             if (Math.Abs(d.X - c.X) > FloatEpsilon) return false;
             if (Math.Abs(d.Alpha - c.Alpha) > FloatEpsilon) return false;
         }
+
         return true;
     }
 
@@ -158,11 +165,13 @@ public class JudgeLineKpcToPe
         if (controls == null || controls.Count != def.Count) return false;
         for (var i = 0; i < def.Count; i++)
         {
-            var d = def[i]; var c = controls[i];
+            var d = def[i];
+            var c = controls[i];
             if ((int)d.Easing != (int)c.Easing) return false;
             if (Math.Abs(d.X - c.X) > FloatEpsilon) return false;
             if (Math.Abs(d.Size - c.Size) > FloatEpsilon) return false;
         }
+
         return true;
     }
 
@@ -172,11 +181,13 @@ public class JudgeLineKpcToPe
         if (controls == null || controls.Count != def.Count) return false;
         for (var i = 0; i < def.Count; i++)
         {
-            var d = def[i]; var c = controls[i];
+            var d = def[i];
+            var c = controls[i];
             if ((int)d.Easing != (int)c.Easing) return false;
             if (Math.Abs(d.X - c.X) > FloatEpsilon) return false;
             if (Math.Abs(d.Skew - c.Skew) > FloatEpsilon) return false;
         }
+
         return true;
     }
 
@@ -186,13 +197,16 @@ public class JudgeLineKpcToPe
         if (controls == null || controls.Count != def.Count) return false;
         for (var i = 0; i < def.Count; i++)
         {
-            var d = def[i]; var c = controls[i];
+            var d = def[i];
+            var c = controls[i];
             if ((int)d.Easing != (int)c.Easing) return false;
             if (Math.Abs(d.X - c.X) > FloatEpsilon) return false;
             if (Math.Abs(d.Y - c.Y) > FloatEpsilon) return false;
         }
+
         return true;
     }
 
-    private static void Warn(string message) => KpcToolLog.OnWarning($"[ToPe] {message}");
+
+    private void Warn(string message) => _warnLogger.Invoke(message);
 }

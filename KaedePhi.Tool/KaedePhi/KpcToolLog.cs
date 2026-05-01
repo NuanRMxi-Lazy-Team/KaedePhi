@@ -3,6 +3,7 @@
 /// <summary>
 /// NRC 格式工具的日志回调，可从外部订阅以接收处理信息。
 /// </summary>
+[Obsolete("不再受支持，请调用各个工具自身的订阅工具来获取日志。")]
 public static class KpcToolLog
 {
     public static Action<string> OnInfo { get; set; } = _ => { };

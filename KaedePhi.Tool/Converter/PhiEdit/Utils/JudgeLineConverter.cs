@@ -1,11 +1,20 @@
+using KaedePhi.Tool.Converter.PhiEdit.Model;
+
 namespace KaedePhi.Tool.Converter.PhiEdit.Utils;
 
-public static class JudgeLineConverter
+public class JudgeLineConverter
 {
+    private readonly FrameEventInterpolator _frameEventInterpolator;
+    private readonly EventLayerConverter _eventLayerConverter;
+    public JudgeLineConverter(PhiEditToKpcConvertOptions options)
+    {
+        _eventLayerConverter = new EventLayerConverter(options);
+        _frameEventInterpolator = new FrameEventInterpolator(options);
+    }
     /// <summary>
     /// 转换全部判定线。
     /// </summary>
-    public static List<Kpc.JudgeLine> ConvertJudgeLines(List<Pe.JudgeLine>? judgeLines)
+    public List<Kpc.JudgeLine> ConvertJudgeLines(List<Pe.JudgeLine>? judgeLines)
     {
         if (judgeLines == null || judgeLines.Count == 0) return [];
 
@@ -18,10 +27,10 @@ public static class JudgeLineConverter
     /// <summary>
     /// 转换单条判定线，并合成为单事件层的 KPC 判定线。
     /// </summary>
-    public static Kpc.JudgeLine ConvertJudgeLine(Pe.JudgeLine src, int index)
+    public Kpc.JudgeLine ConvertJudgeLine(Pe.JudgeLine src, int index)
     {
-        var horizonBeat = FrameEventInterpolator.GetJudgeLineHorizonBeat(src);
-        var eventLayer = EventLayerConverter.ConvertEventLayer(src, horizonBeat);
+        var horizonBeat = _frameEventInterpolator.GetJudgeLineHorizonBeat(src);
+        var eventLayer = _eventLayerConverter.ConvertEventLayer(src, horizonBeat);
         eventLayer.Anticipation();
 
         return new Kpc.JudgeLine

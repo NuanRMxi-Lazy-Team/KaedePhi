@@ -1,6 +1,8 @@
-﻿namespace KaedePhi.Tool.Event;
+﻿using KaedePhi.Tool.Common;
 
-public interface IEventCutter<TEvent, in TBeat>
+namespace KaedePhi.Tool.Event;
+
+public interface IEventCutter<TEvent, in TBeat> : ILoggable
 {
     /// <summary>
     /// 将事件列表中，在指定节拍范围内切割为等长事件。

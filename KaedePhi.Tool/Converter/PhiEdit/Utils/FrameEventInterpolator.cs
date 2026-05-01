@@ -1,4 +1,5 @@
 using KaedePhi.Core.Common;
+using KaedePhi.Tool.Converter.PhiEdit.Model;
 using KaedePhi.Tool.KaedePhi.Events;
 using KpcEasing = KaedePhi.Core.KaedePhi.Easing;
 
@@ -7,16 +8,21 @@ namespace KaedePhi.Tool.Converter.PhiEdit.Utils;
 /// <summary>
 /// PE Frame/Event 模型到 KPC Event 模型的插值转换器。
 /// </summary>
-public static class FrameEventInterpolator
+public class FrameEventInterpolator
 {
     private const double TrailingBeatPadding = 1d / 64d;
-    private const double FrameEditableSliceBeat = 0.0125d;
+    private readonly double _frameDurationBeat;
     private const double BeatComparisonEpsilon = 1e-6d;
+
+    public FrameEventInterpolator(PhiEditToKpcConvertOptions options)
+    {
+        _frameDurationBeat = options.FrameDurationBeat;
+    }
 
     /// <summary>
     /// 计算单条判定线的时间范围上界，并额外补齐一个微小区间。
     /// </summary>
-    public static double GetJudgeLineHorizonBeat(Pe.JudgeLine src)
+    public double GetJudgeLineHorizonBeat(Pe.JudgeLine src)
     {
         var maxBeat = 0d;
         maxBeat = Math.Max(maxBeat, GetMaxBeat(src.NoteList?.Select(note => (double)note.EndBeat)));
@@ -37,7 +43,7 @@ public static class FrameEventInterpolator
     /// <summary>
     /// 构建 Move 轴（X 或 Y）事件列表。
     /// </summary>
-    public static List<Kpc.Event<double>>? BuildMoveAxisEvents(
+    public List<Kpc.Event<double>>? BuildMoveAxisEvents(
         List<Pe.MoveFrame>? frames,
         List<Pe.MoveEvent>? events,
         double horizonBeat,
@@ -90,13 +96,15 @@ public static class FrameEventInterpolator
             }
         }
 
-        return result.Count == 0 ? null : KpcEventTools.EventListCompressSqrt(result, 0d);
+        return result.Count == 0
+            ? null
+            : result;
     }
 
     /// <summary>
     /// 构建标量通道（旋转、透明度、速度）事件列表。
     /// </summary>
-    public static List<Kpc.Event<T>>? BuildScalarEvents<T>(
+    public List<Kpc.Event<T>>? BuildScalarEvents<T>(
         List<Pe.Frame>? frames,
         List<Pe.Event>? events,
         double horizonBeat,
@@ -150,14 +158,14 @@ public static class FrameEventInterpolator
 
     #region Helpers
 
-    private static double GetMaxBeat(IEnumerable<double>? beats) => beats?.DefaultIfEmpty(0d).Max() ?? 0d;
+    private double GetMaxBeat(IEnumerable<double>? beats) => beats?.DefaultIfEmpty(0d).Max() ?? 0d;
 
-    private static double GetMidBeat(double startBeat, double endBeat) => startBeat + (endBeat - startBeat) / 2d;
+    private double GetMidBeat(double startBeat, double endBeat) => startBeat + (endBeat - startBeat) / 2d;
 
-    private static bool IsSameBeat(double leftBeat, double rightBeat)
+    private bool IsSameBeat(double leftBeat, double rightBeat)
         => Math.Abs(leftBeat - rightBeat) <= BeatComparisonEpsilon;
 
-    private static List<double> BuildBoundaries(
+    private List<double> BuildBoundaries(
         IEnumerable<double> frameBoundaries,
         IEnumerable<double> eventBoundaries,
         double horizonBeat)
@@ -171,7 +179,7 @@ public static class FrameEventInterpolator
         return boundaries.ToList();
     }
 
-    private static List<double> BuildBoundariesWithFrameSlices(
+    private List<double> BuildBoundariesWithFrameSlices(
         IEnumerable<double> frameBoundaries,
         IEnumerable<double> eventBoundaries,
         IEnumerable<double> eventStartBoundaries,
@@ -186,13 +194,13 @@ public static class FrameEventInterpolator
         foreach (var frameBeat in frameList)
         {
             if (ContainsBeat(eventStartList, frameBeat)) continue;
-            expandedBoundaries.Add(frameBeat + FrameEditableSliceBeat);
+            expandedBoundaries.Add(frameBeat + _frameDurationBeat);
         }
 
         return expandedBoundaries.ToList();
     }
 
-    private static int FindLastIndexAtOrBeforeBeat<T>(List<T> items, double beat, Func<T, double> beatSelector)
+    private int FindLastIndexAtOrBeforeBeat<T>(List<T> items, double beat, Func<T, double> beatSelector)
     {
         var lo = 0;
         var hi = items.Count - 1;
@@ -215,20 +223,20 @@ public static class FrameEventInterpolator
         return result;
     }
 
-    private static bool ContainsBeat(List<double> sortedBeats, double beat)
+    private bool ContainsBeat(List<double> sortedBeats, double beat)
     {
         var idx = FindLastIndexAtOrBeforeBeat(sortedBeats, beat, value => value);
         return idx >= 0 && IsSameBeat(sortedBeats[idx], beat);
     }
 
-    private static float GetEventBoundary(float eventStartBeat, float eventEndBeat, double beat)
+    private float GetEventBoundary(float eventStartBeat, float eventEndBeat, double beat)
     {
         var duration = eventEndBeat - eventStartBeat;
         if (Math.Abs(duration) < 1e-6f) return 1f;
         return (float)((beat - eventStartBeat) / duration);
     }
 
-    private static Kpc.Event<T> CreateConstantEvent<T>(double startBeat, double endBeat, T value) => new()
+    private Kpc.Event<T> CreateConstantEvent<T>(double startBeat, double endBeat, T value) => new()
     {
         StartBeat = new Beat(startBeat),
         EndBeat = new Beat(endBeat),
@@ -239,7 +247,7 @@ public static class FrameEventInterpolator
         EndValue = value
     };
 
-    private static Pe.MoveEvent? FindActiveMoveEvent(List<Pe.MoveEvent> events, double beat)
+    private Pe.MoveEvent? FindActiveMoveEvent(List<Pe.MoveEvent> events, double beat)
     {
         var lo = 0;
         var hi = events.Count - 1;
@@ -257,7 +265,7 @@ public static class FrameEventInterpolator
         return null;
     }
 
-    private static Pe.Event? FindActiveScalarEvent(List<Pe.Event> events, double beat)
+    private Pe.Event? FindActiveScalarEvent(List<Pe.Event> events, double beat)
     {
         var lo = 0;
         var hi = events.Count - 1;
@@ -275,7 +283,7 @@ public static class FrameEventInterpolator
         return null;
     }
 
-    private static (float X, float Y) ResolveMoveValueAfterBoundary(
+    private (float X, float Y) ResolveMoveValueAfterBoundary(
         List<Pe.MoveFrame> frames,
         List<Pe.MoveEvent> events,
         double boundaryBeat)
@@ -295,7 +303,7 @@ public static class FrameEventInterpolator
         return (0f, 0f);
     }
 
-    private static float ResolveScalarValueAfterBoundary(
+    private float ResolveScalarValueAfterBoundary(
         List<Pe.Frame> frames,
         List<Pe.Event> events,
         double boundaryBeat)
@@ -315,7 +323,7 @@ public static class FrameEventInterpolator
         return 0f;
     }
 
-    private static (float X, float Y) ResolveMoveEventStartValue(
+    private (float X, float Y) ResolveMoveEventStartValue(
         Pe.MoveEvent ev,
         List<Pe.MoveFrame> frames,
         List<Pe.MoveEvent> events)
@@ -327,7 +335,7 @@ public static class FrameEventInterpolator
         return ResolveMoveValueAfterBoundary(frames, events, ev.StartBeat);
     }
 
-    private static float ResolveScalarEventStartValue(Pe.Event ev, List<Pe.Frame> frames, List<Pe.Event> events)
+    private float ResolveScalarEventStartValue(Pe.Event ev, List<Pe.Frame> frames, List<Pe.Event> events)
     {
         var frameAtStart = FindScalarFrameAtBeat(frames, ev.StartBeat);
         if (frameAtStart != null)
@@ -336,31 +344,31 @@ public static class FrameEventInterpolator
         return ResolveScalarValueAfterBoundary(frames, events, ev.StartBeat);
     }
 
-    private static bool IsMoveEventStartBeat(List<Pe.MoveEvent> events, double beat)
+    private bool IsMoveEventStartBeat(List<Pe.MoveEvent> events, double beat)
     {
         var idx = FindLastIndexAtOrBeforeBeat(events, beat, ev => ev.StartBeat);
         return idx >= 0 && IsSameBeat(events[idx].StartBeat, beat);
     }
 
-    private static bool IsScalarEventStartBeat(List<Pe.Event> events, double beat)
+    private bool IsScalarEventStartBeat(List<Pe.Event> events, double beat)
     {
         var idx = FindLastIndexAtOrBeforeBeat(events, beat, ev => ev.StartBeat);
         return idx >= 0 && IsSameBeat(events[idx].StartBeat, beat);
     }
 
-    private static Pe.MoveFrame? FindMoveFrameAtBeat(List<Pe.MoveFrame> frames, double beat)
+    private Pe.MoveFrame? FindMoveFrameAtBeat(List<Pe.MoveFrame> frames, double beat)
     {
         var idx = FindLastIndexAtOrBeforeBeat(frames, beat, frame => frame.Beat);
         return idx >= 0 && IsSameBeat(frames[idx].Beat, beat) ? frames[idx] : null;
     }
 
-    private static Pe.Frame? FindScalarFrameAtBeat(List<Pe.Frame> frames, double beat)
+    private Pe.Frame? FindScalarFrameAtBeat(List<Pe.Frame> frames, double beat)
     {
         var idx = FindLastIndexAtOrBeforeBeat(frames, beat, frame => frame.Beat);
         return idx >= 0 && IsSameBeat(frames[idx].Beat, beat) ? frames[idx] : null;
     }
 
-    private static float InterpolateMoveValue(
+    private float InterpolateMoveValue(
         Pe.MoveEvent ev,
         double beat,
         (float X, float Y) intervalStartSource,
@@ -372,7 +380,7 @@ public static class FrameEventInterpolator
         return selector(ev.GetValueAtBeat((float)beat, intervalStartSource.X, intervalStartSource.Y));
     }
 
-    private static float InterpolateScalarValue(Pe.Event ev, double beat, float intervalStartSource)
+    private float InterpolateScalarValue(Pe.Event ev, double beat, float intervalStartSource)
     {
         if (Math.Abs(ev.EndBeat - ev.StartBeat) < 1e-6f)
             return ev.EndValue;

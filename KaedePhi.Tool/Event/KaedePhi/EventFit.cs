@@ -1,8 +1,9 @@
 ﻿using KaedePhi.Core.Common;
+using KaedePhi.Tool.Common;
 
 namespace KaedePhi.Tool.Event.KaedePhi;
 
-public class EventFit<TPayload> : IEventFit<Kpc.Event<TPayload>>
+public class EventFit<TPayload> : LoggableBase, IEventFit<Kpc.Event<TPayload>>
 {
     private const int MinEasingId = 1;
     private const int MaxEasingId = 31;
@@ -394,8 +395,8 @@ public class EventFit<TPayload> : IEventFit<Kpc.Event<TPayload>>
 
         var first = runEvents[startIndex];
         var last = runEvents[endIndex];
-        var startValue = Convert.ToDouble(first.StartValue);
-        var endValue = Convert.ToDouble(last.EndValue);
+        var startValue = first.GetStartValueAsDouble();
+        var endValue = last.GetEndValueAsDouble();
 
         // 平段仅允许线性，避免无意义的 IN/OUT 噪声。
         if (Math.Abs(endValue - startValue) <= NumericEpsilon)
@@ -457,8 +458,8 @@ public class EventFit<TPayload> : IEventFit<Kpc.Event<TPayload>>
         var globalEnd = last.EndBeat;
         var beatSpan = (double)(globalEnd - globalStart);
 
-        var sourceStartValue = Convert.ToDouble(first.StartValue);
-        var sourceEndValue = Convert.ToDouble(last.EndValue);
+        var sourceStartValue = first.GetStartValueAsDouble();
+        var sourceEndValue = last.GetEndValueAsDouble();
         var valueDelta = sourceEndValue - sourceStartValue;
 
         for (var i = startIndex; i <= endIndex; i++)
@@ -466,14 +467,14 @@ public class EventFit<TPayload> : IEventFit<Kpc.Event<TPayload>>
             var evt = runEvents[i];
 
             AddSample(samples, globalStart, beatSpan, sourceStartValue, valueDelta,
-                evt.StartBeat, Convert.ToDouble(evt.StartValue));
+                evt.StartBeat, evt.GetStartValueAsDouble());
 
             var midBeat = LerpBeat(evt.StartBeat, evt.EndBeat, 0.5d);
-            var midValue = Convert.ToDouble(evt.GetValueAtBeat(midBeat));
+            var midValue = evt.GetValueAtBeatAsDouble(midBeat);
             AddSample(samples, globalStart, beatSpan, sourceStartValue, valueDelta, midBeat, midValue);
 
             AddSample(samples, globalStart, beatSpan, sourceStartValue, valueDelta,
-                evt.EndBeat, Convert.ToDouble(evt.EndValue));
+                evt.EndBeat, evt.GetEndValueAsDouble());
         }
 
         return samples;
@@ -502,7 +503,16 @@ public class EventFit<TPayload> : IEventFit<Kpc.Event<TPayload>>
 
     private double GetErrorScale(List<SamplePoint> samples)
     {
-        var maxAbsValue = samples.Count == 0 ? 0d : samples.Max(s => Math.Abs(s.Value));
+        if (samples.Count == 0)
+            return 1d;
+
+        var maxAbsValue = 0d;
+        for (var i = 0; i < samples.Count; i++)
+        {
+            var abs = Math.Abs(samples[i].Value);
+            if (abs > maxAbsValue)
+                maxAbsValue = abs;
+        }
         return Math.Max(maxAbsValue, 1d);
     }
 
@@ -559,10 +569,11 @@ public class EventFit<TPayload> : IEventFit<Kpc.Event<TPayload>>
         var maxError = 0d;
         var sumSquaredError = 0d;
 
-        foreach (var error in from sample in samples
-                 let candidateValue = Convert.ToDouble(candidate.GetValueAtBeat(sample.Beat))
-                 select Math.Abs(candidateValue - sample.Value))
+        for (var i = 0; i < samples.Count; i++)
         {
+            var candidateValue = candidate.GetValueAtBeatAsDouble(samples[i].Beat);
+            var error = Math.Abs(candidateValue - samples[i].Value);
+
             if (error > allowedError)
             {
                 normalizedMaxError = double.PositiveInfinity;
@@ -586,41 +597,132 @@ public class EventFit<TPayload> : IEventFit<Kpc.Event<TPayload>>
         var p50 = GetProgressAtTime(samples, 0.50d);
         var p75 = GetProgressAtTime(samples, 0.75d);
 
+        // 直接遍历samples检查progress，避免LINQ分配
+        var hasOvershoot = false;
+        var isMonotonic = true;
+        var first = true;
+        var previous = 0d;
+
+        for (var i = 0; i < samples.Count; i++)
+        {
+            var progress = samples[i].Progress;
+
+            // HasOvershoot检查
+            if (progress < -0.01d || progress > 1.01d)
+                hasOvershoot = true;
+
+            // IsMonotonic检查
+            if (first)
+            {
+                previous = progress;
+                first = false;
+            }
+            else if (progress + 1e-4d < previous)
+            {
+                isMonotonic = false;
+            }
+            else
+            {
+                previous = progress;
+            }
+        }
+
         return new SourceProfile(
             p25,
             p50,
             p75,
             DetectPhase(p25, p75),
-            HasOvershoot(samples.Select(s => s.Progress)),
-            IsMonotonic(samples.Select(s => s.Progress)));
+            hasOvershoot,
+            isMonotonic);
     }
 
     private CandidateProfile AnalyzeCandidateProfile(
         Kpc.Event<TPayload> candidate,
         List<SamplePoint> samples)
     {
-        var startValue = Convert.ToDouble(candidate.StartValue);
-        var endValue = Convert.ToDouble(candidate.EndValue);
+        var startValue = candidate.GetStartValueAsDouble();
+        var endValue = candidate.GetEndValueAsDouble();
         var totalDelta = endValue - startValue;
 
-        var progresses = new List<double>(samples.Count);
-        foreach (var sample in samples)
+        // 直接计算progress并内联检查，避免分配progresses列表
+        var p25 = 0d;
+        var p50 = 0d;
+        var p75 = 0d;
+        var hasOvershoot = false;
+        var isMonotonic = true;
+        var first = true;
+        var previous = 0d;
+
+        // 预计算目标时间点的索引
+        var idx25 = 0;
+        var idx50 = 0;
+        var idx75 = 0;
+        for (var i = 0; i < samples.Count; i++)
         {
-            var value = Convert.ToDouble(candidate.GetValueAtBeat(sample.Beat));
-            var progress = Math.Abs(totalDelta) <= NumericEpsilon ? 0d : (value - startValue) / totalDelta;
-            progresses.Add(progress);
+            if (samples[i].Time < 0.25d) idx25 = i;
+            if (samples[i].Time < 0.50d) idx50 = i;
+            if (samples[i].Time < 0.75d) idx75 = i;
         }
 
-        return new CandidateProfile(
-            GetProgressAtTime(samples, progresses, 0.25d),
-            GetProgressAtTime(samples, progresses, 0.50d),
-            GetProgressAtTime(samples, progresses, 0.75d),
-            HasOvershoot(progresses),
-            IsMonotonic(progresses));
+        for (var i = 0; i < samples.Count; i++)
+        {
+            var value = candidate.GetValueAtBeatAsDouble(samples[i].Beat);
+            var progress = Math.Abs(totalDelta) <= NumericEpsilon ? 0d : (value - startValue) / totalDelta;
+
+            // HasOvershoot检查
+            if (progress < -0.01d || progress > 1.01d)
+                hasOvershoot = true;
+
+            // IsMonotonic检查
+            if (first)
+            {
+                previous = progress;
+                first = false;
+            }
+            else if (progress + 1e-4d < previous)
+            {
+                isMonotonic = false;
+            }
+            else
+            {
+                previous = progress;
+            }
+
+            // 计算分位数进度
+            if (i == idx25) p25 = progress;
+            if (i == idx50) p50 = progress;
+            if (i == idx75) p75 = progress;
+        }
+
+        return new CandidateProfile(p25, p50, p75, hasOvershoot, isMonotonic);
     }
 
     private double GetProgressAtTime(List<SamplePoint> samples, double targetTime)
-        => GetProgressAtTime(samples, samples.Select(s => s.Progress).ToList(), targetTime);
+    {
+        // 直接从samples读取progress，避免LINQ分配
+        if (samples.Count == 0)
+            return 0d;
+
+        if (targetTime <= samples[0].Time)
+            return samples[0].Progress;
+
+        for (var i = 1; i < samples.Count; i++)
+        {
+            if (samples[i].Time < targetTime)
+                continue;
+
+            var left = samples[i - 1];
+            var right = samples[i];
+            var span = right.Time - left.Time;
+            if (span <= NumericEpsilon)
+                return samples[i].Progress;
+
+            var ratio = (targetTime - left.Time) / span;
+            return samples[i - 1].Progress + (samples[i].Progress - samples[i - 1].Progress) * ratio;
+        }
+
+        return samples[^1].Progress;
+    }
 
     private double GetProgressAtTime(List<SamplePoint> samples, List<double> progresses, double targetTime)
     {
@@ -646,32 +748,6 @@ public class EventFit<TPayload> : IEventFit<Kpc.Event<TPayload>>
         }
 
         return progresses[^1];
-    }
-
-    private bool HasOvershoot(IEnumerable<double> progresses)
-        => progresses.Any(p => p is < -0.01d or > 1.01d);
-
-    private bool IsMonotonic(IEnumerable<double> progresses)
-    {
-        var first = true;
-        var previous = 0d;
-
-        foreach (var progress in progresses)
-        {
-            if (first)
-            {
-                previous = progress;
-                first = false;
-                continue;
-            }
-
-            if (progress + 1e-4d < previous)
-                return false;
-
-            previous = progress;
-        }
-
-        return true;
     }
 
     private EasingPhase DetectPhase(double p25, double p75)
