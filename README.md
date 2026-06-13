@@ -85,4 +85,4 @@ NuanR_Star Ciallo Team Copyright © 2026 KaedePhi Project.
 [PhiFans](https://github.com/PhiFans)  
 [Ivan-1F](https://github.com/Ivan-1F)  
 所有参与测试反馈的各位以及贡献者  
-和屏幕前的你！
+和屏幕前的你！！！
