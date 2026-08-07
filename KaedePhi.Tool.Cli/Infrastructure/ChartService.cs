@@ -97,14 +97,14 @@ public sealed class ChartService
     {
         if (!string.IsNullOrWhiteSpace(output))
             return output;
+        if (!string.IsNullOrWhiteSpace(workspace))
+            return Path.Combine(_workspace.Root, workspace, "chart" + extension);
         if (string.IsNullOrEmpty(input))
             throw new InvalidOperationException(CliLocalizationString.err_input_required);
-        if (string.IsNullOrWhiteSpace(workspace))
-            return Path.Combine(
-                Path.GetDirectoryName(input) ?? ".",
-                Path.GetFileNameWithoutExtension(input) + "_KaedePhi" + extension
-            );
-        return Path.Combine(_workspace.Root, workspace, "chart" + extension);
+        return Path.Combine(
+            Path.GetDirectoryName(input) ?? ".",
+            Path.GetFileNameWithoutExtension(input) + "_KaedePhi" + extension
+        );
     }
 
     /// <summary>将 KPC 谱面导出为 RPE 格式并写入。</summary>
@@ -115,12 +115,9 @@ public sealed class ChartService
         CancellationToken ct = default
     )
     {
-        if (dryRun)
-            return outputPath;
-
         await ChartFormatRegistry
             .Get(ChartType.RePhiEdit)
-            .ExportAsync(chart, outputPath, exportOptions: new ConvertOption(), ct: ct);
+            .ExportAsync(chart, outputPath, new ChartWriteSettings { DryRun = dryRun }, exportOptions: new ConvertOption(), ct: ct);
         return outputPath;
     }
 
@@ -136,13 +133,11 @@ public sealed class ChartService
         var descriptor = ChartFormatRegistry.Find(target);
         if (descriptor is not { CanExport: true })
             return null;
-        if (options.DryRun)
-            return outputPath;
 
         await descriptor.ExportAsync(
             chart,
             outputPath,
-            new ChartWriteSettings { UseStream = options.Stream, Indented = options.Format },
+            new ChartWriteSettings { UseStream = options.Stream, Indented = options.Format, DryRun = options.DryRun },
             options.ResolveFor(target),
             ct: ct
         );

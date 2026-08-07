@@ -90,7 +90,7 @@ public static class FitEventCommand
                     ConsoleWriter.Debug
                 );
 
-                foreach (var line in kpc.JudgeLineList)
+                foreach (var line in kpcClone.JudgeLineList)
                 {
                     foreach (var el in line.EventLayers.OfType<EventLayer>())
                     {
@@ -102,8 +102,6 @@ public static class FitEventCommand
                         el.RotateEvents = roFitter.FitEvents(el.RotateEvents, tolerance);
                         el.SpeedEvents = spFitter.FitEvents(el.SpeedEvents, tolerance);
                     }
-
-                    kpcClone.JudgeLineList[kpc.JudgeLineList.IndexOf(line)] = line;
                 }
 
                 var output = await ChartService.SaveAsRpeAsync(

@@ -12,6 +12,9 @@ public sealed record ChartWriteSettings
 
     /// <summary>是否格式化输出（对文本格式无效）。</summary>
     public bool Indented { get; init; }
+
+    /// <summary>是否为演习模式：完成序列化但跳过文件写入。</summary>
+    public bool DryRun { get; init; }
 }
 
 /// <summary>

@@ -303,7 +303,7 @@ internal sealed class AppController
             // 直接使用内存中的 KPC 图表，无需加载和转换
             var kpcChart = _chart.CurrentChart;
 
-            // Run tool
+            // 运行工具
             _processingVm.SetStep(0, string.Format(log_running_tool, toolId));
             var toolProgress = new Progress<ToolProgress>(p =>
             {
@@ -348,7 +348,7 @@ internal sealed class AppController
                             _chart.RunFitEvent(kpcChart, _toolVm.Tolerance, toolProgress);
                             break;
                         case "render":
-                            _chart.RunRender(
+                            var renderPaths = _chart.RunRender(
                                 kpcChart,
                                 _toolVm.PixelsPerBeat,
                                 _toolVm.ChannelWidth,
@@ -356,6 +356,8 @@ internal sealed class AppController
                                 _toolVm.BeatSubdivisions,
                                 toolProgress
                             );
+                            foreach (var p in renderPaths)
+                                _log.Information(log_tool_render_output, p);
                             break;
                     }
                 },
@@ -522,6 +524,40 @@ internal sealed class AppController
     {
         return new KpcToPhigrosV3ConvertOptions
         {
+            DefaultBpm = vm.PhigrosDefaultBpm,
+            Cutting = new KpcToPhigrosV3ConvertOptions.CuttingOptions
+            {
+                EasingPrecision = vm.PhigrosEasingPrecision,
+                MisalignedXyEventPrecision = vm.PhigrosMisalignedXyEventPrecision,
+            },
+            Alpha = new KpcToPhigrosV3ConvertOptions.AlphaOptions
+            {
+                CutPrecision = vm.PhigrosAlphaCutPrecision,
+                CutTolerance = vm.PhigrosAlphaCutTolerance,
+            },
+            Speed = new KpcToPhigrosV3ConvertOptions.SpeedOptions
+            {
+                CutPrecision = vm.PhigrosSpeedCutPrecision,
+            },
+            FatherLineUnbind = new KpcToPhigrosV3ConvertOptions.FatherLineUnbindOptions
+            {
+                Precision = vm.UnbindPrecision,
+                Tolerance = vm.UnbindTolerance,
+                ClassicMode = vm.UnbindClassicMode,
+                Compress = vm.UnbindCompress,
+            },
+            MultiLayerMerge = new KpcToPhigrosV3ConvertOptions.MultiLayerMergeOptions
+            {
+                Precision = vm.MultiLayerMergePrecision,
+                Tolerance = vm.MultiLayerMergeTolerance,
+                ClassicMode = vm.MultiLayerMergeClassicMode,
+                Compress = vm.MultiLayerMergeCompress,
+            },
+            LineFilter = new KpcToPhigrosV3ConvertOptions.LineFilterOptions
+            {
+                RemoveAttachUiLine = vm.RemoveAttachUiLine,
+                RemoveTextureLine = vm.RemoveTextureLine,
+            },
             NoteFilter = new KpcToPhigrosV3ConvertOptions.NoteFilterOptions
             {
                 FilterFakeNotes = vm.FilterFakeNotes,
@@ -530,6 +566,49 @@ internal sealed class AppController
             {
                 Enabled = vm.NegativeAlphaElevation,
                 ElevationStep = vm.NegativeAlphaStep,
+            },
+        };
+    }
+
+    private static KpcToPhiEditConvertOptions BuildPhiEditOptions(ExportViewModel vm)
+    {
+        return new KpcToPhiEditConvertOptions
+        {
+            SpeedConversionRatio = vm.PeSpeedConversionRatio,
+            TrailingBeatPadding = vm.PeTrailingBeatPadding,
+            Cutting = new KpcToPhiEditConvertOptions.CuttingOptions
+            {
+                UnsupportedEasingPrecision = vm.PeUnsupportedEasingPrecision,
+                MisalignedXyEventPrecision = vm.PeMisalignedXyEventPrecision,
+            },
+            Alpha = new KpcToPhiEditConvertOptions.AlphaOptions
+            {
+                CutPrecision = vm.PeAlphaCutPrecision,
+                CutTolerance = vm.PeAlphaCutTolerance,
+            },
+            Speed = new KpcToPhiEditConvertOptions.SpeedOptions
+            {
+                CutPrecision = vm.PeSpeedCutPrecision,
+                CutTolerance = vm.PeSpeedCutTolerance,
+            },
+            FatherLineUnbind = new KpcToPhiEditConvertOptions.FatherLineUnbindOptions
+            {
+                Precision = vm.UnbindPrecision,
+                Tolerance = vm.UnbindTolerance,
+                ClassicMode = vm.UnbindClassicMode,
+                Compress = vm.UnbindCompress,
+            },
+            MultiLayerMerge = new KpcToPhiEditConvertOptions.MultiLayerMergeOptions
+            {
+                Precision = vm.MultiLayerMergePrecision,
+                Tolerance = vm.MultiLayerMergeTolerance,
+                ClassicMode = vm.MultiLayerMergeClassicMode,
+                Compress = vm.MultiLayerMergeCompress,
+            },
+            LineFilter = new KpcToPhiEditConvertOptions.LineFilterOptions
+            {
+                RemoveAttachUiLine = vm.RemoveAttachUiLine,
+                RemoveTextureLine = vm.RemoveTextureLine,
             },
         };
     }
@@ -569,6 +648,7 @@ internal sealed class AppController
     {
         return targetFormat switch
         {
+            ChartType.PhiEdit => BuildPhiEditOptions(_exportVm),
             ChartType.PhigrosV3 => BuildPhigrosOptions(_exportVm),
             ChartType.PhiChain => BuildPhiChainOptions(_exportVm),
             ChartType.RePhiEdit => BuildRePhiEditOptions(_exportVm),

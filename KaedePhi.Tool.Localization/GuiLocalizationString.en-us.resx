@@ -223,6 +223,9 @@
   <data name="log_tool_completed" xml:space="preserve">
     <value>Tool "{0}" completed. You can run another tool or export.</value>
   </data>
+  <data name="log_tool_render_output" xml:space="preserve">
+    <value>Render output: {0}</value>
+  </data>
   <data name="log_tool_failed" xml:space="preserve">
     <value>Tool execution failed.</value>
   </data>

@@ -50,14 +50,14 @@ public static class SharedOptions
         new("--precision", "-p")
         {
             Description = CliHelper.L("cli_opt_precision_desc"),
-            Arity = ArgumentArity.ZeroOrOne,
+            Arity = ArgumentArity.ExactlyOne,
         };
 
     public static Option<double> ToleranceOption { get; } =
         new("--tolerance", "-t")
         {
             Description = CliHelper.L("cli_opt_tolerance_desc"),
-            Arity = ArgumentArity.ZeroOrOne,
+            Arity = ArgumentArity.ExactlyOne,
         };
 
     public static Option<bool> ClassicOption { get; } =

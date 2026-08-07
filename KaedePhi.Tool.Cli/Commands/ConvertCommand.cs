@@ -39,55 +39,55 @@ public static class ConvertCommand
     private static readonly Option<double> PeSpeedRatioOpt = new("--pe-speed-ratio")
     {
         Description = L("convert_opt_pe_speed_ratio"),
-        Arity = ArgumentArity.ZeroOrOne,
+        Arity = ArgumentArity.ExactlyOne,
     };
 
     private static readonly Option<double> PeTrailingPaddingOpt = new("--pe-trailing-padding")
     {
         Description = L("convert_opt_pe_trailing_padding"),
-        Arity = ArgumentArity.ZeroOrOne,
+        Arity = ArgumentArity.ExactlyOne,
     };
 
     private static readonly Option<double> PeEasingPrecisionOpt = new("--pe-easing-precision")
     {
         Description = L("convert_opt_pe_easing_precision"),
-        Arity = ArgumentArity.ZeroOrOne,
+        Arity = ArgumentArity.ExactlyOne,
     };
 
     private static readonly Option<double> PeXyPrecisionOpt = new("--pe-xy-precision")
     {
         Description = L("convert_opt_pe_xy_precision"),
-        Arity = ArgumentArity.ZeroOrOne,
+        Arity = ArgumentArity.ExactlyOne,
     };
 
     private static readonly Option<double> PeAlphaPrecisionOpt = new("--pe-alpha-precision")
     {
         Description = L("convert_opt_pe_alpha_precision"),
-        Arity = ArgumentArity.ZeroOrOne,
+        Arity = ArgumentArity.ExactlyOne,
     };
 
     private static readonly Option<double> PeAlphaToleranceOpt = new("--pe-alpha-tolerance")
     {
         Description = L("convert_opt_pe_alpha_tolerance"),
-        Arity = ArgumentArity.ZeroOrOne,
+        Arity = ArgumentArity.ExactlyOne,
     };
 
     private static readonly Option<double> PeSpeedPrecisionOpt = new("--pe-speed-precision")
     {
         Description = L("convert_opt_pe_speed_precision"),
-        Arity = ArgumentArity.ZeroOrOne,
+        Arity = ArgumentArity.ExactlyOne,
     };
 
     private static readonly Option<double> PeSpeedToleranceOpt = new("--pe-speed-tolerance")
     {
         Description = L("convert_opt_pe_speed_tolerance"),
-        Arity = ArgumentArity.ZeroOrOne,
+        Arity = ArgumentArity.ExactlyOne,
     };
 
     private static readonly Option<float> PhigrosBpmOpt = new("--phigros-bpm")
     {
         Description = L("convert_opt_phigros_bpm"),
-        Arity = ArgumentArity.ZeroOrOne,
+        Arity = ArgumentArity.ExactlyOne,
     };
 
     private static readonly Option<double> PhigrosEasingPrecisionOpt = new(
@@ -95,13 +95,13 @@ public static class ConvertCommand
     )
     {
         Description = L("convert_opt_phigros_easing_precision"),
-        Arity = ArgumentArity.ZeroOrOne,
+        Arity = ArgumentArity.ExactlyOne,
     };
 
     private static readonly Option<double> PhigrosXyPrecisionOpt = new("--phigros-xy-precision")
     {
         Description = L("convert_opt_phigros_xy_precision"),
-        Arity = ArgumentArity.ZeroOrOne,
+        Arity = ArgumentArity.ExactlyOne,
     };
 
     private static readonly Option<double> PhigrosAlphaPrecisionOpt = new(
@@ -109,7 +109,7 @@ public static class ConvertCommand
     )
     {
         Description = L("convert_opt_phigros_alpha_precision"),
-        Arity = ArgumentArity.ZeroOrOne,
+        Arity = ArgumentArity.ExactlyOne,
     };
 
     private static readonly Option<double> PhigrosAlphaToleranceOpt = new(
@@ -117,7 +117,7 @@ public static class ConvertCommand
     )
     {
         Description = L("convert_opt_phigros_alpha_tolerance"),
-        Arity = ArgumentArity.ZeroOrOne,
+        Arity = ArgumentArity.ExactlyOne,
     };
 
     private static readonly Option<double> PhigrosSpeedPrecisionOpt = new(
@@ -125,19 +125,19 @@ public static class ConvertCommand
     )
     {
         Description = L("convert_opt_phigros_speed_precision"),
-        Arity = ArgumentArity.ZeroOrOne,
+        Arity = ArgumentArity.ExactlyOne,
     };
 
     private static readonly Option<double> UnbindPrecisionOpt = new("--unbind-precision")
     {
         Description = L("convert_opt_unbind_precision"),
-        Arity = ArgumentArity.ZeroOrOne,
+        Arity = ArgumentArity.ExactlyOne,
     };
 
     private static readonly Option<double> UnbindToleranceOpt = new("--unbind-tolerance")
     {
         Description = L("convert_opt_unbind_tolerance"),
-        Arity = ArgumentArity.ZeroOrOne,
+        Arity = ArgumentArity.ExactlyOne,
     };
 
     private static readonly Option<bool> UnbindClassicOpt = new("--unbind-classic")
@@ -148,13 +148,13 @@ public static class ConvertCommand
     private static readonly Option<double> MergePrecisionOpt = new("--merge-precision")
     {
         Description = L("convert_opt_merge_precision"),
-        Arity = ArgumentArity.ZeroOrOne,
+        Arity = ArgumentArity.ExactlyOne,
     };
 
     private static readonly Option<double> MergeToleranceOpt = new("--merge-tolerance")
     {
         Description = L("convert_opt_merge_tolerance"),
-        Arity = ArgumentArity.ZeroOrOne,
+        Arity = ArgumentArity.ExactlyOne,
     };
 
     private static readonly Option<bool> MergeClassicOpt = new("--merge-classic")
@@ -197,7 +197,7 @@ public static class ConvertCommand
     private static readonly Option<double> NegativeAlphaStepOpt = new("--negative-alpha-step")
     {
         Description = L("convert_opt_negative_alpha_step"),
-        Arity = ArgumentArity.ZeroOrOne,
+        Arity = ArgumentArity.ExactlyOne,
     };
 
     #endregion
@@ -268,8 +268,9 @@ public static class ConvertCommand
                     return 1;
                 }
 
-                var output = svc.ResolveOutputPath(input, result.GetValue(OutputOpt), workspace);
                 var targetType = result.GetValue(TargetTypeOpt) ?? c.TargetType;
+                var targetExtension = "." + (ChartFormatRegistry.Find(targetType)?.FileExtension ?? "json");
+                var output = svc.ResolveOutputPath(input, result.GetValue(OutputOpt), workspace, targetExtension);
                 var streamOutput =
                     SharedOptions.GetIfSpecified(result, StreamOpt) ?? c.StreamOutput;
                 var formatOutput =

@@ -16,7 +16,9 @@ internal static class Program
     {
         if (args.Contains("--gui"))
             return RunGui(args);
-        if (args.Contains("--cli") || TerminalDetector.Instance.IsInteractiveTerminal())
+        // 若存在非 GUI 参数，无论终端状态均走 CLI，避免重定向/管道时误启动 GUI
+        var effectiveArgs = args.Where(a => a is not "--cli" and not "--gui").ToArray();
+        if (args.Contains("--cli") || effectiveArgs.Length > 0 || TerminalDetector.Instance.IsInteractiveTerminal())
             return await RunCli(args);
 
         return RunGui(args);
@@ -64,7 +66,7 @@ internal static class Program
         var ver = Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "unknown";
         root.SetAction(_ =>
             {
-                ConsoleWriter.Info($"{CliLocalizationString.app_title} v{ver}");
+                Console.WriteLine($"{CliLocalizationString.app_title} v{ver}");
                 return 0;
             }
         );

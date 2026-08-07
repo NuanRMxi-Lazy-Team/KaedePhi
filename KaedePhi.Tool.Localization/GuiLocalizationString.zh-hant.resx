@@ -223,6 +223,9 @@
   <data name="log_tool_completed" xml:space="preserve">
     <value>工具 "{0}" 已完成。您可以執行其它工具或匯出。</value>
   </data>
+  <data name="log_tool_render_output" xml:space="preserve">
+    <value>渲染輸出: {0}</value>
+  </data>
   <data name="log_tool_failed" xml:space="preserve">
     <value>工具執行失敗。</value>
   </data>

@@ -20,9 +20,8 @@ public static class VersionCommand
                 .GetCustomAttribute<AssemblyInformationalVersionAttribute>()
                 ?.InformationalVersion;
 #endif
-            ConsoleWriter.Info($"{CliLocalizationString.app_title} v{ver}");
-            return 0;
-        });
+            Console.WriteLine($"{CliLocalizationString.app_title} v{ver}");
+            return 0;        });
         return cmd;
     }
 }

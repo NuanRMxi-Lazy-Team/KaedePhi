@@ -216,19 +216,29 @@ public static class ChartFormatRegistry
         ct.ThrowIfCancellationRequested();
         if (write.UseStream)
         {
-            await using var stream = new FileStream(
-                path,
-                FileMode.Create,
-                FileAccess.Write,
-                FileShare.None,
-                4096,
-                useAsync: true
-            );
-            await serializeStream(stream);
+            if (write.DryRun)
+            {
+                await using var stream = new MemoryStream();
+                await serializeStream(stream);
+            }
+            else
+            {
+                await using var stream = new FileStream(
+                    path,
+                    FileMode.Create,
+                    FileAccess.Write,
+                    FileShare.None,
+                    4096,
+                    useAsync: true
+                );
+                await serializeStream(stream);
+            }
         }
         else
         {
-            await File.WriteAllTextAsync(path, await serializeText(), ct);
+            var text = await serializeText();
+            if (!write.DryRun)
+                await File.WriteAllTextAsync(path, text, ct);
         }
     }
 }

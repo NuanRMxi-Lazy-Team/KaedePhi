@@ -735,6 +735,15 @@ namespace KaedePhi.Tool.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to 渲染输出: {0}.
+        /// </summary>
+        public static string log_tool_render_output {
+            get {
+                return ResourceManager.GetString("log_tool_render_output", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to 工具执行失败。.
         /// </summary>
         public static string log_tool_failed {
