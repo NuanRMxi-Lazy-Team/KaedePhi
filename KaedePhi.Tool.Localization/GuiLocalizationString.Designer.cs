@@ -195,7 +195,7 @@ namespace KaedePhi.Tool.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to 缓动切割精度.
+        ///   Looks up a localized string similar to 不支持缓动切割精度.
         /// </summary>
         public static string convert_easing_precision {
             get {
@@ -335,15 +335,6 @@ namespace KaedePhi.Tool.Localization {
         public static string convert_speed_precision {
             get {
                 return ResourceManager.GetString("convert_speed_precision", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to 速度事件值转换比率（不建议修改）.
-        /// </summary>
-        public static string convert_speed_ratio {
-            get {
-                return ResourceManager.GetString("convert_speed_ratio", resourceCulture);
             }
         }
         

@@ -71,9 +71,9 @@ public sealed class ImportOptionsViewModel : INotifyPropertyChanged
     #region PhiEdit 导入选项
 
     /// <summary>
-    /// PE 帧转事件后持续拍长度
+    /// PE 帧转事件后持续拍长度（1 / x 拍的分母）
     /// </summary>
-    public double PeFrameDurationBeat
+    public int PeFrameDurationBeat
     {
         get;
         set
@@ -81,12 +81,12 @@ public sealed class ImportOptionsViewModel : INotifyPropertyChanged
             field = value;
             OnPropertyChanged();
         }
-    } = 1d / 64d;
+    } = 64;
 
     /// <summary>
-    /// PE 速度帧值到 KPC 速度事件值的转换比率
+    /// PE 尾部拍填充量（1 / x 拍的分母）
     /// </summary>
-    public double PeSpeedConversionRatio
+    public int PeTrailingBeatPadding
     {
         get;
         set
@@ -94,20 +94,7 @@ public sealed class ImportOptionsViewModel : INotifyPropertyChanged
             field = value;
             OnPropertyChanged();
         }
-    } = 14d / 9d;
-
-    /// <summary>
-    /// PE 尾部拍填充量
-    /// </summary>
-    public double PeTrailingBeatPadding
-    {
-        get;
-        set
-        {
-            field = value;
-            OnPropertyChanged();
-        }
-    } = 1d / 64d;
+    } = 64;
 
     #endregion
 

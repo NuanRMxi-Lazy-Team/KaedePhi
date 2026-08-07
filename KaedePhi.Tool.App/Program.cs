@@ -10,7 +10,7 @@ using KaedePhi.Tool.App.Shared;
 
 namespace KaedePhi.Tool.App;
 
-internal static class Program
+internal static partial class Program
 {
     public static async Task<int> Main(string[] args)
     {
@@ -41,8 +41,9 @@ internal static class Program
         return exitCode;
     }
 
-    [DllImport("kernel32.dll")]
-    private static extern bool FreeConsole();
+    [LibraryImport("kernel32.dll")]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static partial bool FreeConsole();
 
     private static AppBuilder BuildAvaloniaApp() =>
         AppBuilder.Configure<App>()
@@ -66,7 +67,7 @@ internal static class Program
         var ver = Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "unknown";
         root.SetAction(_ =>
             {
-                Console.WriteLine($"{CliLocalizationString.app_title} v{ver}");
+                Console.WriteLine($@"{CliLocalizationString.app_title} v{ver}");
                 return 0;
             }
         );

@@ -32,12 +32,6 @@ public static class ConvertCommand
         Arity = ArgumentArity.ZeroOrOne,
     };
 
-    private static readonly Option<double> PeSpeedRatioOpt = new("--pe-speed-ratio")
-    {
-        Description = CliHelper.L("convert_opt_pe_speed_ratio"),
-        Arity = ArgumentArity.ExactlyOne,
-    };
-
     private static readonly Option<double> PeTrailingPaddingOpt = new("--pe-trailing-padding")
     {
         Description = CliHelper.L("convert_opt_pe_trailing_padding"),
@@ -213,7 +207,6 @@ public static class ConvertCommand
             StreamOpt,
             FormatOpt,
             TargetTypeOpt,
-            PeSpeedRatioOpt,
             PeTrailingPaddingOpt,
             PeEasingPrecisionOpt,
             PeXyPrecisionOpt,
@@ -277,9 +270,6 @@ public static class ConvertCommand
 
                 var peOptions = new KpcToPhiEditConvertOptions
                 {
-                    SpeedConversionRatio =
-                        SharedOptions.GetIfSpecified(result, PeSpeedRatioOpt)
-                        ?? c.PeSpeedConversionRatio,
                     TrailingBeatPadding =
                         SharedOptions.GetIfSpecified(result, PeTrailingPaddingOpt)
                         ?? c.PeTrailingBeatPadding,

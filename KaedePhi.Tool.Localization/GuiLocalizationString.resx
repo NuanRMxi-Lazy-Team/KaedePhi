@@ -346,11 +346,8 @@
   <data name="convert_phigros_options" xml:space="preserve">
     <value>转换到 PhigrosV3 格式选项</value>
   </data>
-  <data name="convert_speed_ratio" xml:space="preserve">
-    <value>速度事件值转换比率（不建议修改）</value>
-  </data>
   <data name="convert_easing_precision" xml:space="preserve">
-    <value>缓动切割精度</value>
+    <value>不支持缓动切割精度</value>
   </data>
   <data name="convert_alpha_precision" xml:space="preserve">
     <value>Alpha事件切割精度</value>
@@ -479,10 +476,10 @@
     <value>导入选项</value>
   </data>
   <data name="convert_frame_duration_beat" xml:space="preserve">
-    <value>帧转事件持续拍长度</value>
+    <value>帧转事件持续拍长度（1 / x 拍）</value>
   </data>
   <data name="convert_trailing_beat_padding" xml:space="preserve">
-    <value>尾部拍填充量</value>
+    <value>尾部拍填充量（1 / x 拍）</value>
   </data>
   <data name="convert_rephiedit_options" xml:space="preserve">
     <value>转换到 RePhiEdit 格式选项</value>

@@ -30,11 +30,6 @@ public class ConvertConfig
     #region PhiEdit 转换选项
 
     /// <summary>
-    /// PE 速度帧值到 KPC 速度事件值的转换比率
-    /// </summary>
-    public double PeSpeedConversionRatio { get; set; } = 14d / 9d;
-
-    /// <summary>
     /// PE 尾部拍填充量（拍）
     /// </summary>
     public double PeTrailingBeatPadding { get; set; } = 1d / 64d;

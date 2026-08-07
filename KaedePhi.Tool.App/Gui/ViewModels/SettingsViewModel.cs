@@ -116,7 +116,6 @@ public sealed class SettingsViewModel : INotifyPropertyChanged
 
     #region Convert (PE)
 
-    public double ConvertPeSpeedConversionRatio { get; set; } = 14d / 9d;
     public double ConvertPeTrailingBeatPadding { get; set; } = 1d / 64d;
     public double ConvertPeUnsupportedEasingPrecision { get; set; } = 64d;
     public double ConvertPeMisalignedXyEventPrecision { get; set; } = 64d;
@@ -194,7 +193,6 @@ public sealed class SettingsViewModel : INotifyPropertyChanged
         c.Render.MinValueRangeHalf = RenderMinValueRangeHalf;
         c.Render.MinValueRangeHalfRatio = RenderMinValueRangeHalfRatio;
 
-        c.Convert.PeSpeedConversionRatio = ConvertPeSpeedConversionRatio;
         c.Convert.PeTrailingBeatPadding = ConvertPeTrailingBeatPadding;
         c.Convert.PeUnsupportedEasingPrecision = ConvertPeUnsupportedEasingPrecision;
         c.Convert.PeMisalignedXyEventPrecision = ConvertPeMisalignedXyEventPrecision;
@@ -260,7 +258,6 @@ public sealed class SettingsViewModel : INotifyPropertyChanged
         RenderMinValueRangeHalf = c.Render.MinValueRangeHalf;
         RenderMinValueRangeHalfRatio = c.Render.MinValueRangeHalfRatio;
 
-        ConvertPeSpeedConversionRatio = c.Convert.PeSpeedConversionRatio;
         ConvertPeTrailingBeatPadding = c.Convert.PeTrailingBeatPadding;
         ConvertPeUnsupportedEasingPrecision = c.Convert.PeUnsupportedEasingPrecision;
         ConvertPeMisalignedXyEventPrecision = c.Convert.PeMisalignedXyEventPrecision;

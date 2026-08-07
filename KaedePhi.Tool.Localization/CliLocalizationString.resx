@@ -266,9 +266,6 @@
         <value>负透明度段每次抬高的 KPC Y 偏移量（默认：4.0）</value>
     </data>
     <!-- ── convert option descriptions（PE 转换） ────────────────────────────── -->
-    <data name="convert_opt_pe_speed_ratio" xml:space="preserve">
-        <value>PE 输出时的速度转换倍率（默认：约1.56）</value>
-    </data>
     <data name="convert_opt_pe_trailing_padding" xml:space="preserve">
         <value>PE 输出时帧结束后的尾部填充拍数（默认：1/64拍）</value>
     </data>

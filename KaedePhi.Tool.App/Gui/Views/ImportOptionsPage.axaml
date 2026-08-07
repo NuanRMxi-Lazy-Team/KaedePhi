@@ -40,15 +40,11 @@
                                 <StackPanel Spacing="6">
                                     <StackPanel Spacing="4">
                                         <TextBlock Text="{x:Static loc:GuiLocalizationString.convert_frame_duration_beat}" FontSize="12" Opacity="0.7"/>
-                                        <NumericUpDown Value="{Binding PeFrameDurationBeat}" Increment="0.001" FormatString="F6" Width="200" HorizontalAlignment="Left"/>
-                                    </StackPanel>
-                                    <StackPanel Spacing="4">
-                                        <TextBlock Text="{x:Static loc:GuiLocalizationString.convert_speed_ratio}" FontSize="12" Opacity="0.7"/>
-                                        <NumericUpDown Value="{Binding PeSpeedConversionRatio}" Increment="0.1" FormatString="F4" Width="200" HorizontalAlignment="Left"/>
+                                        <TextBox Text="{Binding PeFrameDurationBeat}" Width="80" HorizontalAlignment="Left"/>
                                     </StackPanel>
                                     <StackPanel Spacing="4">
                                         <TextBlock Text="{x:Static loc:GuiLocalizationString.convert_trailing_beat_padding}" FontSize="12" Opacity="0.7"/>
-                                        <NumericUpDown Value="{Binding PeTrailingBeatPadding}" Increment="0.001" FormatString="F6" Width="200" HorizontalAlignment="Left"/>
+                                        <TextBox Text="{Binding PeTrailingBeatPadding}" Width="80" HorizontalAlignment="Left"/>
                                     </StackPanel>
                                 </StackPanel>
                             </StackPanel>
@@ -59,7 +55,7 @@
                                 <StackPanel Spacing="6">
                                     <StackPanel Spacing="4">
                                         <TextBlock Text="{x:Static loc:GuiLocalizationString.convert_easing_precision}" FontSize="12" Opacity="0.7"/>
-                                        <NumericUpDown Value="{Binding PhiChainUnsupportedEasingPrecision}" Increment="1" FormatString="F0" Width="200" HorizontalAlignment="Left"/>
+                                        <TextBox Text="{Binding PhiChainUnsupportedEasingPrecision}" Width="200" HorizontalAlignment="Left"/>
                                     </StackPanel>
                                 </StackPanel>
                             </StackPanel>

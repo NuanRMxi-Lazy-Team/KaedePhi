@@ -63,7 +63,6 @@ public sealed class RenderDefaultsConfig
 public sealed class ConvertDefaultsConfig
 {
     // PhiEdit 转换选项
-    public double PeSpeedConversionRatio { get; set; } = 14d / 9d;
     public double PeTrailingBeatPadding { get; set; } = 1d / 64d;
     public double PeUnsupportedEasingPrecision { get; set; } = 64d;
     public double PeMisalignedXyEventPrecision { get; set; } = 64d;

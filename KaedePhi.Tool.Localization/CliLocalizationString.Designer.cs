@@ -447,15 +447,6 @@ namespace KaedePhi.Tool.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to PE 输出时的速度转换倍率（默认：约1.56）.
-        /// </summary>
-        public static string convert_opt_pe_speed_ratio {
-            get {
-                return ResourceManager.GetString("convert_opt_pe_speed_ratio", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to PE 输出时速度通道的压缩容差百分比.
         /// </summary>
         public static string convert_opt_pe_speed_tolerance {

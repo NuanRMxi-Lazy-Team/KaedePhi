@@ -272,9 +272,8 @@ internal sealed class AppController
         {
             ChartType.PhiEdit => new PhiEditToKpcConvertOptions
             {
-                FrameDurationBeat = _importOptionsVm.PeFrameDurationBeat,
-                SpeedConversionRatio = _importOptionsVm.PeSpeedConversionRatio,
-                TrailingBeatPadding = _importOptionsVm.PeTrailingBeatPadding,
+                FrameDurationBeat = 1d / _importOptionsVm.PeFrameDurationBeat,
+                TrailingBeatPadding = 1d / _importOptionsVm.PeTrailingBeatPadding,
             },
             ChartType.PhiChain => new PhiChainToKpcConvertOptions
             {
@@ -574,7 +573,6 @@ internal sealed class AppController
     {
         return new KpcToPhiEditConvertOptions
         {
-            SpeedConversionRatio = vm.PeSpeedConversionRatio,
             TrailingBeatPadding = vm.PeTrailingBeatPadding,
             Cutting = new KpcToPhiEditConvertOptions.CuttingOptions
             {

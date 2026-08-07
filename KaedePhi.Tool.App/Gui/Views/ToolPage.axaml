@@ -93,9 +93,8 @@
                         <!-- 精度 -->
                         <StackPanel IsVisible="{Binding ShowPrecision}" Spacing="4">
                             <TextBlock Text="{x:Static loc:GuiLocalizationString.option_precision}" FontSize="12" Opacity="0.7"/>
-                            <NumericUpDown Value="{Binding Precision}" Minimum="1" Maximum="10000"
-                                           Increment="1" FormatString="F0" Width="200"
-                                           HorizontalAlignment="Left"/>
+                            <TextBox Text="{Binding Precision}" Width="200"
+                                     HorizontalAlignment="Left"/>
                         </StackPanel>
 
                         <!-- 容差 -->

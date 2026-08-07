@@ -28,8 +28,7 @@
                         <StackPanel Spacing="12" Margin="0,12,0,0">
                             <StackPanel Spacing="4">
                                 <TextBlock Text="{x:Static loc:GuiLocalizationString.option_precision}" FontSize="12" Opacity="0.7"/>
-                                <NumericUpDown Value="{Binding UnbindPrecision}" Minimum="1" Maximum="10000"
-                                               Increment="1" FormatString="F0" Width="200" HorizontalAlignment="Left"/>
+                                <TextBox Text="{Binding UnbindPrecision}" Width="200" HorizontalAlignment="Left"/>
                             </StackPanel>
                             <StackPanel Spacing="4">
                                 <TextBlock Text="{x:Static loc:GuiLocalizationString.option_tolerance}" FontSize="12" Opacity="0.7"/>
@@ -49,8 +48,7 @@
                         <StackPanel Spacing="12" Margin="0,12,0,0">
                             <StackPanel Spacing="4">
                                 <TextBlock Text="{x:Static loc:GuiLocalizationString.option_precision}" FontSize="12" Opacity="0.7"/>
-                                <NumericUpDown Value="{Binding LayerMergePrecision}" Minimum="1" Maximum="10000"
-                                               Increment="1" FormatString="F0" Width="200" HorizontalAlignment="Left"/>
+                                <TextBox Text="{Binding LayerMergePrecision}" Width="200" HorizontalAlignment="Left"/>
                             </StackPanel>
                             <StackPanel Spacing="4">
                                 <TextBlock Text="{x:Static loc:GuiLocalizationString.option_tolerance}" FontSize="12" Opacity="0.7"/>
@@ -70,8 +68,7 @@
                         <StackPanel Spacing="12" Margin="0,12,0,0">
                             <StackPanel Spacing="4">
                                 <TextBlock Text="{x:Static loc:GuiLocalizationString.option_precision}" FontSize="12" Opacity="0.7"/>
-                                <NumericUpDown Value="{Binding CutPrecision}" Minimum="1" Maximum="10000"
-                                               Increment="1" FormatString="F0" Width="200" HorizontalAlignment="Left"/>
+                                <TextBox Text="{Binding CutPrecision}" Width="200" HorizontalAlignment="Left"/>
                             </StackPanel>
                             <StackPanel Spacing="4">
                                 <TextBlock Text="{x:Static loc:GuiLocalizationString.option_tolerance}" FontSize="12" Opacity="0.7"/>
@@ -159,18 +156,12 @@
                             <TextBlock Text="{x:Static loc:GuiLocalizationString.convert_pe_options}" FontSize="11" FontWeight="SemiBold" Margin="0,4,0,0"/>
                             <StackPanel Spacing="6">
                                 <StackPanel Spacing="4">
-                                    <TextBlock Text="{x:Static loc:GuiLocalizationString.convert_speed_ratio}" FontSize="12" Opacity="0.7"/>
-                                    <NumericUpDown Value="{Binding ConvertPeSpeedConversionRatio}" Increment="0.1" FormatString="F4" Width="200" HorizontalAlignment="Left"/>
-                                </StackPanel>
-                                <StackPanel Spacing="4">
                                     <TextBlock Text="{x:Static loc:GuiLocalizationString.convert_easing_precision}" FontSize="12" Opacity="0.7"/>
-                                    <NumericUpDown Value="{Binding ConvertPeUnsupportedEasingPrecision}" Minimum="1" Maximum="10000"
-                                                   Increment="1" FormatString="F0" Width="200" HorizontalAlignment="Left"/>
+                                    <TextBox Text="{Binding ConvertPeUnsupportedEasingPrecision}" Width="200" HorizontalAlignment="Left"/>
                                 </StackPanel>
                                 <StackPanel Spacing="4">
                                     <TextBlock Text="{x:Static loc:GuiLocalizationString.convert_alpha_precision}" FontSize="12" Opacity="0.7"/>
-                                    <NumericUpDown Value="{Binding ConvertPeAlphaCutPrecision}" Minimum="1" Maximum="10000"
-                                                   Increment="1" FormatString="F0" Width="200" HorizontalAlignment="Left"/>
+                                    <TextBox Text="{Binding ConvertPeAlphaCutPrecision}" Width="200" HorizontalAlignment="Left"/>
                                 </StackPanel>
                                 <StackPanel Spacing="4">
                                     <TextBlock Text="{x:Static loc:GuiLocalizationString.convert_alpha_tolerance}" FontSize="12" Opacity="0.7"/>
@@ -179,8 +170,7 @@
                                 </StackPanel>
                                 <StackPanel Spacing="4">
                                     <TextBlock Text="{x:Static loc:GuiLocalizationString.convert_speed_precision}" FontSize="12" Opacity="0.7"/>
-                                    <NumericUpDown Value="{Binding ConvertPeSpeedCutPrecision}" Minimum="1" Maximum="10000"
-                                                   Increment="1" FormatString="F0" Width="200" HorizontalAlignment="Left"/>
+                                    <TextBox Text="{Binding ConvertPeSpeedCutPrecision}" Width="200" HorizontalAlignment="Left"/>
                                 </StackPanel>
                             </StackPanel>
 
@@ -194,13 +184,11 @@
                                 </StackPanel>
                                 <StackPanel Spacing="4">
                                     <TextBlock Text="{x:Static loc:GuiLocalizationString.convert_easing_precision}" FontSize="12" Opacity="0.7"/>
-                                    <NumericUpDown Value="{Binding ConvertPhigrosEasingPrecision}" Minimum="1" Maximum="10000"
-                                                   Increment="1" FormatString="F0" Width="200" HorizontalAlignment="Left"/>
+                                <TextBox Text="{Binding ConvertPhigrosEasingPrecision}" Width="200" HorizontalAlignment="Left"/>
                                 </StackPanel>
                                 <StackPanel Spacing="4">
                                     <TextBlock Text="{x:Static loc:GuiLocalizationString.convert_alpha_precision}" FontSize="12" Opacity="0.7"/>
-                                    <NumericUpDown Value="{Binding ConvertPhigrosAlphaCutPrecision}" Minimum="1" Maximum="10000"
-                                                   Increment="1" FormatString="F0" Width="200" HorizontalAlignment="Left"/>
+                                    <TextBox Text="{Binding ConvertPhigrosAlphaCutPrecision}" Width="200" HorizontalAlignment="Left"/>
                                 </StackPanel>
                             </StackPanel>
 
@@ -212,8 +200,7 @@
                             <StackPanel Spacing="6">
                                 <StackPanel Spacing="4">
                                     <TextBlock Text="{x:Static loc:GuiLocalizationString.convert_unbind_precision}" FontSize="12" Opacity="0.7"/>
-                                    <NumericUpDown Value="{Binding ConvertUnbindPrecision}" Minimum="1" Maximum="10000"
-                                                   Increment="1" FormatString="F0" Width="200" HorizontalAlignment="Left"/>
+                                <TextBox Text="{Binding ConvertUnbindPrecision}" Width="200" HorizontalAlignment="Left"/>
                                 </StackPanel>
                                 <StackPanel Spacing="4">
                                     <TextBlock Text="{x:Static loc:GuiLocalizationString.convert_unbind_tolerance}" FontSize="12" Opacity="0.7"/>
@@ -228,8 +215,7 @@
                             <StackPanel Spacing="6">
                                 <StackPanel Spacing="4">
                                     <TextBlock Text="{x:Static loc:GuiLocalizationString.convert_merge_precision}" FontSize="12" Opacity="0.7"/>
-                                    <NumericUpDown Value="{Binding ConvertMultiLayerMergePrecision}" Minimum="1" Maximum="10000"
-                                                   Increment="1" FormatString="F0" Width="200" HorizontalAlignment="Left"/>
+                                    <TextBox Text="{Binding ConvertMultiLayerMergePrecision}" Width="200" HorizontalAlignment="Left"/>
                                 </StackPanel>
                                 <StackPanel Spacing="4">
                                     <TextBlock Text="{x:Static loc:GuiLocalizationString.convert_merge_tolerance}" FontSize="12" Opacity="0.7"/>

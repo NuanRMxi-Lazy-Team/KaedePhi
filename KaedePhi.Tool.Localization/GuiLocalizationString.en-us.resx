@@ -346,11 +346,8 @@
   <data name="convert_phigros_options" xml:space="preserve">
     <value>PhigrosV3 Conversion Options</value>
   </data>
-  <data name="convert_speed_ratio" xml:space="preserve">
-    <value>Speed Conversion Ratio</value>
-  </data>
   <data name="convert_easing_precision" xml:space="preserve">
-    <value>Easing Cut Precision</value>
+    <value>Unsupported Easing Cut Precision</value>
   </data>
   <data name="convert_alpha_precision" xml:space="preserve">
     <value>Alpha Cut Precision</value>
@@ -479,10 +476,10 @@
     <value>Import Options</value>
   </data>
   <data name="convert_frame_duration_beat" xml:space="preserve">
-    <value>Frame Duration Beat</value>
+    <value>Frame Duration Beat (1 / x beat)</value>
   </data>
   <data name="convert_trailing_beat_padding" xml:space="preserve">
-    <value>Trailing Beat Padding</value>
+    <value>Trailing Beat Padding (1 / x beat)</value>
   </data>
   <data name="convert_rephiedit_options" xml:space="preserve">
     <value>RePhiEdit Conversion Options</value>

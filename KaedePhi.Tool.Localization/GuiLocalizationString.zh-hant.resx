@@ -346,11 +346,8 @@
   <data name="convert_phigros_options" xml:space="preserve">
     <value>轉換到 PhigrosV3 選項</value>
   </data>
-  <data name="convert_speed_ratio" xml:space="preserve">
-    <value>速度轉換比率</value>
-  </data>
   <data name="convert_easing_precision" xml:space="preserve">
-    <value>緩動切割精度</value>
+    <value>不支援緩動切割精度</value>
   </data>
   <data name="convert_alpha_precision" xml:space="preserve">
     <value>Alpha切割精度</value>

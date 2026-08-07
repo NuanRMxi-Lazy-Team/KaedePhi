@@ -150,16 +150,6 @@ public sealed class ExportViewModel : INotifyPropertyChanged
 
     #region PE 转换选项
 
-    public double PeSpeedConversionRatio
-    {
-        get;
-        set
-        {
-            field = value;
-            OnPropertyChanged();
-        }
-    } = 14d / 9d;
-
     public double PeTrailingBeatPadding
     {
         get;
@@ -596,7 +586,6 @@ public sealed class ExportViewModel : INotifyPropertyChanged
     /// </summary>
     public void ApplyConversionDefaults(ConvertDefaultsConfig config)
     {
-        PeSpeedConversionRatio = config.PeSpeedConversionRatio;
         PeTrailingBeatPadding = config.PeTrailingBeatPadding;
         PeUnsupportedEasingPrecision = config.PeUnsupportedEasingPrecision;
         PeMisalignedXyEventPrecision = config.PeMisalignedXyEventPrecision;
