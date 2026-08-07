@@ -21,8 +21,7 @@ XML 文档注释必须包含以下内容（`<summary>` 标签内）：
 XML 文档注释仅适用于**库项目**（KaedePhi.Core、KaedePhi.Tool）的公开接口。
 
 **不需要** XML 文档注释的项目：
-- CLI 交互程序（KaedePhi.Tool.Cli）：终端应用，无外部调用方
-- GUI 交互程序（KaedePhi.Tool.Gui）：桌面应用，无外部调用方
+- CLI/GUI 交互程序（KaedePhi.Tool.App）：终端与桌面应用，无外部调用方
 - 测试项目（KaedePhi.Tests）
 
 这些项目的公开接口（ViewModel 属性、Command 属性等）名字本身已自解释，仅需保留有意义的行间注释。

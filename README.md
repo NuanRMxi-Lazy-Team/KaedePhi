@@ -28,8 +28,7 @@ NuanR_Star Ciallo Team（以下简称“我们”）KaedePhi（以下简称“�
 ## .NET版本
 KaedePhi.Core: .NETStandard2.1, .NET8.0, .NET10.0  
 KaedePhi.Tool: .NET8.0, .NET10.0  
-KaedePhi.Tool.Cli: .NET8.0, .NET10.0  
-KaedePhi.Tool.Gui: .NET10.0  
+KaedePhi.Tool.App: .NET8.0, .NET10.0  
 KaedePhi.Tool.Localization: .NET8.0, .NET10.0  
 
 ## 招新
