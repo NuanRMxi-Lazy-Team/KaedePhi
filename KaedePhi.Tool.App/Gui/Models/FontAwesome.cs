@@ -5,7 +5,7 @@ namespace KaedePhi.Tool.App.Gui.Models;
 /// </summary>
 public static class FontAwesome
 {
-    // Font Family URI
+    // 字体族 URI
     public const string FontFamily =
         "avares://KaedePhi.Tool.App/Assets/Fonts/fa-solid-900.ttf#Font Awesome 6 Free";
 

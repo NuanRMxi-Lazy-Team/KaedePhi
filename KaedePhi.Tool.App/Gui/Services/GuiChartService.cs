@@ -169,6 +169,7 @@ public sealed class GuiChartService
             precision,
             tolerance,
             classic,
+            disableCompress,
             info: msg => _log.Information(msg),
             warning: msg => _log.Warning(msg),
             error: msg => _log.Error(msg),

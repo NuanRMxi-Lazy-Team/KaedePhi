@@ -7,7 +7,7 @@
              x:DataType="vm:ToolViewModel">
 
     <Grid RowDefinitions="Auto,Auto,*,Auto,Auto">
-        <!-- Header: file info -->
+        <!-- 标题：文件信息 -->
         <Border Grid.Row="0" Background="{DynamicResource SystemAccentColor}" Padding="16,10">
             <StackPanel Orientation="Horizontal" Spacing="16">
                 <TextBlock Text="&#xf07c;" Classes="fa-icon" FontSize="18"
@@ -26,7 +26,7 @@
             </StackPanel>
         </Border>
 
-        <!-- Tool cards -->
+        <!-- 工具卡片 -->
         <Border Grid.Row="1" Padding="16,12,16,0">
             <StackPanel Spacing="8">
                 <TextBlock Text="{x:Static loc:GuiLocalizationString.tool_select_title}" FontSize="18" FontWeight="SemiBold"/>
@@ -76,7 +76,7 @@
             </StackPanel>
         </Border>
 
-        <!-- Tool options (scrollable) -->
+        <!-- 工具选项（可滚动） -->
         <Border Grid.Row="2" Padding="16,8"
                 IsVisible="{Binding SelectedTool, Converter={x:Static ObjectConverters.IsNotNull}}">
             <ScrollViewer VerticalScrollBarVisibility="Auto">
@@ -90,7 +90,7 @@
                             <TextBlock Text="{x:Static loc:GuiLocalizationString.tool_options_title}" FontWeight="SemiBold" FontSize="14"/>
                         </StackPanel>
 
-                        <!-- Precision -->
+                        <!-- 精度 -->
                         <StackPanel IsVisible="{Binding ShowPrecision}" Spacing="4">
                             <TextBlock Text="{x:Static loc:GuiLocalizationString.option_precision}" FontSize="12" Opacity="0.7"/>
                             <NumericUpDown Value="{Binding Precision}" Minimum="1" Maximum="10000"
@@ -98,7 +98,7 @@
                                            HorizontalAlignment="Left"/>
                         </StackPanel>
 
-                        <!-- Tolerance -->
+                        <!-- 容差 -->
                         <StackPanel IsVisible="{Binding ShowTolerance}" Spacing="4">
                             <TextBlock Text="{x:Static loc:GuiLocalizationString.option_tolerance}" FontSize="12" Opacity="0.7"/>
                             <NumericUpDown Value="{Binding Tolerance}" Minimum="0" Maximum="100"
@@ -106,19 +106,19 @@
                                            HorizontalAlignment="Left"/>
                         </StackPanel>
 
-                        <!-- Classic mode -->
+                        <!-- 经典模式 -->
                         <CheckBox IsVisible="{Binding ShowClassicMode}"
                                   Content="{x:Static loc:GuiLocalizationString.option_classic_mode}"
                                   IsChecked="{Binding ClassicMode}"/>
 
-                        <!-- Disable compress -->
+                        <!-- 禁用压缩 -->
                         <CheckBox IsVisible="{Binding ShowDisableCompress}"
                                   IsEnabled="{Binding DisableCompressEnabled}"
                                   Content="{x:Static loc:GuiLocalizationString.option_disable_compress}"
                                   IsChecked="{Binding DisableCompress}"
                                   ToolTip.Tip="{x:Static loc:GuiLocalizationString.option_disable_compress_hint}"/>
 
-                        <!-- Render options -->
+                        <!-- 渲染选项 -->
                         <StackPanel IsVisible="{Binding ShowRenderOptions}" Spacing="8">
                             <StackPanel Orientation="Horizontal" Spacing="16">
                                 <StackPanel Spacing="4">
@@ -146,7 +146,7 @@
                             </StackPanel>
                         </StackPanel>
 
-                        <!-- Fit options -->
+                        <!-- 拟合选项 -->
                         <StackPanel IsVisible="{Binding ShowFitOptions}" Spacing="8">
                         </StackPanel>
                     </StackPanel>
@@ -154,7 +154,7 @@
             </ScrollViewer>
         </Border>
 
-        <!-- Status bar -->
+        <!-- 状态栏 -->
         <Border Grid.Row="3" Padding="16,8"
                 Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
                 BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
@@ -162,7 +162,7 @@
             <TextBlock Text="{Binding StatusText}" FontSize="12" Opacity="0.7"/>
         </Border>
 
-        <!-- Bottom buttons -->
+        <!-- 底部按钮 -->
         <Border Grid.Row="4" Padding="16,12"
                 Background="{DynamicResource CardBackgroundFillColorDefaultBrush}">
             <Grid ColumnDefinitions="Auto,*">

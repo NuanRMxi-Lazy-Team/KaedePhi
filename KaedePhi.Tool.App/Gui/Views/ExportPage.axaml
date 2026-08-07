@@ -28,7 +28,7 @@
                               IsChecked="{Binding IndentedOutput}"
                               IsVisible="{Binding IsJsonFormat}"/>
 
-                    <!-- Conversion options panel (shown only when export format differs from import) -->
+                    <!-- 转换选项面板（仅在导出格式与导入格式不同时显示） -->
                     <Border IsVisible="{Binding ShowConversionOptions}"
                             Background="{DynamicResource CardBackgroundFillColorSecondaryBrush}"
                             BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
@@ -196,16 +196,16 @@
             </ScrollViewer>
         </Border>
 
-        <!-- Bottom buttons -->
+        <!-- 底部按钮 -->
         <Border Grid.Row="1" Padding="16,12"
                 Background="{DynamicResource CardBackgroundFillColorDefaultBrush}">
             <StackPanel Spacing="12">
-                <!-- Status text -->
+                <!-- 状态文字 -->
                 <TextBlock Text="{Binding StatusText}" FontSize="12" Opacity="0.7"
                            HorizontalAlignment="Center"
                            IsVisible="{Binding HasStatusText}"/>
 
-                <!-- Exporting indicator -->
+                <!-- 导出中指示器 -->
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="8"
                             IsVisible="{Binding IsExporting}">
                     <TextBlock Text="&#xf110;" Classes="fa-icon" FontSize="16"
@@ -229,7 +229,7 @@
                                VerticalAlignment="Center"/>
                 </StackPanel>
 
-                <!-- Buttons -->
+                <!-- 按钮 -->
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="12">
                     <Button Padding="20,8" Click="OnReturnClick"
                             IsEnabled="{Binding !IsExporting}"

@@ -15,6 +15,7 @@ public static class ChartProcessor
         double precision,
         double tolerance,
         bool classic,
+        bool disableCompress = false,
         Action<string>? info = null,
         Action<string>? warning = null,
         Action<string>? error = null,

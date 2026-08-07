@@ -12,7 +12,7 @@
                 BorderThickness="1" CornerRadius="12" Padding="48,36" MinWidth="360">
             <StackPanel Spacing="20">
 
-                <!-- Header with spinner -->
+                <!-- 标题与旋转加载图标 -->
                 <StackPanel Orientation="Horizontal" Spacing="12" HorizontalAlignment="Center">
                     <TextBlock Text="&#xf110;" Classes="fa-icon"
                                FontSize="28" VerticalAlignment="Center"
@@ -37,15 +37,15 @@
                                VerticalAlignment="Center"/>
                 </StackPanel>
 
-                <!-- Progress bar -->
+                <!-- 进度条 -->
                 <ProgressBar Value="{Binding Progress}" Maximum="100" Height="6"
                              CornerRadius="3"/>
 
-                <!-- Tool sub-progress bar -->
+                <!-- 工具子进度条 -->
                 <ProgressBar Value="{Binding ToolProgressValue}" Maximum="100" Height="3"
                              CornerRadius="1" Opacity="0.7"/>
 
-                <!-- Current step -->
+                <!-- 当前步骤 -->
                 <StackPanel Spacing="4" HorizontalAlignment="Center">
                     <TextBlock Text="{Binding CurrentStep}" FontWeight="SemiBold" FontSize="14"
                                HorizontalAlignment="Center"/>

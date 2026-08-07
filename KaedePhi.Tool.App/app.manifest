@@ -1,15 +1,14 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <assembly manifestVersion="1.0" xmlns="urn:schemas-microsoft-com:asm.v1">
-  <!-- This manifest is used on Windows only.
-       Don't remove it as it might cause problems with window transparency and embedded controls.
-       For more details visit https://learn.microsoft.com/en-us/windows/win32/sbscs/application-manifests -->
+  <!-- 此清单仅用于 Windows。
+       请勿移除此文件，否则可能导致窗口透明度和嵌入式控件出现问题。
+       详情参阅 https://learn.microsoft.com/en-us/windows/win32/sbscs/application-manifests -->
   <assemblyIdentity version="1.0.0.0" name="KaedePhi.Tool.App.Desktop"/>
 
   <compatibility xmlns="urn:schemas-microsoft-com:compatibility.v1">
     <application>
-      <!-- A list of the Windows versions that this application has been tested on
-           and is designed to work with. Uncomment the appropriate elements
-           and Windows will automatically select the most compatible environment. -->
+      <!-- 此应用程序已测试适配的 Windows 版本列表。
+           取消注释相应元素，Windows 将自动选择最兼容的运行环境。 -->
 
       <!-- Windows 10 -->
       <supportedOS Id="{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}" />

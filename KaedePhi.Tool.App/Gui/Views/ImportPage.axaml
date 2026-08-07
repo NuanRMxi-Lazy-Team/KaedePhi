@@ -10,7 +10,7 @@
     <Grid>
         <!-- 主内容（拖拽时模糊） -->
         <Grid Name="ContentGrid">
-            <!-- Center import button -->
+            <!-- 居中导入按钮 -->
             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="20"
                         IsVisible="{Binding !IsLoading}">
                 <Image Source="avares://KaedePhi.Tool.App/Assets/KaedePhiIcon.png"
@@ -39,7 +39,7 @@
                            IsVisible="{Binding !IsLoading}"/>
             </StackPanel>
 
-            <!-- Loading overlay -->
+            <!-- 加载覆盖层 -->
             <Border Background="#80000000"
                     IsVisible="{Binding IsLoading}"
                     ZIndex="100">
@@ -90,7 +90,7 @@
             </Border>
         </Border>
 
-        <!-- Bottom-right stream checkbox -->
+        <!-- 右下角流式复选框 -->
         <CheckBox Content="{x:Static loc:GuiLocalizationString.import_stream_loading}"
                   IsChecked="{Binding UseStream}"
                   IsVisible="{Binding !IsLoading}"

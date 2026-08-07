@@ -99,6 +99,7 @@ public sealed class ChartFormatDescriptor
     /// <param name="exportOptions">导出选项，传 <see langword="null"/> 时使用默认值</param>
     /// <param name="log">日志回调集合</param>
     /// <param name="ct">取消令牌</param>
+    /// <returns>导出任务</returns>
     public Task ExportAsync(
         Kpc.Chart chart,
         string outputPath,

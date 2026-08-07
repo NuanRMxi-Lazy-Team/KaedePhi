@@ -57,10 +57,11 @@ public static class UnbindFatherCommand
                     precision,
                     tolerance,
                     classic,
-                    ConsoleWriter.Info,
-                    ConsoleWriter.Warn,
-                    ConsoleWriter.Error,
-                    ConsoleWriter.Debug
+                    disableCompress: false,
+                    info: ConsoleWriter.Info,
+                    warning: ConsoleWriter.Warn,
+                    error: ConsoleWriter.Error,
+                    debug: ConsoleWriter.Debug
                 );
 
                 var output = await ChartService.SaveAsRpeAsync(

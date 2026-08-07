@@ -9,14 +9,14 @@
         <Border Grid.Row="0" Padding="24">
             <ScrollViewer VerticalScrollBarVisibility="Auto">
                 <StackPanel Spacing="24" Width="560" HorizontalAlignment="Left">
-                    <!-- Header -->
+                    <!-- 标题 -->
                     <StackPanel Orientation="Horizontal" Spacing="10">
                         <TextBlock Text="&#xf013;" Classes="fa-icon"
                                    FontSize="24" VerticalAlignment="Center"/>
                         <TextBlock Text="{x:Static loc:GuiLocalizationString.settings_title}" FontSize="22" FontWeight="SemiBold" VerticalAlignment="Center"/>
                     </StackPanel>
 
-                    <!-- General -->
+                    <!-- 通用 -->
                     <StackPanel Spacing="4">
                         <TextBlock Text="{x:Static loc:GuiLocalizationString.settings_max_log_files}" FontSize="12" Opacity="0.7"/>
                         <NumericUpDown Value="{Binding MaxLogFiles}" Minimum="1" Maximum="100"
@@ -44,7 +44,7 @@
                         </StackPanel>
                     </Expander>
 
-                    <!-- LayerMerge -->
+                    <!-- 层级合并 -->
                     <Expander Header="{x:Static loc:GuiLocalizationString.settings_layermerge}">
                         <StackPanel Spacing="12" Margin="0,12,0,0">
                             <StackPanel Spacing="4">
@@ -65,7 +65,7 @@
                         </StackPanel>
                     </Expander>
 
-                    <!-- Cut -->
+                    <!-- 切割 -->
                     <Expander Header="{x:Static loc:GuiLocalizationString.settings_cut}">
                         <StackPanel Spacing="12" Margin="0,12,0,0">
                             <StackPanel Spacing="4">
@@ -82,7 +82,7 @@
                         </StackPanel>
                     </Expander>
 
-                    <!-- Fit -->
+                    <!-- 拟合 -->
                     <Expander Header="{x:Static loc:GuiLocalizationString.settings_fit}">
                         <StackPanel Spacing="12" Margin="0,12,0,0">
                             <StackPanel Spacing="4">
@@ -93,7 +93,7 @@
                         </StackPanel>
                     </Expander>
 
-                    <!-- Render -->
+                    <!-- 渲染 -->
                     <Expander Header="{x:Static loc:GuiLocalizationString.settings_render}">
                         <StackPanel Spacing="12" Margin="0,12,0,0">
                             <StackPanel Orientation="Horizontal" Spacing="16">
@@ -152,10 +152,10 @@
                         </StackPanel>
                     </Expander>
 
-                    <!-- Convert -->
+                    <!-- 转换 -->
                     <Expander Header="{x:Static loc:GuiLocalizationString.settings_convert}">
                         <StackPanel Spacing="12" Margin="0,12,0,0">
-                            <!-- PE options -->
+                            <!-- PE 选项 -->
                             <TextBlock Text="{x:Static loc:GuiLocalizationString.convert_pe_options}" FontSize="11" FontWeight="SemiBold" Margin="0,4,0,0"/>
                             <StackPanel Spacing="6">
                                 <StackPanel Spacing="4">
@@ -184,7 +184,7 @@
                                 </StackPanel>
                             </StackPanel>
 
-                            <!-- PhigrosV3 options -->
+                            <!-- PhigrosV3 选项 -->
                             <TextBlock Text="{x:Static loc:GuiLocalizationString.convert_phigros_options}" FontSize="11" FontWeight="SemiBold" Margin="0,4,0,0"/>
                             <StackPanel Spacing="6">
                                 <StackPanel Spacing="4">
@@ -204,10 +204,10 @@
                                 </StackPanel>
                             </StackPanel>
 
-                            <!-- Common options -->
+                            <!-- 通用选项 -->
                             <TextBlock Text="{x:Static loc:GuiLocalizationString.convert_common_options}" FontSize="11" FontWeight="SemiBold" Margin="0,4,0,0"/>
 
-                            <!-- Unbind -->
+<!-- 解绑 -->
                             <TextBlock Text="{x:Static loc:GuiLocalizationString.convert_unbind_section}" FontSize="11" FontWeight="SemiBold" Margin="0,4,0,0"/>
                             <StackPanel Spacing="6">
                                 <StackPanel Spacing="4">
@@ -223,7 +223,7 @@
                                 <CheckBox Content="{x:Static loc:GuiLocalizationString.convert_unbind_classic}" IsChecked="{Binding ConvertUnbindClassicMode}"/>
                             </StackPanel>
 
-                            <!-- Merge -->
+                            <!-- 合并 -->
                             <TextBlock Text="{x:Static loc:GuiLocalizationString.convert_merge_section}" FontSize="11" FontWeight="SemiBold" Margin="0,4,0,0"/>
                             <StackPanel Spacing="6">
                                 <StackPanel Spacing="4">
@@ -244,7 +244,7 @@
             </ScrollViewer>
         </Border>
 
-        <!-- Status bar -->
+        <!-- 状态栏 -->
         <Border Grid.Row="1" Padding="16,8"
                 Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
                 BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
@@ -252,7 +252,7 @@
             <TextBlock Text="{Binding StatusText}" FontSize="12" Opacity="0.7"/>
         </Border>
 
-        <!-- Bottom buttons -->
+        <!-- 底部按钮 -->
         <Border Grid.Row="2" Padding="16,12"
                 Background="{DynamicResource CardBackgroundFillColorDefaultBrush}">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="12">
