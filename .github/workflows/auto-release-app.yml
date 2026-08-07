@@ -259,7 +259,8 @@ jobs:
           done < <(git tag --list 'App-v*' | sed 's/^App-v//' | sort -rV | sed 's/^/App-v/')
 
           NOTES_FILE=$(mktemp)
-          echo "## Changelog" >> "$NOTES_FILE"
+          echo "<details>" >> "$NOTES_FILE"
+          echo "<summary>Changelog</summary>" >> "$NOTES_FILE"
           echo "" >> "$NOTES_FILE"
           if [ -n "$BASE_TAG" ]; then
             echo "_Changes since \`${BASE_TAG}\`_" >> "$NOTES_FILE"
@@ -270,12 +271,14 @@ jobs:
             echo "" >> "$NOTES_FILE"
             git log HEAD --pretty=format:"- %s (%h)" --no-merges >> "$NOTES_FILE"
           fi
+          echo "" >> "$NOTES_FILE"
+          echo "</details>" >> "$NOTES_FILE"
           
           echo "" >> "$NOTES_FILE"
           echo "## 下载说明" >> "$NOTES_FILE"
           echo "" >> "$NOTES_FILE"
-          echo "- **便携版**：下载 `KaedePhi.Tool.App-net10.0-*-fdd.zip`，解压后直接运行" >> "$NOTES_FILE"
-          echo "- **安装版**：下载 `KaedePhi-{VERSION}.exe` 安装程序" >> "$NOTES_FILE"
+          echo "- **便携版**：下载 \`KaedePhi.Tool.App-net10.0-*-fdd.zip\`，解压后直接运行" >> "$NOTES_FILE"
+          echo "- **安装版**：下载 \`KaedePhi-${VERSION}.exe\` 安装程序" >> "$NOTES_FILE"
 
           git tag "$TAG"
           git push origin "$TAG"
