@@ -37,7 +37,8 @@
 AppId={{CE5E9518-27D0-44CC-925F-DDBAD2355D52}
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
-;AppVerName={#MyAppName} {#MyAppVersion}
+; 显示名称仅保留程序名，版本与 commit hash 只保存在版本字段中
+AppVerName={#MyAppName}
 AppPublisher={#MyAppPublisher}
 AppPublisherURL={#MyAppURL}
 AppSupportURL={#MyAppURL}
@@ -82,4 +83,37 @@ Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: de
 
 [Run]
 Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent
+
+[Code]
+var
+  DeleteUserData: Boolean;
+
+// 安装前清空目标目录，避免旧版本残留文件影响升级
+procedure CurStepChanged(CurStep: TSetupStep);
+begin
+  if CurStep = ssInstall then
+  begin
+    // 先移除旧卸载器，再删除目录中全部旧文件
+    DelTree(ExpandConstant('{uninstallexe}'), True, True, False);
+    DelTree(ExpandConstant('{app}'), False, True, True);
+  end;
+end;
+
+function InitializeUninstall(): Boolean;
+begin
+  Result := True;
+  DeleteUserData := False;
+  if MsgBox('是否同时删除 KaedePhi 的所有用户数据（配置、日志、工作区）？',
+    mbConfirmation, MB_YESNO or MB_DEFBUTTON2) = IDYES then
+    DeleteUserData := True;
+end;
+
+procedure CurUninstallStepChanged(CurUninstallStep: TUninstallStep);
+begin
+  if CurUninstallStep = usPostUninstall then
+  begin
+    if DeleteUserData then
+      DelTree(ExpandConstant('{localappdata}\KaedePhi'), True, True, True);
+  end;
+end;
 

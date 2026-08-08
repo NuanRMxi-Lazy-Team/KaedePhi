@@ -456,4 +456,4 @@ fabric.properties
 *.unitypackage
 
 # setup
-./setup
+setup

@@ -10,7 +10,11 @@ public sealed class WorkspaceService
 
     public WorkspaceService()
     {
-        _rootDir = Path.Combine(AppContext.BaseDirectory, "workspaces");
+        _rootDir = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+            "KaedePhi",
+            "workspaces"
+        );
         Directory.CreateDirectory(_rootDir);
     }
 

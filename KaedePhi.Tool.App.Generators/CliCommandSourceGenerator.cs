@@ -16,7 +16,7 @@ public sealed class CliCommandSourceGenerator : IIncrementalGenerator
         var commandInfos = context
             .SyntaxProvider.CreateSyntaxProvider(IsCommandClass, ExtractCommandInfo)
             .Where(x => x is not null)
-            .Select((x, _) => x!.Value)
+            .Select((x, _) => x ?? throw new InvalidOperationException("Unexpected null CommandInfo"))
             .Collect();
 
         context.RegisterSourceOutput(commandInfos, GenerateCommands);
@@ -134,18 +134,18 @@ public sealed class CliCommandSourceGenerator : IIncrementalGenerator
         sb.AppendLine("    return cmd;");
 
         return $$"""
-            using System.CommandLine;
+                 using System.CommandLine;
 
-            namespace {{cmd.Namespace}};
+                 namespace {{cmd.Namespace}};
 
-            public static partial class {{cmd.ClassName}}
-            {
-                public static Command Create()
-                {
-            {{sb}}
-                }
-            }
-            """;
+                 public static partial class {{cmd.ClassName}}
+                 {
+                     public static Command Create()
+                     {
+                 {{sb}}
+                     }
+                 }
+                 """;
     }
 
     #endregion
