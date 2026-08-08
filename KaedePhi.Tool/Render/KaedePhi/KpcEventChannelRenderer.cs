@@ -388,7 +388,7 @@ public static class KpcEventChannelRenderer
         for (var b = 0; b <= (int)Math.Ceiling(totalBeats); b++)
         {
             var y = BeatToY(b, opts, totalHeight);
-            canvas.DrawText(b.ToString(), 4, y - 3, font, paint);
+            canvas.DrawText(b.ToString(), 4, y - 3, SKTextAlign.Left, font, paint);
         }
     }
 
@@ -433,6 +433,7 @@ public static class KpcEventChannelRenderer
             ch.Name,
             channelX + 6,
             footerTop + opts.HeaderHeight / 2f + 5,
+            SKTextAlign.Left,
             font,
             txtPaint
         );
@@ -447,6 +448,7 @@ public static class KpcEventChannelRenderer
             rt,
             channelX + opts.ChannelWidth - sf.MeasureText(rt) - 4,
             footerTop + opts.HeaderHeight - 5,
+            SKTextAlign.Left,
             sf,
             sp
         );
@@ -524,7 +526,7 @@ public static class KpcEventChannelRenderer
         int totalHeight
     )
     {
-        var path = new SKPath();
+        var path = new SKPathBuilder();
         var samples = Math.Max(opts.SamplesPerEvent, 2);
 
         for (var s = 0; s < samples; s++)
@@ -542,7 +544,7 @@ public static class KpcEventChannelRenderer
                 path.LineTo(x, y);
         }
 
-        return path;
+        return path.Detach();
     }
 
     private static void DrawSegmentBoundaryLabels(
@@ -667,7 +669,7 @@ public static class KpcEventChannelRenderer
     )
     {
         canvas.DrawRect(SKRect.Create(lx - 1, lineY - halfH, lw + 2, halfH * 2), bgPaint);
-        canvas.DrawText(text, lx, lineY + vOffset, font, textPaint);
+        canvas.DrawText(text, lx, lineY + vOffset, SKTextAlign.Left, font, textPaint);
     }
 
     private static string FormatBoundaryValue(double value) =>
