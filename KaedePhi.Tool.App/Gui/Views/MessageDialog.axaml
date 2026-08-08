@@ -1,5 +1,6 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:loc="using:KaedePhi.Tool.Localization"
         x:Class="KaedePhi.Tool.App.Gui.Views.MessageDialog"
         Title="KaedePhi"
         Width="400" MinHeight="180"
@@ -26,7 +27,7 @@
         <Border Grid.Row="1" Padding="16,12"
                 Background="{DynamicResource CardBackgroundFillColorDefaultBrush}">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
-                <Button x:Name="OkButton" Content="OK" Classes="accent"
+                <Button x:Name="OkButton" Content="{x:Static loc:GuiLocalizationString.btn_ok}" Classes="accent"
                         Padding="24,6" MinWidth="80"
                         Click="OnOkClick"/>
             </StackPanel>

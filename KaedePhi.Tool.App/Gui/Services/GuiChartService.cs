@@ -11,6 +11,8 @@ namespace KaedePhi.Tool.App.Gui.Services;
 public sealed class GuiChartService
 {
     private readonly ILogger _log;
+    private string? _detectedFilePath;
+    private string? _detectedText;
 
     public GuiChartService(LogService logService)
     {
@@ -42,18 +44,34 @@ public sealed class GuiChartService
     /// </summary>
     public ChartType DetectChartType(string filePath, bool stream)
     {
-        string text;
-        if (stream)
-        {
-            using var reader = new StreamReader(filePath);
-            text = reader.ReadToEnd();
-        }
-        else
-        {
-            text = File.ReadAllText(filePath);
-        }
+        ChartProcessingValidator.ValidateInputFile(filePath);
+        var text = File.ReadAllText(filePath);
 
         var detectedType = ChartGetType.GetType(text);
+        _detectedFilePath = filePath;
+        _detectedText = text;
+        _log.Information(log_step_detected, detectedType);
+        return detectedType;
+    }
+
+    /// <summary>
+    /// 异步检测文件格式，避免在界面线程同步读取大型文件。
+    /// </summary>
+    /// <param name="filePath">输入文件路径。</param>
+    /// <param name="stream">是否使用流式导入兼容模式。</param>
+    /// <param name="ct">取消令牌。</param>
+    /// <returns>检测到的谱面格式。</returns>
+    public async Task<ChartType> DetectChartTypeAsync(
+        string filePath,
+        bool stream,
+        CancellationToken ct = default
+    )
+    {
+        ChartProcessingValidator.ValidateInputFile(filePath);
+        var text = await File.ReadAllTextAsync(filePath, ct);
+        var detectedType = ChartGetType.GetType(text);
+        _detectedFilePath = filePath;
+        _detectedText = text;
         _log.Information(log_step_detected, detectedType);
         return detectedType;
     }
@@ -70,27 +88,39 @@ public sealed class GuiChartService
     {
         _log.Information(log_file_selected, filePath, stream);
 
-        string text;
-        if (stream)
-        {
-            using var reader = new StreamReader(filePath);
-            text = await reader.ReadToEndAsync(ct);
-        }
-        else
-        {
-            text = await File.ReadAllTextAsync(filePath, ct);
-        }
+        ChartProcessingValidator.ValidateInputFile(filePath);
+        var text = _detectedFilePath == filePath && _detectedText is not null
+            ? _detectedText
+            : await File.ReadAllTextAsync(filePath, ct);
+        _detectedFilePath = null;
+        _detectedText = null;
 
         var detectedType = ChartGetType.GetType(text);
         _log.Information(log_step_detected, detectedType);
 
-        var kpcChart = await Task.Run(
-            async () =>
-                await ChartFormatRegistry
-                    .Get(detectedType)
-                    .ImportAsync(text, importOptions, CreateLogSink(), ct),
-            ct
-        );
+        var descriptor = ChartFormatRegistry.Get(detectedType);
+        Chart kpcChart;
+        if (stream && descriptor.CanStreamImport)
+        {
+            await using var inputStream = new FileStream(
+                filePath,
+                FileMode.Open,
+                FileAccess.Read,
+                FileShare.Read,
+                65536,
+                useAsync: true
+            );
+            kpcChart = await descriptor.ImportStreamAsync(
+                inputStream,
+                importOptions,
+                CreateLogSink(),
+                ct
+            );
+        }
+        else
+        {
+            kpcChart = await descriptor.ImportAsync(text, importOptions, CreateLogSink(), ct);
+        }
 
         CurrentChart = kpcChart;
         SourceFormat = detectedType;
@@ -134,6 +164,8 @@ public sealed class GuiChartService
         CurrentChart = null;
         SourceFormat = default;
         SourceFilePath = null;
+        _detectedFilePath = null;
+        _detectedText = null;
     }
 
     /// <summary>
@@ -154,7 +186,8 @@ public sealed class GuiChartService
         double tolerance,
         bool classic,
         bool disableCompress,
-        IProgress<ToolProgress>? progress = null
+        IProgress<ToolProgress>? progress = null,
+        CancellationToken ct = default
     )
     {
         _log.Information(log_running_tool, tool_unbind_name);
@@ -168,7 +201,8 @@ public sealed class GuiChartService
             warning: msg => _log.Warning(msg),
             error: msg => _log.Error(msg),
             debug: msg => _log.Debug(msg),
-            progress
+            progress: progress,
+            ct: ct
         );
     }
 
@@ -178,7 +212,8 @@ public sealed class GuiChartService
         double tolerance,
         bool classic,
         bool disableCompress,
-        IProgress<ToolProgress>? progress = null
+        IProgress<ToolProgress>? progress = null,
+        CancellationToken ct = default
     )
     {
         _log.Information(log_running_tool, tool_layermerge_name);
@@ -192,7 +227,8 @@ public sealed class GuiChartService
             warning: msg => _log.Warning(msg),
             error: msg => _log.Error(msg),
             debug: msg => _log.Debug(msg),
-            progress
+            progress: progress,
+            ct: ct
         );
     }
 
@@ -201,7 +237,8 @@ public sealed class GuiChartService
         double precision,
         double tolerance,
         bool disableCompress,
-        IProgress<ToolProgress>? progress = null
+        IProgress<ToolProgress>? progress = null,
+        CancellationToken ct = default
     )
     {
         _log.Information(log_running_tool, tool_cut_name);
@@ -214,11 +251,17 @@ public sealed class GuiChartService
             warning: msg => _log.Warning(msg),
             error: msg => _log.Error(msg),
             debug: msg => _log.Debug(msg),
-            progress
+            progress: progress,
+            ct: ct
         );
     }
 
-    public void RunFitEvent(Chart chart, double tolerance, IProgress<ToolProgress>? progress = null)
+    public void RunFitEvent(
+        Chart chart,
+        double tolerance,
+        IProgress<ToolProgress>? progress = null,
+        CancellationToken ct = default
+    )
     {
         _log.Information(log_running_tool, tool_fit_name);
         ChartProcessor.FitEvent(
@@ -228,18 +271,17 @@ public sealed class GuiChartService
             warning: msg => _log.Warning(msg),
             error: msg => _log.Error(msg),
             debug: msg => _log.Debug(msg),
-            progress
+            progress: progress,
+            ct: ct
         );
     }
 
     public IReadOnlyList<string> RunRender(
         Chart chart,
         string outputDir,
-        int pixelsPerBeat,
-        int channelWidth,
-        int samples,
-        int beatSubdivisions,
-        IProgress<ToolProgress>? progress = null
+        KpcRenderOptions options,
+        IProgress<ToolProgress>? progress = null,
+        CancellationToken ct = default
     )
     {
         _log.Information(log_running_tool, tool_render_name);
@@ -251,13 +293,6 @@ public sealed class GuiChartService
         }
 
         Directory.CreateDirectory(outputDir);
-        var options = new KpcRenderOptions
-        {
-            PixelsPerBeat = pixelsPerBeat,
-            ChannelWidth = channelWidth,
-            SamplesPerEvent = samples,
-            BeatSubdivisions = beatSubdivisions,
-        };
         return ChartProcessor.Render(
             chart,
             outputDir,
@@ -265,7 +300,8 @@ public sealed class GuiChartService
             info: msg => _log.Information(msg),
             warning: msg => _log.Warning(msg),
             error: msg => _log.Error(msg),
-            progress: progress
+            progress: progress,
+            ct: ct
         );
     }
 }

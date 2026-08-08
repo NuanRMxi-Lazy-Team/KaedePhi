@@ -10,6 +10,7 @@
     <PackageProjectUrl>https://github.com/NuanRMxi-Lazy-Team/KaedePhi</PackageProjectUrl>
     <PackageLicenseExpression>LGPL-3.0-only</PackageLicenseExpression>
     <PackageIcon>KaedePhiIcon.png</PackageIcon>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
     <RepositoryUrl>https://github.com/NuanRMxi-Lazy-Team/KaedePhi</RepositoryUrl>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <Copyright>NuanR_Star Ciallo Copyright © 2026</Copyright>
@@ -28,5 +29,6 @@
 
   <ItemGroup>
     <None Include="../KaedePhiIcon.png" Pack="true" PackagePath="\" />
+    <None Include="../README.md" Pack="true" PackagePath="\" />
   </ItemGroup>
 </Project>

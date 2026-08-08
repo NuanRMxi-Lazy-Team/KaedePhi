@@ -52,7 +52,9 @@ public static partial class CutEventCommand
             ConsoleWriter.Info,
             ConsoleWriter.Warn,
             ConsoleWriter.Error,
-            ConsoleWriter.Debug
+            ConsoleWriter.Debug,
+            ConsoleWriter.CreateProgress(),
+            ct
         );
 
         var output = await ChartService.SaveAsRpeAsync(

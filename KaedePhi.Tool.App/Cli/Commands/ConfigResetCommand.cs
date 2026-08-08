@@ -12,7 +12,13 @@ public static partial class ConfigResetCommand
     private static int Handle(ParseResult _)
     {
         var service = AppConfigService.Instance;
-        service.ResetToDefaults();
+        if (!service.ResetToDefaults())
+        {
+            ConsoleWriter.Error(
+                string.Format(CliLocalizationString.err_config_save_failed, service.ConfigPath)
+            );
+            return 1;
+        }
         ConsoleWriter.Info(
             string.Format(CliLocalizationString.msg_config_reset_done, service.ConfigPath)
         );

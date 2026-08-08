@@ -46,7 +46,25 @@
         <value>配置檔案已重置為預設值：{0}</value>
         <comment>{0} = 配置檔案路徑</comment>
     </data>
+    <data name="err_config_save_failed" xml:space="preserve">
+        <value>設定檔儲存失敗，請檢查權限或磁碟空間：{0}</value>
+        <comment>{0} = 設定檔路徑</comment>
+    </data>
     <!-- ── option descriptions ───────────────────────────────────────────────── -->
+    <data name="cli_opt_input_phiedit_desc" xml:space="preserve"><value>輸入的 RPE/PhiEdit 譜面檔案路徑</value></data>
+    <data name="cli_opt_workspace_default_desc" xml:space="preserve"><value>工作區 ID（預設：default）</value></data>
+    <data name="cli_opt_output_path_desc" xml:space="preserve"><value>輸出檔案路徑</value></data>
+    <data name="cli_opt_workspace_clear_id_desc" xml:space="preserve"><value>僅清理指定工作區</value></data>
+    <data name="cli_opt_input_rpe_desc" xml:space="preserve"><value>輸入的 RPE 譜面檔案路徑（與 --workspace 二選一）</value></data>
+    <data name="cli_opt_output_auto_desc" xml:space="preserve"><value>輸出檔案路徑（留空則自動生成）</value></data>
+    <data name="cli_opt_workspace_rpe_desc" xml:space="preserve"><value>工作區 ID（與 --input 二選一）</value></data>
+    <data name="cli_opt_precision_desc" xml:space="preserve"><value>採樣精度，預設值由目前指令設定決定</value></data>
+    <data name="cli_opt_tolerance_desc" xml:space="preserve"><value>擬合容差，預設值由目前指令設定決定</value></data>
+    <data name="cli_opt_dry_run_desc" xml:space="preserve"><value>試運行模式，不寫入檔案</value></data>
+    <data name="cli_opt_stream_output_desc" xml:space="preserve"><value>流式輸出以減少寫入時的記憶體使用</value></data>
+    <data name="cli_opt_classic_mode_desc" xml:space="preserve"><value>使用舊版處理行為</value></data>
+    <data name="cli_opt_format_desc" xml:space="preserve"><value>格式化輸出</value></data>
+    <data name="cli_opt_compress_desc" xml:space="preserve"><value>停用事件壓縮</value></data>
     <data name="opt_input_phiedit_desc" xml:space="preserve">
         <value>輸入的 RPE/PhiEdit 譜面檔案路徑</value>
     </data>
@@ -58,6 +76,9 @@
     </data>
     <data name="opt_workspace_clear_id_desc" xml:space="preserve">
         <value>僅清理指定工作區（留空則清理全部）</value>
+    </data>
+    <data name="cli_opt_workspace_clear_all_desc" xml:space="preserve">
+        <value>明確確認清理全部工作區</value>
     </data>
     <data name="opt_input_rpe_desc" xml:space="preserve">
         <value>輸入的 RPE 譜面檔案路徑（與 --workspace 二選一）</value>
@@ -96,6 +117,9 @@
     <data name="msg_cleared" xml:space="preserve">
         <value>嘩啦啦～所有工作區都打掃乾淨了喵！</value>
     </data>
+    <data name="msg_workspace_cleared" xml:space="preserve">
+        <value>工作區 {0} 已清理。</value>
+    </data>
     <data name="msg_written" xml:space="preserve">
         <value>檔案已成功輸出到 {0} 了！</value>
     </data>
@@ -116,8 +140,20 @@
     <data name="err_input_required" xml:space="preserve">
         <value>請提供 --input，或者使用 --workspace 也可以～</value>
     </data>
+    <data name="err_input_workspace_conflict" xml:space="preserve">
+        <value>--input 與 --workspace 不能同時指定。</value>
+    </data>
+    <data name="err_output_input_same" xml:space="preserve">
+        <value>輸出路徑不能覆蓋輸入譜面檔案。</value>
+    </data>
     <data name="err_output_required" xml:space="preserve">
         <value>請提供 --output 參數，我才能為您儲存檔案。</value>
+    </data>
+    <data name="err_cancelled" xml:space="preserve">
+        <value>操作已取消。</value>
+    </data>
+    <data name="err_workspace_clear_selection" xml:space="preserve">
+        <value>請使用 --id 清理單一工作區，或使用 --all 明確確認清理全部工作區。</value>
     </data>
     <data name="err_workspace_missing" xml:space="preserve">
         <value>找不到工作區 {0} 喵...</value>
@@ -152,5 +188,40 @@
     <data name="convert_opt_negative_alpha_step" xml:space="preserve">
         <value>負透明度段每次抬高的 KPC Y 偏移量（預設：4.0）</value>
     </data>
+    <data name="render_opt_pixels_per_beat" xml:space="preserve"><value>每拍對應的像素高度（預設：100）</value></data>
+    <data name="render_opt_channel_width" xml:space="preserve"><value>每個通道的寬度（像素，預設：150）</value></data>
+    <data name="render_opt_samples" xml:space="preserve"><value>每個事件的曲線採樣點數（預設：64）</value></data>
+    <data name="render_opt_line" xml:space="preserve"><value>只渲染指定索引的判定線</value></data>
+    <data name="render_opt_layer" xml:space="preserve"><value>只渲染指定索引的事件層（需同時指定 --line）</value></data>
+    <data name="render_opt_beat_subdivisions" xml:space="preserve"><value>每拍格線細分數（預設：2）</value></data>
+    <data name="render_opt_output" xml:space="preserve"><value>圖片輸出資料夾路徑</value></data>
+    <data name="render_opt_range_padding_ratio" xml:space="preserve"><value>通道值域填充比例（預設：0.1）</value></data>
+    <data name="render_opt_range_samples" xml:space="preserve"><value>通道值域計算採樣點數（預設：16）</value></data>
+    <data name="render_opt_segment_tolerance" xml:space="preserve"><value>事件段壓縮容差（預設：0.000001）</value></data>
+    <data name="render_opt_min_range_half" xml:space="preserve"><value>通道值域最小半寬（預設：0.1）</value></data>
+    <data name="render_opt_min_range_half_ratio" xml:space="preserve"><value>通道值域最小半寬比例（預設：0.15）</value></data>
+    <data name="convert_opt_pe_trailing_padding" xml:space="preserve"><value>PhiEdit 尾部拍填充量</value></data>
+    <data name="convert_opt_pe_easing_precision" xml:space="preserve"><value>PhiEdit 不支援緩動切割精度</value></data>
+    <data name="convert_opt_pe_xy_precision" xml:space="preserve"><value>PhiEdit 非對齊 XY 事件精度</value></data>
+    <data name="convert_opt_pe_alpha_precision" xml:space="preserve"><value>PhiEdit Alpha 切割精度</value></data>
+    <data name="convert_opt_pe_alpha_tolerance" xml:space="preserve"><value>PhiEdit Alpha 切割容差</value></data>
+    <data name="convert_opt_pe_speed_precision" xml:space="preserve"><value>PhiEdit 速度切割精度</value></data>
+    <data name="convert_opt_pe_speed_tolerance" xml:space="preserve"><value>PhiEdit 速度切割容差</value></data>
+    <data name="convert_opt_phigros_bpm" xml:space="preserve"><value>Phigros 預設 BPM</value></data>
+    <data name="convert_opt_phigros_easing_precision" xml:space="preserve"><value>Phigros 緩動切割精度</value></data>
+    <data name="convert_opt_phigros_xy_precision" xml:space="preserve"><value>Phigros 非對齊 XY 事件精度</value></data>
+    <data name="convert_opt_phigros_alpha_precision" xml:space="preserve"><value>Phigros Alpha 切割精度</value></data>
+    <data name="convert_opt_phigros_alpha_tolerance" xml:space="preserve"><value>Phigros Alpha 切割容差</value></data>
+    <data name="convert_opt_phigros_speed_precision" xml:space="preserve"><value>Phigros 速度切割精度</value></data>
+    <data name="convert_opt_unbind_precision" xml:space="preserve"><value>父子線解綁精度</value></data>
+    <data name="convert_opt_unbind_tolerance" xml:space="preserve"><value>父子線解綁容差</value></data>
+    <data name="convert_opt_unbind_classic" xml:space="preserve"><value>父子線解綁經典模式</value></data>
+    <data name="convert_opt_merge_precision" xml:space="preserve"><value>多層級合併精度</value></data>
+    <data name="convert_opt_merge_tolerance" xml:space="preserve"><value>多層級合併容差</value></data>
+    <data name="convert_opt_merge_classic" xml:space="preserve"><value>多層級合併經典模式</value></data>
+    <data name="convert_opt_no_unbind_compress" xml:space="preserve"><value>停用父子線解綁後壓縮</value></data>
+    <data name="convert_opt_no_merge_compress" xml:space="preserve"><value>停用多層級合併後壓縮</value></data>
+    <data name="convert_opt_remove_attach_ui" xml:space="preserve"><value>移除帶有 AttachUI 的判定線</value></data>
+    <data name="convert_opt_remove_texture" xml:space="preserve"><value>移除帶有自訂材質的判定線</value></data>
     <!-- ── misc ──────────────────────────────────────────────────────────────── -->
 </root>

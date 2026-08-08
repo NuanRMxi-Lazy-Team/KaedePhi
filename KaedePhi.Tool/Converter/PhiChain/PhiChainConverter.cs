@@ -11,7 +11,8 @@ namespace KaedePhi.Tool.Converter.PhiChain;
 /// </summary>
 public class PhiChainConverter
     : LoggableBase,
-        IChartConverter<PhiChainChart, PhiChainToKpcConvertOptions, KpcToPhiChainConvertOptions>
+        IChartConverter<PhiChainChart, PhiChainToKpcConvertOptions, KpcToPhiChainConvertOptions>,
+        ICancellableChartConverter
 {
     private CancellationToken _ct;
 
@@ -28,6 +29,8 @@ public class PhiChainConverter
     /// <returns>KPC 谱面</returns>
     public Kpc.Chart ToKpc(PhiChainChart source, PhiChainToKpcConvertOptions options)
     {
+        ArgumentNullException.ThrowIfNull(source);
+        ConversionOptionsValidator.Validate(options);
         _ct.ThrowIfCancellationRequested();
 
         var kpcChart = new Kpc.Chart
@@ -65,6 +68,10 @@ public class PhiChainConverter
     /// <returns>PhiChain 谱面</returns>
     public PhiChainChart FromKpc(Kpc.Chart input, KpcToPhiChainConvertOptions options)
     {
+        ArgumentNullException.ThrowIfNull(input);
+        ArgumentNullException.ThrowIfNull(options);
+        ConversionOptionsValidator.Validate(options);
+        _ct.ThrowIfCancellationRequested();
         WarnIfUnsupportedMeta(input.Meta);
 
         var chart = new PhiChainChart

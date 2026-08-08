@@ -4,7 +4,7 @@
 
 nightly-app-build:
   stage: build
-  image: mcr.microsoft.com/dotnet/sdk:10.0
+  image: mcr.microsoft.com/dotnet/sdk:10.0.302
   rules:
     - if: $CI_COMMIT_BRANCH == "main" && $CI_PIPELINE_SOURCE == "push"
     - if: $CI_PIPELINE_SOURCE == "web"
@@ -18,14 +18,16 @@ nightly-app-build:
       output_dir="./artifacts/app"
       runtimes=("win-x64" "linux-x64")
 
-      VERSION=$(grep -oP '<Version>\K[^<]+' "$PROPS" 2>/dev/null || echo "0.0.0")
+       VERSION=$(grep -oP '<Version>\K[^<]+' "$PROPS" 2>/dev/null || echo "0.0.0")
       HASH=$(git rev-parse --short HEAD)
       FULL_VERSION="${VERSION}+nightly.${HASH}"
       echo "$FULL_VERSION" > nightly-version.txt
 
-      mkdir -p "$output_dir"
+       mkdir -p "$output_dir"
 
-      for runtime in "${runtimes[@]}"; do
+       dotnet restore "$CSPROJ" --locked-mode
+
+       for runtime in "${runtimes[@]}"; do
         echo "Building net10.0 / $runtime (Debug)..."
         dotnet publish "$CSPROJ" \
           -c Debug \
@@ -68,15 +70,10 @@ nightly-app-installer:
       $env:KAEPHI_PROJECT_DIR = (Resolve-Path ".").Path
       $env:KAEPHI_PUBLISH_DIR = $publishDir
 
-      # 下载并静默安装 Inno Setup（与 GitHub inno-setup-action 行为一致）
-      $isccPath = "C:\Program Files (x86)\Inno Setup 6\ISCC.exe"
-      if (-not (Test-Path $isccPath)) {
-        Write-Host "Installing Inno Setup..."
-        $installer = "$env:TEMP\innosetup.exe"
-        Invoke-WebRequest -Uri "https://jrsoftware.org/download.php/is.exe?site=1" -OutFile $installer
-        Start-Process -FilePath $installer -ArgumentList "/VERYSILENT /NORESTART /SUPPRESSMSGBOXES" -Wait
-        Remove-Item $installer
-      }
+       $isccPath = "C:\Program Files (x86)\Inno Setup 6\ISCC.exe"
+       if (-not (Test-Path $isccPath)) {
+         throw "Inno Setup is not installed on the runner."
+       }
       & $isccPath SetupGenScript.iss
       if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
   artifacts:

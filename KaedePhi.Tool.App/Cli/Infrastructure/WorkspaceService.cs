@@ -1,3 +1,5 @@
+using KaedePhi.Tool.Common;
+
 namespace KaedePhi.Tool.App.Cli.Infrastructure;
 
 /// <summary>
@@ -58,28 +60,13 @@ public sealed class WorkspaceService
     /// <summary>
     /// 将外部谱面文件以流的方式复制到工作区目录，不做任何解析。
     /// </summary>
-    public async Task LoadAsync(string id, string chartPath)
+    public async Task LoadAsync(string id, string chartPath, CancellationToken ct = default)
     {
         var dir = ValidateAndResolveId(id);
         Directory.CreateDirectory(dir);
         var dest = Path.Combine(dir, ChartFileName);
-        await using var src = new FileStream(
-            chartPath,
-            FileMode.Open,
-            FileAccess.Read,
-            FileShare.Read,
-            bufferSize: 65536,
-            useAsync: true
-        );
-        await using var dst = new FileStream(
-            dest,
-            FileMode.Create,
-            FileAccess.Write,
-            FileShare.None,
-            bufferSize: 65536,
-            useAsync: true
-        );
-        await src.CopyToAsync(dst);
+        ChartProcessingValidator.ValidateInputFile(chartPath);
+        await CopyFileAtomicAsync(chartPath, dest, ct);
     }
 
     /// <summary>
@@ -102,30 +89,16 @@ public sealed class WorkspaceService
     /// <summary>
     /// 将工作区谱面文件以流的方式输出到目标路径，不做任何解析。
     /// </summary>
-    public async Task SaveAsync(string id, string outputPath)
+    public async Task SaveAsync(string id, string outputPath, CancellationToken ct = default)
     {
         var file =
             GetChartPath(id)
             ?? throw new InvalidOperationException(
                 string.Format(CliLocalizationString.err_workspace_not_found, id)
             );
-        await using var src = new FileStream(
-            file,
-            FileMode.Open,
-            FileAccess.Read,
-            FileShare.Read,
-            bufferSize: 65536,
-            useAsync: true
-        );
-        await using var dst = new FileStream(
-            outputPath,
-            FileMode.Create,
-            FileAccess.Write,
-            FileShare.None,
-            bufferSize: 65536,
-            useAsync: true
-        );
-        await src.CopyToAsync(dst);
+        var fullOutputPath = Path.GetFullPath(outputPath);
+        Directory.CreateDirectory(Path.GetDirectoryName(fullOutputPath)!);
+        await CopyFileAtomicAsync(file, fullOutputPath, ct);
     }
 
     /// <summary>
@@ -145,5 +118,45 @@ public sealed class WorkspaceService
         var dir = ValidateAndResolveId(id);
         if (Directory.Exists(dir))
             Directory.Delete(dir, true);
+    }
+
+    private static async Task CopyFileAtomicAsync(
+        string sourcePath,
+        string destinationPath,
+        CancellationToken ct
+    )
+    {
+        var temporaryPath = destinationPath + "." + Guid.NewGuid().ToString("N") + ".tmp";
+        try
+        {
+            await using (var src = new FileStream(
+                sourcePath,
+                FileMode.Open,
+                FileAccess.Read,
+                FileShare.Read,
+                bufferSize: 65536,
+                useAsync: true
+            ))
+            await using (var dst = new FileStream(
+                temporaryPath,
+                FileMode.CreateNew,
+                FileAccess.Write,
+                FileShare.None,
+                bufferSize: 65536,
+                useAsync: true
+            ))
+            {
+                await src.CopyToAsync(dst, ct);
+                await dst.FlushAsync(ct);
+            }
+
+            ct.ThrowIfCancellationRequested();
+            File.Move(temporaryPath, destinationPath, true);
+        }
+        finally
+        {
+            if (File.Exists(temporaryPath))
+                File.Delete(temporaryPath);
+        }
     }
 }

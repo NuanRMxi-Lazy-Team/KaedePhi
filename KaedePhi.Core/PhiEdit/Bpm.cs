@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 
 namespace KaedePhi.Core.PhiEdit
 {
@@ -24,7 +25,7 @@ namespace KaedePhi.Core.PhiEdit
 
         public override string ToString()
         {
-            return $"bp {StartBeat} {Bpm}";
+            return string.Format(CultureInfo.InvariantCulture, "{0} {1} {2}", "bp", StartBeat, Bpm);
         }
 
         public BpmItem Clone()

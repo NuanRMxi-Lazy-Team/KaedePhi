@@ -381,7 +381,12 @@ public static class FatherUnbindHelpers
     /// <summary>
     /// 生成从 <paramref name="min"/> 到 <paramref name="max"/>（不含）以 <paramref name="step"/> 为步长的拍列表。
     /// </summary>
-    public static List<Beat> BuildBeatList(Beat min, Beat max, Beat step)
+    public static List<Beat> BuildBeatList(
+        Beat min,
+        Beat max,
+        Beat step,
+        CancellationToken ct = default
+    )
     {
         // 预计算容量，避免多次内部扩容
         var range = (double)(max - min);
@@ -389,7 +394,10 @@ public static class FatherUnbindHelpers
         var estimatedCount = stepSize > 0 ? (int)Math.Ceiling(range / stepSize) : 0;
         var beats = new List<Beat>(Math.Max(0, estimatedCount));
         for (var b = min; b < max; b += step)
+        {
+            ct.ThrowIfCancellationRequested();
             beats.Add(b);
+        }
         return beats;
     }
 
@@ -399,7 +407,13 @@ public static class FatherUnbindHelpers
     public static (
         List<KpcEvents.Event<double>> x,
         List<KpcEvents.Event<double>> y
-    ) EqualSpacingSampling(List<Beat> beats, Beat max, Beat step, EventChannels ch)
+    ) EqualSpacingSampling(
+        List<Beat> beats,
+        Beat max,
+        Beat step,
+        EventChannels ch,
+        CancellationToken ct = default
+    )
     {
         var xBag = new ConcurrentBag<(int i, KpcEvents.Event<double> evt)>();
         var yBag = new ConcurrentBag<(int i, KpcEvents.Event<double> evt)>();
@@ -407,8 +421,10 @@ public static class FatherUnbindHelpers
         Parallel.For(
             0,
             beats.Count,
-            i =>
+            new ParallelOptions { CancellationToken = ct },
+            (int i) =>
             {
+                ct.ThrowIfCancellationRequested();
                 var beat = beats[i];
                 var next = beat + step > max ? max : beat + step;
                 var (xEvt, yEvt) = ComputeBeatSegment(beat, next, ch);
@@ -529,7 +545,13 @@ public static class FatherUnbindHelpers
     public static (
         List<KpcEvents.Event<double>> x,
         List<KpcEvents.Event<double>> y
-    ) RunAdaptiveSampling(List<Beat> keyBeats, Beat step, double tolerance, EventChannels ch)
+    ) RunAdaptiveSampling(
+        List<Beat> keyBeats,
+        Beat step,
+        double tolerance,
+        EventChannels ch,
+        CancellationToken ct = default
+    )
     {
         var segmentCount = keyBeats.Count - 1;
         var segmentsX = new List<KpcEvents.Event<double>>[segmentCount];
@@ -543,8 +565,10 @@ public static class FatherUnbindHelpers
         Parallel.For(
             0,
             segmentCount,
-            ki =>
+            new ParallelOptions { CancellationToken = ct },
+            (int ki) =>
             {
+                ct.ThrowIfCancellationRequested();
                 if (keyBeats[ki] >= keyBeats[ki + 1])
                     return;
                 var (sx, sy) = AdaptiveSampleInterval(
@@ -553,7 +577,8 @@ public static class FatherUnbindHelpers
                     step,
                     tolerance,
                     AbsPosIn,
-                    AbsPosOut
+                    AbsPosOut,
+                    ct
                 );
                 segmentsX[ki].AddRange(sx);
                 segmentsY[ki].AddRange(sy);
@@ -600,7 +625,8 @@ public static class FatherUnbindHelpers
         Beat step,
         double tolerance,
         Func<Beat, (double X, double Y)> absPosIn,
-        Func<Beat, (double X, double Y)> absPosOut
+        Func<Beat, (double X, double Y)> absPosOut,
+        CancellationToken ct
     )
     {
         var localX = new List<KpcEvents.Event<double>>();
@@ -612,6 +638,7 @@ public static class FatherUnbindHelpers
 
         for (var cur = iStart; cur < iEnd; )
         {
+            ct.ThrowIfCancellationRequested();
             var next = cur + step > iEnd ? iEnd : cur + step;
             var isLast = next >= iEnd;
             var nextPos = isLast ? end : absPosIn(next);

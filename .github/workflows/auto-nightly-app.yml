@@ -17,7 +17,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4.2.2
 
       - name: Get version
         id: version
@@ -28,9 +28,12 @@ jobs:
           echo "version=${VERSION}+nightly.${HASH}" >> $GITHUB_OUTPUT
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v4.3.1
         with:
-          dotnet-version: '10.0.x'
+          dotnet-version: '10.0.302'
+
+      - name: Restore dependencies
+        run: dotnet restore KaedePhi.Tool.App/KaedePhi.Tool.App.csproj --locked-mode
 
       - name: Build App (Debug / Nightly)
         run: |
@@ -55,7 +58,7 @@ jobs:
           done
 
       - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v4.3.0
         with:
           name: app-nightly-build-${{ github.sha }}
           path: ./artifacts/app/*.zip
@@ -68,10 +71,10 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4.2.2
 
       - name: Download build artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v4.3.0
         with:
           name: app-nightly-build-${{ github.sha }}
           path: ./artifacts/app
@@ -80,22 +83,28 @@ jobs:
         shell: pwsh
         run: |
           $version = "${{ needs.build-app.outputs.version }}"
+          $fullVersion = "$version+${{ github.sha }}"
           $zipFile = "./artifacts/app/KaedePhi.Tool.App-nightly-net10.0-win-x64.zip"
           $publishDir = "./publish"
           
           Expand-Archive -Path $zipFile -DestinationPath $publishDir
           
-          echo "KAEPHI_VERSION=$version" >> $env:GITHUB_ENV
+          echo "KAEPHI_VERSION=$fullVersion" >> $env:GITHUB_ENV
           echo "KAEPHI_PROJECT_DIR=$env:GITHUB_WORKSPACE" >> $env:GITHUB_ENV
           echo "KAEPHI_PUBLISH_DIR=$env:GITHUB_WORKSPACE\$publishDir" >> $env:GITHUB_ENV
 
       - name: Build installer with Inno Setup
-        uses: Minionguyjpro/inno-setup-action@v1.0.0
-        with:
-          path: SetupGenScript.iss
+        shell: pwsh
+        run: |
+          $isccPath = "C:\Program Files (x86)\Inno Setup 6\ISCC.exe"
+          if (-not (Test-Path $isccPath)) {
+            throw "Inno Setup is not installed on the runner."
+          }
+          & $isccPath SetupGenScript.iss
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
       - name: Upload installer artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v4.3.0
         with:
           name: app-nightly-installer-${{ github.sha }}
           path: ./setup/*.exe
@@ -108,12 +117,12 @@ jobs:
 
     steps:
       - name: Download all artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v4.3.0
         with:
           path: ./artifacts
 
       - name: Upload nightly artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v4.3.0
         with:
           name: app-nightly-${{ github.sha }}
           path: |

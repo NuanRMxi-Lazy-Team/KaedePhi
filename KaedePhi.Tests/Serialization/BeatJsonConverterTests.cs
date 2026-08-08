@@ -114,6 +114,14 @@ public class BeatJsonConverterTests
     }
 
     [Fact]
+    public void Serialize_DefaultBeat_ProducesValidZeroArray()
+    {
+        var json = JsonConvert.SerializeObject(default(Beat));
+
+        json.Should().Be("[0,0,1]");
+    }
+
+    [Fact]
     public void Deserialize_InvalidArray_ThrowsException()
     {
         var json = "[1,2]"; // Only 2 elements

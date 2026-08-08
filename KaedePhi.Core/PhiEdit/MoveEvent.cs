@@ -1,3 +1,5 @@
+using System.Globalization;
+
 namespace KaedePhi.Core.PhiEdit
 {
     public class MoveEvent
@@ -36,7 +38,7 @@ namespace KaedePhi.Core.PhiEdit
         /// <param name="judgeLineIndex">判定线索引</param>
         /// <returns>PhiEditor Chart格式字符串</returns>
         public string ToString(int judgeLineIndex) =>
-            $"cm {judgeLineIndex} {StartBeat} {EndBeat} {EndXValue} {EndYValue} {(int)EasingType}";
+            string.Format(CultureInfo.InvariantCulture, "{0} {1} {2} {3} {4} {5} {6}", "cm", judgeLineIndex, StartBeat, EndBeat, EndXValue, EndYValue, (int)EasingType);
 
         public MoveEvent Clone()
         {

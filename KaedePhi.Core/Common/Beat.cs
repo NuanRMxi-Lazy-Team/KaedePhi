@@ -18,9 +18,13 @@ namespace KaedePhi.Core.Common
         private readonly double _curBeatDouble;
         private readonly float _curBeatFloat;
 
+        private int EffectiveDenominator => _denominator == 0 ? 1 : _denominator;
+
         public Beat(int[] beatArray)
         {
-            if (beatArray == null || beatArray.Length != 3)
+            if (beatArray is null)
+                throw new ArgumentNullException(nameof(beatArray));
+            if (beatArray.Length != 3)
                 throw new ArgumentException(
                     "Beat array must have exactly 3 elements.",
                     nameof(beatArray)
@@ -28,6 +32,11 @@ namespace KaedePhi.Core.Common
             if (beatArray[2] == 0)
                 throw new ArgumentException(
                     "Beat denominator (beat[2]) cannot be zero.",
+                    nameof(beatArray)
+                );
+            if (beatArray[2] < 0)
+                throw new ArgumentException(
+                    "Beat denominator (beat[2]) must be positive.",
                     nameof(beatArray)
                 );
 
@@ -40,6 +49,14 @@ namespace KaedePhi.Core.Common
 
         public Beat(double beat)
         {
+            if (double.IsNaN(beat) || double.IsInfinity(beat))
+                throw new ArgumentOutOfRangeException(nameof(beat), "Beat must be finite.");
+            if (beat < int.MinValue || beat > int.MaxValue)
+                throw new ArgumentOutOfRangeException(
+                    nameof(beat),
+                    "Beat must fit in the supported integer part range."
+                );
+
             _curBeatDouble = beat;
             _curBeatFloat = (float)beat;
 
@@ -138,7 +155,7 @@ namespace KaedePhi.Core.Common
             {
                 0 => _whole,
                 1 => _numerator,
-                2 => _denominator,
+                2 => EffectiveDenominator,
                 _ => throw new ArgumentOutOfRangeException(
                     nameof(index),
                     index,
@@ -154,15 +171,16 @@ namespace KaedePhi.Core.Common
 
         // 隐式转换为 int[]，返回新数组
         public static implicit operator int[](Beat beat) =>
-            new[] { beat._whole, beat._numerator, beat._denominator };
+            new[] { beat._whole, beat._numerator, beat.EffectiveDenominator };
 
         public static Beat operator +(Beat a, Beat b)
         {
             var wholePart = a._whole + b._whole;
 
             var numerator =
-                (long)a._numerator * b._denominator + (long)b._numerator * a._denominator;
-            var denominator = (long)a._denominator * b._denominator;
+                (long)a._numerator * b.EffectiveDenominator
+                + (long)b._numerator * a.EffectiveDenominator;
+            var denominator = (long)a.EffectiveDenominator * b.EffectiveDenominator;
 
             if (numerator >= denominator)
             {
@@ -198,8 +216,9 @@ namespace KaedePhi.Core.Common
             var wholePart = a._whole - b._whole;
 
             var numerator =
-                (long)a._numerator * b._denominator - (long)b._numerator * a._denominator;
-            var denominator = (long)a._denominator * b._denominator;
+                (long)a._numerator * b.EffectiveDenominator
+                - (long)b._numerator * a.EffectiveDenominator;
+            var denominator = (long)a.EffectiveDenominator * b.EffectiveDenominator;
 
             if (numerator < 0)
             {
@@ -236,7 +255,7 @@ namespace KaedePhi.Core.Common
         public static bool operator !=(Beat a, Beat b) =>
             !a._curBeatDouble.Equals(b._curBeatDouble);
 
-        public override string ToString() => $"{_whole}:{_numerator}/{_denominator}";
+        public override string ToString() => $"{_whole}:{_numerator}/{EffectiveDenominator}";
 
         public override bool Equals(object? obj) => obj is Beat other && Equals(other);
 

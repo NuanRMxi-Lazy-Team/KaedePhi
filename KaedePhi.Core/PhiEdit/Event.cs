@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 
 namespace KaedePhi.Core.PhiEdit
 {
@@ -41,8 +42,8 @@ namespace KaedePhi.Core.PhiEdit
                     "请使用 MoveEvent 或 MoveFrame 的 ToString 方法，这不是一个 MoveEvent 或 MoveFrame"
                 );
             return head != "cf"
-                ? $"{head} {judgeLineIndex} {StartBeat} {EndBeat} {EndValue} {(int)EasingType}"
-                : $"{head} {judgeLineIndex} {StartBeat} {EndBeat} {EndValue}";
+                ? string.Format(CultureInfo.InvariantCulture, "{0} {1} {2} {3} {4} {5}", head, judgeLineIndex, StartBeat, EndBeat, EndValue, (int)EasingType)
+                : string.Format(CultureInfo.InvariantCulture, "{0} {1} {2} {3} {4}", head, judgeLineIndex, StartBeat, EndBeat, EndValue);
         }
 
         public Event Clone()

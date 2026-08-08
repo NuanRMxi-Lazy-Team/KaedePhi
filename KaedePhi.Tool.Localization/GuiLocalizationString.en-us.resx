@@ -316,6 +316,12 @@
   <data name="settings_saved" xml:space="preserve">
     <value>Settings saved.</value>
   </data>
+  <data name="btn_ok" xml:space="preserve">
+    <value>OK</value>
+  </data>
+  <data name="settings_save_failed" xml:space="preserve">
+    <value>Failed to save settings. Check permissions or disk space.</value>
+  </data>
   <data name="settings_reset" xml:space="preserve">
     <value>Settings reset to defaults.</value>
   </data>
@@ -480,6 +486,9 @@
   </data>
   <data name="export_error_title" xml:space="preserve">
     <value>Export Failed</value>
+  </data>
+  <data name="export_same_file_error" xml:space="preserve">
+    <value>The output path cannot overwrite the input chart.</value>
   </data>
   <data name="load_error_title" xml:space="preserve">
     <value>Load Failed</value>

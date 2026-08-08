@@ -58,6 +58,9 @@ public sealed class ChartService
         CancellationToken ct = default
     )
     {
+        if (!string.IsNullOrWhiteSpace(input) && !string.IsNullOrWhiteSpace(workspace))
+            throw new InvalidOperationException(CliLocalizationString.err_input_workspace_conflict);
+
         string path;
         if (!string.IsNullOrWhiteSpace(workspace))
         {
@@ -74,6 +77,7 @@ public sealed class ChartService
                 ?? throw new InvalidOperationException(CliLocalizationString.err_input_required);
         }
 
+        ChartProcessingValidator.ValidateInputFile(path);
         return await File.ReadAllTextAsync(path, ct);
     }
 
@@ -84,6 +88,9 @@ public sealed class ChartService
         CancellationToken ct = default
     )
     {
+        if (!string.IsNullOrWhiteSpace(input) && !string.IsNullOrWhiteSpace(workspace))
+            throw new InvalidOperationException(CliLocalizationString.err_input_workspace_conflict);
+
         var text = await LoadChartTextAsync(input, workspace, ct);
         var descriptor = ChartFormatRegistry.Find(ChartGetType.GetType(text));
         if (descriptor is not { CanImport: true })
@@ -100,8 +107,25 @@ public sealed class ChartService
         string extension = ".json"
     )
     {
+        if (!string.IsNullOrWhiteSpace(input) && !string.IsNullOrWhiteSpace(workspace))
+            throw new InvalidOperationException(CliLocalizationString.err_input_workspace_conflict);
+
         if (!string.IsNullOrWhiteSpace(output))
+        {
+            var sourcePath = !string.IsNullOrWhiteSpace(workspace)
+                ? _workspace.GetChartPath(workspace)
+                : input;
+            if (
+                sourcePath is not null
+                && string.Equals(
+                    Path.GetFullPath(sourcePath),
+                    Path.GetFullPath(output),
+                    StringComparison.OrdinalIgnoreCase
+                )
+            )
+                throw new InvalidOperationException(CliLocalizationString.err_output_input_same);
             return output;
+        }
         if (!string.IsNullOrWhiteSpace(workspace))
             return Path.Combine(_workspace.Root, workspace, "chart" + extension);
         if (string.IsNullOrEmpty(input))

@@ -3,6 +3,7 @@ using KaedePhi.Tool.Converter.Phigros.v3.Model;
 using KaedePhi.Tool.Converter.Phigros.v3.Utils;
 using KpcMeta = KaedePhi.Core.KaedePhi.Meta;
 using PhigrosChart = KaedePhi.Core.Phigros.v3.Chart;
+using PhigrosJudgeLine = KaedePhi.Core.Phigros.v3.JudgeLine;
 
 namespace KaedePhi.Tool.Converter.Phigros.v3;
 
@@ -68,6 +69,8 @@ public class PhigrosV3Converter
     {
         ArgumentNullException.ThrowIfNull(input);
         ArgumentNullException.ThrowIfNull(options);
+        ConversionOptionsValidator.Validate(options);
+        _ct.ThrowIfCancellationRequested();
 
         WarnIfUnsupportedMeta(input.Meta);
 
@@ -81,12 +84,17 @@ public class PhigrosV3Converter
             OnWarning
         );
 
+        var judgeLines = new List<PhigrosJudgeLine>(input.JudgeLineList.Count);
+        foreach (var line in input.JudgeLineList)
+        {
+            _ct.ThrowIfCancellationRequested();
+            judgeLines.Add(judgeLineConverter.ConvertJudgeLine(line, input.JudgeLineList));
+        }
+
         return new PhigrosChart
         {
             Offset = GetPhigrosV3Offset(input.Meta),
-            JudgeLineList = input.JudgeLineList.ConvertAll(j =>
-                judgeLineConverter.ConvertJudgeLine(j, input.JudgeLineList)
-            ),
+            JudgeLineList = judgeLines,
         };
     }
 

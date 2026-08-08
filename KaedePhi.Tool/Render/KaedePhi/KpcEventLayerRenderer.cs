@@ -1,4 +1,5 @@
 using KaedePhi.Core.Common;
+using KaedePhi.Tool.Common;
 using SkiaSharp;
 using EventLayer = KaedePhi.Core.KaedePhi.Events.EventLayer;
 
@@ -45,6 +46,8 @@ public static class KpcEventLayerRenderer
     /// <returns>渲染后的位图。</returns>
     public static SKBitmap RenderEventLayer(EventLayer layer, KpcRenderOptions opts)
     {
+        ArgumentNullException.ThrowIfNull(layer);
+        ChartProcessingValidator.ValidateRenderOptions(opts);
         var channels = BuildChannels(layer, opts);
         var totalBeats = ComputeTotalBeats(layer);
         if (totalBeats <= 0)

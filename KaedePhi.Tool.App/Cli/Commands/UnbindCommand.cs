@@ -15,6 +15,7 @@ public static partial class UnbindFatherCommand
     public static readonly Option<double> PrecisionOpt = SharedOptions.PrecisionOption;
     public static readonly Option<double> ToleranceOpt = SharedOptions.ToleranceOption;
     public static readonly Option<bool> ClassicOpt = SharedOptions.ClassicOption;
+    public static readonly Option<bool> NoCompressOpt = SharedOptions.NoCompressOption;
     public static readonly Option<bool> DryRunOpt = SharedOptions.DryRunOption;
 
     [CliHandler]
@@ -32,7 +33,15 @@ public static partial class UnbindFatherCommand
         var precision = SharedOptions.GetIfSpecified(result, PrecisionOpt) ?? c.Precision;
         var tolerance = SharedOptions.GetIfSpecified(result, ToleranceOpt) ?? c.Tolerance;
         var classic = SharedOptions.GetIfSpecified(result, ClassicOpt) ?? c.ClassicMode;
+        var disableCompress =
+            SharedOptions.GetIfSpecified(result, NoCompressOpt) ?? c.DisableCompress;
         var dryRun = SharedOptions.GetIfSpecified(result, DryRunOpt) ?? c.DryRun;
+
+        if (disableCompress && !classic)
+        {
+            ConsoleWriter.Error(CliLocalizationString.err_classic_disablsed);
+            return 1;
+        }
 
         var svc = new ChartService();
         var kpc = await svc.LoadKpcAsync(input, workspace, ct);
@@ -48,11 +57,13 @@ public static partial class UnbindFatherCommand
             precision,
             tolerance,
             classic,
-            disableCompress: false,
+            disableCompress: disableCompress,
             info: ConsoleWriter.Info,
             warning: ConsoleWriter.Warn,
             error: ConsoleWriter.Error,
-            debug: ConsoleWriter.Debug
+            debug: ConsoleWriter.Debug,
+            progress: ConsoleWriter.CreateProgress(),
+            ct: ct
         );
 
         var output = await ChartService.SaveAsRpeAsync(

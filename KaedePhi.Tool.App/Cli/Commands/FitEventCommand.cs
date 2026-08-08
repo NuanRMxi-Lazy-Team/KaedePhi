@@ -45,7 +45,9 @@ public static partial class FitEventCommand
             ConsoleWriter.Info,
             ConsoleWriter.Warn,
             ConsoleWriter.Error,
-            ConsoleWriter.Debug
+            ConsoleWriter.Debug,
+            ConsoleWriter.CreateProgress(),
+            ct
         );
 
         var output = await ChartService.SaveAsRpeAsync(

@@ -93,8 +93,9 @@
                         <!-- 精度 -->
                         <StackPanel IsVisible="{Binding ShowPrecision}" Spacing="4">
                             <TextBlock Text="{x:Static loc:GuiLocalizationString.option_precision}" FontSize="12" Opacity="0.7"/>
-                            <TextBox Text="{Binding Precision}" Width="200"
-                                     HorizontalAlignment="Left"/>
+                            <NumericUpDown Value="{Binding Precision}" Minimum="1" Maximum="4096"
+                                           Increment="1" FormatString="F0" Width="200"
+                                           HorizontalAlignment="Left"/>
                         </StackPanel>
 
                         <!-- 容差 -->
@@ -176,7 +177,8 @@
                 Background="{DynamicResource CardBackgroundFillColorDefaultBrush}">
             <Grid ColumnDefinitions="Auto,*">
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="8">
-                    <Button Padding="12,8" Click="OnReturnClick">
+                    <Button Padding="12,8" Click="OnReturnClick"
+                            IsEnabled="{Binding !IsProcessing}">
                         <StackPanel Orientation="Horizontal" Spacing="6">
                             <TextBlock Text="&#xf060;" Classes="fa-icon"
                                        FontSize="13" VerticalAlignment="Center"/>

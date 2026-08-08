@@ -105,6 +105,8 @@ public static partial class RenderCommand
         var outputValue = result.GetValue(OutputOpt);
         if (!string.IsNullOrWhiteSpace(outputValue))
             outputDir = outputValue;
+        else if (!string.IsNullOrWhiteSpace(c.OutputDir))
+            outputDir = c.OutputDir;
         else
             outputDir = !string.IsNullOrWhiteSpace(input)
                 ? Path.Combine(Path.GetDirectoryName(input) ?? ".", "render_output")
@@ -147,7 +149,9 @@ public static partial class RenderCommand
                 layerIndex,
                 ConsoleWriter.Info,
                 ConsoleWriter.Warn,
-                ConsoleWriter.Error
+                ConsoleWriter.Error,
+                progress: ConsoleWriter.CreateProgress(),
+                ct: ct
             );
             if (files.Count == 0)
                 ConsoleWriter.Warn(CliLocalizationString.render_warn_nothing);

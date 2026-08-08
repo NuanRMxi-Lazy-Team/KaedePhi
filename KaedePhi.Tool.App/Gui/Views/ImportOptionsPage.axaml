@@ -40,11 +40,13 @@
                                 <StackPanel Spacing="6">
                                     <StackPanel Spacing="4">
                                         <TextBlock Text="{x:Static loc:GuiLocalizationString.convert_frame_duration_beat}" FontSize="12" Opacity="0.7"/>
-                                        <TextBox Text="{Binding PeFrameDurationBeat}" Width="80" HorizontalAlignment="Left"/>
+                                        <NumericUpDown Value="{Binding PeFrameDurationBeat}" Minimum="1" Maximum="4096"
+                                                       Increment="1" FormatString="F0" Width="140" HorizontalAlignment="Left"/>
                                     </StackPanel>
                                     <StackPanel Spacing="4">
                                         <TextBlock Text="{x:Static loc:GuiLocalizationString.convert_trailing_beat_padding}" FontSize="12" Opacity="0.7"/>
-                                        <TextBox Text="{Binding PeTrailingBeatPadding}" Width="80" HorizontalAlignment="Left"/>
+                                        <NumericUpDown Value="{Binding PeTrailingBeatPadding}" Minimum="1" Maximum="4096"
+                                                       Increment="1" FormatString="F0" Width="140" HorizontalAlignment="Left"/>
                                     </StackPanel>
                                 </StackPanel>
                             </StackPanel>
@@ -55,7 +57,8 @@
                                 <StackPanel Spacing="6">
                                     <StackPanel Spacing="4">
                                         <TextBlock Text="{x:Static loc:GuiLocalizationString.convert_easing_precision}" FontSize="12" Opacity="0.7"/>
-                                        <TextBox Text="{Binding PhiChainUnsupportedEasingPrecision}" Width="200" HorizontalAlignment="Left"/>
+                                        <NumericUpDown Value="{Binding PhiChainUnsupportedEasingPrecision}" Minimum="1" Maximum="4096"
+                                                       Increment="1" FormatString="F0" Width="240" HorizontalAlignment="Left"/>
                                     </StackPanel>
                                 </StackPanel>
                             </StackPanel>

@@ -61,9 +61,21 @@ public class JudgeLineUnbinder : LoggableBase, IJudgeLineUnbinder<JudgeLine>
         List<JudgeLine> allJudgeLines,
         double precision,
         IProgress<ToolProgress>? progress = null
+    ) => FatherUnbind(targetJudgeLineIndex, allJudgeLines, precision, progress, default);
+
+    /// <summary>
+    /// 将判定线与父判定线解绑，并支持取消长时间采样。
+    /// </summary>
+    public JudgeLine FatherUnbind(
+        int targetJudgeLineIndex,
+        List<JudgeLine> allJudgeLines,
+        double precision,
+        IProgress<ToolProgress>? progress,
+        CancellationToken ct
     ) =>
-        CreateProcessor(allJudgeLines)
-            .FatherUnbind(targetJudgeLineIndex, allJudgeLines, precision, progress);
+        ValidateInput(targetJudgeLineIndex, allJudgeLines, precision, null)
+            .CreateProcessor(allJudgeLines)
+            .FatherUnbind(targetJudgeLineIndex, allJudgeLines, precision, progress, ct);
 
     /// <inheritdoc/>
     public JudgeLine FatherUnbind(
@@ -72,10 +84,30 @@ public class JudgeLineUnbinder : LoggableBase, IJudgeLineUnbinder<JudgeLine>
         CoordinateProfile renderProfile,
         double precision,
         IProgress<ToolProgress>? progress = null
+    ) =>
+        FatherUnbind(
+            targetJudgeLineIndex,
+            allJudgeLines,
+            renderProfile,
+            precision,
+            progress,
+            default
+        );
+
+    /// <summary>
+    /// 在指定坐标系中解绑判定线，并支持取消长时间采样。
+    /// </summary>
+    public JudgeLine FatherUnbind(
+        int targetJudgeLineIndex,
+        List<JudgeLine> allJudgeLines,
+        CoordinateProfile renderProfile,
+        double precision,
+        IProgress<ToolProgress>? progress,
+        CancellationToken ct
     )
     {
         using var _ = FatherUnbindHelpers.UseRenderProfile(renderProfile);
-        return FatherUnbind(targetJudgeLineIndex, allJudgeLines, precision, progress);
+        return FatherUnbind(targetJudgeLineIndex, allJudgeLines, precision, progress, ct);
     }
 
     /// <summary>
@@ -88,9 +120,22 @@ public class JudgeLineUnbinder : LoggableBase, IJudgeLineUnbinder<JudgeLine>
         double precision,
         double tolerance,
         IProgress<ToolProgress>? progress = null
+    ) => FatherUnbind(targetJudgeLineIndex, allJudgeLines, precision, tolerance, progress, default);
+
+    /// <summary>
+    /// 将判定线与父判定线解绑（自适应采样），并支持取消长时间采样。
+    /// </summary>
+    public JudgeLine FatherUnbind(
+        int targetJudgeLineIndex,
+        List<JudgeLine> allJudgeLines,
+        double precision,
+        double tolerance,
+        IProgress<ToolProgress>? progress,
+        CancellationToken ct
     ) =>
-        CreatePlusProcessor(allJudgeLines, tolerance)
-            .FatherUnbind(targetJudgeLineIndex, allJudgeLines, precision, progress);
+        ValidateInput(targetJudgeLineIndex, allJudgeLines, precision, tolerance)
+            .CreatePlusProcessor(allJudgeLines, tolerance)
+            .FatherUnbind(targetJudgeLineIndex, allJudgeLines, precision, progress, ct);
 
     /// <summary>
     /// 将判定线与父判定线解绑（自适应采样，指定渲染坐标系）。
@@ -101,10 +146,28 @@ public class JudgeLineUnbinder : LoggableBase, IJudgeLineUnbinder<JudgeLine>
         CoordinateProfile renderProfile,
         double precision,
         double tolerance,
-        IProgress<ToolProgress>? progress = null
+        IProgress<ToolProgress>? progress,
+        CancellationToken ct
     )
     {
         using var _ = FatherUnbindHelpers.UseRenderProfile(renderProfile);
-        return FatherUnbind(targetJudgeLineIndex, allJudgeLines, precision, tolerance, progress);
+        return FatherUnbind(targetJudgeLineIndex, allJudgeLines, precision, tolerance, progress, ct);
+    }
+
+    private JudgeLineUnbinder ValidateInput(
+        int targetJudgeLineIndex,
+        List<JudgeLine> allJudgeLines,
+        double precision,
+        double? tolerance
+    )
+    {
+        ArgumentNullException.ThrowIfNull(allJudgeLines);
+        if (targetJudgeLineIndex < 0 || targetJudgeLineIndex >= allJudgeLines.Count)
+            throw new ArgumentOutOfRangeException(nameof(targetJudgeLineIndex));
+        ChartProcessingValidator.ValidatePrecision(precision);
+        if (tolerance is not null)
+            ChartProcessingValidator.ValidateTolerance(tolerance.Value);
+        ChartProcessingValidator.ValidateJudgeLineHierarchy(allJudgeLines);
+        return this;
     }
 }

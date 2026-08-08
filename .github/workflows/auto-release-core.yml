@@ -1,4 +1,8 @@
-﻿name: Release Core
+name: Release Core
+
+concurrency:
+  group: release-core-${{ github.ref }}
+  cancel-in-progress: false
 
 on:
   push:
@@ -21,37 +25,86 @@ on:
         type: boolean
 
 permissions:
-  contents: write
-  packages: write
+  contents: read
 
 jobs:
-  release-core:
+  test-core:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4.2.2
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4.3.1
+        with:
+          dotnet-version: '10.0.302'
+
+      - name: Restore dependencies
+        run: dotnet restore KaedePhi.sln --locked-mode
+
+      - name: Run tests
+        run: dotnet test KaedePhi.Tests/KaedePhi.Tests.csproj --configuration Release --no-restore --collect:"XPlat Code Coverage" --results-directory TestResults
+
+      - name: Upload coverage
+        uses: actions/upload-artifact@v4.3.0
+        with:
+          name: core-test-results
+          path: TestResults
+          if-no-files-found: error
+          retention-days: 7
+
+  build-core:
+    needs: test-core
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4.2.2
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4.3.1
+        with:
+          dotnet-version: '10.0.302'
+
+      - name: Build and pack Core
+        run: |
+          dotnet restore KaedePhi.Core/KaedePhi.Core.csproj --locked-mode
+          CSPROJ="KaedePhi.Core/KaedePhi.Core.csproj"
+          mkdir -p ./artifacts
+          dotnet build "$CSPROJ" -c Release
+          dotnet pack "$CSPROJ" -c Release --no-build -o ./artifacts
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4.3.0
+        with:
+          name: core-artifacts
+          path: ./artifacts/*.nupkg
+          if-no-files-found: error
+          retention-days: 7
+
+  release-core:
+    needs: [test-core, build-core]
+    if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.create_release == true && inputs.test_build == false)
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4.2.2
         with:
           fetch-depth: 0
 
-      - name: Configure git
-        run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v4
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4.3.0
         with:
-          dotnet-version: |
-            8.0.x
-            9.0.x
-            10.0.x
+          name: core-artifacts
+          path: ./artifacts
 
-      - name: Build and release Core
+      - name: Create Core release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          IS_TEST_BUILD: ${{ github.event_name == 'workflow_dispatch' && inputs.test_build == true }}
-          SHOULD_RELEASE: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.create_release == true && inputs.test_build == false) }}
         run: |
           CSPROJ="KaedePhi.Core/KaedePhi.Core.csproj"
           PROPS="Directory.Build.props"
@@ -73,31 +126,16 @@ jobs:
           if [ -z "$VERSION" ]; then echo "Could not extract version from $CSPROJ or $PROPS, skipping."; exit 0; fi
 
           TAG="Core-v${VERSION}"
-          mkdir -p ./artifacts
-
-          if [ "$IS_TEST_BUILD" = "true" ]; then
-            echo "Test build mode - skipping release for Core"
-            dotnet build "$CSPROJ" -c Release
-            dotnet pack "$CSPROJ" -c Release --no-build -o ./artifacts
-            exit 0
-          fi
-
           if git rev-parse "$TAG" >/dev/null 2>&1; then
             echo "Tag $TAG already exists, skipping..."
             exit 0
           fi
 
-          dotnet build "$CSPROJ" -c Release
-          dotnet pack "$CSPROJ" -c Release --no-build -o ./artifacts
-
-          if [ "$SHOULD_RELEASE" != "true" ]; then
-            echo "Skipping release creation (build only mode)"
-            exit 0
-          fi
-
           PRERELEASE=$(is_prerelease "$VERSION")
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git tag "$TAG"
-          git push origin "$TAG" --force
+          git push origin "$TAG"
 
           RELEASE_ARGS=("$TAG" --title "Core v${VERSION}" --notes "自动发布 Core 版本 $VERSION")
           [ "$PRERELEASE" = "true" ] && RELEASE_ARGS+=(--prerelease) || RELEASE_ARGS+=(--no-latest)
@@ -105,13 +143,3 @@ jobs:
 
           gh release create "${RELEASE_ARGS[@]}"
           echo "Created release: Core v${VERSION} (prerelease: $PRERELEASE)"
-
-      - name: Upload build artifacts
-        if: github.event_name == 'workflow_dispatch'
-        uses: actions/upload-artifact@v4
-        with:
-          name: core-artifacts
-          path: ./artifacts/*.nupkg
-          if-no-files-found: warn
-          retention-days: 7
-

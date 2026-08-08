@@ -26,6 +26,7 @@ public class RePhiEditConverter
     /// <returns>KPC 谱面</returns>
     public Kpc.Chart ToKpc(Rpe.Chart source, Unit? _)
     {
+        ArgumentNullException.ThrowIfNull(source);
         _ct.ThrowIfCancellationRequested();
         return new Kpc.Chart
         {
@@ -52,15 +53,27 @@ public class RePhiEditConverter
     /// <param name="input">KPC 谱面</param>
     /// <param name="options">输出转换选项</param>
     /// <returns>RePhiEdit 谱面</returns>
-    public Rpe.Chart FromKpc(Kpc.Chart input, ConvertOption options) =>
-        new()
+    public Rpe.Chart FromKpc(Kpc.Chart input, ConvertOption options)
+    {
+        ArgumentNullException.ThrowIfNull(input);
+        ArgumentNullException.ThrowIfNull(options);
+        ConversionOptionsValidator.Validate(options);
+        _ct.ThrowIfCancellationRequested();
+
+        var lines = new List<Rpe.JudgeLine>(input.JudgeLineList.Count);
+        foreach (var line in input.JudgeLineList)
+        {
+            _ct.ThrowIfCancellationRequested();
+            lines.Add(JudgeLineBuilder.ConvertJudgeLine(line, options.Cutting));
+        }
+
+        return new Rpe.Chart
         {
             BpmList = input.BpmList.ConvertAll(ConvertBpmItem),
             Meta = MetaBuilder.ConvertMeta(input.Meta),
-            JudgeLineList = input.JudgeLineList.ConvertAll(r =>
-                JudgeLineBuilder.ConvertJudgeLine(r, options.Cutting)
-            ),
+            JudgeLineList = lines,
         };
+    }
 
     private static Kpc.BpmItem ConvertBpmItem(Rpe.BpmItem src) =>
         new() { Bpm = src.Bpm, StartBeat = new Beat((int[])src.StartBeat) };

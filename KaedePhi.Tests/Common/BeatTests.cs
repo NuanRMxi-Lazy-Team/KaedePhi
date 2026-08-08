@@ -30,9 +30,22 @@ public class BeatTests
     [Fact]
     public void Constructor_WithNullArray_ThrowsArgumentException()
     {
-        var act = () => new Beat(null);
+        var act = () => new Beat(null!);
 
         act.Should().Throw<ArgumentException>();
+    }
+
+    [Fact]
+    public void DefaultBeat_UsesSafeZeroRepresentation()
+    {
+        var beat = default(Beat);
+
+        beat[0].Should().Be(0);
+        beat[1].Should().Be(0);
+        beat[2].Should().Be(1);
+        beat.ToString().Should().Be("0:0/1");
+        ((int[])beat).Should().Equal(0, 0, 1);
+        (beat + new Beat(1d)).Should().Be(new Beat(1d));
     }
 
     [Fact]
@@ -49,6 +62,25 @@ public class BeatTests
         var act = () => new Beat(new[] { 1, 0, 0 });
 
         act.Should().Throw<ArgumentException>().WithMessage("*denominator*cannot be zero*");
+    }
+
+    [Fact]
+    public void Constructor_WithNegativeDenominator_ThrowsArgumentException()
+    {
+        var act = () => new Beat(new[] { 1, 1, -2 });
+
+        act.Should().Throw<ArgumentException>().WithMessage("*denominator*positive*");
+    }
+
+    [Theory]
+    [InlineData(double.NaN)]
+    [InlineData(double.PositiveInfinity)]
+    [InlineData(double.NegativeInfinity)]
+    public void Constructor_WithNonFiniteValue_ThrowsArgumentOutOfRangeException(double value)
+    {
+        var act = () => new Beat(value);
+
+        act.Should().Throw<ArgumentOutOfRangeException>();
     }
 
     [Fact]

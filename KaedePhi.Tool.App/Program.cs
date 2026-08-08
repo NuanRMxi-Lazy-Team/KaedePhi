@@ -112,6 +112,11 @@ internal static partial class Program
             var cliArgs = args.Where(a => a is not "--cli" and not "--gui").ToArray();
             return await root.Parse(cliArgs).InvokeAsync();
         }
+        catch (OperationCanceledException)
+        {
+            ConsoleWriter.Warn(CliLocalizationString.err_cancelled);
+            return 130;
+        }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
             if (ex is OutOfMemoryException)

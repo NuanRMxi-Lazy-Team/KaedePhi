@@ -61,7 +61,9 @@ public static partial class LayerMergeCommand
             ConsoleWriter.Info,
             ConsoleWriter.Warn,
             ConsoleWriter.Error,
-            ConsoleWriter.Debug
+            ConsoleWriter.Debug,
+            ConsoleWriter.CreateProgress(),
+            ct
         );
 
         var output = await ChartService.SaveAsRpeAsync(

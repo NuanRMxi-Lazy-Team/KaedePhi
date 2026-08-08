@@ -37,6 +37,20 @@
         <value>Merge multiple event layers of all judgment lines into a single layer.</value>
     </data>
     <!-- ── option descriptions ───────────────────────────────────────────────── -->
+    <data name="cli_opt_input_phiedit_desc" xml:space="preserve"><value>Input RPE/PhiEdit chart file path</value></data>
+    <data name="cli_opt_workspace_default_desc" xml:space="preserve"><value>Workspace ID (default: default)</value></data>
+    <data name="cli_opt_output_path_desc" xml:space="preserve"><value>Output file path</value></data>
+    <data name="cli_opt_workspace_clear_id_desc" xml:space="preserve"><value>Only clean the specified workspace</value></data>
+    <data name="cli_opt_input_rpe_desc" xml:space="preserve"><value>Input RPE chart file path (mutually exclusive with --workspace)</value></data>
+    <data name="cli_opt_output_auto_desc" xml:space="preserve"><value>Output file path (leave blank to generate automatically)</value></data>
+    <data name="cli_opt_workspace_rpe_desc" xml:space="preserve"><value>Workspace ID (mutually exclusive with --input)</value></data>
+    <data name="cli_opt_precision_desc" xml:space="preserve"><value>Sampling precision; the default is selected by the command configuration</value></data>
+    <data name="cli_opt_tolerance_desc" xml:space="preserve"><value>Fitting tolerance; the default is selected by the command configuration</value></data>
+    <data name="cli_opt_dry_run_desc" xml:space="preserve"><value>Dry-run mode; do not write files</value></data>
+    <data name="cli_opt_stream_output_desc" xml:space="preserve"><value>Stream output to reduce memory used while writing</value></data>
+    <data name="cli_opt_classic_mode_desc" xml:space="preserve"><value>Use legacy processing behavior</value></data>
+    <data name="cli_opt_format_desc" xml:space="preserve"><value>Format the output</value></data>
+    <data name="cli_opt_compress_desc" xml:space="preserve"><value>Disable event compression</value></data>
     <data name="opt_input_phiedit_desc" xml:space="preserve">
         <value>Input RPE/PhiEdit chart file path</value>
     </data>
@@ -48,6 +62,9 @@
     </data>
     <data name="opt_workspace_clear_id_desc" xml:space="preserve">
         <value>Only clean the specified workspace (leave blank to clean all).</value>
+    </data>
+    <data name="cli_opt_workspace_clear_all_desc" xml:space="preserve">
+        <value>Explicitly confirm clearing all workspaces</value>
     </data>
     <data name="opt_input_rpe_desc" xml:space="preserve">
         <value>Input RPE chart file path (mutually exclusive with --workspace)</value>
@@ -87,6 +104,10 @@
         <value>Config file has been reset to defaults: {0}</value>
         <comment>{0} = config file path</comment>
     </data>
+    <data name="err_config_save_failed" xml:space="preserve">
+        <value>Failed to save the config file. Check permissions or disk space: {0}</value>
+        <comment>{0} = config file path</comment>
+    </data>
     <!-- ── messages ─────────────────────────────────────────────────────────── -->
     <data name="msg_workspace_loaded" xml:space="preserve">
         <value>Successfully loaded the chart into workspace {0}!</value>
@@ -98,6 +119,9 @@
     </data>
     <data name="msg_cleared" xml:space="preserve">
         <value>Whoosh~ All workspaces have been cleaned up!</value>
+    </data>
+    <data name="msg_workspace_cleared" xml:space="preserve">
+        <value>Workspace {0} has been cleared.</value>
     </data>
     <data name="msg_written" xml:space="preserve">
         <value>Written successfully! {0}</value>
@@ -120,8 +144,20 @@
     <data name="err_input_required" xml:space="preserve">
         <value>Please provide --input, or you can use --workspace as an alternative~</value>
     </data>
+    <data name="err_input_workspace_conflict" xml:space="preserve">
+        <value>--input and --workspace cannot be specified together.</value>
+    </data>
+    <data name="err_output_input_same" xml:space="preserve">
+        <value>The output path cannot overwrite the input chart.</value>
+    </data>
     <data name="err_output_required" xml:space="preserve">
         <value>Please provide --output so I can save it for you~</value>
+    </data>
+    <data name="err_cancelled" xml:space="preserve">
+        <value>Operation cancelled.</value>
+    </data>
+    <data name="err_workspace_clear_selection" xml:space="preserve">
+        <value>Use --id to clear one workspace, or --all to explicitly confirm clearing all workspaces.</value>
     </data>
     <data name="err_workspace_missing" xml:space="preserve">
         <value>Workspace {0} not found...</value>
@@ -158,5 +194,40 @@
     <data name="convert_opt_negative_alpha_step" xml:space="preserve">
         <value>KPC Y offset per elevation step for negative alpha segments (default: 4.0)</value>
     </data>
+    <data name="render_opt_pixels_per_beat" xml:space="preserve"><value>Pixels per beat (default: 100)</value></data>
+    <data name="render_opt_channel_width" xml:space="preserve"><value>Channel width in pixels (default: 150)</value></data>
+    <data name="render_opt_samples" xml:space="preserve"><value>Curve samples per event (default: 64)</value></data>
+    <data name="render_opt_line" xml:space="preserve"><value>Render only the specified judgment line index</value></data>
+    <data name="render_opt_layer" xml:space="preserve"><value>Render only the specified event layer index; requires --line</value></data>
+    <data name="render_opt_beat_subdivisions" xml:space="preserve"><value>Beat grid subdivisions (default: 2)</value></data>
+    <data name="render_opt_output" xml:space="preserve"><value>PNG output directory</value></data>
+    <data name="render_opt_range_padding_ratio" xml:space="preserve"><value>Channel range padding ratio (default: 0.1)</value></data>
+    <data name="render_opt_range_samples" xml:space="preserve"><value>Samples used for channel range detection (default: 16)</value></data>
+    <data name="render_opt_segment_tolerance" xml:space="preserve"><value>Event segment compression tolerance (default: 0.000001)</value></data>
+    <data name="render_opt_min_range_half" xml:space="preserve"><value>Minimum channel range half-width (default: 0.1)</value></data>
+    <data name="render_opt_min_range_half_ratio" xml:space="preserve"><value>Minimum channel range half-width ratio (default: 0.15)</value></data>
+    <data name="convert_opt_pe_trailing_padding" xml:space="preserve"><value>PhiEdit trailing beat padding</value></data>
+    <data name="convert_opt_pe_easing_precision" xml:space="preserve"><value>PhiEdit unsupported easing precision</value></data>
+    <data name="convert_opt_pe_xy_precision" xml:space="preserve"><value>PhiEdit misaligned XY event precision</value></data>
+    <data name="convert_opt_pe_alpha_precision" xml:space="preserve"><value>PhiEdit alpha cut precision</value></data>
+    <data name="convert_opt_pe_alpha_tolerance" xml:space="preserve"><value>PhiEdit alpha cut tolerance</value></data>
+    <data name="convert_opt_pe_speed_precision" xml:space="preserve"><value>PhiEdit speed cut precision</value></data>
+    <data name="convert_opt_pe_speed_tolerance" xml:space="preserve"><value>PhiEdit speed cut tolerance</value></data>
+    <data name="convert_opt_phigros_bpm" xml:space="preserve"><value>Phigros default BPM</value></data>
+    <data name="convert_opt_phigros_easing_precision" xml:space="preserve"><value>Phigros easing cut precision</value></data>
+    <data name="convert_opt_phigros_xy_precision" xml:space="preserve"><value>Phigros misaligned XY event precision</value></data>
+    <data name="convert_opt_phigros_alpha_precision" xml:space="preserve"><value>Phigros alpha cut precision</value></data>
+    <data name="convert_opt_phigros_alpha_tolerance" xml:space="preserve"><value>Phigros alpha cut tolerance</value></data>
+    <data name="convert_opt_phigros_speed_precision" xml:space="preserve"><value>Phigros speed cut precision</value></data>
+    <data name="convert_opt_unbind_precision" xml:space="preserve"><value>Father line unbind precision</value></data>
+    <data name="convert_opt_unbind_tolerance" xml:space="preserve"><value>Father line unbind tolerance</value></data>
+    <data name="convert_opt_unbind_classic" xml:space="preserve"><value>Father line unbind classic mode</value></data>
+    <data name="convert_opt_merge_precision" xml:space="preserve"><value>Multi-layer merge precision</value></data>
+    <data name="convert_opt_merge_tolerance" xml:space="preserve"><value>Multi-layer merge tolerance</value></data>
+    <data name="convert_opt_merge_classic" xml:space="preserve"><value>Multi-layer merge classic mode</value></data>
+    <data name="convert_opt_no_unbind_compress" xml:space="preserve"><value>Disable compression after father line unbind</value></data>
+    <data name="convert_opt_no_merge_compress" xml:space="preserve"><value>Disable compression after multi-layer merge</value></data>
+    <data name="convert_opt_remove_attach_ui" xml:space="preserve"><value>Remove judgment lines with AttachUI</value></data>
+    <data name="convert_opt_remove_texture" xml:space="preserve"><value>Remove judgment lines with custom textures</value></data>
     <!-- ── misc ──────────────────────────────────────────────────────────────── -->
 </root>

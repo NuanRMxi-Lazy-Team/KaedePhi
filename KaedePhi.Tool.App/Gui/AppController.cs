@@ -10,6 +10,7 @@ using KaedePhi.Tool.Converter.PhiChain.Model;
 using KaedePhi.Tool.Converter.PhiEdit.Model;
 using KaedePhi.Tool.Converter.Phigros.v3.Model;
 using KaedePhi.Tool.Converter.RePhiEdit.Model;
+using KaedePhi.Tool.Render.KaedePhi;
 using Serilog;
 using static KaedePhi.Tool.Localization.GuiLocalizationString;
 
@@ -69,6 +70,7 @@ internal sealed class AppController
     private void WireEvents()
     {
         _importVm.FileSelected += OnFileSelected;
+        _importVm.RequestCancelLoading += OnCancelImport;
         _importOptionsVm.RequestConfirm += OnImportOptionsConfirm;
         _importOptionsVm.RequestCancel += OnReturnToImport;
         _importOptionsVm.RequestCancelImport += OnCancelImport;
@@ -145,6 +147,8 @@ internal sealed class AppController
 
     private void OnReturnToImport()
     {
+        if (_isFileProcessing)
+            return;
         _pendingFilePath = null;
         NavigateToImport();
     }
@@ -155,11 +159,13 @@ internal sealed class AppController
             return;
         _isFileProcessing = true;
         _importVm.IsLoading = true;
+        _cts = new CancellationTokenSource();
+        var ct = _cts.Token;
 
         try
         {
             // 先检测格式
-            var detectedType = _chart.DetectChartType(filePath, useStream);
+            var detectedType = await _chart.DetectChartTypeAsync(filePath, useStream, ct);
 
             // 检查是否需要显示导入选项
             if (detectedType is ChartType.PhiEdit or ChartType.PhiChain)
@@ -176,18 +182,29 @@ internal sealed class AppController
             else
             {
                 // 不需要选项，直接加载
-                await LoadChartWithOptions(filePath, useStream, detectedType, null);
+                await LoadChartWithOptions(filePath, useStream, detectedType, null, ct);
             }
+        }
+        catch (OperationCanceledException)
+        {
+            _log.Information(status_export_cancelled);
+            NavigateToImport();
         }
         catch (Exception ex)
         {
             _log.Error(ex, log_load_failed);
-            MessageDialog.ShowError(_window, load_error_title, ex.Message);
+            MessageDialog.ShowError(
+                _window,
+                load_error_title,
+                string.Format(status_error_with_log, ex.Message, _logService.CurrentLogFile)
+            );
         }
         finally
         {
             _isFileProcessing = false;
             _importVm.IsLoading = false;
+            _cts?.Dispose();
+            _cts = null;
         }
     }
 
@@ -214,13 +231,17 @@ internal sealed class AppController
         }
         catch (OperationCanceledException)
         {
-            _log.Information("Import cancelled by user");
+            _log.Information(status_export_cancelled);
             NavigateToImport();
         }
         catch (Exception ex)
         {
             _log.Error(ex, log_load_failed);
-            MessageDialog.ShowError(_window, load_error_title, ex.Message);
+            MessageDialog.ShowError(
+                _window,
+                load_error_title,
+                string.Format(status_error_with_log, ex.Message, _logService.CurrentLogFile)
+            );
             NavigateToImport();
         }
         finally
@@ -294,6 +315,7 @@ internal sealed class AppController
         _toolVm.IsProcessing = true;
         _toolVm.StatusText = status_processing;
         _cts = new CancellationTokenSource();
+        var ct = _cts.Token;
 
         try
         {
@@ -322,7 +344,8 @@ internal sealed class AppController
                                 _toolVm.Tolerance,
                                 _toolVm.ClassicMode,
                                 _toolVm.DisableCompress,
-                                toolProgress
+                                toolProgress,
+                                ct
                             );
                             break;
                         case "layermerge":
@@ -332,7 +355,8 @@ internal sealed class AppController
                                 _toolVm.Tolerance,
                                 _toolVm.ClassicMode,
                                 _toolVm.DisableCompress,
-                                toolProgress
+                                toolProgress,
+                                ct
                             );
                             break;
                         case "cut":
@@ -341,28 +365,38 @@ internal sealed class AppController
                                 _toolVm.Precision,
                                 _toolVm.Tolerance,
                                 _toolVm.DisableCompress,
-                                toolProgress
+                                toolProgress,
+                                ct
                             );
                             break;
                         case "fit":
-                            _chart.RunFitEvent(kpcChart, _toolVm.Tolerance, toolProgress);
+                            _chart.RunFitEvent(kpcChart, _toolVm.Tolerance, toolProgress, ct);
                             break;
                         case "render":
                             var renderPaths = _chart.RunRender(
                                 kpcChart,
                                 _toolVm.RenderOutputDir,
-                                _toolVm.PixelsPerBeat,
-                                _toolVm.ChannelWidth,
-                                _toolVm.SamplesPerEvent,
-                                _toolVm.BeatSubdivisions,
-                                toolProgress
+                                new KpcRenderOptions
+                                {
+                                    PixelsPerBeat = _toolVm.PixelsPerBeat,
+                                    ChannelWidth = _toolVm.ChannelWidth,
+                                    SamplesPerEvent = _toolVm.SamplesPerEvent,
+                                    BeatSubdivisions = _toolVm.BeatSubdivisions,
+                                    RangePaddingRatio = _config.Config.Render.RangePaddingRatio,
+                                    RangeSamplesPerEvent = _config.Config.Render.RangeSamplesPerEvent,
+                                    SegmentGroupTolerance = _config.Config.Render.SegmentGroupTolerance,
+                                    MinValueRangeHalf = _config.Config.Render.MinValueRangeHalf,
+                                    MinValueRangeHalfRatio = _config.Config.Render.MinValueRangeHalfRatio,
+                                },
+                                toolProgress,
+                                ct
                             );
                             foreach (var p in renderPaths)
                                 _log.Information(log_tool_render_output, p);
                             break;
                     }
                 },
-                _cts.Token
+                ct
             );
 
             _log.Information(log_tool_completed, toolId);
@@ -375,13 +409,22 @@ internal sealed class AppController
                 string.Format(log_tool_completed, toolId)
             );
         }
+        catch (OperationCanceledException)
+        {
+            _log.Information(status_export_cancelled);
+            NavigateToTool();
+        }
         catch (Exception ex)
         {
             _log.Error(ex, log_tool_failed);
 
             // 返回工具页面并显示失败对话框
             NavigateToTool();
-            MessageDialog.ShowError(_window, tool_error_title, ex.Message);
+            MessageDialog.ShowError(
+                _window,
+                tool_error_title,
+                string.Format(status_error_with_log, ex.Message, _logService.CurrentLogFile)
+            );
         }
         finally
         {
@@ -412,6 +455,9 @@ internal sealed class AppController
 
     private async void OnExportExecute()
     {
+        if (_exportVm.IsExporting)
+            return;
+
         try
         {
             var topLevel = TopLevel.GetTopLevel(_window);
@@ -447,11 +493,24 @@ internal sealed class AppController
                 _exportVm.IsExporting = true;
                 _exportVm.StatusText = status_exporting;
                 _cts = new CancellationTokenSource();
+                var ct = _cts.Token;
 
                 // 若 OS 未自动附加扩展名，则手动补全
                 var expectedExt = $".{ext}";
                 if (!outputPath.EndsWith(expectedExt, StringComparison.OrdinalIgnoreCase))
                     outputPath += expectedExt;
+                if (
+                    _chart.SourceFilePath is not null
+                    && string.Equals(
+                        Path.GetFullPath(_chart.SourceFilePath),
+                        Path.GetFullPath(outputPath),
+                        StringComparison.OrdinalIgnoreCase
+                    )
+                )
+                {
+                    _exportVm.StatusText = export_same_file_error;
+                    return;
+                }
 
                 // 在后台线程执行耗时的导出操作，避免阻塞 UI
                 var exportOptions = BuildExportOptions(targetFormat);
@@ -467,10 +526,10 @@ internal sealed class AppController
                             useStream,
                             indented,
                             exportOptions,
-                            _cts.Token
+                            ct
                         );
                     },
-                    _cts.Token
+                    ct
                 );
 
                 _exportVm.StatusText = string.Format(status_exported_to, outputPath);
@@ -500,7 +559,11 @@ internal sealed class AppController
                 ex.Message,
                 _logService.CurrentLogFile
             );
-            MessageDialog.ShowError(_window, export_error_title, ex.Message);
+            MessageDialog.ShowError(
+                _window,
+                export_error_title,
+                string.Format(status_error_with_log, ex.Message, _logService.CurrentLogFile)
+            );
         }
         finally
         {

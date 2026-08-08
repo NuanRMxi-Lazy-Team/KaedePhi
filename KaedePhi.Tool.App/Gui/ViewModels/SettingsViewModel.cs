@@ -1,5 +1,6 @@
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using KaedePhi.Tool.Common;
 using KaedePhi.Tool.App.Config;
 using static KaedePhi.Tool.Localization.GuiLocalizationString;
 
@@ -162,6 +163,34 @@ public sealed class SettingsViewModel : INotifyPropertyChanged
 
     public void OnSaveClicked()
     {
+        try
+        {
+            if (MaxLogFiles is < 1 or > 100)
+                throw new ArgumentOutOfRangeException(nameof(MaxLogFiles));
+            ChartProcessingValidator.ValidatePrecision(UnbindPrecision);
+            ChartProcessingValidator.ValidatePrecision(LayerMergePrecision);
+            ChartProcessingValidator.ValidatePrecision(CutPrecision);
+            ChartProcessingValidator.ValidateTolerance(UnbindTolerance);
+            ChartProcessingValidator.ValidateTolerance(LayerMergeTolerance);
+            ChartProcessingValidator.ValidateTolerance(CutTolerance);
+            ChartProcessingValidator.ValidateTolerance(FitTolerance);
+            ChartProcessingValidator.ValidatePrecision(ConvertPeUnsupportedEasingPrecision);
+            ChartProcessingValidator.ValidatePrecision(ConvertPeMisalignedXyEventPrecision);
+            ChartProcessingValidator.ValidatePrecision(ConvertPeAlphaCutPrecision);
+            ChartProcessingValidator.ValidatePrecision(ConvertPeSpeedCutPrecision);
+            ChartProcessingValidator.ValidatePrecision(ConvertPhigrosEasingPrecision);
+            ChartProcessingValidator.ValidatePrecision(ConvertPhigrosMisalignedXyEventPrecision);
+            ChartProcessingValidator.ValidatePrecision(ConvertPhigrosAlphaCutPrecision);
+            ChartProcessingValidator.ValidatePrecision(ConvertPhigrosSpeedCutPrecision);
+            ChartProcessingValidator.ValidatePrecision(ConvertUnbindPrecision);
+            ChartProcessingValidator.ValidatePrecision(ConvertMultiLayerMergePrecision);
+        }
+        catch (ArgumentOutOfRangeException)
+        {
+            StatusText = settings_save_failed;
+            return;
+        }
+
         var c = _config.Config;
         c.MaxLogFiles = MaxLogFiles;
 
@@ -211,16 +240,15 @@ public sealed class SettingsViewModel : INotifyPropertyChanged
         c.Convert.MultiLayerMergeTolerance = ConvertMultiLayerMergeTolerance;
         c.Convert.MultiLayerMergeClassicMode = ConvertMultiLayerMergeClassicMode;
 
-        _config.Save();
-        StatusText = settings_saved;
+        StatusText = _config.Save() ? settings_saved : settings_save_failed;
     }
 
     public void OnResetClicked()
     {
-        _config.ResetToDefaults();
+        var saved = _config.ResetToDefaults();
         LoadFromConfig();
         OnPropertyChanged(string.Empty);
-        StatusText = settings_reset;
+        StatusText = saved ? settings_reset : settings_save_failed;
     }
 
     private void LoadFromConfig()

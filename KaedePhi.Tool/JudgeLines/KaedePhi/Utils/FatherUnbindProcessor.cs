@@ -31,9 +31,12 @@ public class FatherUnbindProcessor : FatherUnbindProcessorBase
         int targetJudgeLineIndex,
         List<JudgeLine> allJudgeLines,
         double precision,
-        IProgress<ToolProgress>? progress = null
+        IProgress<ToolProgress>? progress = null,
+        CancellationToken ct = default
     )
     {
+        ChartProcessingValidator.ValidatePrecision(precision);
+        ct.ThrowIfCancellationRequested();
         JudgeLine judgeLineCopy;
         try
         {
@@ -44,7 +47,7 @@ public class FatherUnbindProcessor : FatherUnbindProcessorBase
                 allJudgeLines,
                 logTag: "FatherUnbind",
                 startAction: "开始解绑",
-                recursiveUnbind: (idx, lines) => FatherUnbind(idx, lines, precision, progress)
+                recursiveUnbind: (idx, lines) => FatherUnbind(idx, lines, precision, progress, ct)
             );
 
             judgeLineCopy = judgeLine;
@@ -90,6 +93,7 @@ public class FatherUnbindProcessor : FatherUnbindProcessorBase
             // ReSharper disable once CoVariantArrayConversion
             Task.WaitAll(cutTasks);
 
+            ct.ThrowIfCancellationRequested();
             var cutChannels = new FatherUnbindHelpers.EventChannels(
                 Fx: cutTasks[2].Result,
                 Fy: cutTasks[3].Result,
@@ -105,7 +109,7 @@ public class FatherUnbindProcessor : FatherUnbindProcessorBase
                 Math.Max(Math.Max(Math.Max(txMax, tyMax), Math.Max(fxMax, fyMax)), frMax)
             );
             var step = new Beat(1d / precision);
-            var beats = FatherUnbindHelpers.BuildBeatList(overallMin, overallMax, step);
+            var beats = FatherUnbindHelpers.BuildBeatList(overallMin, overallMax, step, ct);
 
             progress?.Report(new ToolProgress(0.6, "等间隔采样"));
             LogDebug?.Invoke(
@@ -115,7 +119,8 @@ public class FatherUnbindProcessor : FatherUnbindProcessorBase
                 beats,
                 overallMax,
                 step,
-                cutChannels
+                cutChannels,
+                ct
             );
 
             progress?.Report(new ToolProgress(0.9, "写回结果"));

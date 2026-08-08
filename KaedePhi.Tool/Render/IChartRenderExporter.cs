@@ -18,6 +18,7 @@ public interface IChartRenderExporter<in TChart, in TRenderOptions> : ILoggable
     /// <param name="lineIndex">若指定，则只渲染该索引的判定线。</param>
     /// <param name="layerIndex">若指定，则只渲染该索引的事件层（需同时指定 <paramref name="lineIndex"/>）。</param>
     /// <param name="progress">进度回调。</param>
+    /// <param name="ct">取消令牌。</param>
     /// <returns>所有已写入文件的路径列表。</returns>
     IReadOnlyList<string> ExportChart(
         TChart chart,
@@ -25,6 +26,7 @@ public interface IChartRenderExporter<in TChart, in TRenderOptions> : ILoggable
         TRenderOptions opts,
         int? lineIndex = null,
         int? layerIndex = null,
-        IProgress<ToolProgress>? progress = null
+        IProgress<ToolProgress>? progress = null,
+        CancellationToken ct = default
     );
 }

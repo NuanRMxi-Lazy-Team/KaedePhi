@@ -1,0 +1,65 @@
+{
+  "version": 1,
+  "dependencies": {
+    ".NETStandard,Version=v2.1": {
+      "JetBrains.Annotations": {
+        "type": "Direct",
+        "requested": "[2026.2.0, )",
+        "resolved": "2026.2.0",
+        "contentHash": "drvAEaI7Xf4wU6dx4UTB9MoZWXZlraaQ0qoeThPQ411FxNhId7QdUTukIC9I8aUHP0ycAaGwZNKqSvfOZQvUlg=="
+      },
+      "Newtonsoft.Json": {
+        "type": "Direct",
+        "requested": "[13.0.4, )",
+        "resolved": "13.0.4",
+        "contentHash": "pdgNNMai3zv51W5aq268sujXUyx7SNdE2bj1wZcWjAQrKMFZV260lbqYop1d2GM67JI1huLRwxo9ZqnfF/lC6A=="
+      },
+      "System.Runtime.CompilerServices.Unsafe": {
+        "type": "Direct",
+        "requested": "[6.1.2, )",
+        "resolved": "6.1.2",
+        "contentHash": "2hBr6zdbIBTDE3EhK7NSVNdX58uTK6iHW/P/Axmm9sl1xoGSLqDvMtpecn226TNwHByFokYwJmt/aQQNlO5CRw=="
+      }
+    },
+    "net10.0": {
+      "JetBrains.Annotations": {
+        "type": "Direct",
+        "requested": "[2026.2.0, )",
+        "resolved": "2026.2.0",
+        "contentHash": "drvAEaI7Xf4wU6dx4UTB9MoZWXZlraaQ0qoeThPQ411FxNhId7QdUTukIC9I8aUHP0ycAaGwZNKqSvfOZQvUlg=="
+      },
+      "Newtonsoft.Json": {
+        "type": "Direct",
+        "requested": "[13.0.4, )",
+        "resolved": "13.0.4",
+        "contentHash": "pdgNNMai3zv51W5aq268sujXUyx7SNdE2bj1wZcWjAQrKMFZV260lbqYop1d2GM67JI1huLRwxo9ZqnfF/lC6A=="
+      },
+      "System.Runtime.CompilerServices.Unsafe": {
+        "type": "Direct",
+        "requested": "[6.1.2, )",
+        "resolved": "6.1.2",
+        "contentHash": "2hBr6zdbIBTDE3EhK7NSVNdX58uTK6iHW/P/Axmm9sl1xoGSLqDvMtpecn226TNwHByFokYwJmt/aQQNlO5CRw=="
+      }
+    },
+    "net8.0": {
+      "JetBrains.Annotations": {
+        "type": "Direct",
+        "requested": "[2026.2.0, )",
+        "resolved": "2026.2.0",
+        "contentHash": "drvAEaI7Xf4wU6dx4UTB9MoZWXZlraaQ0qoeThPQ411FxNhId7QdUTukIC9I8aUHP0ycAaGwZNKqSvfOZQvUlg=="
+      },
+      "Newtonsoft.Json": {
+        "type": "Direct",
+        "requested": "[13.0.4, )",
+        "resolved": "13.0.4",
+        "contentHash": "pdgNNMai3zv51W5aq268sujXUyx7SNdE2bj1wZcWjAQrKMFZV260lbqYop1d2GM67JI1huLRwxo9ZqnfF/lC6A=="
+      },
+      "System.Runtime.CompilerServices.Unsafe": {
+        "type": "Direct",
+        "requested": "[6.1.2, )",
+        "resolved": "6.1.2",
+        "contentHash": "2hBr6zdbIBTDE3EhK7NSVNdX58uTK6iHW/P/Axmm9sl1xoGSLqDvMtpecn226TNwHByFokYwJmt/aQQNlO5CRw=="
+      }
+    }
+  }
+}

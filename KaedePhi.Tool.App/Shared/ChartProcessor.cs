@@ -20,12 +20,20 @@ public static class ChartProcessor
         Action<string>? warning = null,
         Action<string>? error = null,
         Action<string>? debug = null,
-        IProgress<ToolProgress>? progress = null
+        IProgress<ToolProgress>? progress = null,
+        CancellationToken ct = default
     )
     {
+        ChartProcessingValidator.ValidatePrecision(precision);
+        ChartProcessingValidator.ValidateTolerance(tolerance);
+        ChartProcessingValidator.ValidateJudgeLineHierarchy(chart.JudgeLineList);
+
         var unbinder = new JudgeLineUnbinder();
         if (info != null || warning != null || error != null || debug != null)
             unbinder.SubscribeLog(info, warning, error, debug);
+        var compressor = new LayerProcessor();
+        if (info != null || warning != null || error != null || debug != null)
+            compressor.SubscribeLog(info, warning, error, debug);
 
         var linesToProcess = new List<int>();
         for (var i = 0; i < chart.JudgeLineList.Count; i++)
@@ -37,6 +45,7 @@ public static class ChartProcessor
         var totalLines = linesToProcess.Count;
         for (var idx = 0; idx < totalLines; idx++)
         {
+            ct.ThrowIfCancellationRequested();
             var i = linesToProcess[idx];
             var capturedIdx = idx;
             var lineProgress = progress is null
@@ -46,9 +55,22 @@ public static class ChartProcessor
                     var overall = (double)capturedIdx / totalLines;
                     progress.Report(new ToolProgress(p.Percentage, overall, p.Detail));
                 });
-            chart.JudgeLineList[i] = classic
-                ? unbinder.FatherUnbind(i, chart.JudgeLineList, precision, lineProgress)
-                : unbinder.FatherUnbind(i, chart.JudgeLineList, precision, tolerance, lineProgress);
+            var unboundLine = classic
+                ? unbinder.FatherUnbind(i, chart.JudgeLineList, precision, lineProgress, ct)
+                : unbinder.FatherUnbind(
+                    i,
+                    chart.JudgeLineList,
+                    precision,
+                    tolerance,
+                    lineProgress,
+                    ct
+                );
+            if (!disableCompress)
+            {
+                foreach (var layer in unboundLine.EventLayers)
+                    compressor.LayerEventsCompress(layer, tolerance, lineProgress);
+            }
+            chart.JudgeLineList[i] = unboundLine;
         }
 
         progress?.Report(new ToolProgress(1.0, 1.0));
@@ -64,9 +86,13 @@ public static class ChartProcessor
         Action<string>? warning = null,
         Action<string>? error = null,
         Action<string>? debug = null,
-        IProgress<ToolProgress>? progress = null
+        IProgress<ToolProgress>? progress = null,
+        CancellationToken ct = default
     )
     {
+        ChartProcessingValidator.ValidatePrecision(precision);
+        ChartProcessingValidator.ValidateTolerance(tolerance);
+
         var processor = new LayerProcessor();
         if (info != null || warning != null || error != null || debug != null)
             processor.SubscribeLog(info, warning, error, debug);
@@ -74,6 +100,7 @@ public static class ChartProcessor
         var totalLines = chart.JudgeLineList.Count;
         for (var li = 0; li < totalLines; li++)
         {
+            ct.ThrowIfCancellationRequested();
             var line = chart.JudgeLineList[li];
             if (line.EventLayers is not { Count: > 1 })
             {
@@ -110,9 +137,13 @@ public static class ChartProcessor
         Action<string>? warning = null,
         Action<string>? error = null,
         Action<string>? debug = null,
-        IProgress<ToolProgress>? progress = null
+        IProgress<ToolProgress>? progress = null,
+        CancellationToken ct = default
     )
     {
+        ChartProcessingValidator.ValidatePrecision(precision);
+        ChartProcessingValidator.ValidateTolerance(tolerance);
+
         var processor = new LayerProcessor();
         if (info != null || warning != null || error != null || debug != null)
             processor.SubscribeLog(info, warning, error, debug);
@@ -120,6 +151,7 @@ public static class ChartProcessor
         var totalLines = chart.JudgeLineList.Count;
         for (var li = 0; li < totalLines; li++)
         {
+            ct.ThrowIfCancellationRequested();
             var line = chart.JudgeLineList[li];
             if (line.EventLayers is not { Count: > 0 })
             {
@@ -152,9 +184,12 @@ public static class ChartProcessor
         Action<string>? warning = null,
         Action<string>? error = null,
         Action<string>? debug = null,
-        IProgress<ToolProgress>? progress = null
+        IProgress<ToolProgress>? progress = null,
+        CancellationToken ct = default
     )
     {
+        ChartProcessingValidator.ValidateTolerance(tolerance);
+
         var doubleFit = new EventFit<double>();
         var intFit = new EventFit<int>();
         var floatFit = new EventFit<float>();
@@ -168,6 +203,7 @@ public static class ChartProcessor
         var totalLines = chart.JudgeLineList.Count;
         for (var li = 0; li < totalLines; li++)
         {
+            ct.ThrowIfCancellationRequested();
             var line = chart.JudgeLineList[li];
             if (line.EventLayers is not { Count: > 0 })
             {
@@ -178,6 +214,7 @@ public static class ChartProcessor
             var totalLayers = line.EventLayers.Count;
             for (var ei = 0; ei < totalLayers; ei++)
             {
+                ct.ThrowIfCancellationRequested();
                 var capturedLi = li;
                 var capturedEi = ei;
                 var layerProgress = progress is null
@@ -233,12 +270,14 @@ public static class ChartProcessor
         Action<string>? warning = null,
         Action<string>? error = null,
         Action<string>? debug = null,
-        IProgress<ToolProgress>? progress = null
+        IProgress<ToolProgress>? progress = null,
+        CancellationToken ct = default
     )
     {
+        ChartProcessingValidator.ValidateRender(chart, options, lineIndex, layerIndex);
         var exporter = new KpcChartRenderExporter();
         if (info != null || warning != null || error != null || debug != null)
             exporter.SubscribeLog(info, warning, error, debug);
-        return exporter.ExportChart(chart, outputDir, options, lineIndex, layerIndex, progress);
+        return exporter.ExportChart(chart, outputDir, options, lineIndex, layerIndex, progress, ct);
     }
 }

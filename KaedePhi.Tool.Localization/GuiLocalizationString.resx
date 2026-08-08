@@ -316,6 +316,12 @@
   <data name="settings_saved" xml:space="preserve">
     <value>配置已保存。</value>
   </data>
+  <data name="btn_ok" xml:space="preserve">
+    <value>确定</value>
+  </data>
+  <data name="settings_save_failed" xml:space="preserve">
+    <value>配置保存失败，请检查权限或磁盘空间。</value>
+  </data>
   <data name="settings_reset" xml:space="preserve">
     <value>已恢复默认设置。</value>
   </data>
@@ -480,6 +486,9 @@
   </data>
   <data name="export_error_title" xml:space="preserve">
     <value>导出失败</value>
+  </data>
+  <data name="export_same_file_error" xml:space="preserve">
+    <value>输出路径不能覆盖输入谱面文件。</value>
   </data>
   <data name="load_error_title" xml:space="preserve">
     <value>加载失败</value>

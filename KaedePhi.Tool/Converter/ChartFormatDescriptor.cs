@@ -43,6 +43,15 @@ public sealed class ChartFormatDescriptor
         Task<Kpc.Chart>
     >? Importer { get; init; }
 
+    /// <summary>将该格式的谱面流转换为 KPC 中间格式。</summary>
+    internal Func<
+        Stream,
+        object?,
+        ChartLogSink,
+        CancellationToken,
+        Task<Kpc.Chart>
+    >? StreamImporter { get; init; }
+
     /// <summary>将 KPC 中间格式导出为该格式并写入目标路径。</summary>
     internal Func<
         Kpc.Chart,
@@ -56,6 +65,11 @@ public sealed class ChartFormatDescriptor
 
     /// <summary>该格式是否支持作为导入源。</summary>
     public bool CanImport => Importer is not null;
+
+    /// <summary>
+    /// 该格式是否支持流式导入。
+    /// </summary>
+    public bool CanStreamImport => StreamImporter is not null;
 
     /// <summary>该格式是否支持作为导出目标。</summary>
     public bool CanExport => Exporter is not null;
@@ -80,7 +94,7 @@ public sealed class ChartFormatDescriptor
     /// <param name="log">日志回调集合</param>
     /// <param name="ct">取消令牌</param>
     /// <returns>KPC 谱面</returns>
-    public Task<Kpc.Chart> ImportAsync(
+    public async Task<Kpc.Chart> ImportAsync(
         string text,
         object? importOptions = null,
         ChartLogSink? log = null,
@@ -89,7 +103,35 @@ public sealed class ChartFormatDescriptor
     {
         if (Importer is null)
             throw new NotSupportedException($"{Type} 不支持作为导入源。");
-        return Importer(text, importOptions, log ?? ChartLogSink.None, ct);
+        ArgumentNullException.ThrowIfNull(text);
+        var chart = await Importer(text, importOptions, log ?? ChartLogSink.None, ct);
+        ChartProcessingValidator.ValidateJudgeLineHierarchy(chart.JudgeLineList);
+        return chart;
+    }
+
+    /// <summary>
+    /// 从输入流转换为 KPC 谱面。
+    /// </summary>
+    /// <param name="stream">输入流。</param>
+    /// <param name="importOptions">导入选项。</param>
+    /// <param name="log">日志回调集合。</param>
+    /// <param name="ct">取消令牌。</param>
+    /// <returns>KPC 谱面。</returns>
+    public async Task<Kpc.Chart> ImportStreamAsync(
+        Stream stream,
+        object? importOptions = null,
+        ChartLogSink? log = null,
+        CancellationToken ct = default
+    )
+    {
+        ArgumentNullException.ThrowIfNull(stream);
+        if (StreamImporter is null)
+            throw new NotSupportedException($"{Type} 不支持流式导入。");
+
+        ct.ThrowIfCancellationRequested();
+        var chart = await StreamImporter(stream, importOptions, log ?? ChartLogSink.None, ct);
+        ChartProcessingValidator.ValidateJudgeLineHierarchy(chart.JudgeLineList);
+        return chart;
     }
 
     /// <summary>

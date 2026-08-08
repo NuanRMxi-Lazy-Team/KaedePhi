@@ -338,11 +338,11 @@ public class RePhiEditSerializationTests
                 new JudgeLine
                 {
                     EventLayers = [new EventLayer()],
-                    AlphaControls = null,
-                    PositionControls = null,
-                    SizeControls = null,
-                    SkewControls = null,
-                    YControls = null,
+                    AlphaControls = null!,
+                    PositionControls = null!,
+                    SizeControls = null!,
+                    SkewControls = null!,
+                    YControls = null!,
                 },
             ],
         };

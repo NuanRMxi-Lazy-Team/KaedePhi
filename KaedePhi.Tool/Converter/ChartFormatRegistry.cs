@@ -30,6 +30,12 @@ public static class ChartFormatRegistry
                     var source = await Rpe.Chart.LoadFromJsonAsync(text);
                     return converter.ToKpc(source, null);
                 },
+                StreamImporter = async (stream, _, log, ct) =>
+                {
+                    var converter = Prepare(new RePhiEditConverter(), log, ct);
+                    var source = await Rpe.Chart.LoadFromStreamAsync(stream);
+                    return converter.ToKpc(source, null);
+                },
                 Exporter = async (chart, path, write, options, log, ct) =>
                 {
                     var converter = Prepare(new RePhiEditConverter(), log, ct);
@@ -57,6 +63,15 @@ public static class ChartFormatRegistry
                 {
                     var converter = Prepare(new PhiEditConverter(), log, ct);
                     var source = await Pe.Chart.LoadAsync(text);
+                    return converter.ToKpc(
+                        source,
+                        Coerce(options, () => new PhiEditToKpcConvertOptions())
+                    );
+                },
+                StreamImporter = async (stream, options, log, ct) =>
+                {
+                    var converter = Prepare(new PhiEditConverter(), log, ct);
+                    var source = await Pe.Chart.LoadStreamAsync(stream);
                     return converter.ToKpc(
                         source,
                         Coerce(options, () => new PhiEditToKpcConvertOptions())
@@ -90,6 +105,12 @@ public static class ChartFormatRegistry
                     var source = await Core.Phigros.v3.Chart.LoadFromJsonAsync(text);
                     return converter.ToKpc(source, null);
                 },
+                StreamImporter = async (stream, _, log, ct) =>
+                {
+                    var converter = Prepare(new PhigrosV3Converter(), log, ct);
+                    var source = await Core.Phigros.v3.Chart.LoadFromStreamAsync(stream);
+                    return converter.ToKpc(source, null);
+                },
                 Exporter = async (chart, path, write, options, log, ct) =>
                 {
                     var converter = Prepare(new PhigrosV3Converter(), log, ct);
@@ -117,6 +138,15 @@ public static class ChartFormatRegistry
                 {
                     var converter = Prepare(new PhiChainConverter(), log, ct);
                     var source = await Phichain.Chart.LoadFromJsonAsync(text);
+                    return converter.ToKpc(
+                        source,
+                        Coerce(options, () => new PhiChainToKpcConvertOptions())
+                    );
+                },
+                StreamImporter = async (stream, options, log, ct) =>
+                {
+                    var converter = Prepare(new PhiChainConverter(), log, ct);
+                    var source = await Phichain.Chart.LoadFromJsonStreamAsync(stream);
                     return converter.ToKpc(
                         source,
                         Coerce(options, () => new PhiChainToKpcConvertOptions())
@@ -226,6 +256,7 @@ public static class ChartFormatRegistry
     )
     {
         ct.ThrowIfCancellationRequested();
+        var fullPath = Path.GetFullPath(path);
         if (write.UseStream)
         {
             if (write.DryRun)
@@ -235,22 +266,51 @@ public static class ChartFormatRegistry
             }
             else
             {
-                await using var stream = new FileStream(
-                    path,
-                    FileMode.Create,
-                    FileAccess.Write,
-                    FileShare.None,
-                    4096,
-                    useAsync: true
-                );
-                await serializeStream(stream);
+                var temporaryPath = fullPath + "." + Guid.NewGuid().ToString("N") + ".tmp";
+                Directory.CreateDirectory(Path.GetDirectoryName(fullPath)!);
+                try
+                {
+                    await using (var stream = new FileStream(
+                        temporaryPath,
+                        FileMode.CreateNew,
+                        FileAccess.Write,
+                        FileShare.None,
+                        4096,
+                        useAsync: true
+                    ))
+                    {
+                        await serializeStream(stream);
+                        await stream.FlushAsync(ct);
+                    }
+                    ct.ThrowIfCancellationRequested();
+                    File.Move(temporaryPath, fullPath, true);
+                }
+                finally
+                {
+                    if (File.Exists(temporaryPath))
+                        File.Delete(temporaryPath);
+                }
             }
         }
         else
         {
             var text = await serializeText();
             if (!write.DryRun)
-                await File.WriteAllTextAsync(path, text, ct);
+            {
+                var temporaryPath = fullPath + "." + Guid.NewGuid().ToString("N") + ".tmp";
+                Directory.CreateDirectory(Path.GetDirectoryName(fullPath)!);
+                try
+                {
+                    await File.WriteAllTextAsync(temporaryPath, text, ct);
+                    ct.ThrowIfCancellationRequested();
+                    File.Move(temporaryPath, fullPath, true);
+                }
+                finally
+                {
+                    if (File.Exists(temporaryPath))
+                        File.Delete(temporaryPath);
+                }
+            }
         }
     }
 }

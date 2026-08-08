@@ -17,6 +17,7 @@ public class EventListMerger<TPayload> : LoggableBase, IEventListMerger<KpcEvent
         double precision
     )
     {
+        ChartProcessingValidator.ValidatePrecision(precision);
         if (TryGetMergeEarlyReturn(toEvents, fromEvents, out var earlyReturn))
             return earlyReturn;
         if (toEvents is null || fromEvents is null)
@@ -25,10 +26,17 @@ public class EventListMerger<TPayload> : LoggableBase, IEventListMerger<KpcEvent
 
         var toEventsCopy = CloneEventList(toEvents);
         var fromEventsCopy = CloneEventList(fromEvents);
+        SortByStartBeat(toEventsCopy);
+        SortByStartBeat(fromEventsCopy);
 
         return !HasOverlap(toEventsCopy, fromEventsCopy)
             ? MergeWithoutOverlap(toEventsCopy, fromEventsCopy)
-            : MergeWithOverlapFixedSampling(toEvents, toEventsCopy, fromEventsCopy, precision);
+            : MergeWithOverlapFixedSampling(
+                CloneEventList(toEventsCopy),
+                toEventsCopy,
+                fromEventsCopy,
+                precision
+            );
     }
 
     #endregion
@@ -54,12 +62,14 @@ public class EventListMerger<TPayload> : LoggableBase, IEventListMerger<KpcEvent
                 fromEvents is null || fromEvents.Count == 0
                     ? []
                     : [.. fromEvents.Select(e => e.Clone())];
+            SortByStartBeat(result);
             return true;
         }
 
         if (fromEvents is null || fromEvents.Count == 0)
         {
             result = [.. toEvents.Select(e => e.Clone())];
+            SortByStartBeat(result);
             return true;
         }
 

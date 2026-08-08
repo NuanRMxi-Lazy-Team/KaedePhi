@@ -69,6 +69,10 @@
         <value>配置文件已重置为默认值：{0}</value>
         <comment>{0} = 配置文件路径</comment>
     </data>
+    <data name="err_config_save_failed" xml:space="preserve">
+        <value>配置文件保存失败，请检查权限或磁盘空间：{0}</value>
+        <comment>{0} = 配置文件路径</comment>
+    </data>
     <data name="convert_command_opt_target" xml:space="preserve">
         <value>目标格式</value>
     </data>
@@ -92,6 +96,9 @@
         <value>只清理指定工作区（不填则清理全部）</value>
         <comment>WorkspaceClearCommand --id 选项</comment>
     </data>
+    <data name="cli_opt_workspace_clear_all_desc" xml:space="preserve">
+        <value>明确确认清理全部工作区</value>
+    </data>
     <data name="cli_opt_input_rpe_desc" xml:space="preserve">
         <value>输入的 RPE 谱面文件路径（与 --workspace 二选一）</value>
         <comment>RpeOperationSettings --input 选项</comment>
@@ -105,11 +112,11 @@
         <comment>RpeOperationSettings --workspace 选项</comment>
     </data>
     <data name="cli_opt_precision_desc" xml:space="preserve">
-        <value>采样精度（每拍细分数，默认：64，即每次采样步进64/1拍）</value>
+        <value>采样精度（每拍细分数，默认值由当前命令配置决定）</value>
         <comment>RpeOperationSettings --precision 选项</comment>
     </data>
     <data name="cli_opt_tolerance_desc" xml:space="preserve">
-        <value>拟合容差百分比（默认：5%）</value>
+        <value>拟合容差百分比（默认值由当前命令配置决定）</value>
         <comment>RpeOperationSettings --tolerance 选项</comment>
     </data>
     <data name="cli_opt_dry_run_desc" xml:space="preserve">
@@ -154,16 +161,16 @@
         <value>通道值域填充比例（默认：0.1）</value>
     </data>
     <data name="render_opt_range_samples" xml:space="preserve">
-        <value>通道值域计算采样点数（默认：256）</value>
+        <value>通道值域计算采样点数（默认：16）</value>
     </data>
     <data name="render_opt_segment_tolerance" xml:space="preserve">
-        <value>事件段压缩容差（默认：0.05）</value>
+        <value>事件段压缩容差（默认：0.000001）</value>
     </data>
     <data name="render_opt_min_range_half" xml:space="preserve">
         <value>通道值域最小半宽（绝对，默认：0.1）</value>
     </data>
     <data name="render_opt_min_range_half_ratio" xml:space="preserve">
-        <value>通道值域最小半宽比例（默认：0.05）</value>
+        <value>通道值域最小半宽比例（默认：0.15）</value>
     </data>
     <!-- ── messages ─────────────────────────────────────────────────────────── -->
     <data name="msg_workspace_loaded" xml:space="preserve">
@@ -176,6 +183,9 @@
     </data>
     <data name="msg_cleared" xml:space="preserve">
         <value>哗啦啦~ 所有工作区都打扫干净了喵！</value>
+    </data>
+    <data name="msg_workspace_cleared" xml:space="preserve">
+        <value>工作区 {0} 已清理。</value>
     </data>
     <data name="msg_written" xml:space="preserve">
         <value>文件已经成功输出到 {0} 了！</value>
@@ -210,8 +220,20 @@
     <data name="err_input_required" xml:space="preserve">
         <value>需要提供 --input 哟，或者用 --workspace 也可以~</value>
     </data>
+    <data name="err_input_workspace_conflict" xml:space="preserve">
+        <value>--input 与 --workspace 不能同时指定。</value>
+    </data>
+    <data name="err_output_input_same" xml:space="preserve">
+        <value>输出路径不能覆盖输入谱面文件。</value>
+    </data>
     <data name="err_output_required" xml:space="preserve">
         <value>需要提供 --output 才能帮你保存呢~</value>
+    </data>
+    <data name="err_cancelled" xml:space="preserve">
+        <value>操作已取消。</value>
+    </data>
+    <data name="err_workspace_clear_selection" xml:space="preserve">
+        <value>请使用 --id 清理单个工作区，或使用 --all 明确确认清理全部工作区。</value>
     </data>
     <data name="err_workspace_missing" xml:space="preserve">
         <value>没有找到工作区 {0} 喵...</value>

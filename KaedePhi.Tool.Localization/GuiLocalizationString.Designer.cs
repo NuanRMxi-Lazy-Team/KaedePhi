@@ -391,6 +391,15 @@ namespace KaedePhi.Tool.Localization {
                 return ResourceManager.GetString("export_error_title", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to 输出路径不能覆盖输入谱面文件。
+        /// </summary>
+        public static string export_same_file_error {
+            get {
+                return ResourceManager.GetString("export_same_file_error", resourceCulture);
+            }
+        }
         
         /// <summary>
         ///   Looks up a localized string similar to 格式化输出（缩进）.
@@ -1064,6 +1073,24 @@ namespace KaedePhi.Tool.Localization {
         public static string settings_saved {
             get {
                 return ResourceManager.GetString("settings_saved", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to 确定.
+        /// </summary>
+        public static string btn_ok {
+            get {
+                return ResourceManager.GetString("btn_ok", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to 配置保存失败，请检查权限或磁盘空间。
+        /// </summary>
+        public static string settings_save_failed {
+            get {
+                return ResourceManager.GetString("settings_save_failed", resourceCulture);
             }
         }
         

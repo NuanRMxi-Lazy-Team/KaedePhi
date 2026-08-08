@@ -85,6 +85,12 @@ public partial class ImportPage : UserControl
             vm.OnFileSelected(path);
     }
 
+    private void OnCancelLoadingClick(object? sender, RoutedEventArgs e)
+    {
+        if (DataContext is ImportViewModel vm)
+            vm.OnCancelLoadingClicked();
+    }
+
     private async void OnImportClick(object? sender, RoutedEventArgs e)
     {
         if (_isPicking)

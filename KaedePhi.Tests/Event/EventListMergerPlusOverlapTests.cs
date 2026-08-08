@@ -167,6 +167,39 @@ public class EventListMergerPlusOverlapTests
     }
 
     [Fact]
+    public void Merge_UnsortedInputs_ReturnsEventsInStartBeatOrder()
+    {
+        var to = new List<KpcEvents.Event<double>>
+        {
+            CreateEvent(5, 7, 0, 20),
+            CreateEvent(0, 2, 0, 10),
+        };
+        var from = new List<KpcEvents.Event<double>> { CreateEvent(2, 4, 0, 30) };
+
+        var result = _basicMerger.EventListMerge(to, from, 64);
+
+        result.Select(e => (double)e.StartBeat).Should().BeInAscendingOrder();
+        result[0].StartBeat.Should().Be(new Beat(0d));
+        result[1].StartBeat.Should().Be(new Beat(2d));
+        result[2].StartBeat.Should().Be(new Beat(5d));
+    }
+
+    [Fact]
+    public void Merge_UnsortedOverlappingInputs_UsesSortedOffsetLookup()
+    {
+        var to = new List<KpcEvents.Event<double>>
+        {
+            CreateEvent(4, 6, 40, 60),
+            CreateEvent(0, 3, 0, 30),
+        };
+        var from = new List<KpcEvents.Event<double>> { CreateEvent(2, 5, 20, 50) };
+
+        var result = _basicMerger.EventListMerge(to, from, 64);
+
+        result.Select(e => (double)e.StartBeat).Should().BeInAscendingOrder();
+    }
+
+    [Fact]
     public void Merge_BothEmpty_ReturnsEmpty()
     {
         var result = _basicMerger.EventListMerge(

@@ -27,6 +27,7 @@ public class PhiEditConverter
     {
         ArgumentNullException.ThrowIfNull(source);
         ArgumentNullException.ThrowIfNull(option);
+        ConversionOptionsValidator.Validate(option);
 
         _ct.ThrowIfCancellationRequested();
 
@@ -49,18 +50,25 @@ public class PhiEditConverter
     public Pe.Chart FromKpc(Kpc.Chart input, KpcToPhiEditConvertOptions options)
     {
         ArgumentNullException.ThrowIfNull(input);
+        ArgumentNullException.ThrowIfNull(options);
+        ConversionOptionsValidator.Validate(options);
+        _ct.ThrowIfCancellationRequested();
 
         WarnIfUnsupportedMeta(input.Meta);
 
         var judgeLineConverter = new Utils.PhiEditJudgeLineBuilder(options, OnWarning);
+        var judgeLines = new List<Pe.JudgeLine>(input.JudgeLineList.Count);
+        foreach (var line in input.JudgeLineList)
+        {
+            _ct.ThrowIfCancellationRequested();
+            judgeLines.Add(judgeLineConverter.ConvertJudgeLine(line, input.JudgeLineList));
+        }
 
         return new Pe.Chart
         {
             Offset = Utils.MetaBuilder.GetPeOffset(input.Meta),
             BpmList = input.BpmList.ConvertAll(Utils.BpmItemBuilder.ConvertBpmItem),
-            JudgeLineList = input.JudgeLineList.ConvertAll(j =>
-                judgeLineConverter.ConvertJudgeLine(j, input.JudgeLineList)
-            ),
+            JudgeLineList = judgeLines,
         };
     }
 

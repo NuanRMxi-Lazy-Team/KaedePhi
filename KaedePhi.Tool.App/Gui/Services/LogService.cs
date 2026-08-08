@@ -16,7 +16,7 @@ public sealed class LogService : IDisposable
 
     public LogService(int maxLogFiles = 5)
     {
-        _maxLogFiles = maxLogFiles;
+        _maxLogFiles = Math.Clamp(maxLogFiles, 1, 100);
     }
 
     /// <summary>日志目录路径</summary>
@@ -42,7 +42,7 @@ public sealed class LogService : IDisposable
     {
         _logger?.Dispose();
 
-        var fileName = $"session_{DateTime.Now:yyyyMMdd_HHmmss}.log";
+        var fileName = $"session_{DateTime.Now:yyyyMMdd_HHmmss_fff}_{Environment.ProcessId}.log";
         CurrentLogFile = Path.Combine(LogDirectory, fileName);
 
         var loggerConfiguration = new LoggerConfiguration()
@@ -50,7 +50,10 @@ public sealed class LogService : IDisposable
             .WriteTo.File(
                 CurrentLogFile,
                 outputTemplate: "[{Level:u4} {Timestamp:HH:mm:ss}] [{SourceContext}] {Message:lj}{NewLine}{Exception}",
-                flushToDiskInterval: TimeSpan.FromSeconds(1)
+                flushToDiskInterval: TimeSpan.FromSeconds(1),
+                fileSizeLimitBytes: 10 * 1024 * 1024,
+                rollOnFileSizeLimit: true,
+                retainedFileCountLimit: _maxLogFiles
             );
 
 #if Debug

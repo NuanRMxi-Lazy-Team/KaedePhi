@@ -1,3 +1,5 @@
+using KaedePhi.Tool.Common;
+
 namespace KaedePhi.Tool.App.Cli.Infrastructure;
 
 /// <summary>
@@ -20,7 +22,7 @@ public static class ConsoleWriter
     {
         if (!ShouldLog(1))
             return;
-        WriteColoredLine(message, ConsoleColor.Gray);
+        WriteColoredLine(message, ConsoleColor.Gray, false);
     }
 
     /// <summary>
@@ -30,7 +32,7 @@ public static class ConsoleWriter
     {
         if (!ShouldLog(2))
             return;
-        WriteColoredLine(message, ConsoleColor.Green);
+        WriteColoredLine(message, ConsoleColor.Green, false);
     }
 
     /// <summary>
@@ -40,7 +42,7 @@ public static class ConsoleWriter
     {
         if (!ShouldLog(3))
             return;
-        WriteColoredLine(message, ConsoleColor.Yellow);
+        WriteColoredLine(message, ConsoleColor.Yellow, true);
     }
 
     /// <summary>
@@ -50,7 +52,7 @@ public static class ConsoleWriter
     {
         if (!ShouldLog(4))
             return;
-        WriteColoredLine(message, ConsoleColor.Red);
+        WriteColoredLine(message, ConsoleColor.Red, true);
     }
 
     /// <summary>
@@ -58,11 +60,34 @@ public static class ConsoleWriter
     /// </summary>
     private static bool ShouldLog(uint level) => LogLevel != 0 && level >= LogLevel;
 
-    private static void WriteColoredLine(string message, ConsoleColor color)
+    /// <summary>
+    /// 创建向标准错误输出节流进度的回调。
+    /// </summary>
+    /// <returns>进度回调实例。</returns>
+    public static IProgress<ToolProgress> CreateProgress()
+    {
+        var lastPercentage = -1;
+        return new Progress<ToolProgress>(progress =>
+        {
+            var rawPercentage = progress.OverallPercentage >= 0
+                ? progress.OverallPercentage
+                : progress.Percentage;
+            var percentage = (int)(Math.Clamp(rawPercentage, 0, 1) * 100);
+            if (percentage == lastPercentage && string.IsNullOrWhiteSpace(progress.Detail))
+                return;
+            lastPercentage = percentage;
+            Console.Error.WriteLine($"[{percentage,3}%] {progress.Detail}");
+        });
+    }
+
+    private static void WriteColoredLine(string message, ConsoleColor color, bool isError)
     {
         var prev = Console.ForegroundColor;
         Console.ForegroundColor = color;
-        Console.WriteLine(message);
+        if (isError)
+            Console.Error.WriteLine(message);
+        else
+            Console.WriteLine(message);
         Console.ForegroundColor = prev;
     }
 }

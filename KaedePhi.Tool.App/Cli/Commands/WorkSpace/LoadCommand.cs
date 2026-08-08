@@ -30,7 +30,7 @@ public static partial class LoadCommand
             workspaceId = "default";
 
         var ws = new WorkspaceService();
-        await ws.LoadAsync(workspaceId, input);
+        await ws.LoadAsync(workspaceId, input, ct);
         ConsoleWriter.Info(string.Format(CliLocalizationString.msg_workspace_loaded, workspaceId));
         return 0;
     }

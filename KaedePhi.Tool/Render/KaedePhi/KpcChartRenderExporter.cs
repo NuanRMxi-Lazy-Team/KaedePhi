@@ -16,9 +16,11 @@ public class KpcChartRenderExporter : LoggableBase, IChartRenderExporter<Chart, 
         KpcRenderOptions opts,
         int? lineIndex = null,
         int? layerIndex = null,
-        IProgress<ToolProgress>? progress = null
+        IProgress<ToolProgress>? progress = null,
+        CancellationToken ct = default
     )
     {
+        ChartProcessingValidator.ValidateRender(chart, opts, lineIndex, layerIndex);
         Directory.CreateDirectory(outputDir);
         var written = new List<string>();
 
@@ -29,6 +31,7 @@ public class KpcChartRenderExporter : LoggableBase, IChartRenderExporter<Chart, 
 
         for (var li = lineStart; li < lineEnd; li++)
         {
+            ct.ThrowIfCancellationRequested();
             if (li >= chart.JudgeLineList.Count)
                 break;
             var line = chart.JudgeLineList[li];
@@ -48,6 +51,7 @@ public class KpcChartRenderExporter : LoggableBase, IChartRenderExporter<Chart, 
 
             for (var ei = layerStart; ei < layerEnd; ei++)
             {
+                ct.ThrowIfCancellationRequested();
                 if (ei >= line.EventLayers.Count)
                     break;
                 var eventLayer = line.EventLayers[ei];
@@ -63,7 +67,7 @@ public class KpcChartRenderExporter : LoggableBase, IChartRenderExporter<Chart, 
                 var filename = $"{safeName}_L{li}_layer{ei}.png";
                 var filePath = Path.Combine(outputDir, filename);
 
-                SaveBitmap(bitmap, filePath);
+                SaveBitmap(bitmap, filePath, ct);
                 written.Add(filePath);
                 LogInfo($"  已写入: {filePath}");
 
@@ -82,12 +86,34 @@ public class KpcChartRenderExporter : LoggableBase, IChartRenderExporter<Chart, 
         return written;
     }
 
-    private static void SaveBitmap(SKBitmap bitmap, string filePath)
+    private static void SaveBitmap(SKBitmap bitmap, string filePath, CancellationToken ct)
     {
+        ct.ThrowIfCancellationRequested();
         using var image = SKImage.FromBitmap(bitmap);
         using var data = image.Encode(SKEncodedImageFormat.Png, 100);
-        using var stream = File.OpenWrite(filePath);
-        data.SaveTo(stream);
+        var temporaryPath = filePath + "." + Guid.NewGuid().ToString("N") + ".tmp";
+        try
+        {
+            using (var stream = new FileStream(
+                temporaryPath,
+                FileMode.CreateNew,
+                FileAccess.Write,
+                FileShare.None,
+                4096,
+                useAsync: false
+            ))
+            {
+                data.SaveTo(stream);
+                stream.Flush(true);
+            }
+            ct.ThrowIfCancellationRequested();
+            File.Move(temporaryPath, filePath, true);
+        }
+        finally
+        {
+            if (File.Exists(temporaryPath))
+                File.Delete(temporaryPath);
+        }
     }
 
     private static string SanitizeFileName(string name)

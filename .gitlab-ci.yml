@@ -2,10 +2,9 @@ stages:
   - detect
   - build
   - installer
-  - release
 
 include:
   - local: '.gitlab-ci/nightly-app.yml'
-  - local: '.gitlab-ci/release-app.yml'
-  - local: '.gitlab-ci/release-core.yml'
-  - local: '.gitlab-ci/release-tool.yml'
+
+# GitHub Actions 是唯一权威发布入口，避免 GitHub 与 GitLab 同时创建标签和发行版。
+# GitLab 仅保留夜间构建，不再加载重复的发布 job。

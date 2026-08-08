@@ -8,8 +8,14 @@ NuanR_Star Ciallo Team（以下简称“我们”）KaedePhi（以下简称“�
 我们非常希望您向本软件的主分支提交pull request来参与开发，或是加入我们的聊天群来进行讨论，或是通过邮件来联系我们，来参与到本软件的开发中来，
 总之，以上都是建议，我们完全遵循开源协议，感谢支持。
 
-## 使用
-从 `Release` 中获得 nuget 包，或从源码编译。  
+## 安装与运行
+从 GitHub `Release` 下载应用安装包或便携版压缩包，也可以从源码编译。应用发布包采用框架依赖部署（FDD），不会捆绑 .NET 运行时。
+
+### 安装运行时
+- Windows：安装 [.NET 10 Desktop Runtime](https://dotnet.microsoft.com/download/dotnet/10.0)，再运行安装包或便携版中的 `KaedePhi.Tool.App.exe`。
+- Linux：安装 [.NET 10 Runtime](https://dotnet.microsoft.com/download/dotnet/10.0)，解压 `linux-x64` 便携版后运行 `KaedePhi.Tool.App`。
+- 正式应用产物仅发布 `net10.0` 的 `win-x64` 和 `linux-x64` FDD 包；安装版仅适用于 Windows x64。
+
 > [!WARNING]
 > <span style="color:yellow">**注意：此项目仍然处于早期阶段，字段名称与行为随时有可能更改，请斟酌后再使用！**</span>
 
@@ -20,16 +26,84 @@ NuanR_Star Ciallo Team（以下简称“我们”）KaedePhi（以下简称“�
 > <span style="color:red">**本项目自0.4.1版本进行了大量架构重写，请自行检查对旧项目的兼容性，部分API被直接破坏，部分API改名并标记为了废弃。**</span>
 
 
-## CLI使用
---help就好了，应该不需要什么教程。
-## GUI使用
-还在写，别慌，别慌，别慌！
+## 支持格式
+当前稳定支持导入和导出的格式如下：
+- RePhiEdit JSON（`.json`）
+- PhiEdit 谱面（`.pec`）
+- Phigros v3 JSON（`.json`）
+- PhiChain JSON（`.json`）
+
+JSON 格式会根据内容自动检测，不能仅凭扩展名区分。PhiFans 和 Phigros v1 当前没有完整的导入导出实现，不属于稳定支持范围。
+
+## CLI 使用
+发布包中的 `KaedePhi.Tool.App` 同时提供 CLI 和 GUI。传入命令或 `--cli` 时使用 CLI，传入 `--gui` 时启动 GUI；交互式终端中直接运行也会进入 CLI。
+
+```bash
+# 查看命令和选项
+KaedePhi.Tool.App --help
+
+# 查看版本
+KaedePhi.Tool.App version
+
+# 将谱面转换为 PhiEdit .pec，输入格式会自动检测
+KaedePhi.Tool.App convert --input input.json --target PhiEdit --output output.pec --format
+
+# 转换为 Phigros v3 JSON
+KaedePhi.Tool.App convert --input input.pec --target PhigrosV3 --output output.json
+
+# 将事件渲染为 PNG，默认输出到输入文件旁的 render_output 目录
+KaedePhi.Tool.App render --input input.json
+
+# 使用工作区进行多步处理
+KaedePhi.Tool.App load --input input.json --workspace demo
+KaedePhi.Tool.App convert --workspace demo --target PhiEdit --output output.pec
+KaedePhi.Tool.App workspace list
+KaedePhi.Tool.App workspace clear --id demo
+KaedePhi.Tool.App workspace clear --all
+
+# 重置 CLI 与 GUI 共用的配置
+KaedePhi.Tool.App config reset
+```
+
+从源码运行时，将上例中的程序名替换为 `dotnet run --project KaedePhi.Tool.App --`，例如：
+
+```bash
+dotnet run --project KaedePhi.Tool.App -- --help
+```
+
+## 配置与数据路径
+应用使用 .NET 的本机应用数据目录：
+- Windows：`%LOCALAPPDATA%\KaedePhi\config\config.yaml`、`%LOCALAPPDATA%\KaedePhi\workspaces`、`%LOCALAPPDATA%\KaedePhi\logs`
+- Linux：通常为 `~/.local/share/KaedePhi/config/config.yaml`、`~/.local/share/KaedePhi/workspaces`、`~/.local/share/KaedePhi/logs`
+
+配置文件由 CLI 和 GUI 共享。工作区只保存名为 `chart.json` 的原始谱面文件，工作区 ID 只允许字母、数字、下划线和连字符。
+
+## 构建与测试
+仓库固定使用稳定的 .NET SDK `10.0.302`，版本由根目录 `global.json` 约束。
+
+```bash
+dotnet restore KaedePhi.sln
+dotnet test KaedePhi.sln --configuration Release --no-restore
+dotnet publish KaedePhi.Tool.App/KaedePhi.Tool.App.csproj \
+  --configuration Release --framework net10.0 --runtime win-x64 --self-contained false
+```
 
 ## .NET版本
-KaedePhi.Core: .NETStandard2.1, .NET8.0, .NET10.0  
-KaedePhi.Tool: .NET8.0, .NET10.0  
-KaedePhi.Tool.App: .NET8.0, .NET10.0  
-KaedePhi.Tool.Localization: .NET8.0, .NET10.0  
+- `KaedePhi.Core`：.NETStandard2.1、.NET8.0、.NET10.0
+- `KaedePhi.Tool`：.NET8.0、.NET10.0
+- `KaedePhi.Tool.App`：源码支持 .NET8.0、.NET10.0，官方应用发布目标为 .NET10.0
+- `KaedePhi.Tool.Localization`：.NET8.0、.NET10.0
+
+当前仓库版本为 `0.4.5`。Core 和 Tool 的 NuGet 包分别使用 `Core-v0.4.5`、`Tool-v0.4.5` 标签发布；应用使用 `App-v0.4.5` 标签发布，并提供 `KaedePhi.Tool.App-net10.0-*-fdd.zip` 和 Windows 安装包。
+
+## 限制说明
+- FDD 便携版和安装版都要求先安装对应的 .NET 10 运行时，不能脱离运行时单独执行。
+- 目前只提供 Windows x64 和 Linux x64 应用产物，其他系统和架构需要自行编译验证。
+- 部分目标格式不支持源格式的全部事件或缓动类型，转换时可能进行采样、拟合或压缩；大型谱面可尝试 `--stream` 降低内存占用。
+- 0.4.x 仍处于早期阶段，字段、默认配置和转换行为可能变化；升级前请备份谱面和配置。
+
+## 发布流程
+GitHub Actions 是唯一权威发布入口，负责 Core、Tool 和 App 的标签、GitHub Release 及正式附件。GitLab CI 仅保留夜间 App 构建，不再创建发布和标签，避免两个平台并发发布导致版本、附件和标签不一致。正式 App 发布固定为 `net10.0` FDD；GitLab 夜间构建也使用同一目标框架。
 
 ## 招新
 本项目需要更多人开发与维护，欢迎发送邮件到 nrlt@nuanr-mxi.com 来加入开发！  

@@ -65,6 +65,9 @@
                     <TextBlock Text="{x:Static loc:GuiLocalizationString.import_loading}"
                                FontSize="16" Foreground="White"
                                HorizontalAlignment="Center"/>
+                    <Button Content="{x:Static loc:GuiLocalizationString.btn_cancel}"
+                            HorizontalAlignment="Center"
+                            Click="OnCancelLoadingClick"/>
                 </StackPanel>
             </Border>
         </Grid>

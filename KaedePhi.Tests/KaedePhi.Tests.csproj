@@ -1,16 +1,15 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net10.0</TargetFramework>
+    <TargetFrameworks>net8.0;net10.0</TargetFrameworks>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <IsPackable>false</IsPackable>
     <Configurations>Debug;Release</Configurations>
     <Platforms>x64</Platforms>
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
-    <WarningLevel>0</WarningLevel>
-    <EnableNETAnalyzers>false</EnableNETAnalyzers>
-    <RunAnalyzersDuringBuild>false</RunAnalyzersDuringBuild>
-    <MSBuildWarningsAsMessages>$(MSBuildWarningsAsMessages);*</MSBuildWarningsAsMessages>
+    <WarningLevel>4</WarningLevel>
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <RunAnalyzersDuringBuild>true</RunAnalyzersDuringBuild>
   </PropertyGroup>
 
   <ItemGroup>
@@ -29,11 +28,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\KaedePhi.Core\KaedePhi.Core.csproj">
-      <AdditionalProperties>WarningLevel=0;EnableNETAnalyzers=false;RunAnalyzersDuringBuild=false;TreatWarningsAsErrors=false;MSBuildWarningsAsMessages=*</AdditionalProperties>
-    </ProjectReference>
-    <ProjectReference Include="..\KaedePhi.Tool\KaedePhi.Tool.csproj">
-      <AdditionalProperties>WarningLevel=0;EnableNETAnalyzers=false;RunAnalyzersDuringBuild=false;TreatWarningsAsErrors=false;MSBuildWarningsAsMessages=*</AdditionalProperties>
-    </ProjectReference>
+    <ProjectReference Include="..\KaedePhi.Core\KaedePhi.Core.csproj" />
+    <ProjectReference Include="..\KaedePhi.Tool\KaedePhi.Tool.csproj" />
   </ItemGroup>
 </Project>

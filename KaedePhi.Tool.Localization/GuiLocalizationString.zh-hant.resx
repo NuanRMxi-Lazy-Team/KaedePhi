@@ -316,6 +316,12 @@
   <data name="settings_saved" xml:space="preserve">
     <value>設定已儲存。</value>
   </data>
+  <data name="btn_ok" xml:space="preserve">
+    <value>確定</value>
+  </data>
+  <data name="settings_save_failed" xml:space="preserve">
+    <value>設定儲存失敗，請檢查權限或磁碟空間。</value>
+  </data>
   <data name="settings_reset" xml:space="preserve">
     <value>已恢復預設設定。</value>
   </data>
@@ -481,7 +487,55 @@
   <data name="export_error_title" xml:space="preserve">
     <value>匯出失敗</value>
   </data>
+  <data name="export_same_file_error" xml:space="preserve">
+    <value>輸出路徑不能覆蓋輸入譜面檔案。</value>
+  </data>
   <data name="load_error_title" xml:space="preserve">
     <value>載入失敗</value>
+  </data>
+  <data name="import_convert_options" xml:space="preserve">
+    <value>匯入選項</value>
+  </data>
+  <data name="convert_frame_duration_beat" xml:space="preserve">
+    <value>影格轉事件持續拍長度（1 / x 拍）</value>
+  </data>
+  <data name="convert_trailing_beat_padding" xml:space="preserve">
+    <value>尾部拍填充量（1 / x 拍）</value>
+  </data>
+  <data name="convert_rephiedit_options" xml:space="preserve">
+    <value>轉換到 RePhiEdit 格式選項</value>
+  </data>
+  <data name="convert_phichain_options" xml:space="preserve">
+    <value>轉換到 PhiChain 格式選項</value>
+  </data>
+  <data name="convert_unbind_non_rotating" xml:space="preserve">
+    <value>解綁非旋轉子線</value>
+  </data>
+  <data name="convert_easing_cut_section" xml:space="preserve">
+    <value>緩動截取切割</value>
+  </data>
+  <data name="convert_easing_cut_precision" xml:space="preserve">
+    <value>緩動截取切割精度</value>
+  </data>
+  <data name="convert_easing_cut_compress" xml:space="preserve">
+    <value>緩動截取切割後壓縮</value>
+  </data>
+  <data name="convert_easing_cut_tolerance" xml:space="preserve">
+    <value>緩動截取切割容差百分比</value>
+  </data>
+  <data name="import_options_title" xml:space="preserve">
+    <value>匯入選項</value>
+  </data>
+  <data name="import_options_file" xml:space="preserve">
+    <value>檔案：</value>
+  </data>
+  <data name="import_options_format" xml:space="preserve">
+    <value>偵測到格式：</value>
+  </data>
+  <data name="import_options_confirm" xml:space="preserve">
+    <value>確認並載入</value>
+  </data>
+  <data name="btn_cancel" xml:space="preserve">
+    <value>取消</value>
   </data>
 </root>

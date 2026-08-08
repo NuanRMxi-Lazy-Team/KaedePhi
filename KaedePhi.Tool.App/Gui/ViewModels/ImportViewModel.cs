@@ -29,11 +29,14 @@ public sealed class ImportViewModel : INotifyPropertyChanged
     }
 
     public event Action<string, bool>? FileSelected;
+    public event Action? RequestCancelLoading;
 
     public void OnFileSelected(string filePath)
     {
         FileSelected?.Invoke(filePath, UseStream);
     }
+
+    public void OnCancelLoadingClicked() => RequestCancelLoading?.Invoke();
 
     public event PropertyChangedEventHandler? PropertyChanged;
 

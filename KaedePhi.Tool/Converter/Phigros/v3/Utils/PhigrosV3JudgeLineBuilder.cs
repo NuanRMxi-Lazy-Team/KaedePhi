@@ -61,14 +61,14 @@ public class PhigrosV3JudgeLineBuilder
             if (_options.FatherLineUnbind.ClassicMode)
             {
                 preprocessedSrc = unbinder.FatherUnbind(
-                    allLine.FindIndex(l => l.GetHashCode() == src.GetHashCode()),
+                    allLine.FindIndex(l => ReferenceEquals(l, src)),
                     allLine,
                     _options.FatherLineUnbind.Precision
                 );
             }
             else
                 preprocessedSrc = unbinder.FatherUnbind(
-                    allLine.FindIndex(l => l.GetHashCode() == src.GetHashCode()),
+                    allLine.FindIndex(l => ReferenceEquals(l, src)),
                     allLine,
                     _options.FatherLineUnbind.Precision,
                     _options.FatherLineUnbind.Tolerance
@@ -138,6 +138,11 @@ public class PhigrosV3JudgeLineBuilder
         var layer = line.EventLayers[0];
         if (layer.AlphaEvents is not { Count: > 0 })
             return;
+
+        if (layer.MoveXEvents is { Count: > 1 })
+            layer.MoveXEvents = layer.MoveXEvents.OrderBy(e => e.StartBeat).ToList();
+        if (layer.MoveYEvents is { Count: > 1 })
+            layer.MoveYEvents = layer.MoveYEvents.OrderBy(e => e.StartBeat).ToList();
 
         var negativeSegments = CollectNegativeAlphaSegments(layer.AlphaEvents);
         if (negativeSegments.Count == 0)
@@ -273,23 +278,40 @@ public class PhigrosV3JudgeLineBuilder
     }
 
     /// <summary>
-    /// 线性插值计算 alpha 事件值从负到正（或正到负）穿越零点的拍位置。
+    /// 根据事件实际插值计算 alpha 事件穿越零点的拍位置。
     /// </summary>
     private static Beat FindZeroCrossingBeat(KpcEvents.Event<int> ev)
     {
-        var duration = (double)(ev.EndBeat - ev.StartBeat);
-        if (duration < 1e-9)
+        var startBeat = (double)ev.StartBeat;
+        var endBeat = (double)ev.EndBeat;
+        if (endBeat - startBeat < 1e-9)
             return ev.StartBeat;
 
-        // 线性比例：t = |startValue| / (|startValue| + |endValue|)
-        var absStart = Math.Abs(ev.StartValue);
-        var absEnd = Math.Abs(ev.EndValue);
-        var total = absStart + absEnd;
-        if (total < 1e-9)
+        var startValue = ev.GetValueAtBeat(ev.StartBeat);
+        var endValue = ev.GetValueAtBeat(ev.EndBeat);
+        if (startValue == 0)
             return ev.StartBeat;
+        if (endValue == 0)
+            return ev.EndBeat;
 
-        var t = absStart / total;
-        return new Beat(ev.StartBeat + t * duration);
+        var startsNegative = startValue < 0;
+        var low = startBeat;
+        var high = endBeat;
+        for (var i = 0; i < 64; i++)
+        {
+            var middle = (low + high) / 2d;
+            var middleBeat = new Beat(middle);
+            var middleValue = ev.GetValueAtBeat(middleBeat);
+            if (middleValue == 0)
+                return middleBeat;
+
+            if ((middleValue < 0) == startsNegative)
+                low = middle;
+            else
+                high = middle;
+        }
+
+        return new Beat((low + high) / 2d);
     }
 
     /// <summary>
@@ -358,7 +380,7 @@ public class PhigrosV3JudgeLineBuilder
         CoordinateProfile renderProfile
     )
     {
-        var (renderX, renderY) = CoordinateGeometry.GetKpcAbsolutePos(
+        var (absoluteKpcX, absoluteKpcY) = CoordinateGeometry.GetKpcAbsolutePos(
             0,
             0,
             angleDegrees,
@@ -366,6 +388,8 @@ public class PhigrosV3JudgeLineBuilder
             kpcY,
             renderProfile
         );
+        var renderX = CoordinateGeometry.ToTargetX(absoluteKpcX, renderProfile);
+        var renderY = CoordinateGeometry.ToTargetY(absoluteKpcY, renderProfile);
         return renderX >= renderProfile.MinX
             && renderX <= renderProfile.MaxX
             && renderY >= renderProfile.MinY
@@ -413,17 +437,17 @@ public class PhigrosV3JudgeLineBuilder
         Beat fillLength
     )
     {
+        if (segStart >= segEnd)
+            return;
+
         if (layer.MoveYEvents is not { Count: > 0 })
         {
-            var elevEnd = segStart + fillLength;
-            if (elevEnd > segEnd)
-                elevEnd = segEnd;
             var events = new List<KpcEvents.Event<double>>
             {
                 new()
                 {
                     StartBeat = segStart,
-                    EndBeat = elevEnd,
+                    EndBeat = segEnd,
                     StartValue = deltaY,
                     EndValue = deltaY,
                 },
@@ -443,8 +467,9 @@ public class PhigrosV3JudgeLineBuilder
             return;
         }
 
+        var sourceEvents = layer.MoveYEvents.OrderBy(e => e.StartBeat).ToList();
         var result = new List<KpcEvents.Event<double>>();
-        foreach (var ev in layer.MoveYEvents)
+        foreach (var ev in sourceEvents)
         {
             // 事件与段无重叠 → 原样保留
             if (ev.EndBeat <= segStart || ev.StartBeat >= segEnd)
@@ -513,8 +538,8 @@ public class PhigrosV3JudgeLineBuilder
             }
         }
 
-        // 段内无事件覆盖的空隙各填充一个短常量偏移事件
-        FillGapsInRange(result, segStart, segEnd, deltaY, fillLength);
+        // 段内无事件覆盖的空隙填充保持原始 Y 值的偏移事件
+        FillGapsInRange(result, sourceEvents, segStart, segEnd, deltaY);
 
         // 段结束后添加回正事件：使 Y 值恢复到未偏移时的原始值
         // 仅当 segEnd 处没有已有事件覆盖时才添加，避免重叠
@@ -522,7 +547,7 @@ public class PhigrosV3JudgeLineBuilder
         var hasEventAtSegEnd = result.Any(e => e.StartBeat <= segEnd && e.EndBeat > segEnd);
         if (!hasEventAtSegEnd)
         {
-            var originalYAtEnd = GetCurrentValueAtBeat(layer.MoveYEvents, segEnd);
+            var originalYAtEnd = GetCurrentValueAtBeat(sourceEvents, segEnd);
             result.Add(
                 new KpcEvents.Event<double>
                 {
@@ -539,14 +564,14 @@ public class PhigrosV3JudgeLineBuilder
     }
 
     /// <summary>
-    /// 在指定范围内检测空隙，每个空隙仅填充一个短常量偏移事件（长度 = fillLength）。
+    /// 在指定范围内检测空隙，并填充叠加原始 Y 值后的常量偏移事件。
     /// </summary>
     private static void FillGapsInRange(
         List<KpcEvents.Event<double>> events,
+        List<KpcEvents.Event<double>> sourceEvents,
         Beat segStart,
         Beat segEnd,
-        double deltaY,
-        Beat fillLength
+        double deltaY
     )
     {
         // 收集段内已有事件覆盖的区间
@@ -561,42 +586,43 @@ public class PhigrosV3JudgeLineBuilder
             .OrderBy(r => r.Start)
             .ToList();
 
-        // 找出空隙，每个空隙只加一个短事件
+        // 空隙中也要叠加原始 Y 值，避免无事件时从零点突然跳变。
         var cursor = segStart;
         foreach (var (s, e) in covered)
         {
+            if (e <= cursor)
+                continue;
+
             if (s > cursor)
             {
-                var end = cursor + fillLength;
-                if (end > s)
-                    end = s;
+                var baseValue = GetCurrentValueAtBeat(sourceEvents, cursor) + deltaY;
                 events.Add(
                     new KpcEvents.Event<double>
                     {
                         StartBeat = cursor,
-                        EndBeat = end,
-                        StartValue = deltaY,
-                        EndValue = deltaY,
+                        EndBeat = s,
+                        StartValue = baseValue,
+                        EndValue = baseValue,
                     }
                 );
             }
 
             if (e > cursor)
-                cursor = e;
+                cursor = e > segEnd ? segEnd : e;
+            if (cursor >= segEnd)
+                break;
         }
 
         if (cursor < segEnd)
         {
-            var end = cursor + fillLength;
-            if (end > segEnd)
-                end = segEnd;
+            var baseValue = GetCurrentValueAtBeat(sourceEvents, cursor) + deltaY;
             events.Add(
                 new KpcEvents.Event<double>
                 {
                     StartBeat = cursor,
-                    EndBeat = end,
-                    StartValue = deltaY,
-                    EndValue = deltaY,
+                    EndBeat = segEnd,
+                    StartValue = baseValue,
+                    EndValue = baseValue,
                 }
             );
         }

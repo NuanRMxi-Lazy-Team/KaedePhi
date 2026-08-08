@@ -1,3 +1,5 @@
+using System;
+using System.Globalization;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -20,6 +22,8 @@ public static class ChartGetType
     [Pure]
     public static ChartType GetType(string chartText)
     {
+        ArgumentNullException.ThrowIfNull(chartText);
+
         // 尝试校验是否是一个json文件，如果不是一个json文件，则一定是PhiEdit
         if (!chartText.TrimStart().StartsWith('{'))
         {
@@ -39,14 +43,24 @@ public static class ChartGetType
             if (jsonObj["META"] is JObject)
                 return ChartType.RePhiEdit;
 
-            // 如果存在formatVersion字段，且字段类型为int，则根据版本号判断PhigrosV1/V3谱面
-            if (
-                jsonObj["formatVersion"] is JValue
-                {
-                    Type: JTokenType.Integer or JTokenType.Float
-                } formatVersionValue
-            )
-                return GetTypeFromFormatVersion((int)formatVersionValue);
+            // formatVersion 是 Phigros 谱面的明确类型标识，存在时必须是整数。
+            if (jsonObj.TryGetValue("formatVersion", out var formatVersionToken))
+            {
+                if (
+                    formatVersionToken is not JValue { Type: JTokenType.Integer } formatVersionValue
+                    || !long.TryParse(
+                        Convert.ToString(formatVersionValue.Value, CultureInfo.InvariantCulture),
+                        NumberStyles.Integer,
+                        CultureInfo.InvariantCulture,
+                        out var formatVersion
+                    )
+                    || formatVersion < int.MinValue
+                    || formatVersion > int.MaxValue
+                )
+                    throw new NotSupportedException(UnsupportedChartMessage);
+
+                return GetTypeFromFormatVersion((int)formatVersion);
+            }
 
             // 如果存在info字段的同时，info字段为jsonObject，且存在lines字段，且lines字段为JsonArray，则这是PhiFans谱面
             if (jsonObj["info"] is JObject && jsonObj["lines"] is JArray)

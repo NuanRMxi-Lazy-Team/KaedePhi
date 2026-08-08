@@ -202,6 +202,15 @@ namespace KaedePhi.Tool.Localization {
                 return ResourceManager.GetString("cli_opt_workspace_clear_id_desc", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to 明确确认清理全部工作区.
+        /// </summary>
+        public static string cli_opt_workspace_clear_all_desc {
+            get {
+                return ResourceManager.GetString("cli_opt_workspace_clear_all_desc", resourceCulture);
+            }
+        }
         
         /// <summary>
         ///   Looks up a localized string similar to 工作区 ID（默认：default）.
@@ -580,6 +589,24 @@ namespace KaedePhi.Tool.Localization {
                 return ResourceManager.GetString("err_input_required", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to --input 与 --workspace 不能同时指定。
+        /// </summary>
+        public static string err_input_workspace_conflict {
+            get {
+                return ResourceManager.GetString("err_input_workspace_conflict", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to 输出路径不能覆盖输入谱面文件。
+        /// </summary>
+        public static string err_output_input_same {
+            get {
+                return ResourceManager.GetString("err_output_input_same", resourceCulture);
+            }
+        }
         
         /// <summary>
         ///   Looks up a localized string similar to 输出的结果可能有些大哦~请试着添加&quot;--stream&quot;选项来减少内存占用！若这没有解决你的问题，请将以下信息发送到https://github.com/NuanRMxi-Lazy-Team/KaedePhi/issues，我们会尽快修复这个问题！
@@ -597,6 +624,24 @@ namespace KaedePhi.Tool.Localization {
         public static string err_output_required {
             get {
                 return ResourceManager.GetString("err_output_required", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to 操作已取消。
+        /// </summary>
+        public static string err_cancelled {
+            get {
+                return ResourceManager.GetString("err_cancelled", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to 请使用 --id 清理单个工作区，或使用 --all 明确确认清理全部工作区。
+        /// </summary>
+        public static string err_workspace_clear_selection {
+            get {
+                return ResourceManager.GetString("err_workspace_clear_selection", resourceCulture);
             }
         }
         
@@ -708,6 +753,15 @@ namespace KaedePhi.Tool.Localization {
                 return ResourceManager.GetString("msg_cleared", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to 工作区 {0} 已清理.
+        /// </summary>
+        public static string msg_workspace_cleared {
+            get {
+                return ResourceManager.GetString("msg_workspace_cleared", resourceCulture);
+            }
+        }
         
         /// <summary>
         ///   Looks up a localized string similar to 配置文件已重置为默认值：{0}.
@@ -715,6 +769,15 @@ namespace KaedePhi.Tool.Localization {
         public static string msg_config_reset_done {
             get {
                 return ResourceManager.GetString("msg_config_reset_done", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to 配置文件保存失败，请检查权限或磁盘空间：{0}.
+        /// </summary>
+        public static string err_config_save_failed {
+            get {
+                return ResourceManager.GetString("err_config_save_failed", resourceCulture);
             }
         }
         

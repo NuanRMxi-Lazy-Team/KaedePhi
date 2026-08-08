@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -10,7 +11,7 @@ namespace KaedePhi.Core.PhiEdit
 {
     public partial class Chart
     {
-        private static readonly string[] Separator = { "\r\n", "\n" };
+        private static readonly string[] Separator = { "\r\n", "\n", "\r" };
 
         /// <summary>
         /// 将 PhiEditChart 格式的文本字符串反序列化为 <see cref="Chart"/> 对象。
@@ -26,9 +27,12 @@ namespace KaedePhi.Core.PhiEdit
         [PublicAPI]
         public static Chart Load(string pec)
         {
+            if (pec is null)
+                throw new ArgumentNullException(nameof(pec));
+
             var lines = pec.Split(Separator, StringSplitOptions.None);
 
-            if (!int.TryParse(lines[0], out var offset))
+            if (!TryParseInteger(lines[0], out var offset))
                 throw new FormatException(
                     "Malformed chart file: first line is not a valid integer offset."
                 );
@@ -133,25 +137,31 @@ namespace KaedePhi.Core.PhiEdit
             Dictionary<int, JudgeLine> judgeDict
         )
         {
-            var part = line.Split(' ');
-            var judgeLineIndex = part[0] != "bp" && part.Length > 1 ? int.Parse(part[1]) : -1;
+            var part = SplitWhitespace(line);
+            var judgeLineIndex = GetJudgeLineIndex(part);
 
             if (part[0] == "bp")
             {
                 EnsureMinParts(part, 3, "bp");
                 chart.BpmList.Add(
-                    new BpmItem { StartBeat = float.Parse(part[1]), Bpm = float.Parse(part[2]) }
+                    new BpmItem
+                    {
+                        StartBeat = ParseFloat(part[1], "bp 起始拍"),
+                        Bpm = ParseFloat(part[2], "bp BPM"),
+                    }
                 );
             }
-            else if (line.StartsWith('n'))
+            else if (part[0].StartsWith("n", StringComparison.Ordinal))
             {
                 var (speedPart, widthPart) = GetInlineNoteParts(part);
                 if (speedPart is null)
                 {
-                    speedPart = (await reader.ReadLineAsync())?.Split(' ');
-                    widthPart = (await reader.ReadLineAsync())?.Split(' ');
-                    if (speedPart == null || widthPart == null)
+                    var speedLine = await reader.ReadLineAsync();
+                    var widthLine = await reader.ReadLineAsync();
+                    if (speedLine is null || widthLine is null)
                         throw new FormatException("Malformed note: missing speed or width lines.");
+                    speedPart = SplitWhitespace(speedLine);
+                    widthPart = SplitWhitespace(widthLine);
                 }
 
                 AddNoteToDict(BuildNote(part, speedPart, widthPart), judgeLineIndex, judgeDict);
@@ -177,7 +187,7 @@ namespace KaedePhi.Core.PhiEdit
             var judgeDict = new Dictionary<int, JudgeLine>();
 
             var firstLine = readFirstLineFunc();
-            if (!int.TryParse(firstLine, out var offset))
+            if (!TryParseInteger(firstLine, out var offset))
                 throw new FormatException(
                     "Malformed chart file: first line is not a valid integer offset."
                 );
@@ -204,25 +214,31 @@ namespace KaedePhi.Core.PhiEdit
             Dictionary<int, JudgeLine> judgeDict
         )
         {
-            var part = line.Split(' ');
-            var judgeLineIndex = part[0] != "bp" && part.Length > 1 ? int.Parse(part[1]) : -1;
+            var part = SplitWhitespace(line);
+            var judgeLineIndex = GetJudgeLineIndex(part);
 
             if (part[0] == "bp")
             {
                 EnsureMinParts(part, 3, "bp");
                 chart.BpmList.Add(
-                    new BpmItem { StartBeat = float.Parse(part[1]), Bpm = float.Parse(part[2]) }
+                    new BpmItem
+                    {
+                        StartBeat = ParseFloat(part[1], "bp 起始拍"),
+                        Bpm = ParseFloat(part[2], "bp BPM"),
+                    }
                 );
             }
-            else if (line.StartsWith('n'))
+            else if (part[0].StartsWith("n", StringComparison.Ordinal))
             {
                 var (speedPart, widthPart) = GetInlineNoteParts(part);
                 if (speedPart is null)
                 {
-                    speedPart = readNextLineFunc()?.Split(' ');
-                    widthPart = readNextLineFunc()?.Split(' ');
-                    if (speedPart == null || widthPart == null)
+                    var speedLine = readNextLineFunc();
+                    var widthLine = readNextLineFunc();
+                    if (speedLine is null || widthLine is null)
                         throw new FormatException("Malformed note: missing speed or width lines.");
+                    speedPart = SplitWhitespace(speedLine);
+                    widthPart = SplitWhitespace(widthLine);
                 }
 
                 AddNoteToDict(BuildNote(part, speedPart, widthPart), judgeLineIndex, judgeDict);
@@ -252,17 +268,21 @@ namespace KaedePhi.Core.PhiEdit
             Dictionary<int, JudgeLine> judgeDict
         )
         {
-            var part = line.Split(' ');
-            var judgeLineIndex = part[0] != "bp" && part.Length > 1 ? int.Parse(part[1]) : -1;
+            var part = SplitWhitespace(line);
+            var judgeLineIndex = GetJudgeLineIndex(part);
 
             if (part[0] == "bp")
             {
                 EnsureMinParts(part, 3, "bp");
                 chart.BpmList.Add(
-                    new BpmItem { StartBeat = float.Parse(part[1]), Bpm = float.Parse(part[2]) }
+                    new BpmItem
+                    {
+                        StartBeat = ParseFloat(part[1], "bp 起始拍"),
+                        Bpm = ParseFloat(part[2], "bp BPM"),
+                    }
                 );
             }
-            else if (line.StartsWith('n'))
+            else if (part[0].StartsWith("n", StringComparison.Ordinal))
             {
                 var (speedPart, widthPart) = GetInlineNoteParts(part);
                 if (speedPart is null)
@@ -271,8 +291,8 @@ namespace KaedePhi.Core.PhiEdit
                         throw new FormatException(
                             $"Malformed note at line {index + 1}: missing speed or width lines."
                         );
-                    speedPart = lines[index + 1].Split(' ');
-                    widthPart = lines[index + 2].Split(' ');
+                    speedPart = SplitWhitespace(lines[index + 1]);
+                    widthPart = SplitWhitespace(lines[index + 2]);
                     AddNoteToDict(BuildNote(part, speedPart, widthPart), judgeLineIndex, judgeDict);
                     return 3;
                 }
@@ -300,6 +320,67 @@ namespace KaedePhi.Core.PhiEdit
                 );
         }
 
+        private static string[] SplitWhitespace(string line) =>
+            line.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries);
+
+        private static int GetJudgeLineIndex(string[] part)
+        {
+            if (part.Length == 0)
+                throw new FormatException("Malformed chart command: command is empty.");
+            if (part[0] == "bp")
+                return -1;
+
+            EnsureMinParts(part, 2, part[0]);
+            return ParseInteger(part[1], $"{part[0]} 判定线索引");
+        }
+
+        private static bool TryParseInteger(string? text, out int value) =>
+            int.TryParse(
+                text,
+                NumberStyles.Integer,
+                CultureInfo.InvariantCulture,
+                out value
+            );
+
+        private static int ParseInteger(string text, string field)
+        {
+            if (!TryParseInteger(text, out var value))
+                throw new FormatException($"Malformed chart field '{field}': '{text}'.");
+            return value;
+        }
+
+        private static float ParseFloat(string text, string field)
+        {
+            if (
+                !float.TryParse(
+                    text,
+                    NumberStyles.Float,
+                    CultureInfo.InvariantCulture,
+                    out var value
+                )
+                || float.IsNaN(value)
+                || float.IsInfinity(value)
+            )
+                throw new FormatException($"Malformed chart field '{field}': '{text}'.");
+            return value;
+        }
+
+        private static bool ParseBinaryFlag(string text, string field) =>
+            text switch
+            {
+                "0" => false,
+                "1" => true,
+                _ => throw new FormatException($"Malformed chart field '{field}': '{text}'."),
+            };
+
+        private static bool ParseAboveFlag(string text) =>
+            text switch
+            {
+                "1" => true,
+                "2" => false,
+                _ => throw new FormatException("Malformed note field 'note 上下侧'."),
+            };
+
         /// <summary>
         /// 根据指令类型（<c>cv</c>/<c>cp</c>/<c>cd</c>/<c>ca</c>/<c>cm</c>/<c>cr</c>/<c>cf</c>）
         /// 解析对应的关键帧或事件，追加到 <paramref name="judgeDict"/> 中对应判定线的集合内。
@@ -324,7 +405,11 @@ namespace KaedePhi.Core.PhiEdit
                     Ensure();
                     judgeDict[judgeLineIndex]
                         .SpeedFrames.Add(
-                            new Frame { Beat = float.Parse(part[2]), Value = float.Parse(part[3]) }
+                            new Frame
+                            {
+                                Beat = ParseFloat(part[2], "cv 拍数"),
+                                Value = ParseFloat(part[3], "cv 数值"),
+                            }
                         );
                     break;
                 case "cp":
@@ -334,9 +419,9 @@ namespace KaedePhi.Core.PhiEdit
                         .MoveFrames.Add(
                             new MoveFrame
                             {
-                                Beat = float.Parse(part[2]),
-                                XValue = float.Parse(part[3]),
-                                YValue = float.Parse(part[4]),
+                                Beat = ParseFloat(part[2], "cp 拍数"),
+                                XValue = ParseFloat(part[3], "cp X 数值"),
+                                YValue = ParseFloat(part[4], "cp Y 数值"),
                             }
                         );
                     break;
@@ -345,7 +430,11 @@ namespace KaedePhi.Core.PhiEdit
                     Ensure();
                     judgeDict[judgeLineIndex]
                         .RotateFrames.Add(
-                            new Frame { Beat = float.Parse(part[2]), Value = float.Parse(part[3]) }
+                            new Frame
+                            {
+                                Beat = ParseFloat(part[2], "cd 拍数"),
+                                Value = ParseFloat(part[3], "cd 数值"),
+                            }
                         );
                     break;
                 case "ca":
@@ -353,7 +442,11 @@ namespace KaedePhi.Core.PhiEdit
                     Ensure();
                     judgeDict[judgeLineIndex]
                         .AlphaFrames.Add(
-                            new Frame { Beat = float.Parse(part[2]), Value = float.Parse(part[3]) }
+                            new Frame
+                            {
+                                Beat = ParseFloat(part[2], "ca 拍数"),
+                                Value = ParseFloat(part[3], "ca 数值"),
+                            }
                         );
                     break;
                 case "cm":
@@ -363,11 +456,11 @@ namespace KaedePhi.Core.PhiEdit
                         .MoveEvents.Add(
                             new MoveEvent
                             {
-                                StartBeat = float.Parse(part[2]),
-                                EndBeat = float.Parse(part[3]),
-                                EndXValue = float.Parse(part[4]),
-                                EndYValue = float.Parse(part[5]),
-                                EasingType = new Easing(int.Parse(part[6])),
+                                StartBeat = ParseFloat(part[2], "cm 起始拍"),
+                                EndBeat = ParseFloat(part[3], "cm 结束拍"),
+                                EndXValue = ParseFloat(part[4], "cm X 数值"),
+                                EndYValue = ParseFloat(part[5], "cm Y 数值"),
+                                EasingType = new Easing(ParseInteger(part[6], "cm 缓动类型")),
                             }
                         );
                     break;
@@ -378,10 +471,10 @@ namespace KaedePhi.Core.PhiEdit
                         .RotateEvents.Add(
                             new Event
                             {
-                                StartBeat = float.Parse(part[2]),
-                                EndBeat = float.Parse(part[3]),
-                                EndValue = float.Parse(part[4]),
-                                EasingType = new Easing(int.Parse(part[5])),
+                                StartBeat = ParseFloat(part[2], "cr 起始拍"),
+                                EndBeat = ParseFloat(part[3], "cr 结束拍"),
+                                EndValue = ParseFloat(part[4], "cr 数值"),
+                                EasingType = new Easing(ParseInteger(part[5], "cr 缓动类型")),
                             }
                         );
                     break;
@@ -392,9 +485,9 @@ namespace KaedePhi.Core.PhiEdit
                         .AlphaEvents.Add(
                             new Event
                             {
-                                StartBeat = float.Parse(part[2]),
-                                EndBeat = float.Parse(part[3]),
-                                EndValue = float.Parse(part[4]),
+                                StartBeat = ParseFloat(part[2], "cf 起始拍"),
+                                EndBeat = ParseFloat(part[3], "cf 结束拍"),
+                                EndValue = ParseFloat(part[4], "cf 数值"),
                                 EasingType = Easing.Linear,
                             }
                         );
@@ -431,10 +524,6 @@ namespace KaedePhi.Core.PhiEdit
         {
             if (noteWidthRatioPart is null)
                 throw new FormatException("Malformed note: missing width ratio part.");
-            if (part.Length < 4)
-                throw new FormatException(
-                    $"Malformed note command: expected at least 4 parts, got {part.Length}."
-                );
             if (noteSpeedMultiplierPart.Length < 2)
                 throw new FormatException(
                     "Malformed note speed multiplier part: expected at least 2 elements."
@@ -444,17 +533,36 @@ namespace KaedePhi.Core.PhiEdit
                     "Malformed note width ratio part: expected at least 2 elements."
                 );
 
-            var noteType = (NoteType)int.Parse(part[0].Substring(1, 1));
+            if (
+                part[0].Length < 2
+                || !int.TryParse(
+                    part[0].Substring(1),
+                    NumberStyles.Integer,
+                    CultureInfo.InvariantCulture,
+                    out var noteTypeValue
+                )
+            )
+                throw new FormatException("Malformed note command: invalid note type.");
+            if (!Enum.IsDefined(typeof(NoteType), noteTypeValue))
+                throw new FormatException("Malformed note command: unsupported note type.");
+
+            var noteType = (NoteType)noteTypeValue;
             var isHold = noteType == NoteType.Hold;
+            EnsureMinParts(part, isHold ? 7 : 6, "note");
+            if (noteSpeedMultiplierPart[0] != "#" || noteWidthRatioPart[0] != "&")
+                throw new FormatException("Malformed note: invalid speed or width marker.");
+
             return new Note
             {
-                StartBeat = float.Parse(part[2]),
-                EndBeat = isHold ? float.Parse(part[3]) : float.Parse(part[2]),
-                PositionX = float.Parse(part[isHold ? 4 : 3]),
-                Above = part[isHold ? 5 : 4] == "1",
-                IsFake = part[isHold ? 6 : 5] == "1",
-                SpeedMultiplier = float.Parse(noteSpeedMultiplierPart[1]),
-                WidthRatio = float.Parse(noteWidthRatioPart[1]),
+                StartBeat = ParseFloat(part[2], "note 起始拍"),
+                EndBeat = isHold
+                    ? ParseFloat(part[3], "note 结束拍")
+                    : ParseFloat(part[2], "note 起始拍"),
+                PositionX = ParseFloat(part[isHold ? 4 : 3], "note X 坐标"),
+                Above = ParseAboveFlag(part[isHold ? 5 : 4]),
+                IsFake = ParseBinaryFlag(part[isHold ? 6 : 5], "note 假音符标记"),
+                SpeedMultiplier = ParseFloat(noteSpeedMultiplierPart[1], "note 速度倍率"),
+                WidthRatio = ParseFloat(noteWidthRatioPart[1], "note 宽度比例"),
                 Type = noteType,
             };
         }
@@ -583,7 +691,7 @@ namespace KaedePhi.Core.PhiEdit
         /// <returns>按 PhiEditChart 规范格式化的完整文本行序列。</returns>
         private IEnumerable<string> GetExportLines()
         {
-            yield return Offset.ToString();
+            yield return Offset.ToString(CultureInfo.InvariantCulture);
             foreach (var bpm in BpmList)
                 yield return bpm.ToString();
             for (var i = 0; i < JudgeLineList.Count; i++)

@@ -37,9 +37,13 @@ public class FatherUnbindPlusProcessor : FatherUnbindProcessorBase
         int targetJudgeLineIndex,
         List<JudgeLine> allJudgeLines,
         double precision,
-        IProgress<ToolProgress>? progress = null
+        IProgress<ToolProgress>? progress = null,
+        CancellationToken ct = default
     )
     {
+        ChartProcessingValidator.ValidatePrecision(precision);
+        ChartProcessingValidator.ValidateTolerance(_tolerance);
+        ct.ThrowIfCancellationRequested();
         JudgeLine judgeLineCopy;
         try
         {
@@ -50,7 +54,7 @@ public class FatherUnbindPlusProcessor : FatherUnbindProcessorBase
                 allJudgeLines,
                 logTag: "FatherUnbindPlus",
                 startAction: "开始解绑（自适应采样）",
-                recursiveUnbind: (idx, lines) => FatherUnbind(idx, lines, precision, progress)
+                recursiveUnbind: (idx, lines) => FatherUnbind(idx, lines, precision, progress, ct)
             );
 
             judgeLineCopy = judgeLine;
@@ -90,7 +94,8 @@ public class FatherUnbindPlusProcessor : FatherUnbindProcessorBase
                 keyBeats,
                 step,
                 _tolerance,
-                ch
+                ch,
+                ct
             );
 
             progress?.Report(new ToolProgress(0.9, "写回结果"));
