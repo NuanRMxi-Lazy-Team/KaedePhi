@@ -1,6 +1,7 @@
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
+using KaedePhi.Tool.App.Config;
 using KaedePhi.Tool.App.Gui;
 using KaedePhi.Tool.App.Gui.Services;
 using KaedePhi.Tool.App.Gui.ViewModels;
@@ -11,7 +12,7 @@ namespace KaedePhi.Tool.App;
 
 public partial class App : Application
 {
-    internal static ConfigService ConfigService { get; } = new();
+    internal static AppConfigService ConfigService { get; } = AppConfigService.Instance;
     internal static LogService LogService { get; } = new(ConfigService.Config.MaxLogFiles);
 
     internal static GuiChartService ChartService { get; private set; } = null!;

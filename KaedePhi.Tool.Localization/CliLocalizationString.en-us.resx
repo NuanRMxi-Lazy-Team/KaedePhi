@@ -30,9 +30,6 @@
     <data name="cmd_workspace_clear_desc" xml:space="preserve">
         <value>Clear workspace cache (use --id to clear a single one)</value>
     </data>
-    <data name="branch_rpe_desc" xml:space="preserve">
-        <value>RPE Chart Operation</value>
-    </data>
     <data name="cmd_unbind_father_desc" xml:space="preserve">
         <value>Unbind the judgment line from its parent.</value>
     </data>

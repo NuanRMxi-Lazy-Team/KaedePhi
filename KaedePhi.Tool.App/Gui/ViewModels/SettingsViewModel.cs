@@ -1,18 +1,17 @@
 using System;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using KaedePhi.Tool.App.Gui.Models;
-using KaedePhi.Tool.App.Gui.Services;
+using KaedePhi.Tool.App.Config;
 using static KaedePhi.Tool.Localization.GuiLocalizationString;
 
 namespace KaedePhi.Tool.App.Gui.ViewModels;
 
 public sealed class SettingsViewModel : INotifyPropertyChanged
 {
-    private readonly ConfigService _config;
+    private readonly AppConfigService _config;
     private string _statusText = string.Empty;
 
-    public SettingsViewModel(ConfigService config)
+    public SettingsViewModel(AppConfigService config)
     {
         _config = config;
         LoadFromConfig();
@@ -219,9 +218,7 @@ public sealed class SettingsViewModel : INotifyPropertyChanged
 
     public void OnResetClicked()
     {
-        var defaults = new GuiAppConfig();
-        _config.Config = defaults;
-        _config.Save();
+        _config.ResetToDefaults();
         LoadFromConfig();
         OnPropertyChanged(string.Empty);
         StatusText = settings_reset;

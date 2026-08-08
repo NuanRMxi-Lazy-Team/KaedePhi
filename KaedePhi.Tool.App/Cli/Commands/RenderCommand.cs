@@ -1,4 +1,5 @@
 using KaedePhi.Tool.App.Cli.Infrastructure;
+using KaedePhi.Tool.App.Config;
 using KaedePhi.Tool.App.Shared;
 using KaedePhi.Tool.Render.KaedePhi;
 
@@ -90,8 +91,7 @@ public static partial class RenderCommand
             return 1;
         }
 
-        var config = AppConfigHelper.Load();
-        var c = config.RenderConfig;
+        var c = AppConfigService.Instance.Config.Render;
 
         var svc = new ChartService();
         var kpc = await svc.LoadKpcAsync(input, workspace, ct);
@@ -115,7 +115,7 @@ public static partial class RenderCommand
         var opts = new KpcRenderOptions
         {
             PixelsPerBeat =
-                SharedOptions.GetIfSpecified(result, PixelsPerBeatOpt) ?? c.PixelsPerBeat,
+                SharedOptions.GetIfSpecified(result, PixelsPerBeatOpt) ?? (float)c.PixelsPerBeat,
             ChannelWidth = SharedOptions.GetIfSpecified(result, ChannelWidthOpt) ?? c.ChannelWidth,
             SamplesPerEvent =
                 SharedOptions.GetIfSpecified(result, SamplesPerEventOpt) ?? c.SamplesPerEvent,

@@ -1,4 +1,5 @@
 using KaedePhi.Tool.App.Cli.Infrastructure;
+using KaedePhi.Tool.App.Config;
 using KaedePhi.Tool.Common;
 using KaedePhi.Tool.Converter;
 using KaedePhi.Tool.Converter.PhiEdit.Model;
@@ -205,8 +206,7 @@ public static partial class ConvertCommand
             return 1;
         }
 
-        var config = AppConfigHelper.Load();
-        var c = config.ConvertConfig;
+        var c = AppConfigService.Instance.Config.Convert;
 
         var svc = new ChartService();
         var kpc = await svc.LoadKpcAsync(input, workspace, ct);

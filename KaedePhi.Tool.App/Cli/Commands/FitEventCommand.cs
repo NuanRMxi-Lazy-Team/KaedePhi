@@ -1,4 +1,5 @@
 using KaedePhi.Tool.App.Cli.Infrastructure;
+using KaedePhi.Tool.App.Config;
 using KaedePhi.Tool.App.Shared;
 
 namespace KaedePhi.Tool.App.Cli.Commands;
@@ -25,8 +26,7 @@ public static partial class FitEventCommand
             return 1;
         }
 
-        var config = AppConfigHelper.Load();
-        var c = config.FitConfig;
+        var c = AppConfigService.Instance.Config.Fit;
         var tolerance = SharedOptions.GetIfSpecified(result, ToleranceOpt) ?? c.Tolerance;
         var dryRun = SharedOptions.GetIfSpecified(result, DryRunOpt) ?? c.DryRun;
 

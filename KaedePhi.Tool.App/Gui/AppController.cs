@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Platform.Storage;
+using KaedePhi.Tool.App.Config;
 using KaedePhi.Tool.App.Gui.Services;
 using KaedePhi.Tool.App.Gui.ViewModels;
 using KaedePhi.Tool.App.Gui.Views;
@@ -24,7 +25,7 @@ internal sealed class AppController
     private readonly GuiChartService _chart;
     private readonly ILogger _log;
     private readonly LogService _logService;
-    private readonly ConfigService _config;
+    private readonly AppConfigService _config;
     private readonly Window _window;
 
     private readonly ImportViewModel _importVm;
@@ -43,7 +44,7 @@ internal sealed class AppController
         MainViewModel main,
         GuiChartService chart,
         LogService logService,
-        ConfigService config,
+        AppConfigService config,
         Window window
     )
     {

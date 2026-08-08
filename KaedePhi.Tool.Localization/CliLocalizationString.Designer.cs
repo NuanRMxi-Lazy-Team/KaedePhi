@@ -87,15 +87,6 @@ namespace KaedePhi.Tool.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to RPE 谱面操作.
-        /// </summary>
-        public static string branch_rpe_desc {
-            get {
-                return ResourceManager.GetString("branch_rpe_desc", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to 工作区管理.
         /// </summary>
         public static string branch_workspace_desc {

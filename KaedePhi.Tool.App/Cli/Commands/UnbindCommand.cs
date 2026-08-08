@@ -1,4 +1,5 @@
 using KaedePhi.Tool.App.Cli.Infrastructure;
+using KaedePhi.Tool.App.Config;
 using KaedePhi.Tool.App.Shared;
 
 namespace KaedePhi.Tool.App.Cli.Commands;
@@ -27,8 +28,7 @@ public static partial class UnbindFatherCommand
             return 1;
         }
 
-        var config = AppConfigHelper.Load();
-        var c = config.UnbindConfig;
+        var c = AppConfigService.Instance.Config.Unbind;
         var precision = SharedOptions.GetIfSpecified(result, PrecisionOpt) ?? c.Precision;
         var tolerance = SharedOptions.GetIfSpecified(result, ToleranceOpt) ?? c.Tolerance;
         var classic = SharedOptions.GetIfSpecified(result, ClassicOpt) ?? c.ClassicMode;

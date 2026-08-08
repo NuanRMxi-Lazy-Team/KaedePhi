@@ -45,12 +45,13 @@ KaedePhi.Tool.Localization: .NET8.0, .NET10.0
 - [x] PhiEdit序列化
 - [ ] PhiFans反序列化
 - [ ] PhiFans序列化  
-- [x] PhiChain反序列化（搁置，提上日程）  
-- [x] PhiChain序列化（搁置，提上日程）  
+- [x] PhiChain反序列化
+- [x] PhiChain序列化
 - [x] 本家谱面反序列化
 - [x] 本家谱面序列化
-- [ ] CLI工具（当前已初步可用）
-- [x] GUI工具
+- [ ] ~~CLI工具~~（已合并为App工具）
+- [ ] ~~GUI工具~~（已合并为App工具）
+- [x] App工具
 
 
 

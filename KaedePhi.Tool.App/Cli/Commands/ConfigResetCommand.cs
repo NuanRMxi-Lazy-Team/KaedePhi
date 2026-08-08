@@ -1,7 +1,5 @@
 using KaedePhi.Tool.App.Cli.Infrastructure;
-using KaedePhi.Tool.App.Cli.Model;
-using YamlDotNet.Serialization;
-using YamlDotNet.Serialization.NamingConventions;
+using KaedePhi.Tool.App.Config;
 
 namespace KaedePhi.Tool.App.Cli.Commands;
 
@@ -10,18 +8,14 @@ public static partial class ConfigResetCommand
 {
     private static string Description => CliLocalizationString.cmd_config_reset_desc;
 
-    private static readonly ISerializer YamlSerializer = new SerializerBuilder()
-        .WithNamingConvention(CamelCaseNamingConvention.Instance)
-        .Build();
-
     [CliHandler]
     private static int Handle(ParseResult _)
     {
-        var configPath = "config.yaml";
-        var defaults = new AppConfig();
-        var yaml = YamlSerializer.Serialize(defaults);
-        File.WriteAllText(configPath, yaml);
-        ConsoleWriter.Info(string.Format(CliLocalizationString.msg_config_reset_done, configPath));
+        var service = AppConfigService.Instance;
+        service.ResetToDefaults();
+        ConsoleWriter.Info(
+            string.Format(CliLocalizationString.msg_config_reset_done, service.ConfigPath)
+        );
         return 0;
     }
 }

@@ -30,9 +30,6 @@
     <data name="cmd_workspace_clear_desc" xml:space="preserve">
         <value>清理工作區快取（可使用 --id 僅清理單一項目）</value>
     </data>
-    <data name="branch_rpe_desc" xml:space="preserve">
-        <value>RPE 譜面操作</value>
-    </data>
     <data name="cmd_unbind_father_desc" xml:space="preserve">
         <value>將判定線與父級解綁</value>
     </data>

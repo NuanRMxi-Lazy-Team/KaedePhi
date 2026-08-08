@@ -41,9 +41,6 @@
     <data name="cmd_workspace_clear_desc" xml:space="preserve">
         <value>清理工作区缓存（可指定 --id 只清理单个）</value>
     </data>
-    <data name="branch_rpe_desc" xml:space="preserve">
-        <value>RPE 谱面操作</value>
-    </data>
     <data name="cmd_unbind_father_desc" xml:space="preserve">
         <value>将判定线与父级解绑</value>
     </data>

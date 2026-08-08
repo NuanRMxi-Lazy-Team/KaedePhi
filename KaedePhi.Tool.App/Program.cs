@@ -6,6 +6,7 @@ using KaedePhi.Tool.App.Cli.Commands;
 using KaedePhi.Tool.App.Cli.Commands.Test;
 using KaedePhi.Tool.App.Cli.Commands.WorkSpace;
 using KaedePhi.Tool.App.Cli.Infrastructure;
+using KaedePhi.Tool.App.Config;
 
 namespace KaedePhi.Tool.App;
 
@@ -53,6 +54,7 @@ internal static partial class Program
 
     private static async Task<int> RunCli(string[] args)
     {
+        ConsoleWriter.LogLevel = AppConfigService.Instance.Config.LogLevel;
 #if !Release
         ConsoleWriter.Warn(
             string.Format(
