@@ -9,8 +9,14 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
     <ApplicationIcon>..\KaedePhiIcon.ico</ApplicationIcon>
-    <DefineConstants Condition="'$(Configuration)' != 'Debug'"
-      >$(DefineConstants);$(Configuration)</DefineConstants
+    <DefineConstants Condition="'$(Configuration)' == 'Debug'"
+      >$(DefineConstants);Debug</DefineConstants
+    >
+    <DefineConstants Condition="'$(Configuration)' == 'PreRelease'"
+      >$(DefineConstants);PreRelease</DefineConstants
+    >
+    <DefineConstants Condition="'$(Configuration)' == 'Release'"
+      >$(DefineConstants);Release</DefineConstants
     >
   </PropertyGroup>
 
@@ -19,6 +25,7 @@
     <PackageReference Include="YamlDotNet" Version="18.1.0" />
     <PackageReference Include="Serilog" Version="4.4.0" />
     <PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
+    <PackageReference Include="Serilog.Sinks.Console" Version="6.0.0" Condition="'$(Configuration)' == 'Debug'" />
     <PackageReference Include="Avalonia" Version="12.1.1" />
     <PackageReference Include="Avalonia.Desktop" Version="12.1.1" />
     <PackageReference Include="Avalonia.Themes.Fluent" Version="12.1.1" />

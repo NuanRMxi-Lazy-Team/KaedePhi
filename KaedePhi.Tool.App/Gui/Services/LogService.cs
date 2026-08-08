@@ -1,6 +1,3 @@
-using System;
-using System.IO;
-using System.Linq;
 using Serilog;
 using Serilog.Core;
 using ILogger = Serilog.ILogger;
@@ -48,14 +45,22 @@ public sealed class LogService : IDisposable
         var fileName = $"session_{DateTime.Now:yyyyMMdd_HHmmss}.log";
         CurrentLogFile = Path.Combine(LogDirectory, fileName);
 
-        _rootLogger = new LoggerConfiguration()
+        var loggerConfiguration = new LoggerConfiguration()
             .MinimumLevel.Debug()
             .WriteTo.File(
                 CurrentLogFile,
                 outputTemplate: "[{Level:u4} {Timestamp:HH:mm:ss}] [{SourceContext}] {Message:lj}{NewLine}{Exception}",
                 flushToDiskInterval: TimeSpan.FromSeconds(1)
-            )
-            .CreateLogger();
+            );
+
+#if Debug
+        // Debug 构建将日志同步镜像到控制台，便于实时观察
+        loggerConfiguration.WriteTo.Console(
+            outputTemplate: "[{Level:u4} {Timestamp:HH:mm:ss}] [{SourceContext}] {Message:lj}{NewLine}{Exception}"
+        );
+#endif
+
+        _rootLogger = loggerConfiguration.CreateLogger();
 
         // 将全局静态 Logger 指向同一实例，供 ForContext<T>() 使用
         Log.Logger = _rootLogger;

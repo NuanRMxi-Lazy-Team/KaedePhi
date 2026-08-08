@@ -1,7 +1,3 @@
-using System;
-using System.IO;
-using System.Linq;
-
 namespace KaedePhi.Tool.App.Gui.Services;
 
 internal static class AppPaths

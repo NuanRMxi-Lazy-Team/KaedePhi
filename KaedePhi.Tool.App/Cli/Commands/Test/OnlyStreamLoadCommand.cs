@@ -1,6 +1,8 @@
-using System.ComponentModel;
-using KaedePhi.Core.PhiEdit;
 using KaedePhi.Tool.App.Cli.Infrastructure;
+
+#if Debug
+using KaedePhi.Core.PhiEdit;
+#endif
 
 namespace KaedePhi.Tool.App.Cli.Commands.Test;
 
@@ -14,8 +16,10 @@ public static class OnlyStreamLoadCommand
 
     public static Command Create()
     {
-        var cmd = new Command("pestream", "PE stream test");
-        cmd.Hidden = true;
+        var cmd = new Command("pestream", "PE stream test")
+        {
+            Hidden = true
+        };
         cmd.Add(InputOpt);
 
         cmd.SetAction(
@@ -29,7 +33,7 @@ public static class OnlyStreamLoadCommand
                     return 1;
                 }
 
-                using var stream = File.OpenRead(input);
+                await using var stream = File.OpenRead(input);
                 var chart = await Chart.LoadStreamAsync(stream);
                 ConsoleWriter.Info(chart.Offset.ToString());
 #else

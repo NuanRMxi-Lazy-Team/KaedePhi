@@ -1,4 +1,3 @@
-using System;
 using System.Runtime.InteropServices;
 
 namespace KaedePhi.Tool.App;
@@ -24,8 +23,8 @@ public sealed partial class WindowsTerminalDetector : ITerminalDetector
         }
 
         // 先查询需要的缓冲区大小
-        uint[] probeBuffer = new uint[1];
-        int count = GetConsoleProcessList(probeBuffer, 1);
+        var probeBuffer = new uint[1];
+        var count = GetConsoleProcessList(probeBuffer, 1);
 
         if (count <= 0)
         {

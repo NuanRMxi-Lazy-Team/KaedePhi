@@ -1,6 +1,8 @@
-using System.ComponentModel;
 using KaedePhi.Tool.App.Cli.Infrastructure;
+
+#if Debug
 using KaedePhi.Tool.Common;
+#endif
 
 namespace KaedePhi.Tool.App.Cli.Commands.Test;
 
@@ -14,8 +16,10 @@ public static class GetTypeTestCommand
 
     public static Command Create()
     {
-        var cmd = new Command("test", "Test command");
-        cmd.Hidden = true;
+        var cmd = new Command("test", "Test command")
+        {
+            Hidden = true
+        };
         cmd.Add(InputOpt);
 
         cmd.SetAction(

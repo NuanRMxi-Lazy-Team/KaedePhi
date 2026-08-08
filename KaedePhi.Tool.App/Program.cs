@@ -1,6 +1,5 @@
 using System.Reflection;
 using System.Runtime.InteropServices;
-using System.Threading;
 using Avalonia;
 using KaedePhi.Tool.App.Cli.Commands;
 using KaedePhi.Tool.App.Cli.Commands.Test;
@@ -30,8 +29,11 @@ internal static partial class Program
 
     private static int RunGui(string[] args)
     {
+#if !Debug
+        // Release/PreRelease：释放控制台，避免 GUI 进程残留终端窗口
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             FreeConsole();
+#endif
 
         var exitCode = 0;
         var guiThread = new Thread(() =>
