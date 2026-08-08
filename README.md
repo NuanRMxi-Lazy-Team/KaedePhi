@@ -86,3 +86,9 @@ NuanR_Star Ciallo Team Copyright © 2026 KaedePhi Project.
 [Ivan-1F](https://github.com/Ivan-1F)  
 所有参与测试反馈的各位以及贡献者  
 和屏幕前的你！
+
+# 本仓库内PNG、ICO文件授权情况
+此类文件由 MySxan 绘制，版权归 NuanR_Mxi 个人所有，授权使用范围仅限于本项目、本项目衍生品以及NuanR_Star Ciallo Team（不含附属组，如MoeRain）。  
+禁止未经授权用于其他商业或非商业用途。包括但不限于：  
+制作其它软件、游戏、网站、AI训练数据集。  
+NuanR_Mxi All Rights Reserved.

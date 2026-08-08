@@ -53,13 +53,13 @@ public class EventListMerger<TPayload> : LoggableBase, IEventListMerger<KpcEvent
             result =
                 fromEvents is null || fromEvents.Count == 0
                     ? []
-                    : fromEvents.Select(e => e.Clone()).ToList();
+                    : [.. fromEvents.Select(e => e.Clone())];
             return true;
         }
 
         if (fromEvents is null || fromEvents.Count == 0)
         {
-            result = toEvents.Select(e => e.Clone()).ToList();
+            result = [.. toEvents.Select(e => e.Clone())];
             return true;
         }
 
@@ -424,7 +424,7 @@ public class EventListMerger<TPayload> : LoggableBase, IEventListMerger<KpcEvent
                                 toEvent.GetValueAtBeat(gapEnd),
                                 formOffset
                             ),
-                            Easing = new Kpc.Easing(1), // linear — see comment above
+                            Easing = new Kpc.Easing(1), // 线性，具体看上方注释
                             IsBezier = false,
                         }
                     );
@@ -475,7 +475,7 @@ public class EventListMerger<TPayload> : LoggableBase, IEventListMerger<KpcEvent
                                 formEvent.GetValueAtBeat(gapEnd),
                                 toEventValue
                             ),
-                            Easing = new Kpc.Easing(1), // linear — see comment above
+                            Easing = new Kpc.Easing(1), // 线性，具体看上方注释
                             IsBezier = false,
                         }
                     );
