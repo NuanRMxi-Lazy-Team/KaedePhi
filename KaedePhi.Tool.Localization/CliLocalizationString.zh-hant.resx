@@ -33,14 +33,11 @@
     <data name="branch_rpe_desc" xml:space="preserve">
         <value>RPE 譜面操作</value>
     </data>
-    <data name="cmd_rpe_unbind_father_desc" xml:space="preserve">
-        <value>將判定線與父級解綁(已弃用)</value>
+    <data name="cmd_unbind_father_desc" xml:space="preserve">
+        <value>將判定線與父級解綁</value>
     </data>
-    <data name="cmd_rpe_layer_merge_desc" xml:space="preserve">
+    <data name="cmd_layer_merge_desc" xml:space="preserve">
         <value>將所有判定線的多個事件層級合併為單一層級。</value>
-    </data>
-    <data name="cmd_rpe_convert_desc" xml:space="preserve">
-        <value>將 RPE 譜面轉換為其他格式（尚未完整實現）</value>
     </data>
     <data name="branch_config_desc" xml:space="preserve">
         <value>配置管理</value>
@@ -109,9 +106,6 @@
         <value>詳見README.md喵...</value>
     </data>
     <!-- ── warnings ─────────────────────────────────────────────────────────── -->
-    <data name="warn_rpe_convert" xml:space="preserve">
-        <value>RPE 轉換還在進行中，請稍等一下～</value>
-    </data>
     <!-- ── errors ────────────────────────────────────────────────────────────── -->
     <data name="err_unknown" xml:space="preserve">
         <value>咦？這條指令我還不認識呢！</value>
@@ -162,7 +156,4 @@
         <value>負透明度段每次抬高的 KPC Y 偏移量（預設：4.0）</value>
     </data>
     <!-- ── misc ──────────────────────────────────────────────────────────────── -->
-    <data name="project_link" xml:space="preserve">
-        <value>https://github.com/NuanRMxi-Lazy-Team/KaedePhi</value>
-    </data>
 </root>

@@ -1,40 +1,47 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-    <PropertyGroup>
-        <OutputType>Exe</OutputType>
-        <TargetFrameworks>net8.0;net10.0</TargetFrameworks>
-        <ImplicitUsings>enable</ImplicitUsings>
-        <LangVersion>14</LangVersion>
-        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-        <Nullable>enable</Nullable>
-        <ApplicationManifest>app.manifest</ApplicationManifest>
-        <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
-        <ApplicationIcon>..\KaedePhiIcon.ico</ApplicationIcon>
-        <DefineConstants Condition="'$(Configuration)' != 'Debug'">$(DefineConstants);$(Configuration)</DefineConstants>
-    </PropertyGroup>
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFrameworks>net8.0;net10.0</TargetFrameworks>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>14</LangVersion>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Nullable>enable</Nullable>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+    <ApplicationIcon>..\KaedePhiIcon.ico</ApplicationIcon>
+    <DefineConstants Condition="'$(Configuration)' != 'Debug'"
+      >$(DefineConstants);$(Configuration)</DefineConstants
+    >
+  </PropertyGroup>
 
-    <ItemGroup>
-        <PackageReference Include="System.CommandLine" Version="3.0.0-preview.6.26359.118" />
-        <PackageReference Include="YamlDotNet" Version="18.1.0" />
-        <PackageReference Include="Serilog" Version="4.4.0" />
-        <PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
-        <PackageReference Include="Avalonia" Version="12.1.1" />
-        <PackageReference Include="Avalonia.Desktop" Version="12.1.1" />
-        <PackageReference Include="Avalonia.Themes.Fluent" Version="12.1.1" />
-        <PackageReference Include="Avalonia.Fonts.Inter" Version="12.1.1" />
-        <PackageReference Include="Avalonia.Diagnostics" Version="11.3.18">
-            <IncludeAssets Condition="'$(Configuration)' != 'Debug'">None</IncludeAssets>
-            <PrivateAssets Condition="'$(Configuration)' != 'Debug'">All</PrivateAssets>
-        </PackageReference>
-    </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="System.CommandLine" Version="3.0.0-preview.6.26359.118" />
+    <PackageReference Include="YamlDotNet" Version="18.1.0" />
+    <PackageReference Include="Serilog" Version="4.4.0" />
+    <PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
+    <PackageReference Include="Avalonia" Version="12.1.1" />
+    <PackageReference Include="Avalonia.Desktop" Version="12.1.1" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="12.1.1" />
+    <PackageReference Include="Avalonia.Fonts.Inter" Version="12.1.1" />
+    <PackageReference Include="Avalonia.Diagnostics" Version="11.3.18">
+      <IncludeAssets Condition="'$(Configuration)' != 'Debug'">None</IncludeAssets>
+      <PrivateAssets Condition="'$(Configuration)' != 'Debug'">All</PrivateAssets>
+    </PackageReference>
+  </ItemGroup>
 
-    <ItemGroup>
-        <ProjectReference Include="..\KaedePhi.Core\KaedePhi.Core.csproj" />
-        <ProjectReference Include="..\KaedePhi.Tool\KaedePhi.Tool.csproj" />
-        <ProjectReference Include="..\KaedePhi.Tool.Localization\KaedePhi.Tool.Localization.csproj" />
-    </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\KaedePhi.Core\KaedePhi.Core.csproj" />
+    <ProjectReference Include="..\KaedePhi.Tool\KaedePhi.Tool.csproj" />
+    <ProjectReference Include="..\KaedePhi.Tool.Localization\KaedePhi.Tool.Localization.csproj" />
+    <ProjectReference
+      Include="..\KaedePhi.Tool.App.Generators\KaedePhi.Tool.App.Generators.csproj"
+      OutputItemType="Analyzer"
+      ReferenceOutputAssembly="false"
+    />
+  </ItemGroup>
 
-    <ItemGroup>
-        <AvaloniaResource Include="..\KaedePhiIcon.png" Link="Assets\KaedePhiIcon.png" />
-        <AvaloniaResource Include="Assets\Fonts\fa-solid-900.ttf" />
-    </ItemGroup>
+  <ItemGroup>
+    <AvaloniaResource Include="..\KaedePhiIcon.png" Link="Assets\KaedePhiIcon.png" />
+    <AvaloniaResource Include="Assets\Fonts\fa-solid-900.ttf" />
+  </ItemGroup>
 </Project>

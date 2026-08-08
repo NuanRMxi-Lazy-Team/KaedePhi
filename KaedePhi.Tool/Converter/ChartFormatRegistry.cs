@@ -16,123 +16,133 @@ namespace KaedePhi.Tool.Converter;
 /// </summary>
 public static class ChartFormatRegistry
 {
-    private static readonly ReadOnlyDictionary<ChartType, ChartFormatDescriptor> Descriptors =
-        new(
-            new Dictionary<ChartType, ChartFormatDescriptor>
+    private static readonly ReadOnlyDictionary<ChartType, ChartFormatDescriptor> Descriptors = new(
+        new Dictionary<ChartType, ChartFormatDescriptor>
+        {
+            [ChartType.RePhiEdit] = new()
             {
-                [ChartType.RePhiEdit] = new()
+                Type = ChartType.RePhiEdit,
+                FileExtension = "json",
+                ExportOptionsFactory = () => new ConvertOption(),
+                Importer = async (text, _, log, ct) =>
                 {
-                    Type = ChartType.RePhiEdit,
-                    FileExtension = "json",
-                    ExportOptionsFactory = () => new ConvertOption(),
-                    Importer = async (text, _, log, ct) =>
-                    {
-                        var converter = Prepare(new RePhiEditConverter(), log, ct);
-                        var source = await Rpe.Chart.LoadFromJsonAsync(text);
-                        return converter.ToKpc(source, null);
-                    },
-                    Exporter = async (chart, path, write, options, log, ct) =>
-                    {
-                        var converter = Prepare(new RePhiEditConverter(), log, ct);
-                        var target = converter.FromKpc(chart, Coerce(options, () => new ConvertOption()));
-                        await WriteAsync(
-                            path,
-                            write,
-                            () => target.ExportToJsonAsync(write.Indented),
-                            stream => target.ExportToJsonStreamAsync(stream, write.Indented), ct);
-                    },
+                    var converter = Prepare(new RePhiEditConverter(), log, ct);
+                    var source = await Rpe.Chart.LoadFromJsonAsync(text);
+                    return converter.ToKpc(source, null);
                 },
-
-                [ChartType.PhiEdit] = new()
+                Exporter = async (chart, path, write, options, log, ct) =>
                 {
-                    Type = ChartType.PhiEdit,
-                    FileExtension = "pec",
-                    ImportOptionsFactory = () => new PhiEditToKpcConvertOptions(),
-                    ExportOptionsFactory = () => new KpcToPhiEditConvertOptions(),
-                    Importer = async (text, options, log, ct) =>
-                    {
-                        var converter = Prepare(new PhiEditConverter(), log, ct);
-                        var source = await Pe.Chart.LoadAsync(text);
-                        return converter.ToKpc(
-                            source,
-                            Coerce(options, () => new PhiEditToKpcConvertOptions())
-                        );
-                    },
-                    Exporter = async (chart, path, write, options, log, ct) =>
-                    {
-                        var converter = Prepare(new PhiEditConverter(), log, ct);
-                        var target = converter.FromKpc(
-                            chart,
-                            Coerce(options, () => new KpcToPhiEditConvertOptions())
-                        );
-                        await WriteAsync(
-                            path,
-                            write,
-                            () => target.ExportAsync(),
-                            stream => target.ExportToStreamAsync(stream), ct);
-                    },
+                    var converter = Prepare(new RePhiEditConverter(), log, ct);
+                    var target = converter.FromKpc(
+                        chart,
+                        Coerce(options, () => new ConvertOption())
+                    );
+                    await WriteAsync(
+                        path,
+                        write,
+                        () => target.ExportToJsonAsync(write.Indented),
+                        stream => target.ExportToJsonStreamAsync(stream, write.Indented),
+                        ct
+                    );
                 },
+            },
 
-                [ChartType.PhigrosV3] = new()
+            [ChartType.PhiEdit] = new()
+            {
+                Type = ChartType.PhiEdit,
+                FileExtension = "pec",
+                ImportOptionsFactory = () => new PhiEditToKpcConvertOptions(),
+                ExportOptionsFactory = () => new KpcToPhiEditConvertOptions(),
+                Importer = async (text, options, log, ct) =>
                 {
-                    Type = ChartType.PhigrosV3,
-                    FileExtension = "json",
-                    ExportOptionsFactory = () => new KpcToPhigrosV3ConvertOptions(),
-                    Importer = async (text, _, log, ct) =>
-                    {
-                        var converter = Prepare(new PhigrosV3Converter(), log, ct);
-                        var source = await Core.Phigros.v3.Chart.LoadFromJsonAsync(text);
-                        return converter.ToKpc(source, null);
-                    },
-                    Exporter = async (chart, path, write, options, log, ct) =>
-                    {
-                        var converter = Prepare(new PhigrosV3Converter(), log, ct);
-                        var target = converter.FromKpc(
-                            chart,
-                            Coerce(options, () => new KpcToPhigrosV3ConvertOptions())
-                        );
-                        await WriteAsync(
-                            path,
-                            write,
-                            () => target.ExportToJsonAsync(write.Indented),
-                            stream => target.ExportToJsonStreamAsync(stream, write.Indented), ct);
-                    },
+                    var converter = Prepare(new PhiEditConverter(), log, ct);
+                    var source = await Pe.Chart.LoadAsync(text);
+                    return converter.ToKpc(
+                        source,
+                        Coerce(options, () => new PhiEditToKpcConvertOptions())
+                    );
                 },
-
-                [ChartType.PhiChain] = new()
+                Exporter = async (chart, path, write, options, log, ct) =>
                 {
-                    Type = ChartType.PhiChain,
-                    FileExtension = "json",
-                    ImportOptionsFactory = () => new PhiChainToKpcConvertOptions(),
-                    ExportOptionsFactory = () => new KpcToPhiChainConvertOptions(),
-                    Importer = async (text, options, log, ct) =>
-                    {
-                        var converter = Prepare(new PhiChainConverter(), log, ct);
-                        var source = await Phichain.Chart.LoadFromJsonAsync(text);
-                        return converter.ToKpc(
-                            source,
-                            Coerce(options, () => new PhiChainToKpcConvertOptions())
-                        );
-                    },
-                    Exporter = async (chart, path, write, options, log, ct) =>
-                    {
-                        var converter = Prepare(new PhiChainConverter(), log, ct);
-                        var target = converter.FromKpc(
-                            chart,
-                            Coerce(options, () => new KpcToPhiChainConvertOptions())
-                        );
-                        await WriteAsync(
-                            path,
-                            write,
-                            () => target.ExportToJsonAsync(write.Indented),
-                            stream => target.ExportToJsonStreamAsync(stream, write.Indented), ct);
-                    },
+                    var converter = Prepare(new PhiEditConverter(), log, ct);
+                    var target = converter.FromKpc(
+                        chart,
+                        Coerce(options, () => new KpcToPhiEditConvertOptions())
+                    );
+                    await WriteAsync(
+                        path,
+                        write,
+                        () => target.ExportAsync(),
+                        stream => target.ExportToStreamAsync(stream),
+                        ct
+                    );
                 },
+            },
 
-                [ChartType.PhiFans] = new() { Type = ChartType.PhiFans, FileExtension = "json" },
-                [ChartType.PhigrosV1] = new() { Type = ChartType.PhigrosV1, FileExtension = "json" },
-            }
-        );
+            [ChartType.PhigrosV3] = new()
+            {
+                Type = ChartType.PhigrosV3,
+                FileExtension = "json",
+                ExportOptionsFactory = () => new KpcToPhigrosV3ConvertOptions(),
+                Importer = async (text, _, log, ct) =>
+                {
+                    var converter = Prepare(new PhigrosV3Converter(), log, ct);
+                    var source = await Core.Phigros.v3.Chart.LoadFromJsonAsync(text);
+                    return converter.ToKpc(source, null);
+                },
+                Exporter = async (chart, path, write, options, log, ct) =>
+                {
+                    var converter = Prepare(new PhigrosV3Converter(), log, ct);
+                    var target = converter.FromKpc(
+                        chart,
+                        Coerce(options, () => new KpcToPhigrosV3ConvertOptions())
+                    );
+                    await WriteAsync(
+                        path,
+                        write,
+                        () => target.ExportToJsonAsync(write.Indented),
+                        stream => target.ExportToJsonStreamAsync(stream, write.Indented),
+                        ct
+                    );
+                },
+            },
+
+            [ChartType.PhiChain] = new()
+            {
+                Type = ChartType.PhiChain,
+                FileExtension = "json",
+                ImportOptionsFactory = () => new PhiChainToKpcConvertOptions(),
+                ExportOptionsFactory = () => new KpcToPhiChainConvertOptions(),
+                Importer = async (text, options, log, ct) =>
+                {
+                    var converter = Prepare(new PhiChainConverter(), log, ct);
+                    var source = await Phichain.Chart.LoadFromJsonAsync(text);
+                    return converter.ToKpc(
+                        source,
+                        Coerce(options, () => new PhiChainToKpcConvertOptions())
+                    );
+                },
+                Exporter = async (chart, path, write, options, log, ct) =>
+                {
+                    var converter = Prepare(new PhiChainConverter(), log, ct);
+                    var target = converter.FromKpc(
+                        chart,
+                        Coerce(options, () => new KpcToPhiChainConvertOptions())
+                    );
+                    await WriteAsync(
+                        path,
+                        write,
+                        () => target.ExportToJsonAsync(write.Indented),
+                        stream => target.ExportToJsonStreamAsync(stream, write.Indented),
+                        ct
+                    );
+                },
+            },
+
+            [ChartType.PhiFans] = new() { Type = ChartType.PhiFans, FileExtension = "json" },
+            [ChartType.PhigrosV1] = new() { Type = ChartType.PhigrosV1, FileExtension = "json" },
+        }
+    );
 
     /// <summary>
     /// 获取指定格式的能力描述。
@@ -207,11 +217,13 @@ public static class ChartFormatRegistry
     /// <summary>
     /// 按写入设置选择整体写入或流式写入。
     /// </summary>
-    private static async Task WriteAsync(string path,
+    private static async Task WriteAsync(
+        string path,
         ChartWriteSettings write,
         Func<Task<string>> serializeText,
         Func<Stream, Task> serializeStream,
-        CancellationToken ct)
+        CancellationToken ct
+    )
     {
         ct.ThrowIfCancellationRequested();
         if (write.UseStream)

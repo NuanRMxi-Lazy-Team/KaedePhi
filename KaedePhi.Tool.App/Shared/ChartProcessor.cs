@@ -136,7 +136,8 @@ public static class ChartProcessor
                     progress.Report(new ToolProgress(p.Percentage, overall, p.Detail));
                 });
             line.EventLayers = processor.CutLayerEvents(line.EventLayers, precision, lineProgress);
-            if (disableCompress) continue;
+            if (disableCompress)
+                continue;
             foreach (var layer in line.EventLayers)
                 processor.LayerEventsCompress(layer, tolerance, lineProgress);
         }

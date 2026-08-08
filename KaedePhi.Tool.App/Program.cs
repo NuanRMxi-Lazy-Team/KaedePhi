@@ -6,7 +6,6 @@ using KaedePhi.Tool.App.Cli.Commands;
 using KaedePhi.Tool.App.Cli.Commands.Test;
 using KaedePhi.Tool.App.Cli.Commands.WorkSpace;
 using KaedePhi.Tool.App.Cli.Infrastructure;
-using KaedePhi.Tool.App.Shared;
 
 namespace KaedePhi.Tool.App;
 
@@ -18,7 +17,11 @@ internal static partial class Program
             return RunGui(args);
         // 若存在非 GUI 参数，无论终端状态均走 CLI，避免重定向/管道时误启动 GUI
         var effectiveArgs = args.Where(a => a is not "--cli" and not "--gui").ToArray();
-        if (args.Contains("--cli") || effectiveArgs.Length > 0 || TerminalDetector.Instance.IsInteractiveTerminal())
+        if (
+            args.Contains("--cli")
+            || effectiveArgs.Length > 0
+            || TerminalDetector.Instance.IsInteractiveTerminal()
+        )
             return await RunCli(args);
 
         return RunGui(args);
@@ -46,10 +49,7 @@ internal static partial class Program
     private static partial bool FreeConsole();
 
     private static AppBuilder BuildAvaloniaApp() =>
-        AppBuilder.Configure<App>()
-            .UsePlatformDetect()
-            .WithInterFont()
-            .LogToTrace();
+        AppBuilder.Configure<App>().UsePlatformDetect().WithInterFont().LogToTrace();
 
     private static async Task<int> RunCli(string[] args)
     {
@@ -66,11 +66,10 @@ internal static partial class Program
 
         var ver = Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "unknown";
         root.SetAction(_ =>
-            {
-                Console.WriteLine($@"{CliLocalizationString.app_title} v{ver}");
-                return 0;
-            }
-        );
+        {
+            Console.WriteLine($@"{CliLocalizationString.app_title} v{ver}");
+            return 0;
+        });
 
         root.Add(VersionCommand.Create());
 
@@ -91,13 +90,13 @@ internal static partial class Program
         root.Add(UnbindFatherCommand.Create());
         root.Add(RenderCommand.Create());
 
-        var configBranch = new Command("config", CliHelper.L("branch_config_desc"))
+        var configBranch = new Command("config", CliLocalizationString.branch_config_desc)
         {
             ConfigResetCommand.Create(),
         };
         root.Add(configBranch);
 
-        var workspaceBranch = new Command("workspace", CliHelper.L("branch_workspace_desc"))
+        var workspaceBranch = new Command("workspace", CliLocalizationString.branch_workspace_desc)
         {
             WorkspaceListCommand.Create(),
             WorkspaceClearCommand.Create(),
@@ -108,18 +107,14 @@ internal static partial class Program
 
         try
         {
-            var cliArgs = args
-                .Where(a => a is not "--cli" and not "--gui")
-                .ToArray();
+            var cliArgs = args.Where(a => a is not "--cli" and not "--gui").ToArray();
             return await root.Parse(cliArgs).InvokeAsync();
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
             if (ex is OutOfMemoryException)
             {
-                ConsoleWriter.Error(
-                    string.Format(CliLocalizationString.err_out_of_memory, ex)
-                );
+                ConsoleWriter.Error(string.Format(CliLocalizationString.err_out_of_memory, ex));
                 return 1;
             }
 

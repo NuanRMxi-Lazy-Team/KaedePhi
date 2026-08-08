@@ -93,7 +93,12 @@ public sealed class ChartService
     }
 
     /// <summary>根据输入路径或工作区自动计算输出路径。</summary>
-    public string ResolveOutputPath(string? input, string? output, string? workspace, string extension = ".json")
+    public string ResolveOutputPath(
+        string? input,
+        string? output,
+        string? workspace,
+        string extension = ".json"
+    )
     {
         if (!string.IsNullOrWhiteSpace(output))
             return output;
@@ -117,7 +122,13 @@ public sealed class ChartService
     {
         await ChartFormatRegistry
             .Get(ChartType.RePhiEdit)
-            .ExportAsync(chart, outputPath, new ChartWriteSettings { DryRun = dryRun }, exportOptions: new ConvertOption(), ct: ct);
+            .ExportAsync(
+                chart,
+                outputPath,
+                new ChartWriteSettings { DryRun = dryRun },
+                exportOptions: new ConvertOption(),
+                ct: ct
+            );
         return outputPath;
     }
 
@@ -137,7 +148,12 @@ public sealed class ChartService
         await descriptor.ExportAsync(
             chart,
             outputPath,
-            new ChartWriteSettings { UseStream = options.Stream, Indented = options.Format, DryRun = options.DryRun },
+            new ChartWriteSettings
+            {
+                UseStream = options.Stream,
+                Indented = options.Format,
+                DryRun = options.DryRun,
+            },
             options.ResolveFor(target),
             ct: ct
         );

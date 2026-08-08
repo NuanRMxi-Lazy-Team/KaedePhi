@@ -1,5 +1,3 @@
-using KaedePhi.Tool.App.Shared;
-
 namespace KaedePhi.Tool.App.Cli.Infrastructure;
 
 public static class SharedOptions
@@ -7,73 +5,73 @@ public static class SharedOptions
     public static Option<string?> CreateInputRpeOption() =>
         new("--input", "-i")
         {
-            Description = CliHelper.L("cli_opt_input_rpe_desc"),
+            Description = CliLocalizationString.cli_opt_input_rpe_desc,
             Arity = ArgumentArity.ZeroOrOne,
         };
 
     public static Option<string?> CreateInputPhieditOption() =>
         new("--input", "-i")
         {
-            Description = CliHelper.L("cli_opt_input_phiedit_desc"),
+            Description = CliLocalizationString.cli_opt_input_phiedit_desc,
             Arity = ArgumentArity.ZeroOrOne,
         };
 
     public static Option<string?> CreateOutputAutoOption() =>
         new("--output", "-o")
         {
-            Description = CliHelper.L("cli_opt_output_auto_desc"),
+            Description = CliLocalizationString.cli_opt_output_auto_desc,
             Arity = ArgumentArity.ZeroOrOne,
         };
 
     public static Option<string?> CreateOutputPathOption() =>
         new("--output", "-o")
         {
-            Description = CliHelper.L("cli_opt_output_path_desc"),
+            Description = CliLocalizationString.cli_opt_output_path_desc,
             Arity = ArgumentArity.ZeroOrOne,
         };
 
     public static Option<string?> CreateWorkspaceRpeOption() =>
         new("--workspace", "-w")
         {
-            Description = CliHelper.L("cli_opt_workspace_rpe_desc"),
+            Description = CliLocalizationString.cli_opt_workspace_rpe_desc,
             Arity = ArgumentArity.ZeroOrOne,
         };
 
     public static Option<string?> CreateWorkspaceDefaultOption() =>
         new("--workspace", "-w")
         {
-            Description = CliHelper.L("cli_opt_workspace_default_desc"),
+            Description = CliLocalizationString.cli_opt_workspace_default_desc,
             Arity = ArgumentArity.ZeroOrOne,
         };
 
     public static Option<double> PrecisionOption { get; } =
         new("--precision", "-p")
         {
-            Description = CliHelper.L("cli_opt_precision_desc"),
+            Description = CliLocalizationString.cli_opt_precision_desc,
             Arity = ArgumentArity.ExactlyOne,
         };
 
     public static Option<double> ToleranceOption { get; } =
         new("--tolerance", "-t")
         {
-            Description = CliHelper.L("cli_opt_tolerance_desc"),
+            Description = CliLocalizationString.cli_opt_tolerance_desc,
             Arity = ArgumentArity.ExactlyOne,
         };
 
     public static Option<bool> ClassicOption { get; } =
-        new("--classic") { Description = CliHelper.L("cli_opt_classic_mode_desc") };
+        new("--classic") { Description = CliLocalizationString.cli_opt_classic_mode_desc };
 
     public static Option<bool> NoCompressOption { get; } =
-        new("--no-compress") { Description = CliHelper.L("cli_opt_compress_desc") };
+        new("--no-compress") { Description = CliLocalizationString.cli_opt_compress_desc };
 
     public static Option<bool> DryRunOption { get; } =
-        new("--dry-run") { Description = CliHelper.L("cli_opt_dry_run_desc") };
+        new("--dry-run") { Description = CliLocalizationString.cli_opt_dry_run_desc };
 
     public static Option<bool> StreamOutputOption { get; } =
-        new("--stream") { Description = CliHelper.L("cli_opt_stream_output_desc") };
+        new("--stream") { Description = CliLocalizationString.cli_opt_stream_output_desc };
 
     public static Option<bool> FormatOutputOption { get; } =
-        new("--format") { Description = CliHelper.L("cli_opt_format_desc") };
+        new("--format") { Description = CliLocalizationString.cli_opt_format_desc };
 
     public static T? GetIfSpecified<T>(ParseResult result, Option<T> option)
         where T : struct

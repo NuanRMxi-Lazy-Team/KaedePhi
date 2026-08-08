@@ -177,7 +177,7 @@ namespace KaedePhi.Tool.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to 采样精度（每拍细分数，默认：64，即每次采样步进六十四分之一拍）.
+        ///   Looks up a localized string similar to 采样精度（每拍细分数，默认：64，即每次采样步进64/1拍）.
         /// </summary>
         public static string cli_opt_precision_desc {
             get {
@@ -240,6 +240,33 @@ namespace KaedePhi.Tool.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to 将谱面转换为其他格式（尚未完整实现）.
+        /// </summary>
+        public static string cmd_convert_desc {
+            get {
+                return ResourceManager.GetString("cmd_convert_desc", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 将所有事件碎尸万段为线性事件，完全破坏可编辑性.
+        /// </summary>
+        public static string cmd_cut_event_desc {
+            get {
+                return ResourceManager.GetString("cmd_cut_event_desc", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 将所有判定线的多个事件层级合并为单一层级.
+        /// </summary>
+        public static string cmd_layer_merge_desc {
+            get {
+                return ResourceManager.GetString("cmd_layer_merge_desc", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to 载入谱面文件到工作区，供后续操作使用.
         /// </summary>
         public static string cmd_load_desc {
@@ -249,47 +276,20 @@ namespace KaedePhi.Tool.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to 将 RPE 谱面转换为其他格式（尚未完整实现）.
-        /// </summary>
-        public static string cmd_rpe_convert_desc {
-            get {
-                return ResourceManager.GetString("cmd_rpe_convert_desc", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to 将所有事件碎尸万段为线性事件，完全破坏可编辑性.
-        /// </summary>
-        public static string cmd_rpe_cut_event_desc {
-            get {
-                return ResourceManager.GetString("cmd_rpe_cut_event_desc", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to 将所有判定线的多个事件层级合并为单一层级.
-        /// </summary>
-        public static string cmd_rpe_layer_merge_desc {
-            get {
-                return ResourceManager.GetString("cmd_rpe_layer_merge_desc", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to 将判定线与父级解绑（已弃置）.
-        /// </summary>
-        public static string cmd_rpe_unbind_father_desc {
-            get {
-                return ResourceManager.GetString("cmd_rpe_unbind_father_desc", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to 将工作区中的谱面保存到文件.
         /// </summary>
         public static string cmd_save_desc {
             get {
                 return ResourceManager.GetString("cmd_save_desc", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 将判定线与父级解绑.
+        /// </summary>
+        public static string cmd_unbind_father_desc {
+            get {
+                return ResourceManager.GetString("cmd_unbind_father_desc", resourceCulture);
             }
         }
         
@@ -931,15 +931,6 @@ namespace KaedePhi.Tool.Localization {
         public static string render_warn_nothing {
             get {
                 return ResourceManager.GetString("render_warn_nothing", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to RPE 转换还在化妆中，稍等一下下~.
-        /// </summary>
-        public static string warn_rpe_convert {
-            get {
-                return ResourceManager.GetString("warn_rpe_convert", resourceCulture);
             }
         }
         

@@ -33,14 +33,11 @@
     <data name="branch_rpe_desc" xml:space="preserve">
         <value>RPE Chart Operation</value>
     </data>
-    <data name="cmd_rpe_unbind_father_desc" xml:space="preserve">
-        <value>Unbind the judgment line from its parent.(Deprecated)</value>
+    <data name="cmd_unbind_father_desc" xml:space="preserve">
+        <value>Unbind the judgment line from its parent.</value>
     </data>
-    <data name="cmd_rpe_layer_merge_desc" xml:space="preserve">
+    <data name="cmd_layer_merge_desc" xml:space="preserve">
         <value>Merge multiple event layers of all judgment lines into a single layer.</value>
-    </data>
-    <data name="cmd_rpe_convert_desc" xml:space="preserve">
-        <value>Converting RPE charts to other formats (not yet fully implemented)</value>
     </data>
     <!-- ── option descriptions ───────────────────────────────────────────────── -->
     <data name="opt_input_phiedit_desc" xml:space="preserve">
@@ -113,9 +110,6 @@
         <value>See README.md for details!</value>
     </data>
     <!-- ── warnings ─────────────────────────────────────────────────────────── -->
-    <data name="warn_rpe_convert" xml:space="preserve">
-        <value>RPE conversion is still in progress, please wait a moment~</value>
-    </data>
     <!-- ── errors ────────────────────────────────────────────────────────────── -->
     <data name="err_unknown" xml:space="preserve">
         <value>Oops? I don't recognize this command!</value>
@@ -168,7 +162,4 @@
         <value>KPC Y offset per elevation step for negative alpha segments (default: 4.0)</value>
     </data>
     <!-- ── misc ──────────────────────────────────────────────────────────────── -->
-    <data name="project_link" xml:space="preserve">
-        <value>https://github.com/NuanRMxi-Lazy-Team/KaedePhi</value>
-    </data>
 </root>

@@ -44,16 +44,16 @@
     <data name="branch_rpe_desc" xml:space="preserve">
         <value>RPE 谱面操作</value>
     </data>
-    <data name="cmd_rpe_unbind_father_desc" xml:space="preserve">
-        <value>将判定线与父级解绑（已弃置）</value>
+    <data name="cmd_unbind_father_desc" xml:space="preserve">
+        <value>将判定线与父级解绑</value>
     </data>
-    <data name="cmd_rpe_layer_merge_desc" xml:space="preserve">
+    <data name="cmd_layer_merge_desc" xml:space="preserve">
         <value>将所有判定线的多个事件层级合并为单一层级</value>
     </data>
-    <data name="cmd_rpe_convert_desc" xml:space="preserve">
-        <value>将 RPE 谱面转换为其他格式（尚未完整实现）</value>
+    <data name="cmd_convert_desc" xml:space="preserve">
+        <value>将谱面转换为其他格式（尚未完整实现）</value>
     </data>
-    <data name="cmd_rpe_cut_event_desc" xml:space="preserve">
+    <data name="cmd_cut_event_desc" xml:space="preserve">
         <value>将所有事件碎尸万段为线性事件，完全破坏可编辑性</value>
     </data>
     <data name="fit_command_desc" xml:space="preserve">
@@ -108,7 +108,7 @@
         <comment>RpeOperationSettings --workspace 选项</comment>
     </data>
     <data name="cli_opt_precision_desc" xml:space="preserve">
-        <value>采样精度（每拍细分数，默认：64，即每次采样步进六十四分之一拍）</value>
+        <value>采样精度（每拍细分数，默认：64，即每次采样步进64/1拍）</value>
         <comment>RpeOperationSettings --precision 选项</comment>
     </data>
     <data name="cli_opt_tolerance_desc" xml:space="preserve">
@@ -194,9 +194,6 @@
         <value>渲染完成，共写入 {0} 张图片到 {1}</value>
     </data>
     <!-- ── warnings ─────────────────────────────────────────────────────────── -->
-    <data name="warn_rpe_convert" xml:space="preserve">
-        <value>RPE 转换还在化妆中，稍等一下下~</value>
-    </data>
     <data name="warn_unstable_version" xml:space="preserve">
         <value>您正在使用预发布版本，若发现问题，请及时反馈到 {0} ，感谢支持。</value>
     </data>

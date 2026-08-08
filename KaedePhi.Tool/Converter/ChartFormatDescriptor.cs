@@ -35,11 +35,13 @@ public sealed class ChartFormatDescriptor
     public Func<object?>? ExportOptionsFactory { get; init; }
 
     /// <summary>将该格式的谱面文本转换为 KPC 中间格式。</summary>
-    internal Func<string, object?, ChartLogSink, CancellationToken, Task<Kpc.Chart>>? Importer
-    {
-        get;
-        init;
-    }
+    internal Func<
+        string,
+        object?,
+        ChartLogSink,
+        CancellationToken,
+        Task<Kpc.Chart>
+    >? Importer { get; init; }
 
     /// <summary>将 KPC 中间格式导出为该格式并写入目标路径。</summary>
     internal Func<

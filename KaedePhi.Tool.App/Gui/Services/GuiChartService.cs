@@ -90,9 +90,10 @@ public sealed class GuiChartService
         _log.Information(log_step_detected, detectedType);
 
         var kpcChart = await Task.Run(
-            async () => await ChartFormatRegistry
-                .Get(detectedType)
-                .ImportAsync(text, importOptions, CreateLogSink(), ct),
+            async () =>
+                await ChartFormatRegistry
+                    .Get(detectedType)
+                    .ImportAsync(text, importOptions, CreateLogSink(), ct),
             ct
         );
 
