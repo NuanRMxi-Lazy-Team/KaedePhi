@@ -88,11 +88,11 @@
         <comment>{0} = config file path</comment>
     </data>
     <!-- ── messages ─────────────────────────────────────────────────────────── -->
-    <data name="msg_loaded" xml:space="preserve">
+    <data name="msg_workspace_loaded" xml:space="preserve">
         <value>Successfully loaded the chart into workspace {0}!</value>
         <comment>{0} = workspace name</comment>
     </data>
-    <data name="msg_saved" xml:space="preserve">
+    <data name="msg_workspace_saved" xml:space="preserve">
         <value>Done! Saved workspace '{0}' to '{1}'!</value>
         <comment>{0} = workspace name, {1} = output path</comment>
     </data>

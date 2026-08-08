@@ -186,7 +186,7 @@ namespace KaedePhi.Tool.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to 拟合容差百分比（默认：5）.
+        ///   Looks up a localized string similar to 拟合容差百分比（默认：5%）.
         /// </summary>
         public static string cli_opt_tolerance_desc {
             get {
@@ -240,7 +240,7 @@ namespace KaedePhi.Tool.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to 将所有事件碎尸万段为线性事件，完全破坏可编辑性.
+        ///   Looks up a localized string similar to 砍碎所有事件为线性事件.
         /// </summary>
         public static string cmd_cut_event_desc {
             get {
@@ -321,7 +321,7 @@ namespace KaedePhi.Tool.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to 目标格式（如：RePhiEdit、PhiEdit、PhigrosV3）.
+        ///   Looks up a localized string similar to 目标格式.
         /// </summary>
         public static string convert_command_opt_target {
             get {
@@ -730,18 +730,18 @@ namespace KaedePhi.Tool.Localization {
         /// <summary>
         ///   Looks up a localized string similar to 已经将文件送入 {0} 工作区啦！.
         /// </summary>
-        public static string msg_loaded {
+        public static string msg_workspace_loaded {
             get {
-                return ResourceManager.GetString("msg_loaded", resourceCulture);
+                return ResourceManager.GetString("msg_workspace_loaded", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to 做好啦！把工作区 &apos;{0}&apos; 存到 &apos;{1}&apos; 了！.
         /// </summary>
-        public static string msg_saved {
+        public static string msg_workspace_saved {
             get {
-                return ResourceManager.GetString("msg_saved", resourceCulture);
+                return ResourceManager.GetString("msg_workspace_saved", resourceCulture);
             }
         }
         

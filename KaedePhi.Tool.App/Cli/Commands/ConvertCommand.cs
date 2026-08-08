@@ -14,76 +14,76 @@ public static partial class ConvertCommand
 
     #region 共享选项
 
-    public static readonly Option<string?> InputOpt = SharedOptions.CreateInputRpeOption();
-    public static readonly Option<string?> OutputOpt = SharedOptions.CreateOutputAutoOption();
-    public static readonly Option<string?> WorkspaceOpt = SharedOptions.CreateWorkspaceRpeOption();
-    public static readonly Option<double> PrecisionOpt = SharedOptions.PrecisionOption;
-    public static readonly Option<double> ToleranceOpt = SharedOptions.ToleranceOption;
-    public static readonly Option<bool> ClassicOpt = SharedOptions.ClassicOption;
-    public static readonly Option<bool> NoCompressOpt = SharedOptions.NoCompressOption;
-    public static readonly Option<bool> DryRunOpt = SharedOptions.DryRunOption;
-    public static readonly Option<bool> StreamOpt = SharedOptions.StreamOutputOption;
-    public static readonly Option<bool> FormatOpt = SharedOptions.FormatOutputOption;
+    private static readonly Option<string?> InputOpt = SharedOptions.CreateInputRpeOption();
+    private static readonly Option<string?> OutputOpt = SharedOptions.CreateOutputAutoOption();
+    private static readonly Option<string?> WorkspaceOpt = SharedOptions.CreateWorkspaceRpeOption();
+    private static readonly Option<double> PrecisionOpt = SharedOptions.PrecisionOption;
+    private static readonly Option<double> ToleranceOpt = SharedOptions.ToleranceOption;
+    private static readonly Option<bool> ClassicOpt = SharedOptions.ClassicOption;
+    private static readonly Option<bool> NoCompressOpt = SharedOptions.NoCompressOption;
+    private static readonly Option<bool> DryRunOpt = SharedOptions.DryRunOption;
+    private static readonly Option<bool> StreamOpt = SharedOptions.StreamOutputOption;
+    private static readonly Option<bool> FormatOpt = SharedOptions.FormatOutputOption;
 
     #endregion
 
     #region 专属选项
 
-    public static readonly Option<ChartType?> TargetTypeOpt = new("--target")
+    private static readonly Option<ChartType?> TargetTypeOpt = new("--target")
     {
         Description = CliLocalizationString.convert_command_opt_target,
         Arity = ArgumentArity.ZeroOrOne,
     };
 
-    public static readonly Option<double> PeTrailingPaddingOpt = new("--pe-trailing-padding")
+    private static readonly Option<double> PeTrailingPaddingOpt = new("--pe-trailing-padding")
     {
         Description = CliLocalizationString.convert_opt_pe_trailing_padding,
         Arity = ArgumentArity.ExactlyOne,
     };
 
-    public static readonly Option<double> PeEasingPrecisionOpt = new("--pe-easing-precision")
+    private static readonly Option<double> PeEasingPrecisionOpt = new("--pe-easing-precision")
     {
         Description = CliLocalizationString.convert_opt_pe_easing_precision,
         Arity = ArgumentArity.ExactlyOne,
     };
 
-    public static readonly Option<double> PeXyPrecisionOpt = new("--pe-xy-precision")
+    private static readonly Option<double> PeXyPrecisionOpt = new("--pe-xy-precision")
     {
         Description = CliLocalizationString.convert_opt_pe_xy_precision,
         Arity = ArgumentArity.ExactlyOne,
     };
 
-    public static readonly Option<double> PeAlphaPrecisionOpt = new("--pe-alpha-precision")
+    private static readonly Option<double> PeAlphaPrecisionOpt = new("--pe-alpha-precision")
     {
         Description = CliLocalizationString.convert_opt_pe_alpha_precision,
         Arity = ArgumentArity.ExactlyOne,
     };
 
-    public static readonly Option<double> PeAlphaToleranceOpt = new("--pe-alpha-tolerance")
+    private static readonly Option<double> PeAlphaToleranceOpt = new("--pe-alpha-tolerance")
     {
         Description = CliLocalizationString.convert_opt_pe_alpha_tolerance,
         Arity = ArgumentArity.ExactlyOne,
     };
 
-    public static readonly Option<double> PeSpeedPrecisionOpt = new("--pe-speed-precision")
+    private static readonly Option<double> PeSpeedPrecisionOpt = new("--pe-speed-precision")
     {
         Description = CliLocalizationString.convert_opt_pe_speed_precision,
         Arity = ArgumentArity.ExactlyOne,
     };
 
-    public static readonly Option<double> PeSpeedToleranceOpt = new("--pe-speed-tolerance")
+    private static readonly Option<double> PeSpeedToleranceOpt = new("--pe-speed-tolerance")
     {
         Description = CliLocalizationString.convert_opt_pe_speed_tolerance,
         Arity = ArgumentArity.ExactlyOne,
     };
 
-    public static readonly Option<float> PhigrosBpmOpt = new("--phigros-bpm")
+    private static readonly Option<float> PhigrosBpmOpt = new("--phigros-bpm")
     {
         Description = CliLocalizationString.convert_opt_phigros_bpm,
         Arity = ArgumentArity.ExactlyOne,
     };
 
-    public static readonly Option<double> PhigrosEasingPrecisionOpt = new(
+    private static readonly Option<double> PhigrosEasingPrecisionOpt = new(
         "--phigros-easing-precision"
     )
     {
@@ -91,13 +91,13 @@ public static partial class ConvertCommand
         Arity = ArgumentArity.ExactlyOne,
     };
 
-    public static readonly Option<double> PhigrosXyPrecisionOpt = new("--phigros-xy-precision")
+    private static readonly Option<double> PhigrosXyPrecisionOpt = new("--phigros-xy-precision")
     {
         Description = CliLocalizationString.convert_opt_phigros_xy_precision,
         Arity = ArgumentArity.ExactlyOne,
     };
 
-    public static readonly Option<double> PhigrosAlphaPrecisionOpt = new(
+    private static readonly Option<double> PhigrosAlphaPrecisionOpt = new(
         "--phigros-alpha-precision"
     )
     {
@@ -105,7 +105,7 @@ public static partial class ConvertCommand
         Arity = ArgumentArity.ExactlyOne,
     };
 
-    public static readonly Option<double> PhigrosAlphaToleranceOpt = new(
+    private static readonly Option<double> PhigrosAlphaToleranceOpt = new(
         "--phigros-alpha-tolerance"
     )
     {
@@ -113,7 +113,7 @@ public static partial class ConvertCommand
         Arity = ArgumentArity.ExactlyOne,
     };
 
-    public static readonly Option<double> PhigrosSpeedPrecisionOpt = new(
+    private static readonly Option<double> PhigrosSpeedPrecisionOpt = new(
         "--phigros-speed-precision"
     )
     {
@@ -121,73 +121,73 @@ public static partial class ConvertCommand
         Arity = ArgumentArity.ExactlyOne,
     };
 
-    public static readonly Option<double> UnbindPrecisionOpt = new("--unbind-precision")
+    private static readonly Option<double> UnbindPrecisionOpt = new("--unbind-precision")
     {
         Description = CliLocalizationString.convert_opt_unbind_precision,
         Arity = ArgumentArity.ExactlyOne,
     };
 
-    public static readonly Option<double> UnbindToleranceOpt = new("--unbind-tolerance")
+    private static readonly Option<double> UnbindToleranceOpt = new("--unbind-tolerance")
     {
         Description = CliLocalizationString.convert_opt_unbind_tolerance,
         Arity = ArgumentArity.ExactlyOne,
     };
 
-    public static readonly Option<bool> UnbindClassicOpt = new("--unbind-classic")
+    private static readonly Option<bool> UnbindClassicOpt = new("--unbind-classic")
     {
         Description = CliLocalizationString.convert_opt_unbind_classic,
     };
 
-    public static readonly Option<double> MergePrecisionOpt = new("--merge-precision")
+    private static readonly Option<double> MergePrecisionOpt = new("--merge-precision")
     {
         Description = CliLocalizationString.convert_opt_merge_precision,
         Arity = ArgumentArity.ExactlyOne,
     };
 
-    public static readonly Option<double> MergeToleranceOpt = new("--merge-tolerance")
+    private static readonly Option<double> MergeToleranceOpt = new("--merge-tolerance")
     {
         Description = CliLocalizationString.convert_opt_merge_tolerance,
         Arity = ArgumentArity.ExactlyOne,
     };
 
-    public static readonly Option<bool> MergeClassicOpt = new("--merge-classic")
+    private static readonly Option<bool> MergeClassicOpt = new("--merge-classic")
     {
         Description = CliLocalizationString.convert_opt_merge_classic,
     };
 
-    public static readonly Option<bool> NoUnbindCompressOpt = new("--no-unbind-compress")
+    private static readonly Option<bool> NoUnbindCompressOpt = new("--no-unbind-compress")
     {
         Description = CliLocalizationString.convert_opt_no_unbind_compress,
     };
 
-    public static readonly Option<bool> NoMergeCompressOpt = new("--no-merge-compress")
+    private static readonly Option<bool> NoMergeCompressOpt = new("--no-merge-compress")
     {
         Description = CliLocalizationString.convert_opt_no_merge_compress,
     };
 
-    public static readonly Option<bool> RemoveAttachUiOpt = new("--remove-attach-ui")
+    private static readonly Option<bool> RemoveAttachUiOpt = new("--remove-attach-ui")
     {
         Description = CliLocalizationString.convert_opt_remove_attach_ui,
     };
 
-    public static readonly Option<bool> RemoveTextureOpt = new("--remove-texture")
+    private static readonly Option<bool> RemoveTextureOpt = new("--remove-texture")
     {
         Description = CliLocalizationString.convert_opt_remove_texture,
     };
 
-    public static readonly Option<bool> FilterFakeNotesOpt = new("--filter-fake-notes")
+    private static readonly Option<bool> FilterFakeNotesOpt = new("--filter-fake-notes")
     {
         Description = CliLocalizationString.convert_opt_filter_fake_notes,
     };
 
-    public static readonly Option<bool> NegativeAlphaElevationOpt = new(
+    private static readonly Option<bool> NegativeAlphaElevationOpt = new(
         "--negative-alpha-elevation"
     )
     {
         Description = CliLocalizationString.convert_opt_negative_alpha_elevation,
     };
 
-    public static readonly Option<double> NegativeAlphaStepOpt = new("--negative-alpha-step")
+    private static readonly Option<double> NegativeAlphaStepOpt = new("--negative-alpha-step")
     {
         Description = CliLocalizationString.convert_opt_negative_alpha_step,
         Arity = ArgumentArity.ExactlyOne,

@@ -87,10 +87,10 @@
         <value>使輸出格式化</value>
     </data>
     <!-- ── messages ─────────────────────────────────────────────────────────── -->
-    <data name="msg_loaded" xml:space="preserve">
+    <data name="msg_workspace_loaded" xml:space="preserve">
         <value>已將檔案載入 {0} 工作區！</value>
     </data>
-    <data name="msg_saved" xml:space="preserve">
+    <data name="msg_workspace_saved" xml:space="preserve">
         <value>完成！已將工作區「{0}」儲存至「{1}」！</value>
     </data>
     <data name="msg_cleared" xml:space="preserve">

@@ -34,8 +34,6 @@ internal static partial class Program
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             FreeConsole();
 #endif
-
-        var exitCode = 0;
         var guiThread = new Thread(() =>
         {
             BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
@@ -44,7 +42,7 @@ internal static partial class Program
             guiThread.SetApartmentState(ApartmentState.STA);
         guiThread.Start();
         guiThread.Join();
-        return exitCode;
+        return 0;
     }
 
     [LibraryImport("kernel32.dll")]

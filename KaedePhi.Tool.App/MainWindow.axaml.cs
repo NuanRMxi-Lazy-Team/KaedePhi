@@ -1,4 +1,5 @@
 using System.Reflection;
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Media;
 
@@ -10,6 +11,7 @@ public partial class MainWindow : Window
     {
         InitializeComponent();
 #if !Release
+        // 版本号使用主题化前景色：暗色主题黄色、明亮主题深橙，保证两种主题下均可读
         var ver =
             Assembly
                 .GetExecutingAssembly()
@@ -17,7 +19,12 @@ public partial class MainWindow : Window
                 ?.InformationalVersion
             ?? "unknown";
         VersionLabel.Text = $"v{ver}";
-        VersionLabel.Foreground = new SolidColorBrush(Colors.Yellow);
+        if (
+            Application.Current != null
+            && Application.Current.TryGetResource("VersionLabelForeground", out var value)
+            && value is IBrush brush
+        )
+            VersionLabel.Foreground = brush;
         VersionLabel.Opacity = 0.85;
 #else
         var version = Assembly.GetExecutingAssembly().GetName().Version;

@@ -12,7 +12,7 @@ namespace KaedePhi.Tool.App.Gui.Services;
 public sealed class LogService : IDisposable
 {
     private readonly int _maxLogFiles;
-    private Logger? _rootLogger;
+    private Logger? _logger;
 
     public LogService(int maxLogFiles = 5)
     {
@@ -33,14 +33,14 @@ public sealed class LogService : IDisposable
     /// 若在会话启动前调用，返回 <see cref="Serilog.Core.Logger.None"/>（静默丢弃所有日志）。
     /// </para>
     /// </summary>
-    public ILogger ForContext<T>() => _rootLogger?.ForContext<T>() ?? Logger.None;
+    public ILogger ForContext<T>() => _logger?.ForContext<T>() ?? Logger.None;
 
     /// <summary>
     /// 启动一个新的日志会话：创建带时间戳的日志文件，配置全局 <see cref="Log.Logger"/>。
     /// </summary>
     public void StartSession()
     {
-        _rootLogger?.Dispose();
+        _logger?.Dispose();
 
         var fileName = $"session_{DateTime.Now:yyyyMMdd_HHmmss}.log";
         CurrentLogFile = Path.Combine(LogDirectory, fileName);
@@ -60,10 +60,10 @@ public sealed class LogService : IDisposable
         );
 #endif
 
-        _rootLogger = loggerConfiguration.CreateLogger();
+        _logger = loggerConfiguration.CreateLogger();
 
         // 将全局静态 Logger 指向同一实例，供 ForContext<T>() 使用
-        Log.Logger = _rootLogger;
+        Log.Logger = _logger;
 
         Log.ForContext<LogService>().Information("=== KaedePhi GUI Session Started ===");
 
@@ -73,8 +73,8 @@ public sealed class LogService : IDisposable
     /// <summary>刷新缓冲并释放文件句柄</summary>
     public void Dispose()
     {
-        _rootLogger?.Dispose();
-        _rootLogger = null;
+        _logger?.Dispose();
+        _logger = null;
     }
 
     private void CleanupOldLogs()
@@ -89,9 +89,10 @@ public sealed class LogService : IDisposable
             for (var i = _maxLogFiles; i < files.Count; i++)
                 files[i].Delete();
         }
-        catch
+        catch(Exception ex) when (ex is not OperationCanceledException)
         {
             // 清理失败不应导致应用程序崩溃
+            Log.ForContext<LogService>().Warning(ex, "清理日志文件失败。");
         }
     }
 }

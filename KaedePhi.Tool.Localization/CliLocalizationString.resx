@@ -51,7 +51,7 @@
         <value>将谱面转换为其他格式（尚未完整实现）</value>
     </data>
     <data name="cmd_cut_event_desc" xml:space="preserve">
-        <value>将所有事件碎尸万段为线性事件，完全破坏可编辑性</value>
+        <value>砍碎所有事件为线性事件</value>
     </data>
     <data name="fit_command_desc" xml:space="preserve">
         <value>拟合谱面中线性事件</value>
@@ -70,7 +70,7 @@
         <comment>{0} = 配置文件路径</comment>
     </data>
     <data name="convert_command_opt_target" xml:space="preserve">
-        <value>目标格式（如：RePhiEdit、PhiEdit、PhigrosV3）</value>
+        <value>目标格式</value>
     </data>
     <data name="render_command_desc" xml:space="preserve">
         <value>将谱面各通道事件渲染为 PNG 图片</value>
@@ -109,7 +109,7 @@
         <comment>RpeOperationSettings --precision 选项</comment>
     </data>
     <data name="cli_opt_tolerance_desc" xml:space="preserve">
-        <value>拟合容差百分比（默认：5）</value>
+        <value>拟合容差百分比（默认：5%）</value>
         <comment>RpeOperationSettings --tolerance 选项</comment>
     </data>
     <data name="cli_opt_dry_run_desc" xml:space="preserve">
@@ -166,11 +166,11 @@
         <value>通道值域最小半宽比例（默认：0.05）</value>
     </data>
     <!-- ── messages ─────────────────────────────────────────────────────────── -->
-    <data name="msg_loaded" xml:space="preserve">
+    <data name="msg_workspace_loaded" xml:space="preserve">
         <value>已经将文件送入 {0} 工作区啦！</value>
         <comment>{0} = 工作区名</comment>
     </data>
-    <data name="msg_saved" xml:space="preserve">
+    <data name="msg_workspace_saved" xml:space="preserve">
         <value>做好啦！把工作区 '{0}' 存到 '{1}' 了！</value>
         <comment>{0} = 工作区名, {1} = 输出路径</comment>
     </data>

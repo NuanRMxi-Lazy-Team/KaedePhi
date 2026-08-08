@@ -12,7 +12,7 @@ namespace KaedePhi.Tool.App;
 public sealed partial class WindowsTerminalDetector : ITerminalDetector
 {
     [LibraryImport("kernel32.dll", SetLastError = true)]
-    private static partial int GetConsoleProcessList(uint[] processList, uint processCount);
+    private static partial int GetConsoleProcessList([In, Out] uint[] processList, uint processCount);
 
     public bool IsInteractiveTerminal()
     {

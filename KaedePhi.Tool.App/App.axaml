@@ -17,6 +17,19 @@
         </Style>
     </Application.Styles>
 
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.ThemeDictionaries>
+                <ResourceDictionary x:Key="Light">
+                    <SolidColorBrush x:Key="VersionLabelForeground" Color="#B34700"/>
+                </ResourceDictionary>
+                <ResourceDictionary x:Key="Dark">
+                    <SolidColorBrush x:Key="VersionLabelForeground" Color="Yellow"/>
+                </ResourceDictionary>
+            </ResourceDictionary.ThemeDictionaries>
+        </ResourceDictionary>
+    </Application.Resources>
+
     <Application.DataTemplates>
         <DataTemplate DataType="vm:ImportViewModel">
             <views:ImportPage/>

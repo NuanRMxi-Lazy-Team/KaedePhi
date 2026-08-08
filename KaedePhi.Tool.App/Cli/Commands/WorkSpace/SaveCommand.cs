@@ -31,7 +31,7 @@ public static partial class SaveCommand
 
         var ws = new WorkspaceService();
         await ws.SaveAsync(workspaceId, output);
-        ConsoleWriter.Info(string.Format(CliLocalizationString.msg_saved, workspaceId, output));
+        ConsoleWriter.Info(string.Format(CliLocalizationString.msg_workspace_saved, workspaceId, output));
         return 0;
     }
 }
