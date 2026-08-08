@@ -59,7 +59,7 @@ public class KpcChartRenderExporter : LoggableBase, IChartRenderExporter<Chart, 
 
                 LogInfo($"渲染 [{li}]{safeName} 第 {ei} 层...");
 
-                using var bitmap = KpcEventChannelRenderer.RenderEventLayer(eventLayer, opts);
+                using var bitmap = KpcEventLayerRenderer.RenderEventLayer(eventLayer, opts);
                 var filename = $"{safeName}_L{li}_layer{ei}.png";
                 var filePath = Path.Combine(outputDir, filename);
 

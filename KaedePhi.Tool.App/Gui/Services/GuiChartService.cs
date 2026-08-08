@@ -61,12 +61,10 @@ public sealed class GuiChartService
     /// <summary>
     /// 从文件加载图表并转换为 KPC 格式存储在内存中
     /// </summary>
-    public async Task<(Chart Chart, ChartType DetectedType)> LoadChartAsync(
-        string filePath,
+    public async Task LoadChartAsync(string filePath,
         bool stream,
         CancellationToken ct,
-        object? importOptions = null
-    )
+        object? importOptions = null)
     {
         _log.Information(log_file_selected, filePath, stream);
 
@@ -95,8 +93,6 @@ public sealed class GuiChartService
         CurrentChart = kpcChart;
         SourceFormat = detectedType;
         SourceFilePath = filePath;
-
-        return (kpcChart, detectedType);
     }
 
     /// <summary>
