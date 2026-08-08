@@ -113,25 +113,18 @@ public static class JudgeLineBuilder
     {
         var notes = new List<Kpc.Note>();
 
-        foreach (var track in src.CurveNoteTracks)
-        {
-            // 验证索引范围
-            if (
-                track.From < 0
-                || track.From >= src.Notes.Count
-                || track.To < 0
-                || track.To >= src.Notes.Count
-            )
-            {
-                continue;
-            }
-
-            var fromNote = src.Notes[track.From];
-            var toNote = src.Notes[track.To];
-            var expanded = NoteBuilder.ExpandCurveNoteTrack(track, fromNote, toNote);
+        foreach (
+            var expanded in from track in src.CurveNoteTracks
+            where
+                track.From >= 0
+                && track.From < src.Notes.Count
+                && track.To >= 0
+                && track.To < src.Notes.Count
+            let fromNote = src.Notes[track.From]
+            let toNote = src.Notes[track.To]
+            select NoteBuilder.ExpandCurveNoteTrack(track, fromNote, toNote)
+        )
             notes.AddRange(expanded);
-        }
-
         return notes;
     }
 
@@ -158,12 +151,11 @@ public static class JudgeLineBuilder
         for (var i = 0; i < processedLines.Count; i++)
         {
             var father = processedLines[i].Father;
-            if (father >= 0)
-            {
-                if (!childMap.ContainsKey(father))
-                    childMap[father] = [];
-                childMap[father].Add(i);
-            }
+            if (father < 0)
+                continue;
+            if (!childMap.ContainsKey(father))
+                childMap[father] = [];
+            childMap[father].Add(i);
         }
 
         // 从根节点开始构建树
@@ -239,7 +231,7 @@ public static class JudgeLineBuilder
     )
     {
         var kpcLine = kpcLines[lineIndex];
-        var serializedLine = ConvertLineToPhichain(kpcLine, options, warn);
+        var serializedLine = ConvertLineToPhiChain(kpcLine, options, warn);
 
         // 递归处理子线
         if (childMap.TryGetValue(lineIndex, out var children))
@@ -262,7 +254,7 @@ public static class JudgeLineBuilder
     /// <param name="options">转换选项</param>
     /// <param name="warn">警告回调</param>
     /// <returns>PhiChain 序列化线</returns>
-    private static SerializedLine ConvertLineToPhichain(
+    private static SerializedLine ConvertLineToPhiChain(
         Kpc.JudgeLine src,
         KpcToPhiChainConvertOptions options,
         Action<string>? warn = null
@@ -333,7 +325,10 @@ public static class JudgeLineBuilder
         var defaults = new Kpc.JudgeLine();
         if (src.Texture != defaults.Texture)
             warn($"PhiChain 不支持 JudgeLine.Texture（值='{src.Texture}'）");
-        if (src.Anchor[0] != defaults.Anchor[0] || src.Anchor[1] != defaults.Anchor[1])
+        if (
+            Math.Abs(src.Anchor[0] - defaults.Anchor[0]) > Common.Constants.FloatEpsilon
+            || Math.Abs(src.Anchor[1] - defaults.Anchor[1]) > Common.Constants.FloatEpsilon
+        )
             warn($"PhiChain 不支持 JudgeLine.Anchor（值=[{src.Anchor[0]}, {src.Anchor[1]}]）");
         if (!src.IsCover)
             warn($"PhiChain 不支持 JudgeLine.IsCover（值=false）");
@@ -342,8 +337,8 @@ public static class JudgeLineBuilder
         if (src.AttachUi != defaults.AttachUi)
             warn($"PhiChain 不支持 JudgeLine.AttachUi（值='{src.AttachUi}'）");
         if (src.IsGif)
-            warn($"PhiChain 不支持 JudgeLine.IsGif（值=true）");
-        if (Math.Abs(src.BpmFactor - defaults.BpmFactor) > 0.0001f)
+            warn("PhiChain 不支持 JudgeLine.IsGif（值=True）");
+        if (Math.Abs(src.BpmFactor - defaults.BpmFactor) > Common.Constants.FloatEpsilon)
             warn($"PhiChain 不支持 JudgeLine.BpmFactor（值={src.BpmFactor}）");
     }
 }

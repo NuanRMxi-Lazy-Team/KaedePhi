@@ -8,22 +8,16 @@ namespace KaedePhi.Tool.App.Gui.ViewModels;
 public sealed class ExportViewModel : INotifyPropertyChanged
 {
     private ChartType _selectedFormat;
-    private ChartType _sourceFormat;
-
-    /// <summary>
-    /// 判断源格式与目标格式是否不同
-    /// </summary>
-    private bool IsFormatChanged => _sourceFormat != _selectedFormat;
 
     public List<ChartType> AvailableFormats { get; } =
-        new() { ChartType.RePhiEdit, ChartType.PhiEdit, ChartType.PhigrosV3, ChartType.PhiChain };
+    [ChartType.RePhiEdit, ChartType.PhiEdit, ChartType.PhigrosV3, ChartType.PhiChain];
 
     public ChartType SourceFormat
     {
-        get => _sourceFormat;
+        get;
         set
         {
-            _sourceFormat = value;
+            field = value;
             OnPropertyChanged();
             OnPropertyChanged(nameof(ShowConversionOptions));
             OnPropertyChanged(nameof(ShowPeOptions));

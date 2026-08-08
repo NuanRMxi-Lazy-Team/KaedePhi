@@ -89,7 +89,7 @@ public sealed class LogService : IDisposable
             for (var i = _maxLogFiles; i < files.Count; i++)
                 files[i].Delete();
         }
-        catch(Exception ex) when (ex is not OperationCanceledException)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             // 清理失败不应导致应用程序崩溃
             Log.ForContext<LogService>().Warning(ex, "清理日志文件失败。");

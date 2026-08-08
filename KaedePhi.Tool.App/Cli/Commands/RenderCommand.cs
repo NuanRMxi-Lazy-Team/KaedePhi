@@ -10,71 +10,71 @@ public static partial class RenderCommand
 {
     private static string Description => CliLocalizationString.render_command_desc;
 
-    public static readonly Option<string?> InputOpt = SharedOptions.CreateInputRpeOption();
-    public static readonly Option<string?> OutputOpt = SharedOptions.CreateOutputAutoOption();
-    public static readonly Option<string?> WorkspaceOpt = SharedOptions.CreateWorkspaceRpeOption();
+    private static readonly Option<string?> InputOpt = SharedOptions.CreateInputRpeOption();
+    private static readonly Option<string?> OutputOpt = SharedOptions.CreateOutputAutoOption();
+    private static readonly Option<string?> WorkspaceOpt = SharedOptions.CreateWorkspaceRpeOption();
 
-    public static readonly Option<float> PixelsPerBeatOpt = new("--pixels-per-beat", "-r")
+    private static readonly Option<float> PixelsPerBeatOpt = new("--pixels-per-beat", "-r")
     {
         Description = CliLocalizationString.render_opt_pixels_per_beat,
         Arity = ArgumentArity.ZeroOrOne,
     };
 
-    public static readonly Option<int> ChannelWidthOpt = new("--channel-width")
+    private static readonly Option<int> ChannelWidthOpt = new("--channel-width")
     {
         Description = CliLocalizationString.render_opt_channel_width,
         Arity = ArgumentArity.ZeroOrOne,
     };
 
-    public static readonly Option<int> SamplesPerEventOpt = new("--samples")
+    private static readonly Option<int> SamplesPerEventOpt = new("--samples")
     {
         Description = CliLocalizationString.render_opt_samples,
         Arity = ArgumentArity.ZeroOrOne,
     };
 
-    public static readonly Option<int> BeatSubdivisionsOpt = new("--beat-subdivisions", "-b")
+    private static readonly Option<int> BeatSubdivisionsOpt = new("--beat-subdivisions", "-b")
     {
         Description = CliLocalizationString.render_opt_beat_subdivisions,
         Arity = ArgumentArity.ZeroOrOne,
     };
 
-    public static readonly Option<int> LineIndexOpt = new("--line")
+    private static readonly Option<int> LineIndexOpt = new("--line")
     {
         Description = CliLocalizationString.render_opt_line,
         Arity = ArgumentArity.ZeroOrOne,
     };
 
-    public static readonly Option<int> LayerIndexOpt = new("--layer")
+    private static readonly Option<int> LayerIndexOpt = new("--layer")
     {
         Description = CliLocalizationString.render_opt_layer,
         Arity = ArgumentArity.ZeroOrOne,
     };
 
-    public static readonly Option<double> RangePaddingRatioOpt = new("--range-padding-ratio")
+    private static readonly Option<double> RangePaddingRatioOpt = new("--range-padding-ratio")
     {
         Description = CliLocalizationString.render_opt_range_padding_ratio,
         Arity = ArgumentArity.ZeroOrOne,
     };
 
-    public static readonly Option<int> RangeSamplesOpt = new("--range-samples")
+    private static readonly Option<int> RangeSamplesOpt = new("--range-samples")
     {
         Description = CliLocalizationString.render_opt_range_samples,
         Arity = ArgumentArity.ZeroOrOne,
     };
 
-    public static readonly Option<double> SegmentToleranceOpt = new("--segment-tolerance")
+    private static readonly Option<double> SegmentToleranceOpt = new("--segment-tolerance")
     {
         Description = CliLocalizationString.render_opt_segment_tolerance,
         Arity = ArgumentArity.ZeroOrOne,
     };
 
-    public static readonly Option<double> MinRangeHalfOpt = new("--min-range-half")
+    private static readonly Option<double> MinRangeHalfOpt = new("--min-range-half")
     {
         Description = CliLocalizationString.render_opt_min_range_half,
         Arity = ArgumentArity.ZeroOrOne,
     };
 
-    public static readonly Option<double> MinRangeHalfRatioOpt = new("--min-range-half-ratio")
+    private static readonly Option<double> MinRangeHalfRatioOpt = new("--min-range-half-ratio")
     {
         Description = CliLocalizationString.render_opt_min_range_half_ratio,
         Arity = ArgumentArity.ZeroOrOne,
@@ -115,7 +115,7 @@ public static partial class RenderCommand
         var opts = new KpcRenderOptions
         {
             PixelsPerBeat =
-                SharedOptions.GetIfSpecified(result, PixelsPerBeatOpt) ?? (float)c.PixelsPerBeat,
+                SharedOptions.GetIfSpecified(result, PixelsPerBeatOpt) ?? c.PixelsPerBeat,
             ChannelWidth = SharedOptions.GetIfSpecified(result, ChannelWidthOpt) ?? c.ChannelWidth,
             SamplesPerEvent =
                 SharedOptions.GetIfSpecified(result, SamplesPerEventOpt) ?? c.SamplesPerEvent,

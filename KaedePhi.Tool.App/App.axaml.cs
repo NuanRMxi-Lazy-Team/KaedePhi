@@ -10,12 +10,12 @@ using static KaedePhi.Tool.Localization.GuiLocalizationString;
 
 namespace KaedePhi.Tool.App;
 
-public partial class App : Application
+public class App : Application
 {
-    internal static AppConfigService ConfigService { get; } = AppConfigService.Instance;
-    internal static LogService LogService { get; } = new(ConfigService.Config.MaxLogFiles);
+    private static AppConfigService ConfigService { get; } = AppConfigService.Instance;
+    private static LogService LogService { get; } = new(ConfigService.Config.MaxLogFiles);
 
-    internal static GuiChartService ChartService { get; private set; } = null!;
+    private static GuiChartService ChartService { get; set; } = null!;
 
     public override void Initialize()
     {

@@ -18,7 +18,7 @@ public static partial class VersionCommand
             .GetCustomAttribute<AssemblyInformationalVersionAttribute>()
             ?.InformationalVersion;
 #endif
-        Console.WriteLine($"{CliLocalizationString.app_title} v{ver}");
+        Console.WriteLine($@"{CliLocalizationString.app_title} v{ver}");
         return 0;
     }
 }

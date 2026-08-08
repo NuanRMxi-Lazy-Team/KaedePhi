@@ -441,46 +441,45 @@ internal sealed class AppController
             if (file != null)
             {
                 var outputPath = file.TryGetLocalPath();
-                if (!string.IsNullOrEmpty(outputPath))
-                {
-                    // 用户已选择文件，此时再显示导出动画
-                    _exportVm.IsExporting = true;
-                    _exportVm.StatusText = status_exporting;
-                    _cts = new CancellationTokenSource();
+                if (string.IsNullOrEmpty(outputPath))
+                    return;
+                // 用户已选择文件，此时再显示导出动画
+                _exportVm.IsExporting = true;
+                _exportVm.StatusText = status_exporting;
+                _cts = new CancellationTokenSource();
 
-                    // 若 OS 未自动附加扩展名，则手动补全
-                    var expectedExt = $".{ext}";
-                    if (!outputPath.EndsWith(expectedExt, StringComparison.OrdinalIgnoreCase))
-                        outputPath += expectedExt;
+                // 若 OS 未自动附加扩展名，则手动补全
+                var expectedExt = $".{ext}";
+                if (!outputPath.EndsWith(expectedExt, StringComparison.OrdinalIgnoreCase))
+                    outputPath += expectedExt;
 
-                    // 在后台线程执行耗时的导出操作，避免阻塞 UI
-                    var exportOptions = BuildExportOptions(targetFormat);
-                    var useStream = _exportVm.UseStream;
-                    var indented = _exportVm.IndentedOutput;
+                // 在后台线程执行耗时的导出操作，避免阻塞 UI
+                var exportOptions = BuildExportOptions(targetFormat);
+                var useStream = _exportVm.UseStream;
+                var indented = _exportVm.IndentedOutput;
 
-                    await Task.Run(
-                        async () =>
-                        {
-                            await _chart.ExportChartAsync(
-                                targetFormat,
-                                outputPath,
-                                useStream,
-                                indented,
-                                exportOptions,
-                                _cts.Token
-                            );
-                        },
-                        _cts.Token
-                    );
+                await Task.Run(
+                    async () =>
+                    {
+                        await _chart.ExportChartAsync(
+                            targetFormat,
+                            outputPath,
+                            useStream,
+                            indented,
+                            exportOptions,
+                            _cts.Token
+                        );
+                    },
+                    _cts.Token
+                );
 
-                    _exportVm.StatusText = string.Format(status_exported_to, outputPath);
-                    _log.Information(log_export_done);
-                    MessageDialog.ShowSuccess(
-                        _window,
-                        export_success_title,
-                        string.Format(status_exported_to, outputPath)
-                    );
-                }
+                _exportVm.StatusText = string.Format(status_exported_to, outputPath);
+                _log.Information(log_export_done);
+                MessageDialog.ShowSuccess(
+                    _window,
+                    export_success_title,
+                    string.Format(status_exported_to, outputPath)
+                );
             }
             else
             {
@@ -513,15 +512,14 @@ internal sealed class AppController
 
     private void OnCancelExport()
     {
-        if (_cts is { IsCancellationRequested: false })
-        {
-            _cts.Cancel();
-            _exportVm.StatusText = status_export_cancelled;
-            _log.Information(log_export_cancelled);
-        }
+        if (_cts is not { IsCancellationRequested: false })
+            return;
+        _cts.Cancel();
+        _exportVm.StatusText = status_export_cancelled;
+        _log.Information(log_export_cancelled);
     }
 
-    private static KpcToPhigrosV3ConvertOptions BuildPhigrosOptions(ExportViewModel vm)
+    private static KpcToPhigrosV3ConvertOptions BuildPhigrosV3Options(ExportViewModel vm)
     {
         return new KpcToPhigrosV3ConvertOptions
         {
@@ -649,7 +647,7 @@ internal sealed class AppController
         return targetFormat switch
         {
             ChartType.PhiEdit => BuildPhiEditOptions(_exportVm),
-            ChartType.PhigrosV3 => BuildPhigrosOptions(_exportVm),
+            ChartType.PhigrosV3 => BuildPhigrosV3Options(_exportVm),
             ChartType.PhiChain => BuildPhiChainOptions(_exportVm),
             ChartType.RePhiEdit => BuildRePhiEditOptions(_exportVm),
             _ => null,

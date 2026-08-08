@@ -1,5 +1,4 @@
 using KaedePhi.Tool.App.Cli.Infrastructure;
-
 #if Debug
 using KaedePhi.Core.PhiEdit;
 #endif
@@ -16,14 +15,11 @@ public static class OnlyStreamLoadCommand
 
     public static Command Create()
     {
-        var cmd = new Command("pestream", "PE stream test")
-        {
-            Hidden = true
-        };
+        var cmd = new Command("pestream", "PE stream test") { Hidden = true };
         cmd.Add(InputOpt);
 
         cmd.SetAction(
-            async (result, ct) =>
+            async (result, _) =>
             {
 #if Debug
                 var input = result.GetValue(InputOpt);

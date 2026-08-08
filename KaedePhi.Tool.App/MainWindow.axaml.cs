@@ -1,13 +1,11 @@
 using System.Reflection;
-using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Media;
 
 namespace KaedePhi.Tool.App;
 
 public partial class MainWindow : Window
 {
-public MainWindow()
+    public MainWindow()
     {
         InitializeComponent();
 #if !Release

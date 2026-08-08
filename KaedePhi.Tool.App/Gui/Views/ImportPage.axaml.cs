@@ -82,10 +82,7 @@ public partial class ImportPage : UserControl
             .FirstOrDefault(p => !string.IsNullOrEmpty(p));
 
         if (!string.IsNullOrEmpty(path))
-        {
             vm.OnFileSelected(path);
-            return;
-        }
     }
 
     private async void OnImportClick(object? sender, RoutedEventArgs e)

@@ -5,11 +5,11 @@ using Newtonsoft.Json;
 
 namespace KaedePhi.Core.RePhiEdit.JsonConverter
 {
-    public class ColorEventsConverter : JsonConverter<List<RePhiEdit.Events.Event<byte[]>>>
+    public class ColorEventsConverter : JsonConverter<List<Events.Event<byte[]>>>
     {
         public override void WriteJson(
             JsonWriter writer,
-            List<RePhiEdit.Events.Event<byte[]>>? value,
+            List<Events.Event<byte[]>>? value,
             JsonSerializer serializer
         )
         {
@@ -60,20 +60,20 @@ namespace KaedePhi.Core.RePhiEdit.JsonConverter
             writer.WriteEndArray();
         }
 
-        public override List<RePhiEdit.Events.Event<byte[]>> ReadJson(
+        public override List<Events.Event<byte[]>> ReadJson(
             JsonReader reader,
             Type objectType,
-            List<RePhiEdit.Events.Event<byte[]>>? existingValue,
+            List<Events.Event<byte[]>>? existingValue,
             bool hasExistingValue,
             JsonSerializer serializer
         )
         {
-            var result = new List<RePhiEdit.Events.Event<byte[]>>();
+            var result = new List<Events.Event<byte[]>>();
             var token = Newtonsoft.Json.Linq.JToken.Load(reader);
 
             foreach (var item in token)
             {
-                var evt = new RePhiEdit.Events.Event<byte[]>
+                var evt = new Events.Event<byte[]>
                 {
                     StartBeat = new Beat(
                         item["startTime"]?.ToObject<int[]>()
