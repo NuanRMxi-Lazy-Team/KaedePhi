@@ -762,6 +762,42 @@ namespace KaedePhi.Tool.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to 图片输出文件夹（默认为谱面同级目录下的 RenderLayer）.
+        /// </summary>
+        public static string option_render_output_dir {
+            get {
+                return ResourceManager.GetString("option_render_output_dir", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 输出文件夹路径（不存在时自动创建）.
+        /// </summary>
+        public static string option_render_output_dir_hint {
+            get {
+                return ResourceManager.GetString("option_render_output_dir_hint", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 浏览.
+        /// </summary>
+        public static string btn_browse {
+            get {
+                return ResourceManager.GetString("btn_browse", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 选择渲染输出文件夹.
+        /// </summary>
+        public static string render_output_dir_picker_title {
+            get {
+                return ResourceManager.GetString("render_output_dir_picker_title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to 通道宽度.
         /// </summary>
         public static string option_channel_width {

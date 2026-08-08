@@ -236,6 +236,7 @@ public sealed class GuiChartService
 
     public IReadOnlyList<string> RunRender(
         Chart chart,
+        string outputDir,
         int pixelsPerBeat,
         int channelWidth,
         int samples,
@@ -244,10 +245,13 @@ public sealed class GuiChartService
     )
     {
         _log.Information(log_running_tool, tool_render_name);
-        var outputDir = Path.Combine(
-            Path.GetTempPath(),
-            "kaedephi_render_" + Guid.NewGuid().ToString("N")[..8]
-        );
+
+        // 输出目录为空时回退到导入谱面同级目录的 RenderLayer 文件夹
+        if (string.IsNullOrWhiteSpace(outputDir))
+        {
+            outputDir = Path.Combine(Path.GetDirectoryName(SourceFilePath) ?? ".", "RenderLayer");
+        }
+
         Directory.CreateDirectory(outputDir);
         var options = new KpcRenderOptions
         {

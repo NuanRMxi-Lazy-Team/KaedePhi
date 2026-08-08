@@ -143,6 +143,16 @@
                                                    Increment="1" FormatString="F0" Width="140"/>
                                 </StackPanel>
                             </StackPanel>
+                            <StackPanel Spacing="4">
+                                <TextBlock Text="{x:Static loc:GuiLocalizationString.option_render_output_dir}" FontSize="12" Opacity="0.7"/>
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <TextBox Grid.Column="0" Text="{Binding RenderOutputDir}"
+                                             PlaceholderText="{x:Static loc:GuiLocalizationString.option_render_output_dir_hint}"/>
+                                    <Button Grid.Column="1" Margin="8,0,0,0" Padding="12,6"
+                                            Content="{x:Static loc:GuiLocalizationString.btn_browse}"
+                                            Click="OnBrowseOutputDirClick"/>
+                                </Grid>
+                            </StackPanel>
                         </StackPanel>
 
                         <!-- 拟合选项 -->

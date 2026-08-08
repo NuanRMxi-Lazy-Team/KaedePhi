@@ -106,6 +106,18 @@
   <data name="option_beat_subdivisions" xml:space="preserve">
     <value>Beat Subdivisions</value>
   </data>
+  <data name="option_render_output_dir" xml:space="preserve">
+    <value>Image output folder (defaults to a RenderLayer folder next to the chart)</value>
+  </data>
+  <data name="option_render_output_dir_hint" xml:space="preserve">
+    <value>Output folder path (created automatically if missing)</value>
+  </data>
+  <data name="btn_browse" xml:space="preserve">
+    <value>Browse</value>
+  </data>
+  <data name="render_output_dir_picker_title" xml:space="preserve">
+    <value>Choose output folder for rendering</value>
+  </data>
   <data name="btn_run_tool" xml:space="preserve">
     <value>Run Tool</value>
   </data>

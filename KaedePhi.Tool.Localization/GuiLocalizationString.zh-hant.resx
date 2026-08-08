@@ -106,6 +106,18 @@
   <data name="option_beat_subdivisions" xml:space="preserve">
     <value>拍細分數</value>
   </data>
+  <data name="option_render_output_dir" xml:space="preserve">
+    <value>圖片輸出資料夾（預設為譜面同層目錄下的 RenderLayer）</value>
+  </data>
+  <data name="option_render_output_dir_hint" xml:space="preserve">
+    <value>輸出資料夾路徑（不存在時自動建立）</value>
+  </data>
+  <data name="btn_browse" xml:space="preserve">
+    <value>瀏覽</value>
+  </data>
+  <data name="render_output_dir_picker_title" xml:space="preserve">
+    <value>選擇渲染輸出資料夾</value>
+  </data>
   <data name="btn_run_tool" xml:space="preserve">
     <value>執行工具</value>
   </data>

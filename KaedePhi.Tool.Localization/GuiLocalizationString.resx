@@ -109,6 +109,18 @@
   <data name="option_beat_subdivisions" xml:space="preserve">
     <value>拍细分数</value>
   </data>
+  <data name="option_render_output_dir" xml:space="preserve">
+    <value>图片输出文件夹（默认为谱面同级目录下的 RenderLayer）</value>
+  </data>
+  <data name="option_render_output_dir_hint" xml:space="preserve">
+    <value>输出文件夹路径（不存在时自动创建）</value>
+  </data>
+  <data name="btn_browse" xml:space="preserve">
+    <value>浏览</value>
+  </data>
+  <data name="render_output_dir_picker_title" xml:space="preserve">
+    <value>选择渲染输出文件夹</value>
+  </data>
   <data name="btn_run_tool" xml:space="preserve">
     <value>运行工具</value>
   </data>

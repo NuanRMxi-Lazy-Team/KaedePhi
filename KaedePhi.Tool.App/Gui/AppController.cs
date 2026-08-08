@@ -254,6 +254,10 @@ internal sealed class AppController
         _toolVm.CurrentFileName = Path.GetFileName(filePath);
         _toolVm.DetectedFormat = detectedType.ToString();
         _toolVm.SourceChartType = detectedType;
+        _toolVm.RenderOutputDir = Path.Combine(
+            Path.GetDirectoryName(filePath) ?? string.Empty,
+            "RenderLayer"
+        );
         _toolVm.SelectedTool = null;
         _toolVm.StatusText = string.Empty;
 
@@ -346,6 +350,7 @@ internal sealed class AppController
                         case "render":
                             var renderPaths = _chart.RunRender(
                                 kpcChart,
+                                _toolVm.RenderOutputDir,
                                 _toolVm.PixelsPerBeat,
                                 _toolVm.ChannelWidth,
                                 _toolVm.SamplesPerEvent,

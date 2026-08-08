@@ -251,7 +251,7 @@
     </data>
     <!-- ── convert option descriptions ─────────────────────────────────────── -->
     <data name="convert_opt_filter_fake_notes" xml:space="preserve">
-        <value>过滤假音符（直接删除 IsFake=true 的音符）</value>
+        <value>过滤假音符（删除假音符）</value>
     </data>
     <data name="convert_opt_negative_alpha_elevation" xml:space="preserve">
         <value>启用负透明度段判定线抬高至屏幕外</value>
@@ -283,7 +283,7 @@
     </data>
     <!-- ── convert option descriptions（Phigros 转换） ────────────────────────── -->
     <data name="convert_opt_phigros_bpm" xml:space="preserve">
-        <value>Phigros 输出时的默认 BPM（用于时间→节拍转换）</value>
+        <value>Phigros 输出时的默认 BPM（用于变节拍谱面）</value>
     </data>
     <data name="convert_opt_phigros_easing_precision" xml:space="preserve">
         <value>Phigros 不支持缓动类型的近似采样精度</value>
@@ -302,7 +302,7 @@
     </data>
     <!-- ── convert option descriptions（解绑） ────────────────────────────────── -->
     <data name="convert_opt_unbind_precision" xml:space="preserve">
-        <value>父级解绑时的采样精度（每拍细分数）</value>
+        <value>父级解绑时的采样精度（数值越高越精细，不建议超过64）</value>
     </data>
     <data name="convert_opt_unbind_tolerance" xml:space="preserve">
         <value>父级解绑时的容差百分比</value>

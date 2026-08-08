@@ -12,6 +12,7 @@
     <Grid>
         <ContentControl Content="{Binding CurrentPage}"/>
         <TextBlock x:Name="VersionLabel"
+                   Foreground="{DynamicResource VersionLabelForeground}"
                    HorizontalAlignment="Right"
                    VerticalAlignment="Bottom"
                    Margin="0,0,8,4"

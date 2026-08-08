@@ -330,7 +330,7 @@ namespace KaedePhi.Tool.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to 过滤假音符（直接删除 IsFake=true 的音符）.
+        ///   Looks up a localized string similar to 过滤假音符（删除假音符）.
         /// </summary>
         public static string convert_opt_filter_fake_notes {
             get {
@@ -483,7 +483,7 @@ namespace KaedePhi.Tool.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Phigros 输出时的默认 BPM（用于时间→节拍转换）.
+        ///   Looks up a localized string similar to Phigros 输出时的默认 BPM（用于变节拍谱面）.
         /// </summary>
         public static string convert_opt_phigros_bpm {
             get {
@@ -546,7 +546,7 @@ namespace KaedePhi.Tool.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to 父级解绑时的采样精度（每拍细分数）.
+        ///   Looks up a localized string similar to 父级解绑时的采样精度（数值越高越精细，不建议超过64）.
         /// </summary>
         public static string convert_opt_unbind_precision {
             get {

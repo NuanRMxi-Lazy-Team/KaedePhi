@@ -217,6 +217,17 @@ public sealed class ToolViewModel : INotifyPropertyChanged
         }
     } = 2;
 
+    // 渲染输出目录，默认取导入谱面同级目录下的 RenderLayer 文件夹
+    public string RenderOutputDir
+    {
+        get;
+        set
+        {
+            field = value;
+            OnPropertyChanged();
+        }
+    } = string.Empty;
+
     public string StatusText
     {
         get;
