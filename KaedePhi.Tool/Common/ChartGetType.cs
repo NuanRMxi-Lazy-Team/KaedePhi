@@ -148,36 +148,31 @@ public static class ChartGetType
                 case "formatVersion":
                     hasFormatVersion = true;
                     formatVersionValid = TryReadFormatVersion(reader, out formatVersion);
-                    SkipValue(reader);
                     break;
                 case "info":
                     hasInfoObject = reader.TokenType == JsonToken.StartObject;
-                    SkipValue(reader);
                     break;
                 case "lines":
                     hasLinesArray = reader.TokenType == JsonToken.StartArray;
-                    SkipValue(reader);
                     break;
                 case "format":
                     hasPhiChainFormat = IsIntegerValue(reader, 6UL);
-                    SkipValue(reader);
                     break;
                 case "bpm_list":
                     hasBpmList = reader.TokenType == JsonToken.StartArray;
-                    SkipValue(reader);
-                    break;
-                default:
-                    SkipValue(reader);
                     break;
             }
+
+            SkipValue(reader);
         }
 
         if (hasFormatVersion)
         {
-            if (!formatVersionValid)
-                throw new NotSupportedException(UnsupportedChartMessage);
-            return GetTypeFromFormatVersion(formatVersion);
+            return !formatVersionValid
+                ? throw new NotSupportedException(UnsupportedChartMessage)
+                : GetTypeFromFormatVersion(formatVersion);
         }
+
         if (hasInfoObject && hasLinesArray)
             return ChartType.PhiFans;
         if (hasPhiChainFormat && hasBpmList)
@@ -225,28 +220,22 @@ public static class ChartGetType
                 case "formatVersion":
                     hasFormatVersion = true;
                     formatVersionValid = TryReadFormatVersion(reader, out formatVersion);
-                    await SkipValueAsync(reader, ct);
                     break;
                 case "info":
                     hasInfoObject = reader.TokenType == JsonToken.StartObject;
-                    await SkipValueAsync(reader, ct);
                     break;
                 case "lines":
                     hasLinesArray = reader.TokenType == JsonToken.StartArray;
-                    await SkipValueAsync(reader, ct);
                     break;
                 case "format":
                     hasPhiChainFormat = IsIntegerValue(reader, 6UL);
-                    await SkipValueAsync(reader, ct);
                     break;
                 case "bpm_list":
                     hasBpmList = reader.TokenType == JsonToken.StartArray;
-                    await SkipValueAsync(reader, ct);
-                    break;
-                default:
-                    await SkipValueAsync(reader, ct);
                     break;
             }
+
+            await SkipValueAsync(reader, ct);
         }
 
         if (hasFormatVersion)
@@ -255,6 +244,7 @@ public static class ChartGetType
                 throw new NotSupportedException(UnsupportedChartMessage);
             return GetTypeFromFormatVersion(formatVersion);
         }
+
         if (hasInfoObject && hasLinesArray)
             return ChartType.PhiFans;
         if (hasPhiChainFormat && hasBpmList)
@@ -295,10 +285,15 @@ public static class ChartGetType
         {
             if (!reader.Read())
                 throw new JsonException("JSON 值未正常结束。");
-            if (reader.TokenType is JsonToken.StartObject or JsonToken.StartArray)
-                depth++;
-            else if (reader.TokenType is JsonToken.EndObject or JsonToken.EndArray)
-                depth--;
+            switch (reader.TokenType)
+            {
+                case JsonToken.StartObject or JsonToken.StartArray:
+                    depth++;
+                    break;
+                case JsonToken.EndObject or JsonToken.EndArray:
+                    depth--;
+                    break;
+            }
         }
     }
 
@@ -312,10 +307,15 @@ public static class ChartGetType
         {
             if (!await reader.ReadAsync(ct))
                 throw new JsonException("JSON 值未正常结束。");
-            if (reader.TokenType is JsonToken.StartObject or JsonToken.StartArray)
-                depth++;
-            else if (reader.TokenType is JsonToken.EndObject or JsonToken.EndArray)
-                depth--;
+            switch (reader.TokenType)
+            {
+                case JsonToken.StartObject or JsonToken.StartArray:
+                    depth++;
+                    break;
+                case JsonToken.EndObject or JsonToken.EndArray:
+                    depth--;
+                    break;
+            }
         }
     }
 
@@ -327,14 +327,13 @@ public static class ChartGetType
 
         var text = Convert.ToString(reader.Value, CultureInfo.InvariantCulture);
         return long.TryParse(
-                text,
-                NumberStyles.Integer,
-                CultureInfo.InvariantCulture,
-                out var parsed
-            )
-            && parsed >= int.MinValue
-            && parsed <= int.MaxValue
-            && (formatVersion = (int)parsed) == parsed;
+                   text,
+                   NumberStyles.Integer,
+                   CultureInfo.InvariantCulture,
+                   out var parsed
+               )
+               && parsed is >= int.MinValue and <= int.MaxValue
+               && (formatVersion = (int)parsed) == parsed;
     }
 
     private static bool IsIntegerValue(JsonTextReader reader, ulong expected)
