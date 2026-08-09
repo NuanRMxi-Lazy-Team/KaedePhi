@@ -1,3 +1,4 @@
+using System.IO;
 using KaedePhi.Tool.Common;
 
 namespace KaedePhi.Tests.Common;
@@ -12,7 +13,8 @@ public class ChartGetTypeTests
         ChartType expected
     )
     {
-        ChartGetType.GetType(chartText).Should().Be(expected);
+        using var reader = new StringReader(chartText);
+        ChartGetType.GetType(reader).Should().Be(expected);
     }
 
     [Theory]
@@ -22,7 +24,7 @@ public class ChartGetTypeTests
     [InlineData("{\"formatVersion\":2}")]
     public void GetType_WithInvalidFormatVersion_ThrowsNotSupportedException(string chartText)
     {
-        var act = () => ChartGetType.GetType(chartText);
+        var act = () => ChartGetType.GetType(new StringReader(chartText));
 
         act.Should().Throw<NotSupportedException>();
     }

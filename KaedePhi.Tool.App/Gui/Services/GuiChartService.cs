@@ -12,7 +12,6 @@ public sealed class GuiChartService
 {
     private readonly ILogger _log;
     private string? _detectedFilePath;
-    private string? _detectedText;
     private ChartType? _detectedType;
 
     public GuiChartService(LogService logService)
@@ -46,11 +45,9 @@ public sealed class GuiChartService
     public ChartType DetectChartType(string filePath, bool stream)
     {
         ChartProcessingValidator.ValidateInputFile(filePath);
-        var text = File.ReadAllText(filePath);
-
-        var detectedType = ChartGetType.GetType(text);
+        using var inputStream = File.OpenRead(filePath);
+        var detectedType = ChartGetType.GetType(inputStream);
         _detectedFilePath = filePath;
-        _detectedText = text;
         _detectedType = detectedType;
         _log.Information(log_step_detected, detectedType);
         return detectedType;
@@ -70,10 +67,16 @@ public sealed class GuiChartService
     )
     {
         ChartProcessingValidator.ValidateInputFile(filePath);
-        var text = await File.ReadAllTextAsync(filePath, ct);
-        var detectedType = ChartGetType.GetType(text);
+        await using var inputStream = new FileStream(
+            filePath,
+            FileMode.Open,
+            FileAccess.Read,
+            FileShare.Read,
+            65536,
+            useAsync: true
+        );
+        var detectedType = await ChartGetType.GetTypeAsync(inputStream, ct);
         _detectedFilePath = filePath;
-        _detectedText = text;
         _detectedType = detectedType;
         _log.Information(log_step_detected, detectedType);
         return detectedType;
@@ -94,12 +97,26 @@ public sealed class GuiChartService
         ChartProcessingValidator.ValidateInputFile(filePath);
         var hasDetectedType =
             _detectedFilePath == filePath
-            && _detectedText is not null
             && _detectedType is not null;
-        var text = hasDetectedType ? _detectedText! : await File.ReadAllTextAsync(filePath, ct);
-        var detectedType = hasDetectedType ? _detectedType!.Value : ChartGetType.GetType(text);
+        ChartType detectedType;
+        if (hasDetectedType)
+        {
+            detectedType = _detectedType!.Value;
+        }
+        else
+        {
+            await using var detectStream = new FileStream(
+                filePath,
+                FileMode.Open,
+                FileAccess.Read,
+                FileShare.Read,
+                65536,
+                useAsync: true
+            );
+            detectedType = await ChartGetType.GetTypeAsync(detectStream, ct);
+        }
+
         _detectedFilePath = null;
-        _detectedText = null;
         _detectedType = null;
         if (!hasDetectedType)
             _log.Information(log_step_detected, detectedType);
@@ -125,6 +142,7 @@ public sealed class GuiChartService
         }
         else
         {
+            var text = await File.ReadAllTextAsync(filePath, ct);
             kpcChart = await descriptor.ImportAsync(text, importOptions, CreateLogSink(), ct);
         }
 
@@ -171,7 +189,6 @@ public sealed class GuiChartService
         SourceFormat = default;
         SourceFilePath = null;
         _detectedFilePath = null;
-        _detectedText = null;
         _detectedType = null;
     }
 

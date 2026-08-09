@@ -23,8 +23,21 @@ public static class GetTypeTestCommand
             {
 #if Debug
                 var input = result.GetValue(InputOpt);
-                var inputText = input is null ? "" : await File.ReadAllTextAsync(input, ct);
-                var type = ChartGetType.GetType(inputText);
+                if (input is null)
+                {
+                    ConsoleWriter.Info("Type: Unknown");
+                    return 0;
+                }
+
+                await using var inputStream = new FileStream(
+                    input,
+                    FileMode.Open,
+                    FileAccess.Read,
+                    FileShare.Read,
+                    65536,
+                    useAsync: true
+                );
+                var type = await ChartGetType.GetTypeAsync(inputStream, ct);
                 ConsoleWriter.Info($"Type: {type}");
 #else
                 ConsoleWriter.Warn("This command can only be executed on Debug builds.");

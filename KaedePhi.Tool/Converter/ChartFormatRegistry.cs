@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.IO;
 using KaedePhi.Tool.Common;
 using KaedePhi.Tool.Converter.PhiChain;
 using KaedePhi.Tool.Converter.PhiChain.Model;
@@ -217,7 +218,8 @@ public static class ChartFormatRegistry
         CancellationToken ct = default
     )
     {
-        var detectedType = ChartGetType.GetType(text);
+        using var textReader = new StringReader(text);
+        var detectedType = ChartGetType.GetType(textReader);
         var chart = await Get(detectedType).ImportAsync(text, importOptions, log, ct);
         return (detectedType, chart);
     }

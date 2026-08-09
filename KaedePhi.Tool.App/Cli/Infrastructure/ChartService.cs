@@ -58,25 +58,7 @@ public sealed class ChartService
         CancellationToken ct = default
     )
     {
-        if (!string.IsNullOrWhiteSpace(input) && !string.IsNullOrWhiteSpace(workspace))
-            throw new InvalidOperationException(CliLocalizationString.err_input_workspace_conflict);
-
-        string path;
-        if (!string.IsNullOrWhiteSpace(workspace))
-        {
-            path =
-                _workspace.GetChartPath(workspace)
-                ?? throw new InvalidOperationException(
-                    string.Format(CliLocalizationString.err_workspace_missing, workspace)
-                );
-        }
-        else
-        {
-            path =
-                input
-                ?? throw new InvalidOperationException(CliLocalizationString.err_input_required);
-        }
-
+        var path = ResolveInputPath(input, workspace);
         ChartProcessingValidator.ValidateInputFile(path);
         return await File.ReadAllTextAsync(path, ct);
     }
@@ -88,15 +70,56 @@ public sealed class ChartService
         CancellationToken ct = default
     )
     {
-        if (!string.IsNullOrWhiteSpace(input) && !string.IsNullOrWhiteSpace(workspace))
-            throw new InvalidOperationException(CliLocalizationString.err_input_workspace_conflict);
+        var path = ResolveInputPath(input, workspace);
+        ChartProcessingValidator.ValidateInputFile(path);
 
-        var text = await LoadChartTextAsync(input, workspace, ct);
-        var descriptor = ChartFormatRegistry.Find(ChartGetType.GetType(text));
+        ChartType detectedType;
+        await using (var detectStream = new FileStream(
+            path,
+            FileMode.Open,
+            FileAccess.Read,
+            FileShare.Read,
+            65536,
+            useAsync: true
+        ))
+        {
+            detectedType = await ChartGetType.GetTypeAsync(detectStream, ct);
+        }
+
+        var descriptor = ChartFormatRegistry.Find(detectedType);
         if (descriptor is not { CanImport: true })
             return null;
 
+        if (descriptor.CanStreamImport)
+        {
+            await using var inputStream = new FileStream(
+                path,
+                FileMode.Open,
+                FileAccess.Read,
+                FileShare.Read,
+                65536,
+                useAsync: true
+            );
+            return await descriptor.ImportStreamAsync(inputStream, ct: ct);
+        }
+
+        var text = await File.ReadAllTextAsync(path, ct);
         return await descriptor.ImportAsync(text, ct: ct);
+    }
+
+    private string ResolveInputPath(string? input, string? workspace)
+    {
+        if (!string.IsNullOrWhiteSpace(input) && !string.IsNullOrWhiteSpace(workspace))
+            throw new InvalidOperationException(CliLocalizationString.err_input_workspace_conflict);
+
+        if (!string.IsNullOrWhiteSpace(workspace))
+            return _workspace.GetChartPath(workspace)
+                ?? throw new InvalidOperationException(
+                    string.Format(CliLocalizationString.err_workspace_missing, workspace)
+                );
+
+        return input
+            ?? throw new InvalidOperationException(CliLocalizationString.err_input_required);
     }
 
     /// <summary>根据输入路径或工作区自动计算输出路径。</summary>
