@@ -16,6 +16,7 @@ public static class ChartProcessor
         double tolerance,
         bool classic,
         bool disableCompress = false,
+        double mergeTolerance = Constants.DefaultTolerancePercent,
         Action<string>? info = null,
         Action<string>? warning = null,
         Action<string>? error = null,
@@ -26,6 +27,7 @@ public static class ChartProcessor
     {
         ChartProcessingValidator.ValidatePrecision(precision);
         ChartProcessingValidator.ValidateTolerance(tolerance);
+        ChartProcessingValidator.ValidateTolerance(mergeTolerance);
         ChartProcessingValidator.ValidateJudgeLineHierarchy(chart.JudgeLineList);
 
         var unbinder = new JudgeLineUnbinder();
@@ -62,6 +64,7 @@ public static class ChartProcessor
                     chart.JudgeLineList,
                     precision,
                     tolerance,
+                    mergeTolerance,
                     lineProgress,
                     ct
                 );

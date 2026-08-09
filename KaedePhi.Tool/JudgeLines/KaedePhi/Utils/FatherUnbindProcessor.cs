@@ -16,7 +16,7 @@ public class FatherUnbindProcessor : FatherUnbindProcessorBase
     private readonly EventCutter<double> _cutter = new();
 
     public FatherUnbindProcessor(
-        ConcurrentDictionary<int, JudgeLine> cache,
+        ConcurrentDictionary<FatherUnbindHelpers.UnbindCacheKey, JudgeLine> cache,
         Action<string>? logInfo = null,
         Action<string>? logWarning = null,
         Action<string>? logError = null,
@@ -47,6 +47,15 @@ public class FatherUnbindProcessor : FatherUnbindProcessorBase
                 allJudgeLines,
                 logTag: "FatherUnbind",
                 startAction: "开始解绑",
+                cacheKeyFactory: index =>
+                    new FatherUnbindHelpers.UnbindCacheKey(
+                        index,
+                        precision,
+                        0d,
+                        0d,
+                        false,
+                        FatherUnbindHelpers.CurrentRenderProfile
+                    ),
                 recursiveUnbind: (idx, lines) => FatherUnbind(idx, lines, precision, progress, ct)
             );
 
@@ -133,7 +142,17 @@ public class FatherUnbindProcessor : FatherUnbindProcessorBase
                 Merge
             );
 
-            Cache.TryAdd(targetJudgeLineIndex, judgeLineCopy);
+            Cache.TryAdd(
+                new FatherUnbindHelpers.UnbindCacheKey(
+                    targetJudgeLineIndex,
+                    precision,
+                    0d,
+                    0d,
+                    false,
+                    FatherUnbindHelpers.CurrentRenderProfile
+                ),
+                judgeLineCopy
+            );
             LogInfo?.Invoke($"FatherUnbind[{targetJudgeLineIndex}]: 解绑完成");
             progress?.Report(new ToolProgress(1.0));
             return judgeLineCopy;

@@ -300,6 +300,16 @@ public sealed class ExportViewModel : INotifyPropertyChanged
         }
     } = 1d;
 
+    public double UnbindMergeTolerance
+    {
+        get;
+        set
+        {
+            field = value;
+            OnPropertyChanged();
+        }
+    } = 0.1d;
+
     public bool UnbindClassicMode
     {
         get;
@@ -458,7 +468,7 @@ public sealed class ExportViewModel : INotifyPropertyChanged
     } = 64d;
 
     /// <summary>
-    /// PhiChain 父子线解绑自适应采样容差
+    /// PhiChain 父子线解绑相对原始运动范围的容差
     /// </summary>
     public double PhiChainUnbindTolerance
     {
@@ -469,6 +479,19 @@ public sealed class ExportViewModel : INotifyPropertyChanged
             OnPropertyChanged();
         }
     } = 1d;
+
+    /// <summary>
+    /// PhiChain 父子线事件通道合并容差
+    /// </summary>
+    public double PhiChainUnbindMergeTolerance
+    {
+        get;
+        set
+        {
+            field = value;
+            OnPropertyChanged();
+        }
+    } = 0.1d;
 
     /// <summary>
     /// PhiChain 父子线解绑是否使用经典模式
@@ -593,6 +616,7 @@ public sealed class ExportViewModel : INotifyPropertyChanged
         PhigrosSpeedCutPrecision = config.PhigrosSpeedCutPrecision;
         UnbindPrecision = config.UnbindPrecision;
         UnbindTolerance = config.UnbindTolerance;
+        UnbindMergeTolerance = config.UnbindMergeTolerance;
         UnbindClassicMode = config.UnbindClassicMode;
         MultiLayerMergePrecision = config.MultiLayerMergePrecision;
         MultiLayerMergeTolerance = config.MultiLayerMergeTolerance;
@@ -607,6 +631,7 @@ public sealed class ExportViewModel : INotifyPropertyChanged
         // PhiChain 选项使用通用配置
         PhiChainUnbindPrecision = config.UnbindPrecision;
         PhiChainUnbindTolerance = config.UnbindTolerance;
+        PhiChainUnbindMergeTolerance = config.UnbindMergeTolerance;
         PhiChainUnbindClassicMode = config.UnbindClassicMode;
         PhiChainMultiLayerMergePrecision = config.MultiLayerMergePrecision;
         PhiChainMultiLayerMergeTolerance = config.MultiLayerMergeTolerance;

@@ -133,6 +133,14 @@ public static partial class ConvertCommand
         Arity = ArgumentArity.ExactlyOne,
     };
 
+    private static readonly Option<double> UnbindMergeToleranceOpt = new(
+        "--unbind-merge-tolerance"
+    )
+    {
+        Description = CliLocalizationString.convert_opt_unbind_merge_tolerance,
+        Arity = ArgumentArity.ExactlyOne,
+    };
+
     private static readonly Option<bool> UnbindClassicOpt = new("--unbind-classic")
     {
         Description = CliLocalizationString.convert_opt_unbind_classic,
@@ -274,6 +282,9 @@ public static partial class ConvertCommand
                     SharedOptions.GetIfSpecified(result, UnbindToleranceOpt)
                     ?? SharedOptions.GetIfSpecified(result, ToleranceOpt)
                     ?? c.UnbindTolerance,
+                MergeTolerance =
+                    SharedOptions.GetIfSpecified(result, UnbindMergeToleranceOpt)
+                    ?? c.UnbindMergeTolerance,
                 ClassicMode =
                     SharedOptions.GetIfSpecified(result, UnbindClassicOpt)
                     ?? SharedOptions.GetIfSpecified(result, ClassicOpt)
@@ -338,6 +349,9 @@ public static partial class ConvertCommand
                     SharedOptions.GetIfSpecified(result, UnbindToleranceOpt)
                     ?? SharedOptions.GetIfSpecified(result, ToleranceOpt)
                     ?? c.UnbindTolerance,
+                MergeTolerance =
+                    SharedOptions.GetIfSpecified(result, UnbindMergeToleranceOpt)
+                    ?? c.UnbindMergeTolerance,
                 ClassicMode =
                     SharedOptions.GetIfSpecified(result, UnbindClassicOpt)
                     ?? SharedOptions.GetIfSpecified(result, ClassicOpt)

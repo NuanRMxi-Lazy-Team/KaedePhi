@@ -85,6 +85,9 @@
   <data name="option_tolerance" xml:space="preserve">
     <value>Tolerance (%)</value>
   </data>
+  <data name="option_unbind_merge_tolerance" xml:space="preserve">
+    <value>Parent-child channel merge tolerance (%)</value>
+  </data>
   <data name="option_classic_mode" xml:space="preserve">
     <value>Classic Mode</value>
   </data>
@@ -399,6 +402,9 @@
   </data>
   <data name="convert_unbind_tolerance" xml:space="preserve">
     <value>Unbind Tolerance %</value>
+  </data>
+  <data name="convert_unbind_merge_tolerance" xml:space="preserve">
+    <value>Unbind event layer merge tolerance %</value>
   </data>
   <data name="convert_unbind_classic" xml:space="preserve">
     <value>Unbind Classic Mode</value>

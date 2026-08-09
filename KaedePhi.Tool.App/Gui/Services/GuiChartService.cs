@@ -13,6 +13,7 @@ public sealed class GuiChartService
     private readonly ILogger _log;
     private string? _detectedFilePath;
     private string? _detectedText;
+    private ChartType? _detectedType;
 
     public GuiChartService(LogService logService)
     {
@@ -50,6 +51,7 @@ public sealed class GuiChartService
         var detectedType = ChartGetType.GetType(text);
         _detectedFilePath = filePath;
         _detectedText = text;
+        _detectedType = detectedType;
         _log.Information(log_step_detected, detectedType);
         return detectedType;
     }
@@ -72,6 +74,7 @@ public sealed class GuiChartService
         var detectedType = ChartGetType.GetType(text);
         _detectedFilePath = filePath;
         _detectedText = text;
+        _detectedType = detectedType;
         _log.Information(log_step_detected, detectedType);
         return detectedType;
     }
@@ -89,15 +92,17 @@ public sealed class GuiChartService
         _log.Information(log_file_selected, filePath, stream);
 
         ChartProcessingValidator.ValidateInputFile(filePath);
-        var text =
-            _detectedFilePath == filePath && _detectedText is not null
-                ? _detectedText
-                : await File.ReadAllTextAsync(filePath, ct);
+        var hasDetectedType =
+            _detectedFilePath == filePath
+            && _detectedText is not null
+            && _detectedType is not null;
+        var text = hasDetectedType ? _detectedText! : await File.ReadAllTextAsync(filePath, ct);
+        var detectedType = hasDetectedType ? _detectedType!.Value : ChartGetType.GetType(text);
         _detectedFilePath = null;
         _detectedText = null;
-
-        var detectedType = ChartGetType.GetType(text);
-        _log.Information(log_step_detected, detectedType);
+        _detectedType = null;
+        if (!hasDetectedType)
+            _log.Information(log_step_detected, detectedType);
 
         var descriptor = ChartFormatRegistry.Get(detectedType);
         Chart kpcChart;
@@ -167,6 +172,7 @@ public sealed class GuiChartService
         SourceFilePath = null;
         _detectedFilePath = null;
         _detectedText = null;
+        _detectedType = null;
     }
 
     /// <summary>
@@ -187,6 +193,7 @@ public sealed class GuiChartService
         double tolerance,
         bool classic,
         bool disableCompress,
+        double mergeTolerance,
         IProgress<ToolProgress>? progress = null,
         CancellationToken ct = default
     )
@@ -198,6 +205,7 @@ public sealed class GuiChartService
             tolerance,
             classic,
             disableCompress,
+            mergeTolerance: mergeTolerance,
             info: msg => _log.Information(msg),
             warning: msg => _log.Warning(msg),
             error: msg => _log.Error(msg),

@@ -131,6 +131,11 @@ public class KpcToPhiEditConvertOptions
         public double Tolerance { get; set; } = 1d;
 
         /// <summary>
+        /// 自适应模式下父子线事件通道合并容差百分比，默认 0.1%。
+        /// </summary>
+        public double MergeTolerance { get; set; } = DefaultTolerancePercent;
+
+        /// <summary>
         /// 在经典模式下是否对等间隔采样结果进行压缩。
         /// 自适应模式已经完成压缩，不会执行额外压缩。
         /// </summary>

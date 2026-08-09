@@ -155,6 +155,7 @@ public sealed class AppConfigService
             throw new FormatException("配置文件缺少工具配置段。");
         ChartProcessingValidator.ValidatePrecision(config.Precision);
         ChartProcessingValidator.ValidateTolerance(config.Tolerance);
+        ChartProcessingValidator.ValidateTolerance(config.MergeTolerance);
     }
 
     private static void ValidateConvert(ConvertDefaultsConfig config)
@@ -172,6 +173,7 @@ public sealed class AppConfigService
         ChartProcessingValidator.ValidateTolerance(config.PeAlphaCutTolerance);
         ChartProcessingValidator.ValidateTolerance(config.PeSpeedCutTolerance);
         ChartProcessingValidator.ValidateTolerance(config.UnbindTolerance);
+        ChartProcessingValidator.ValidateTolerance(config.UnbindMergeTolerance);
         ChartProcessingValidator.ValidateTolerance(config.MultiLayerMergeTolerance);
         ChartProcessingValidator.ValidateTolerance(config.PhigrosAlphaCutTolerance);
         if (

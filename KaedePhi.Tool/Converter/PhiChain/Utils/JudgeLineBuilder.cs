@@ -213,7 +213,8 @@ public static class JudgeLineBuilder
                     lineIndex,
                     result,
                     options.UnbindPrecision,
-                    options.UnbindTolerance
+                    options.UnbindTolerance,
+                    options.UnbindMergeTolerance
                 );
             }
 

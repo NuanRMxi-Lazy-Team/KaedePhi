@@ -21,6 +21,11 @@ public class KpcToPhiChainConvertOptions
     public double UnbindTolerance { get; set; } = 1d;
 
     /// <summary>
+    /// 自适应模式下父子线事件通道合并容差百分比，默认 0.1%。
+    /// </summary>
+    public double UnbindMergeTolerance { get; set; } = 0.1d;
+
+    /// <summary>
     /// 父子线解绑是否使用经典模式（等间隔采样），默认 false（自适应采样）。
     /// </summary>
     public bool UnbindClassicMode { get; set; } = false;

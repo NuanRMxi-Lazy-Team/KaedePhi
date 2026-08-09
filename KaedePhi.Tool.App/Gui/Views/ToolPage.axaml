@@ -106,6 +106,14 @@
                                            HorizontalAlignment="Left"/>
                         </StackPanel>
 
+                        <!-- 父子线事件通道合并容差 -->
+                        <StackPanel IsVisible="{Binding ShowMergeTolerance}" Spacing="4">
+                            <TextBlock Text="{x:Static loc:GuiLocalizationString.option_unbind_merge_tolerance}" FontSize="12" Opacity="0.7"/>
+                            <NumericUpDown Value="{Binding MergeTolerance}" Minimum="0" Maximum="100"
+                                           Increment="0.1" FormatString="F2" Width="200"
+                                           HorizontalAlignment="Left"/>
+                        </StackPanel>
+
                         <!-- 经典模式 -->
                         <CheckBox IsVisible="{Binding ShowClassicMode}"
                                   Content="{x:Static loc:GuiLocalizationString.option_classic_mode}"

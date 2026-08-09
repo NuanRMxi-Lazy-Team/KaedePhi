@@ -14,11 +14,32 @@ namespace KaedePhi.Tool.JudgeLines.KaedePhi.Utils;
 public class FatherUnbindPlusProcessor : FatherUnbindProcessorBase
 {
     private readonly double _tolerance;
+    private readonly double _mergeTolerance;
     private readonly EventListMergerPlus<double> _merger = new();
 
+    [Obsolete("请改用包含 mergeTolerance 参数的构造函数。")]
     public FatherUnbindPlusProcessor(
-        ConcurrentDictionary<int, JudgeLine> cache,
+        ConcurrentDictionary<FatherUnbindHelpers.UnbindCacheKey, JudgeLine> cache,
         double tolerance,
+        Action<string>? logInfo = null,
+        Action<string>? logWarning = null,
+        Action<string>? logError = null,
+        Action<string>? logDebug = null
+    )
+        : this(
+            cache,
+            tolerance,
+            tolerance,
+            logInfo,
+            logWarning,
+            logError,
+            logDebug
+        ) { }
+
+    public FatherUnbindPlusProcessor(
+        ConcurrentDictionary<FatherUnbindHelpers.UnbindCacheKey, JudgeLine> cache,
+        double tolerance,
+        double mergeTolerance,
         Action<string>? logInfo = null,
         Action<string>? logWarning = null,
         Action<string>? logError = null,
@@ -27,6 +48,7 @@ public class FatherUnbindPlusProcessor : FatherUnbindProcessorBase
         : base(cache, logInfo, logWarning, logError, logDebug)
     {
         _tolerance = tolerance;
+        _mergeTolerance = mergeTolerance;
     }
 
     /// <summary>
@@ -43,6 +65,7 @@ public class FatherUnbindPlusProcessor : FatherUnbindProcessorBase
     {
         ChartProcessingValidator.ValidatePrecision(precision);
         ChartProcessingValidator.ValidateTolerance(_tolerance);
+        ChartProcessingValidator.ValidateTolerance(_mergeTolerance);
         ct.ThrowIfCancellationRequested();
         JudgeLine judgeLineCopy;
         try
@@ -54,6 +77,15 @@ public class FatherUnbindPlusProcessor : FatherUnbindProcessorBase
                 allJudgeLines,
                 logTag: "FatherUnbindPlus",
                 startAction: "开始解绑（自适应采样）",
+                cacheKeyFactory: index =>
+                    new FatherUnbindHelpers.UnbindCacheKey(
+                        index,
+                        precision,
+                        _tolerance,
+                        _mergeTolerance,
+                        true,
+                        FatherUnbindHelpers.CurrentRenderProfile
+                    ),
                 recursiveUnbind: (idx, lines) => FatherUnbind(idx, lines, precision, progress, ct)
             );
 
@@ -75,7 +107,17 @@ public class FatherUnbindPlusProcessor : FatherUnbindProcessorBase
             if (rangeResult is null)
             {
                 judgeLineCopy.Father = -1;
-                Cache.TryAdd(targetJudgeLineIndex, judgeLineCopy);
+                Cache.TryAdd(
+                    new FatherUnbindHelpers.UnbindCacheKey(
+                        targetJudgeLineIndex,
+                        precision,
+                        _tolerance,
+                        _mergeTolerance,
+                        true,
+                        FatherUnbindHelpers.CurrentRenderProfile
+                    ),
+                    judgeLineCopy
+                );
                 progress?.Report(new ToolProgress(1.0));
                 return judgeLineCopy;
             }
@@ -104,7 +146,17 @@ public class FatherUnbindPlusProcessor : FatherUnbindProcessorBase
             );
             FatherUnbindHelpers.WriteResultToLine(judgeLineCopy, resultX, resultY, ch.Fr, Merge);
 
-            Cache.TryAdd(targetJudgeLineIndex, judgeLineCopy);
+            Cache.TryAdd(
+                new FatherUnbindHelpers.UnbindCacheKey(
+                    targetJudgeLineIndex,
+                    precision,
+                    _tolerance,
+                    _mergeTolerance,
+                    true,
+                    FatherUnbindHelpers.CurrentRenderProfile
+                ),
+                judgeLineCopy
+            );
             LogInfo?.Invoke($"FatherUnbindPlus[{targetJudgeLineIndex}]: 解绑完成");
             progress?.Report(new ToolProgress(1.0));
             return judgeLineCopy;
@@ -112,7 +164,7 @@ public class FatherUnbindPlusProcessor : FatherUnbindProcessorBase
             List<KpcEvents.Event<double>> Merge(
                 List<KpcEvents.Event<double>> a,
                 List<KpcEvents.Event<double>> b
-            ) => _merger.EventListMerge(a, b, precision, 0d);
+            ) => _merger.EventListMerge(a, b, precision, _mergeTolerance);
         }
         catch (Exception ex)
         {

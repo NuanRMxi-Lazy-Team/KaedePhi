@@ -85,6 +85,9 @@
   <data name="option_tolerance" xml:space="preserve">
     <value>容差 (%)</value>
   </data>
+  <data name="option_unbind_merge_tolerance" xml:space="preserve">
+    <value>父子線事件通道合併容差（百分比）</value>
+  </data>
   <data name="option_classic_mode" xml:space="preserve">
     <value>經典模式</value>
   </data>

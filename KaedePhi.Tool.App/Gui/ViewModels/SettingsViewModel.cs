@@ -23,6 +23,7 @@ public sealed class SettingsViewModel : INotifyPropertyChanged
 
     public double UnbindPrecision { get; set; } = 64;
     public double UnbindTolerance { get; set; } = 1;
+    public double UnbindMergeTolerance { get; set; } = 0.1;
 
     public bool UnbindClassicMode
     {
@@ -140,6 +141,7 @@ public sealed class SettingsViewModel : INotifyPropertyChanged
 
     public double ConvertUnbindPrecision { get; set; } = 64d;
     public double ConvertUnbindTolerance { get; set; } = 1d;
+    public double ConvertUnbindMergeTolerance { get; set; } = 0.1d;
     public bool ConvertUnbindClassicMode { get; set; }
     public double ConvertMultiLayerMergePrecision { get; set; } = 64d;
     public double ConvertMultiLayerMergeTolerance { get; set; } = 0.1d;
@@ -196,6 +198,7 @@ public sealed class SettingsViewModel : INotifyPropertyChanged
 
         c.Unbind.Precision = UnbindPrecision;
         c.Unbind.Tolerance = UnbindTolerance;
+        c.Unbind.MergeTolerance = UnbindMergeTolerance;
         c.Unbind.ClassicMode = UnbindClassicMode;
         c.Unbind.DisableCompress = UnbindDisableCompress;
 
@@ -235,6 +238,7 @@ public sealed class SettingsViewModel : INotifyPropertyChanged
         c.Convert.PhigrosSpeedCutPrecision = ConvertPhigrosSpeedCutPrecision;
         c.Convert.UnbindPrecision = ConvertUnbindPrecision;
         c.Convert.UnbindTolerance = ConvertUnbindTolerance;
+        c.Convert.UnbindMergeTolerance = ConvertUnbindMergeTolerance;
         c.Convert.UnbindClassicMode = ConvertUnbindClassicMode;
         c.Convert.MultiLayerMergePrecision = ConvertMultiLayerMergePrecision;
         c.Convert.MultiLayerMergeTolerance = ConvertMultiLayerMergeTolerance;
@@ -258,6 +262,7 @@ public sealed class SettingsViewModel : INotifyPropertyChanged
 
         UnbindPrecision = c.Unbind.Precision;
         UnbindTolerance = c.Unbind.Tolerance;
+        UnbindMergeTolerance = c.Unbind.MergeTolerance;
         UnbindClassicMode = c.Unbind.ClassicMode;
         UnbindDisableCompress = c.Unbind.DisableCompress;
 
@@ -297,6 +302,7 @@ public sealed class SettingsViewModel : INotifyPropertyChanged
         ConvertPhigrosSpeedCutPrecision = c.Convert.PhigrosSpeedCutPrecision;
         ConvertUnbindPrecision = c.Convert.UnbindPrecision;
         ConvertUnbindTolerance = c.Convert.UnbindTolerance;
+        ConvertUnbindMergeTolerance = c.Convert.UnbindMergeTolerance;
         ConvertUnbindClassicMode = c.Convert.UnbindClassicMode;
         ConvertMultiLayerMergePrecision = c.Convert.MultiLayerMergePrecision;
         ConvertMultiLayerMergeTolerance = c.Convert.MultiLayerMergeTolerance;

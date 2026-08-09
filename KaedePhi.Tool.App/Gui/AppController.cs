@@ -344,6 +344,7 @@ internal sealed class AppController
                                 _toolVm.Tolerance,
                                 _toolVm.ClassicMode,
                                 _toolVm.DisableCompress,
+                                _toolVm.MergeTolerance,
                                 toolProgress,
                                 ct
                             );
@@ -614,6 +615,7 @@ internal sealed class AppController
             {
                 Precision = vm.UnbindPrecision,
                 Tolerance = vm.UnbindTolerance,
+                MergeTolerance = vm.UnbindMergeTolerance,
                 ClassicMode = vm.UnbindClassicMode,
                 Compress = vm.UnbindCompress,
             },
@@ -690,6 +692,7 @@ internal sealed class AppController
             UnbindNonRotatingChildren = vm.PhiChainUnbindNonRotatingChildren,
             UnbindPrecision = vm.PhiChainUnbindPrecision,
             UnbindTolerance = vm.PhiChainUnbindTolerance,
+            UnbindMergeTolerance = vm.PhiChainUnbindMergeTolerance,
             UnbindClassicMode = vm.PhiChainUnbindClassicMode,
             MultiLayerMergePrecision = vm.PhiChainMultiLayerMergePrecision,
             MultiLayerMergeTolerance = vm.PhiChainMultiLayerMergeTolerance,

@@ -63,7 +63,8 @@ public class PhiEditJudgeLineBuilder
                     allLine.FindIndex(l => ReferenceEquals(l, src)),
                     allLine,
                     _options.FatherLineUnbind.Precision,
-                    _options.FatherLineUnbind.Tolerance
+                    _options.FatherLineUnbind.Tolerance,
+                    _options.FatherLineUnbind.MergeTolerance
                 );
 
             if (_options.FatherLineUnbind.ClassicMode && _options.FatherLineUnbind.Compress)

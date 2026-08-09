@@ -27,6 +27,10 @@ internal static class ConversionOptionsValidator
         ValidateTolerance(options.Alpha.CutTolerance, "Alpha.CutTolerance");
         ValidateTolerance(options.Speed.CutTolerance, "Speed.CutTolerance");
         ValidateTolerance(options.FatherLineUnbind.Tolerance, "FatherLineUnbind.Tolerance");
+        ValidateTolerance(
+            options.FatherLineUnbind.MergeTolerance,
+            "FatherLineUnbind.MergeTolerance"
+        );
         ValidateTolerance(options.MultiLayerMerge.Tolerance, "MultiLayerMerge.Tolerance");
         ValidateNonNegative(options.TrailingBeatPadding, nameof(options.TrailingBeatPadding));
     }
@@ -53,6 +57,10 @@ internal static class ConversionOptionsValidator
         ValidatePositive(options.MultiLayerMerge.Precision, "MultiLayerMerge.Precision");
         ValidateTolerance(options.Alpha.CutTolerance, "Alpha.CutTolerance");
         ValidateTolerance(options.FatherLineUnbind.Tolerance, "FatherLineUnbind.Tolerance");
+        ValidateTolerance(
+            options.FatherLineUnbind.MergeTolerance,
+            "FatherLineUnbind.MergeTolerance"
+        );
         ValidateTolerance(options.MultiLayerMerge.Tolerance, "MultiLayerMerge.Tolerance");
         ValidatePositive(options.NegativeAlpha.ElevationStep, "NegativeAlpha.ElevationStep");
     }
@@ -67,6 +75,7 @@ internal static class ConversionOptionsValidator
         );
         ValidatePositive(options.EasingCutPrecision, nameof(options.EasingCutPrecision));
         ValidateTolerance(options.UnbindTolerance, nameof(options.UnbindTolerance));
+        ValidateTolerance(options.UnbindMergeTolerance, nameof(options.UnbindMergeTolerance));
         ValidateTolerance(
             options.MultiLayerMergeTolerance,
             nameof(options.MultiLayerMergeTolerance)

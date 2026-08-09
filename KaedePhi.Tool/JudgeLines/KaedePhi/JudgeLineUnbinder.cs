@@ -44,11 +44,13 @@ public class JudgeLineUnbinder : LoggableBase, IJudgeLineUnbinder<JudgeLine>
 
     private FatherUnbindPlusProcessor CreatePlusProcessor(
         List<JudgeLine> allJudgeLines,
-        double tolerance
+        double tolerance,
+        double mergeTolerance
     ) =>
         new(
             FatherUnbindHelpers.JudgeLineCacheTable.GetOrCreateValue(allJudgeLines),
             tolerance,
+            mergeTolerance,
             LogInfo,
             LogWarning,
             LogError,
@@ -114,13 +116,44 @@ public class JudgeLineUnbinder : LoggableBase, IJudgeLineUnbinder<JudgeLine>
     /// 将判定线与父判定线解绑（自适应采样）。
     /// 以事件边界为强制切割点，仅在误差超过容差时插入新采样段，相较等间隔版可减少冗余段数。
     /// </summary>
+    [Obsolete("请改用包含 mergeTolerance 参数的自适应解绑重载。")]
     public JudgeLine FatherUnbind(
         int targetJudgeLineIndex,
         List<JudgeLine> allJudgeLines,
         double precision,
         double tolerance,
         IProgress<ToolProgress>? progress = null
-    ) => FatherUnbind(targetJudgeLineIndex, allJudgeLines, precision, tolerance, progress, default);
+    ) =>
+        FatherUnbind(
+            targetJudgeLineIndex,
+            allJudgeLines,
+            precision,
+            tolerance,
+            tolerance,
+            progress,
+            default
+        );
+
+    /// <summary>
+    /// 将判定线与父判定线解绑，并分别指定几何拟合和事件通道合并容差。
+    /// </summary>
+    public JudgeLine FatherUnbind(
+        int targetJudgeLineIndex,
+        List<JudgeLine> allJudgeLines,
+        double precision,
+        double tolerance,
+        double mergeTolerance,
+        IProgress<ToolProgress>? progress = null
+    ) =>
+        FatherUnbind(
+            targetJudgeLineIndex,
+            allJudgeLines,
+            precision,
+            tolerance,
+            mergeTolerance,
+            progress,
+            default
+        );
 
     /// <summary>
     /// 将判定线与父判定线解绑（自适应采样），并支持取消长时间采样。
@@ -130,12 +163,37 @@ public class JudgeLineUnbinder : LoggableBase, IJudgeLineUnbinder<JudgeLine>
         List<JudgeLine> allJudgeLines,
         double precision,
         double tolerance,
+        double mergeTolerance,
         IProgress<ToolProgress>? progress,
         CancellationToken ct
     ) =>
-        ValidateInput(targetJudgeLineIndex, allJudgeLines, precision, tolerance)
-            .CreatePlusProcessor(allJudgeLines, tolerance)
+        ValidateInput(targetJudgeLineIndex, allJudgeLines, precision, tolerance, mergeTolerance)
+            .CreatePlusProcessor(allJudgeLines, tolerance, mergeTolerance)
             .FatherUnbind(targetJudgeLineIndex, allJudgeLines, precision, progress, ct);
+
+    /// <summary>
+    /// 将判定线与父判定线解绑（自适应采样，指定渲染坐标系）。
+    /// </summary>
+    [Obsolete("请改用包含 mergeTolerance 参数的自适应解绑重载。")]
+    public JudgeLine FatherUnbind(
+        int targetJudgeLineIndex,
+        List<JudgeLine> allJudgeLines,
+        CoordinateProfile renderProfile,
+        double precision,
+        double tolerance,
+        IProgress<ToolProgress>? progress,
+        CancellationToken ct
+    ) =>
+        FatherUnbind(
+            targetJudgeLineIndex,
+            allJudgeLines,
+            renderProfile,
+            precision,
+            tolerance,
+            tolerance,
+            progress,
+            ct
+        );
 
     /// <summary>
     /// 将判定线与父判定线解绑（自适应采样，指定渲染坐标系）。
@@ -146,6 +204,7 @@ public class JudgeLineUnbinder : LoggableBase, IJudgeLineUnbinder<JudgeLine>
         CoordinateProfile renderProfile,
         double precision,
         double tolerance,
+        double mergeTolerance,
         IProgress<ToolProgress>? progress,
         CancellationToken ct
     )
@@ -156,6 +215,7 @@ public class JudgeLineUnbinder : LoggableBase, IJudgeLineUnbinder<JudgeLine>
             allJudgeLines,
             precision,
             tolerance,
+            mergeTolerance,
             progress,
             ct
         );
@@ -165,7 +225,8 @@ public class JudgeLineUnbinder : LoggableBase, IJudgeLineUnbinder<JudgeLine>
         int targetJudgeLineIndex,
         List<JudgeLine> allJudgeLines,
         double precision,
-        double? tolerance
+        double? tolerance,
+        double? mergeTolerance = null
     )
     {
         ArgumentNullException.ThrowIfNull(allJudgeLines);
@@ -174,6 +235,8 @@ public class JudgeLineUnbinder : LoggableBase, IJudgeLineUnbinder<JudgeLine>
         ChartProcessingValidator.ValidatePrecision(precision);
         if (tolerance is not null)
             ChartProcessingValidator.ValidateTolerance(tolerance.Value);
+        if (mergeTolerance is not null)
+            ChartProcessingValidator.ValidateTolerance(mergeTolerance.Value);
         ChartProcessingValidator.ValidateJudgeLineHierarchy(allJudgeLines);
         return this;
     }

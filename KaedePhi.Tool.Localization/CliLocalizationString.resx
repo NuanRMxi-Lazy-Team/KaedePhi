@@ -119,6 +119,10 @@
         <value>拟合容差百分比（默认值由当前命令配置决定）</value>
         <comment>RpeOperationSettings --tolerance 选项</comment>
     </data>
+    <data name="cli_opt_unbind_merge_tolerance_desc" xml:space="preserve">
+        <value>父子线事件层合并容差百分比（默认值由当前命令配置决定）</value>
+        <comment>解绑工具 --merge-tolerance 选项</comment>
+    </data>
     <data name="cli_opt_dry_run_desc" xml:space="preserve">
         <value>试运行模式，不写入文件</value>
         <comment>RpeOperationSettings --dry-run 选项</comment>
@@ -328,6 +332,9 @@
     </data>
     <data name="convert_opt_unbind_tolerance" xml:space="preserve">
         <value>父级解绑时的容差百分比</value>
+    </data>
+    <data name="convert_opt_unbind_merge_tolerance" xml:space="preserve">
+        <value>父级解绑时的事件通道合并容差百分比</value>
     </data>
     <data name="convert_opt_unbind_classic" xml:space="preserve">
         <value>启用经典解绑模式（等间距采样）</value>

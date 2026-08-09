@@ -53,9 +53,11 @@ public sealed class ToolViewModel : INotifyPropertyChanged
             ToolId = "unbind",
             HasPrecision = true,
             HasTolerance = true,
+            HasMergeTolerance = true,
             HasClassicMode = true,
             HasDisableCompress = true,
             DefaultTolerance = 1,
+            DefaultMergeTolerance = 0.1,
         },
         new()
         {
@@ -108,6 +110,7 @@ public sealed class ToolViewModel : INotifyPropertyChanged
             {
                 Precision = value.DefaultPrecision;
                 Tolerance = value.DefaultTolerance;
+                MergeTolerance = value.DefaultMergeTolerance;
                 ClassicMode = false;
                 DisableCompress = false;
             }
@@ -115,6 +118,7 @@ public sealed class ToolViewModel : INotifyPropertyChanged
             OnPropertyChanged();
             OnPropertyChanged(nameof(ShowPrecision));
             OnPropertyChanged(nameof(ShowTolerance));
+            OnPropertyChanged(nameof(ShowMergeTolerance));
             OnPropertyChanged(nameof(ShowClassicMode));
             OnPropertyChanged(nameof(ShowDisableCompress));
             OnPropertyChanged(nameof(ShowRenderOptions));
@@ -135,6 +139,16 @@ public sealed class ToolViewModel : INotifyPropertyChanged
     } = 64;
 
     public double Tolerance
+    {
+        get;
+        set
+        {
+            field = value;
+            OnPropertyChanged();
+        }
+    } = 0.1;
+
+    public double MergeTolerance
     {
         get;
         set
@@ -252,6 +266,7 @@ public sealed class ToolViewModel : INotifyPropertyChanged
 
     public bool ShowPrecision => SelectedTool?.HasPrecision == true;
     public bool ShowTolerance => SelectedTool?.HasTolerance == true;
+    public bool ShowMergeTolerance => SelectedTool?.HasMergeTolerance == true;
     public bool ShowClassicMode => SelectedTool?.HasClassicMode == true;
     public bool ShowDisableCompress => SelectedTool?.HasDisableCompress == true;
     public bool ShowRenderOptions => SelectedTool?.HasRenderOptions == true;
@@ -282,6 +297,7 @@ public sealed class ToolViewModel : INotifyPropertyChanged
             case "unbind":
                 Precision = config.Unbind.Precision;
                 Tolerance = config.Unbind.Tolerance;
+                MergeTolerance = config.Unbind.MergeTolerance;
                 ClassicMode = config.Unbind.ClassicMode;
                 DisableCompress = config.Unbind.DisableCompress;
                 break;

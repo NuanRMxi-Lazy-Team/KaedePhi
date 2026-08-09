@@ -20,6 +20,7 @@ public sealed class AppConfig
         {
             Precision = 64,
             Tolerance = 1,
+            MergeTolerance = 0.1,
             ClassicMode = false,
             DisableCompress = false,
         };

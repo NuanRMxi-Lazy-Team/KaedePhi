@@ -88,6 +88,9 @@
   <data name="option_tolerance" xml:space="preserve">
     <value>容差 (百分比)</value>
   </data>
+  <data name="option_unbind_merge_tolerance" xml:space="preserve">
+    <value>父子线事件通道合并容差（百分比）</value>
+  </data>
   <data name="option_classic_mode" xml:space="preserve">
     <value>经典模式</value>
   </data>
@@ -399,6 +402,9 @@
   </data>
   <data name="convert_unbind_tolerance" xml:space="preserve">
     <value>解绑父线容差（百分比）</value>
+  </data>
+  <data name="convert_unbind_merge_tolerance" xml:space="preserve">
+    <value>解绑父线事件层合并容差（百分比）</value>
   </data>
   <data name="convert_unbind_classic" xml:space="preserve">
     <value>使用经典模式解绑父线</value>

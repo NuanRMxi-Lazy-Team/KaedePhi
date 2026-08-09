@@ -16,6 +16,11 @@ public sealed class ToolDefaultsConfig
     public double Tolerance { get; set; } = 0.1;
 
     /// <summary>
+    /// 自适应解绑时的父子线事件通道合并容差，仅解绑工具使用。
+    /// </summary>
+    public double MergeTolerance { get; set; } = 0.1;
+
+    /// <summary>
     /// 经典模式
     /// </summary>
     public bool ClassicMode { get; set; }

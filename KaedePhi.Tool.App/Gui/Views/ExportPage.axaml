@@ -112,6 +112,10 @@
                                             <TextBlock Text="{x:Static loc:GuiLocalizationString.convert_unbind_tolerance}" FontSize="12" Opacity="0.7"/>
                                             <NumericUpDown Value="{Binding PhiChainUnbindTolerance}" Increment="0.01" FormatString="F3" Width="200" HorizontalAlignment="Left"/>
                                         </StackPanel>
+                                        <StackPanel Spacing="4">
+                                            <TextBlock Text="{x:Static loc:GuiLocalizationString.convert_unbind_merge_tolerance}" FontSize="12" Opacity="0.7"/>
+                                            <NumericUpDown Value="{Binding PhiChainUnbindMergeTolerance}" Increment="0.01" FormatString="F3" Width="200" HorizontalAlignment="Left"/>
+                                        </StackPanel>
                                         <CheckBox Content="{x:Static loc:GuiLocalizationString.convert_unbind_classic}" IsChecked="{Binding PhiChainUnbindClassicMode}"/>
                                     </StackPanel>
 
@@ -159,6 +163,10 @@
                                     <StackPanel Spacing="4">
                                         <TextBlock Text="{x:Static loc:GuiLocalizationString.convert_unbind_tolerance}" FontSize="12" Opacity="0.7"/>
                                         <NumericUpDown Value="{Binding UnbindTolerance}" Increment="0.01" FormatString="F3" Width="200" HorizontalAlignment="Left"/>
+                                    </StackPanel>
+                                    <StackPanel Spacing="4">
+                                        <TextBlock Text="{x:Static loc:GuiLocalizationString.convert_unbind_merge_tolerance}" FontSize="12" Opacity="0.7"/>
+                                        <NumericUpDown Value="{Binding UnbindMergeTolerance}" Increment="0.01" FormatString="F3" Width="200" HorizontalAlignment="Left"/>
                                     </StackPanel>
                                     <CheckBox Content="{x:Static loc:GuiLocalizationString.convert_unbind_classic}" IsChecked="{Binding UnbindClassicMode}"/>
                                     <CheckBox Content="{x:Static loc:GuiLocalizationString.convert_unbind_compress}" IsChecked="{Binding UnbindCompress}"/>

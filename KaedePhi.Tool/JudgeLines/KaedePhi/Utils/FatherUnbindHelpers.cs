@@ -14,6 +14,18 @@ namespace KaedePhi.Tool.JudgeLines.KaedePhi.Utils;
 /// </summary>
 public static class FatherUnbindHelpers
 {
+    /// <summary>
+    /// 父子线解绑缓存的完整参数键。
+    /// </summary>
+    public readonly record struct UnbindCacheKey(
+        int TargetJudgeLineIndex,
+        double Precision,
+        double Tolerance,
+        double MergeTolerance,
+        bool Adaptive,
+        CoordinateProfile RenderProfile
+    );
+
     private static readonly AsyncLocal<CoordinateProfile?> RenderProfileContext = new();
 
     public static CoordinateProfile CurrentRenderProfile =>
@@ -41,7 +53,7 @@ public static class FatherUnbindHelpers
     /// </summary>
     internal static readonly ConditionalWeakTable<
         List<JudgeLine>,
-        ConcurrentDictionary<int, JudgeLine>
+        ConcurrentDictionary<UnbindCacheKey, JudgeLine>
     > JudgeLineCacheTable = new();
 
     /// <summary>
@@ -224,16 +236,18 @@ public static class FatherUnbindHelpers
     /// 命中缓存时返回克隆结果，避免调用方直接持有缓存实例。
     /// </summary>
     public static bool TryGetCachedClone(
-        int targetJudgeLineIndex,
-        ConcurrentDictionary<int, JudgeLine> cache,
+        UnbindCacheKey cacheKey,
+        ConcurrentDictionary<UnbindCacheKey, JudgeLine> cache,
         string logTag,
         [NotNullWhen(true)] out JudgeLine? cachedClone,
         Action<string>? logDebug = null
     )
     {
-        if (cache.TryGetValue(targetJudgeLineIndex, out var cached))
+        if (cache.TryGetValue(cacheKey, out var cached))
         {
-            logDebug?.Invoke($"{logTag}[{targetJudgeLineIndex}]: 命中缓存，直接返回已解绑结果");
+            logDebug?.Invoke(
+                $"{logTag}[{cacheKey.TargetJudgeLineIndex}]: 命中缓存，直接返回已解绑结果"
+            );
             cachedClone = cached.Clone();
             return true;
         }
@@ -246,17 +260,19 @@ public static class FatherUnbindHelpers
     /// 判定线无父线时直接缓存并返回，统一同步/异步处理器的短路分支。
     /// </summary>
     public static bool TryReturnWhenNoFather(
-        int targetJudgeLineIndex,
+        UnbindCacheKey cacheKey,
         JudgeLine judgeLineCopy,
-        ConcurrentDictionary<int, JudgeLine> cache,
+        ConcurrentDictionary<UnbindCacheKey, JudgeLine> cache,
         string logTag,
         Action<string>? logWarning = null
     )
     {
         if (judgeLineCopy.Father > -1)
             return false;
-        logWarning?.Invoke($"{logTag}[{targetJudgeLineIndex}]: 判定线无父线，跳过。");
-        cache.TryAdd(targetJudgeLineIndex, judgeLineCopy);
+        logWarning?.Invoke(
+            $"{logTag}[{cacheKey.TargetJudgeLineIndex}]: 判定线无父线，跳过。"
+        );
+        cache.TryAdd(cacheKey, judgeLineCopy);
         return true;
     }
 

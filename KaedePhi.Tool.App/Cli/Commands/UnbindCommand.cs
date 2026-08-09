@@ -14,6 +14,11 @@ public static partial class UnbindFatherCommand
     public static readonly Option<string?> WorkspaceOpt = SharedOptions.CreateWorkspaceRpeOption();
     public static readonly Option<double> PrecisionOpt = SharedOptions.PrecisionOption;
     public static readonly Option<double> ToleranceOpt = SharedOptions.ToleranceOption;
+    public static readonly Option<double> MergeToleranceOpt = new("--merge-tolerance")
+    {
+        Description = CliLocalizationString.cli_opt_unbind_merge_tolerance_desc,
+        Arity = ArgumentArity.ExactlyOne,
+    };
     public static readonly Option<bool> ClassicOpt = SharedOptions.ClassicOption;
     public static readonly Option<bool> NoCompressOpt = SharedOptions.NoCompressOption;
     public static readonly Option<bool> DryRunOpt = SharedOptions.DryRunOption;
@@ -32,6 +37,8 @@ public static partial class UnbindFatherCommand
         var c = AppConfigService.Instance.Config.Unbind;
         var precision = SharedOptions.GetIfSpecified(result, PrecisionOpt) ?? c.Precision;
         var tolerance = SharedOptions.GetIfSpecified(result, ToleranceOpt) ?? c.Tolerance;
+        var mergeTolerance =
+            SharedOptions.GetIfSpecified(result, MergeToleranceOpt) ?? c.MergeTolerance;
         var classic = SharedOptions.GetIfSpecified(result, ClassicOpt) ?? c.ClassicMode;
         var disableCompress =
             SharedOptions.GetIfSpecified(result, NoCompressOpt) ?? c.DisableCompress;
@@ -58,6 +65,7 @@ public static partial class UnbindFatherCommand
             tolerance,
             classic,
             disableCompress: disableCompress,
+            mergeTolerance: mergeTolerance,
             info: ConsoleWriter.Info,
             warning: ConsoleWriter.Warn,
             error: ConsoleWriter.Error,

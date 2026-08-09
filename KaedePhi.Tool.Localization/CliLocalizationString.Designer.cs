@@ -168,7 +168,7 @@ namespace KaedePhi.Tool.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to 采样精度（每拍细分数，默认：64，即每次采样步进64/1拍）.
+        ///   Looks up a localized string similar to 采样精度（每拍细分数，默认值由当前命令配置决定）.
         /// </summary>
         public static string cli_opt_precision_desc {
             get {
@@ -186,11 +186,29 @@ namespace KaedePhi.Tool.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to 拟合容差百分比（默认：5%）.
+        ///   Looks up a localized string similar to 拟合容差百分比（默认值由当前命令配置决定）.
         /// </summary>
         public static string cli_opt_tolerance_desc {
             get {
                 return ResourceManager.GetString("cli_opt_tolerance_desc", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 父子线事件层合并容差百分比（默认值由当前命令配置决定）.
+        /// </summary>
+        public static string cli_opt_unbind_merge_tolerance_desc {
+            get {
+                return ResourceManager.GetString("cli_opt_unbind_merge_tolerance_desc", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 明确确认清理全部工作区.
+        /// </summary>
+        public static string cli_opt_workspace_clear_all_desc {
+            get {
+                return ResourceManager.GetString("cli_opt_workspace_clear_all_desc", resourceCulture);
             }
         }
         
@@ -200,15 +218,6 @@ namespace KaedePhi.Tool.Localization {
         public static string cli_opt_workspace_clear_id_desc {
             get {
                 return ResourceManager.GetString("cli_opt_workspace_clear_id_desc", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to 明确确认清理全部工作区.
-        /// </summary>
-        public static string cli_opt_workspace_clear_all_desc {
-            get {
-                return ResourceManager.GetString("cli_opt_workspace_clear_all_desc", resourceCulture);
             }
         }
         
@@ -555,6 +564,15 @@ namespace KaedePhi.Tool.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to 父级解绑时的事件通道合并容差百分比.
+        /// </summary>
+        public static string convert_opt_unbind_merge_tolerance {
+            get {
+                return ResourceManager.GetString("convert_opt_unbind_merge_tolerance", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to 父级解绑时的采样精度（数值越高越精细，不建议超过64）.
         /// </summary>
         public static string convert_opt_unbind_precision {
@@ -573,11 +591,29 @@ namespace KaedePhi.Tool.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to 操作已取消。.
+        /// </summary>
+        public static string err_cancelled {
+            get {
+                return ResourceManager.GetString("err_cancelled", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to 某些选项禁用时，必须启用旧版行为.
         /// </summary>
         public static string err_classic_disablsed {
             get {
                 return ResourceManager.GetString("err_classic_disablsed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 配置文件保存失败，请检查权限或磁盘空间：{0}.
+        /// </summary>
+        public static string err_config_save_failed {
+            get {
+                return ResourceManager.GetString("err_config_save_failed", resourceCulture);
             }
         }
         
@@ -589,22 +625,13 @@ namespace KaedePhi.Tool.Localization {
                 return ResourceManager.GetString("err_input_required", resourceCulture);
             }
         }
-
+        
         /// <summary>
-        ///   Looks up a localized string similar to --input 与 --workspace 不能同时指定。
+        ///   Looks up a localized string similar to --input 与 --workspace 不能同时指定。.
         /// </summary>
         public static string err_input_workspace_conflict {
             get {
                 return ResourceManager.GetString("err_input_workspace_conflict", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to 输出路径不能覆盖输入谱面文件。
-        /// </summary>
-        public static string err_output_input_same {
-            get {
-                return ResourceManager.GetString("err_output_input_same", resourceCulture);
             }
         }
         
@@ -619,29 +646,20 @@ namespace KaedePhi.Tool.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to 输出路径不能覆盖输入谱面文件。.
+        /// </summary>
+        public static string err_output_input_same {
+            get {
+                return ResourceManager.GetString("err_output_input_same", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to 需要提供 --output 才能帮你保存呢~.
         /// </summary>
         public static string err_output_required {
             get {
                 return ResourceManager.GetString("err_output_required", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to 操作已取消。
-        /// </summary>
-        public static string err_cancelled {
-            get {
-                return ResourceManager.GetString("err_cancelled", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to 请使用 --id 清理单个工作区，或使用 --all 明确确认清理全部工作区。
-        /// </summary>
-        public static string err_workspace_clear_selection {
-            get {
-                return ResourceManager.GetString("err_workspace_clear_selection", resourceCulture);
             }
         }
         
@@ -670,6 +688,15 @@ namespace KaedePhi.Tool.Localization {
         public static string err_unknown {
             get {
                 return ResourceManager.GetString("err_unknown", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 请使用 --id 清理单个工作区，或使用 --all 明确确认清理全部工作区。.
+        /// </summary>
+        public static string err_workspace_clear_selection {
+            get {
+                return ResourceManager.GetString("err_workspace_clear_selection", resourceCulture);
             }
         }
         
@@ -753,15 +780,6 @@ namespace KaedePhi.Tool.Localization {
                 return ResourceManager.GetString("msg_cleared", resourceCulture);
             }
         }
-
-        /// <summary>
-        ///   Looks up a localized string similar to 工作区 {0} 已清理.
-        /// </summary>
-        public static string msg_workspace_cleared {
-            get {
-                return ResourceManager.GetString("msg_workspace_cleared", resourceCulture);
-            }
-        }
         
         /// <summary>
         ///   Looks up a localized string similar to 配置文件已重置为默认值：{0}.
@@ -771,15 +789,6 @@ namespace KaedePhi.Tool.Localization {
                 return ResourceManager.GetString("msg_config_reset_done", resourceCulture);
             }
         }
-
-        /// <summary>
-        ///   Looks up a localized string similar to 配置文件保存失败，请检查权限或磁盘空间：{0}.
-        /// </summary>
-        public static string err_config_save_failed {
-            get {
-                return ResourceManager.GetString("err_config_save_failed", resourceCulture);
-            }
-        }
         
         /// <summary>
         ///   Looks up a localized string similar to 还没想好怎么写喵...所以详见README.md喵....
@@ -787,6 +796,15 @@ namespace KaedePhi.Tool.Localization {
         public static string msg_help {
             get {
                 return ResourceManager.GetString("msg_help", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 工作区 {0} 已清理。.
+        /// </summary>
+        public static string msg_workspace_cleared {
+            get {
+                return ResourceManager.GetString("msg_workspace_cleared", resourceCulture);
             }
         }
         
@@ -917,7 +935,7 @@ namespace KaedePhi.Tool.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to 通道值域最小半宽比例（默认：0.05）.
+        ///   Looks up a localized string similar to 通道值域最小半宽比例（默认：0.15）.
         /// </summary>
         public static string render_opt_min_range_half_ratio {
             get {
@@ -953,7 +971,7 @@ namespace KaedePhi.Tool.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to 通道值域计算采样点数（默认：256）.
+        ///   Looks up a localized string similar to 通道值域计算采样点数（默认：16）.
         /// </summary>
         public static string render_opt_range_samples {
             get {
@@ -971,7 +989,7 @@ namespace KaedePhi.Tool.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to 事件段压缩容差（默认：0.05）.
+        ///   Looks up a localized string similar to 事件段压缩容差（默认：0.000001）.
         /// </summary>
         public static string render_opt_segment_tolerance {
             get {

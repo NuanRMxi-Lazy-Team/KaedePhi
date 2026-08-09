@@ -10,14 +10,17 @@ namespace KaedePhi.Tool.JudgeLines.KaedePhi.Utils;
 /// </summary>
 public abstract class FatherUnbindProcessorBase
 {
-    protected readonly ConcurrentDictionary<int, JudgeLine> Cache;
+    protected readonly ConcurrentDictionary<
+        FatherUnbindHelpers.UnbindCacheKey,
+        JudgeLine
+    > Cache;
     protected readonly Action<string>? LogInfo;
     protected readonly Action<string>? LogWarning;
     protected readonly Action<string>? LogError;
     protected readonly Action<string>? LogDebug;
 
     protected FatherUnbindProcessorBase(
-        ConcurrentDictionary<int, JudgeLine> cache,
+        ConcurrentDictionary<FatherUnbindHelpers.UnbindCacheKey, JudgeLine> cache,
         Action<string>? logInfo = null,
         Action<string>? logWarning = null,
         Action<string>? logError = null,
@@ -42,12 +45,13 @@ public abstract class FatherUnbindProcessorBase
         List<JudgeLine> allJudgeLines,
         string logTag,
         string startAction,
+        Func<int, FatherUnbindHelpers.UnbindCacheKey> cacheKeyFactory,
         Func<int, List<JudgeLine>, JudgeLine> recursiveUnbind
     )
     {
         if (
             FatherUnbindHelpers.TryGetCachedClone(
-                targetJudgeLineIndex,
+                cacheKeyFactory(targetJudgeLineIndex),
                 Cache,
                 logTag,
                 out var cached,
@@ -63,7 +67,7 @@ public abstract class FatherUnbindProcessorBase
 
         if (
             FatherUnbindHelpers.TryReturnWhenNoFather(
-                targetJudgeLineIndex,
+                cacheKeyFactory(targetJudgeLineIndex),
                 judgeLineCopy,
                 Cache,
                 logTag,

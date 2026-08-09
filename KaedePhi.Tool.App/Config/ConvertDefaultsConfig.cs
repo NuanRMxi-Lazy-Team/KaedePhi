@@ -45,6 +45,7 @@ public sealed class ConvertDefaultsConfig
     // 通用选项
     public double UnbindPrecision { get; set; } = 64d;
     public double UnbindTolerance { get; set; } = 1d;
+    public double UnbindMergeTolerance { get; set; } = 0.1d;
     public bool UnbindClassicMode { get; set; }
     public double MultiLayerMergePrecision { get; set; } = 64d;
     public double MultiLayerMergeTolerance { get; set; } = 0.2d;
