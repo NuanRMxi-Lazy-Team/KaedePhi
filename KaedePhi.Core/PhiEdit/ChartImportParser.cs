@@ -1,201 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
-using JetBrains.Annotations;
 using KaedePhi.Core.Common;
 
 namespace KaedePhi.Core.PhiEdit
 {
     public partial class Chart
     {
-        private static readonly string[] Separator = { "\r\n", "\n", "\r" };
-
-        /// <summary>
-        /// 将 PhiEditChart 格式的文本字符串反序列化为 <see cref="Chart"/> 对象。
-        /// <para>
-        /// 第一行必须为整数偏移量；随后每行为一条指令（<c>bp</c>、判定线指令或 Note 指令）。
-        /// Note 指令若未内联速度/宽度信息，则紧跟的两行分别为速度行（<c># value</c>）和宽度行（<c>&amp; value</c>）。
-        /// 解析完成后所有集合按拍数升序排序。
-        /// </para>
-        /// </summary>
-        /// <param name="pec">符合 PhiEditChart 规范的文本字符串。</param>
-        /// <returns>已完整反序列化并排序的 <see cref="Chart"/> 实例。</returns>
-        /// <exception cref="FormatException">首行不是合法整数偏移量，或任意指令字段数不足。</exception>
-        [PublicAPI]
-        public static Chart Load(string pec)
-        {
-            if (pec is null)
-                throw new ArgumentNullException(nameof(pec));
-
-            var lines = pec.Split(Separator, StringSplitOptions.None);
-
-            if (!TryParseInteger(lines[0], out var offset))
-                throw new FormatException(
-                    "Malformed chart file: first line is not a valid integer offset."
-                );
-
-            var chart = new Chart { Offset = offset };
-            var judgeDict = new Dictionary<int, JudgeLine>();
-
-            var lineIndex = 1;
-            while (lineIndex < lines.Length)
-                lineIndex = ProcessLine(lines, lineIndex, chart, judgeDict);
-
-            SortAndBuild(chart, judgeDict);
-            return chart;
-        }
-
-        /// <summary>
-        /// 处理 <paramref name="lines"/> 中索引为 <paramref name="i"/> 的单行，并返回下一行的索引。
-        /// <para>
-        /// 空白行直接跳过（返回 <c>i + 1</c>）；其余行交由
-        /// <see cref="ParseChartLineCore(string,string[],int,Chart,Dictionary{int,JudgeLine})"/> 处理。
-        /// </para>
-        /// </summary>
-        /// <param name="lines">谱面全部文本行数组。</param>
-        /// <param name="i">当前待处理行的索引（从 1 开始，第 0 行已作为偏移量消耗）。</param>
-        /// <param name="chart">正在构建的谱面对象，BPM 列表等数据将就地写入。</param>
-        /// <param name="judgeDict">判定线暂存字典，键为判定线索引，值为对应 <see cref="JudgeLine"/>。</param>
-        /// <returns>下一次应处理的行索引。</returns>
-        /// <exception cref="FormatException">指令字段数不足或格式不合法。</exception>
-        private static int ProcessLine(
-            string[] lines,
-            int i,
-            Chart chart,
-            Dictionary<int, JudgeLine> judgeDict
-        )
-        {
-            var line = lines[i];
-            if (string.IsNullOrWhiteSpace(line))
-                return i + 1;
-
-            return i + ParseChartLineCore(line, lines, i, chart, judgeDict);
-        }
-
-        /// <summary>
-        /// 从 <paramref name="stream"/> 流式读取 PhiEditChart 并反序列化为 <see cref="Chart"/> 对象。
-        /// <para>
-        /// 使用 <see cref="StreamReader"/> 逐行读取，内存占用低于 <see cref="Load"/>；
-        /// 流读取完毕后不会关闭 <paramref name="stream"/>（<c>leaveOpen: true</c>）。
-        /// 解析完成后所有集合按拍数升序排序。
-        /// </para>
-        /// </summary>
-        /// <param name="stream">可读的 PhiEditChart 文件流；调用方负责其生命周期管理。</param>
-        /// <returns>已完整反序列化并排序的 <see cref="Chart"/> 实例。</returns>
-        /// <exception cref="FormatException">首行不是合法整数偏移量，或任意指令字段数不足。</exception>
-        [PublicAPI]
-        public static Chart LoadStream(Stream stream)
-        {
-            using var reader = CreateStreamReader(stream);
-            var (chart, judgeDict) = InitializeChart(reader.ReadLine);
-
-            while (reader.ReadLine() is { } line)
-            {
-                if (!string.IsNullOrWhiteSpace(line))
-                    ParseChartLineCore(line, reader.ReadLine, chart, judgeDict);
-            }
-
-            SortAndBuild(chart, judgeDict);
-            return chart;
-        }
-
-        /// <summary>
-        /// 异步从 <paramref name="stream"/> 流式读取 PhiEditChart 并反序列化为 <see cref="Chart"/> 对象。
-        /// <para>
-        /// 使用 <see cref="StreamReader"/> 异步逐行读取；
-        /// 流读取完毕后不会关闭 <paramref name="stream"/>（<c>leaveOpen: true</c>）。
-        /// 解析完成后所有集合按拍数升序排序。
-        /// </para>
-        /// </summary>
-        /// <param name="stream">可读的 PhiEditChart 文件流；调用方负责其生命周期管理。</param>
-        /// <returns>已完整反序列化并排序的 <see cref="Chart"/> 实例。</returns>
-        /// <exception cref="FormatException">首行不是合法整数偏移量，或任意指令字段数不足。</exception>
-        [PublicAPI]
-        public static async Task<Chart> LoadStreamAsync(Stream stream)
-        {
-            using var reader = CreateStreamReader(stream);
-            var firstLine = await reader.ReadLineAsync();
-            var (chart, judgeDict) = InitializeChart(() => firstLine);
-
-            while (await reader.ReadLineAsync() is { } line)
-            {
-                if (!string.IsNullOrWhiteSpace(line))
-                    await ParseChartLineAsync(line, reader, chart, judgeDict);
-            }
-
-            SortAndBuild(chart, judgeDict);
-            return chart;
-        }
-
-        private static async Task ParseChartLineAsync(
-            string line,
-            StreamReader reader,
-            Chart chart,
-            Dictionary<int, JudgeLine> judgeDict
-        )
-        {
-            var part = SplitWhitespace(line);
-            var judgeLineIndex = GetJudgeLineIndex(part);
-
-            if (part[0] == "bp")
-            {
-                EnsureMinParts(part, 3, "bp");
-                chart.BpmList.Add(
-                    new BpmItem
-                    {
-                        StartBeat = ParseFloat(part[1], "bp 起始拍"),
-                        Bpm = ParseFloat(part[2], "bp BPM"),
-                    }
-                );
-            }
-            else if (part[0].StartsWith("n", StringComparison.Ordinal))
-            {
-                var (speedPart, widthPart) = GetInlineNoteParts(part);
-                if (speedPart is null)
-                {
-                    var speedLine = await reader.ReadLineAsync();
-                    var widthLine = await reader.ReadLineAsync();
-                    if (speedLine is null || widthLine is null)
-                        throw new FormatException("Malformed note: missing speed or width lines.");
-                    speedPart = SplitWhitespace(speedLine);
-                    widthPart = SplitWhitespace(widthLine);
-                }
-
-                AddNoteToDict(BuildNote(part, speedPart, widthPart), judgeLineIndex, judgeDict);
-            }
-            else
-                ParseLineCommand(part, judgeLineIndex, judgeDict);
-        }
-
-        private static StreamReader CreateStreamReader(Stream stream) =>
-            new(
-                stream,
-                JsonDefaults.NoBomUtf8,
-                detectEncodingFromByteOrderMarks: true,
-                1024,
-                leaveOpen: true
-            );
-
-        private static (Chart chart, Dictionary<int, JudgeLine> judgeDict) InitializeChart(
-            Func<string?> readFirstLineFunc
-        )
-        {
-            var chart = new Chart();
-            var judgeDict = new Dictionary<int, JudgeLine>();
-
-            var firstLine = readFirstLineFunc();
-            if (!TryParseInteger(firstLine, out var offset))
-                throw new FormatException(
-                    "Malformed chart file: first line is not a valid integer offset."
-                );
-            chart.Offset = offset;
-
-            return (chart, judgeDict);
-        }
-
         /// <summary>
         /// 解析谱面中的一行文本，将结果写入 <paramref name="chart"/> 或 <paramref name="judgeDict"/>。
         /// <para>
@@ -320,9 +132,20 @@ namespace KaedePhi.Core.PhiEdit
                 );
         }
 
+        /// <summary>
+        /// 将一行文本按空白字符拆分为字段数组，并移除空字段。
+        /// </summary>
+        /// <param name="line">要拆分的文本行。</param>
+        /// <returns>拆分后的字段数组。</returns>
         private static string[] SplitWhitespace(string line) =>
             line.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries);
 
+        /// <summary>
+        /// 解析指令的判定线索引字段（<c>part[1]</c>），若为 <c>"bp"</c> 则返回 -1。
+        /// </summary>
+        /// <param name="part">已按空格拆分的指令字段数组。</param>
+        /// <returns>判定线索引，若为 <c>"bp"</c> 则返回 -1。</returns>
+        /// <exception cref="FormatException"><paramref name="part"/> 的长度不足或格式错误。</exception>
         private static int GetJudgeLineIndex(string[] part)
         {
             if (part.Length == 0)
@@ -334,9 +157,22 @@ namespace KaedePhi.Core.PhiEdit
             return ParseInteger(part[1], $"{part[0]} 判定线索引");
         }
 
+        /// <summary>
+        /// 尝试将文本解析为整数，使用不区分区域的整数格式。
+        /// </summary>
+        /// <param name="text">要解析的文本。</param>
+        /// <param name="value">解析成功时的整数值。</param>
+        /// <returns>如果解析成功，则返回 <c>true</c>；否则返回 <c>false</c>。</returns>
         private static bool TryParseInteger(string? text, out int value) =>
             int.TryParse(text, NumberStyles.Integer, CultureInfo.InvariantCulture, out value);
 
+        /// <summary>
+        /// 尝试将文本解析为整数。
+        /// </summary>
+        /// <param name="text">要解析的文本。</param>
+        /// <param name="field">字段名称，用于生成错误消息。</param>
+        /// <returns>解析成功的整数值。</returns>
+        /// <exception cref="FormatException">解析失败。</exception>
         private static int ParseInteger(string text, string field)
         {
             return !TryParseInteger(text, out var value)
@@ -344,6 +180,13 @@ namespace KaedePhi.Core.PhiEdit
                 : value;
         }
 
+        /// <summary>
+        /// 尝试将文本解析为浮点数，使用不区分区域的浮点格式。
+        /// </summary>
+        /// <param name="text">要解析的文本。</param>
+        /// <param name="field">字段名称，用于生成错误消息。</param>
+        /// <returns>解析成功的浮点数值。</returns>
+        /// <exception cref="FormatException">解析失败。</exception>
         private static float ParseFloat(string text, string field)
         {
             if (
@@ -360,6 +203,13 @@ namespace KaedePhi.Core.PhiEdit
             return value;
         }
 
+        /// <summary>
+        /// 尝试将文本解析为二进制标记（0/1），用于表示布尔值。
+        /// </summary>
+        /// <param name="text">要解析的文本。</param>
+        /// <param name="field">字段名称，用于生成错误消息。</param>
+        /// <returns>解析成功的布尔值。</returns>
+        /// <exception cref="FormatException">解析失败。</exception>
         private static bool ParseBinaryFlag(string text, string field) =>
             text switch
             {
@@ -368,6 +218,12 @@ namespace KaedePhi.Core.PhiEdit
                 _ => throw new FormatException($"Malformed chart field '{field}': '{text}'."),
             };
 
+        /// <summary>
+        /// 尝试将文本解析为上下侧标记（1/2），用于表示布尔值。
+        /// </summary>
+        /// <param name="text">要解析的文本。</param>
+        /// <returns>解析成功的布尔值。</returns>
+        /// <exception cref="FormatException">解析失败。</exception>
         private static bool ParseAboveFlag(string text) =>
             text switch
             {
@@ -384,7 +240,7 @@ namespace KaedePhi.Core.PhiEdit
         /// </para>
         /// </summary>
         /// <param name="part">已按空格拆分的指令字段数组，<c>part[0]</c> 为指令标识符，<c>part[1]</c> 为判定线索引。</param>
-        /// <param name="judgeLineIndex">当前指令作用的判定线索引。</param>
+        /// <param name="judgeLineIndex">当前指令作用的判定线索。</param>
         /// <param name="judgeDict">判定线暂存字典，解析结果将就地写入。</param>
         /// <exception cref="FormatException">指令字段数不足。</exception>
         private static void ParseLineCommand(
@@ -635,109 +491,6 @@ namespace KaedePhi.Core.PhiEdit
             }
 
             chart.JudgeLineList = judgeDict.OrderBy(kv => kv.Key).Select(kv => kv.Value).ToList();
-        }
-
-        /// <summary>
-        /// 将 PhiEditChart 格式的文本字符串异步反序列化为 <see cref="Chart"/> 对象。
-        /// <para>内部在线程池上调用同步的 <see cref="Load"/>，适合在 UI 线程等不宜阻塞的上下文中使用。</para>
-        /// </summary>
-        /// <param name="pec">符合 PhiEditChart 规范的文本字符串。</param>
-        /// <returns>已完整反序列化并排序的 <see cref="Chart"/> 实例。</returns>
-        /// <exception cref="FormatException">首行不是合法整数偏移量，或任意指令字段数不足。</exception>
-        public static async Task<Chart> LoadAsync(string pec) => await Task.Run(() => Load(pec));
-
-        /// <summary>
-        /// 以惰性迭代方式枚举单条判定线 <paramref name="judgeLine"/> 的所有 PhiEditChart 导出行。
-        /// <para>
-        /// 输出顺序为：移动关键帧 → 速度关键帧 → 旋转关键帧 → 不透明度关键帧 →
-        /// 移动事件 → 旋转事件 → 不透明度事件 → 音符。
-        /// </para>
-        /// </summary>
-        /// <param name="judgeLine">待导出的判定线。</param>
-        /// <param name="index">该判定线在谱面中的索引，用于生成指令中的判定线编号字段。</param>
-        /// <returns>按 PhiEditChart 规范格式化的文本行序列。</returns>
-        private static IEnumerable<string> GetJudgeLineLines(JudgeLine judgeLine, int index)
-        {
-            // Frame
-            foreach (var frame in judgeLine.MoveFrames)
-                yield return frame.ToString(index);
-            foreach (var frame in judgeLine.SpeedFrames)
-                yield return frame.ToString(index, "cv");
-            foreach (var frame in judgeLine.RotateFrames)
-                yield return frame.ToString(index, "cd");
-            foreach (var frame in judgeLine.AlphaFrames)
-                yield return frame.ToString(index, "ca");
-            // Event
-            foreach (var ev in judgeLine.MoveEvents)
-                yield return ev.ToString(index);
-            foreach (var ev in judgeLine.RotateEvents)
-                yield return ev.ToString(index, "cr");
-            foreach (var ev in judgeLine.AlphaEvents)
-                yield return ev.ToString(index, "cf");
-            // Note
-            foreach (var note in judgeLine.NoteList)
-                yield return note.ToString(index);
-        }
-
-        /// <summary>
-        /// 以惰性迭代方式枚举整个谱面的所有 PhiEditChart 导出行。
-        /// <para>输出顺序为：偏移量行 → BPM 行 → 各判定线的全部指令行（调用 <see cref="GetJudgeLineLines"/>）。</para>
-        /// </summary>
-        /// <returns>按 PhiEditChart 规范格式化的完整文本行序列。</returns>
-        private IEnumerable<string> GetExportLines()
-        {
-            yield return Offset.ToString(CultureInfo.InvariantCulture);
-            foreach (var bpm in BpmList)
-                yield return bpm.ToString();
-            for (var i = 0; i < JudgeLineList.Count; i++)
-                foreach (var line in GetJudgeLineLines(JudgeLineList[i], i))
-                    yield return line;
-        }
-
-        /// <summary>
-        /// 将谱面序列化为 PhiEditChart 格式的文本字符串，各行以 <see cref="Environment.NewLine"/> 连接。
-        /// </summary>
-        /// <returns>完整的 PhiEditChart 文本。</returns>
-        [PublicAPI]
-        public string Export() => string.Join(Environment.NewLine, GetExportLines());
-
-        /// <summary>
-        /// 将谱面异步序列化为 PhiEditChart 格式的文本字符串。
-        /// <para>内部在线程池上调用同步的 <see cref="Export"/>，适合在 UI 线程等不宜阻塞的上下文中使用。</para>
-        /// </summary>
-        /// <returns>完整的 PhiEditChart 文本。</returns>
-        public async Task<string> ExportAsync() => await Task.Run(Export);
-
-        /// <summary>
-        /// 将谱面以 PhiEditChart 格式流式写入 <paramref name="stream"/>，每行结尾使用系统换行符。
-        /// <para>写入完毕后不会关闭 <paramref name="stream"/>（<c>leaveOpen: true</c>），调用方负责其生命周期管理。</para>
-        /// </summary>
-        /// <param name="stream">可写的目标流。</param>
-        public void ExportToStream(Stream stream)
-        {
-            using var writer = CreateStreamWriter(stream);
-            WriteExportLines(writer.WriteLine);
-        }
-
-        /// <summary>
-        /// 将谱面以 PhiEditChart 格式异步流式写入 <paramref name="stream"/>，每行结尾使用系统换行符。
-        /// <para>写入完毕后不会关闭 <paramref name="stream"/>（<c>leaveOpen: true</c>），调用方负责其生命周期管理。</para>
-        /// </summary>
-        /// <param name="stream">可写的目标流。</param>
-        public async Task ExportToStreamAsync(Stream stream)
-        {
-            await using var writer = CreateStreamWriter(stream);
-            foreach (var line in GetExportLines())
-                await writer.WriteLineAsync(line);
-        }
-
-        private static StreamWriter CreateStreamWriter(Stream stream) =>
-            new(stream, JsonDefaults.NoBomUtf8, 1024, leaveOpen: true);
-
-        private void WriteExportLines(Action<string> writeLineFunc)
-        {
-            foreach (var line in GetExportLines())
-                writeLineFunc(line);
         }
     }
 }

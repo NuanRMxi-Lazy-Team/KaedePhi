@@ -94,7 +94,7 @@ public static class JudgeLineBuilder
         // 展开 CurveNoteTrack（链式音符）
         if (src.CurveNoteTracks.Count > 0)
         {
-            warn?.Invoke($"PhiChain 的 CurveNoteTrack 将被展开为普通音符，曲线精度可能有损");
+            warn?.Invoke("PhiChain 的 CurveNoteTrack 将被展开为普通音符，曲线精度可能有损");
             var expandedNotes = ExpandCurveNoteTracks(src);
             notes.AddRange(expandedNotes);
         }
@@ -245,14 +245,12 @@ public static class JudgeLineBuilder
         var serializedLine = ConvertLineToPhiChain(kpcLine, options, warn);
 
         // 递归处理子线
-        if (childMap.TryGetValue(lineIndex, out var children))
+        if (!childMap.TryGetValue(lineIndex, out var children)) return serializedLine;
+        foreach (var childIndex in children)
         {
-            foreach (var childIndex in children)
-            {
-                serializedLine.Children.Add(
-                    BuildLineSubtree(kpcLines, childIndex, childMap, options, warn)
-                );
-            }
+            serializedLine.Children.Add(
+                BuildLineSubtree(kpcLines, childIndex, childMap, options, warn)
+            );
         }
 
         return serializedLine;
@@ -279,7 +277,7 @@ public static class JudgeLineBuilder
             Notes = src.Notes.ConvertAll(NoteBuilder.ConvertNote),
         };
 
-        // 使用 LayerProcessor 合并多个事件层（phichain 不支持多层级）
+        // 使用 LayerProcessor 合并多个事件层（PhiChain 不支持多层级）
         if (src.EventLayers.Count > 0)
         {
             if (src.EventLayers.Count > 1)
