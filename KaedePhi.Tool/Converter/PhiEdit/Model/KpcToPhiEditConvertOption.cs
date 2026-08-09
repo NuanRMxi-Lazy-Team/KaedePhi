@@ -103,13 +103,13 @@ public class KpcToPhiEditConvertOptions
         private bool _compress = true;
 
         /// <summary>
-        /// 遇到父子线时父线解绑精度
+        /// 遇到父子线时的解绑采样精度（每拍采样数）
         /// </summary>
         public double Precision { get; set; } = DefaultPrecision;
 
         /// <summary>
-        /// 遇到父子线时是否使用经典模式。
-        /// 当 Compress 为 false 时，该值会被强制为 true。
+        /// 遇到父子线时是否使用经典等间隔采样模式。
+        /// 自适应模式会根据容差直接生成压缩后的结果。
         /// </summary>
         public bool ClassicMode
         {
@@ -125,13 +125,14 @@ public class KpcToPhiEditConvertOptions
         }
 
         /// <summary>
-        /// 遇到父子线时合并后压缩拟合容差百分比
+        /// 父子线解绑相对原始运动范围的几何容差百分比。
+        /// 自适应模式用于决定切段，经典模式用于压缩等间隔采样结果。
         /// </summary>
         public double Tolerance { get; set; } = 0.1d;
 
         /// <summary>
-        /// 在启用经典模式的情况下，是否对解绑后的事件列表进行压缩
-        /// 当该值为 false 时，ClassicMode 会被强制为 true。
+        /// 在经典模式下是否对等间隔采样结果进行压缩。
+        /// 自适应模式已经完成压缩，不会执行额外压缩。
         /// </summary>
         public bool Compress
         {

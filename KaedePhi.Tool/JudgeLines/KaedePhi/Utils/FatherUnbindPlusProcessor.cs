@@ -100,7 +100,7 @@ public class FatherUnbindPlusProcessor : FatherUnbindProcessorBase
 
             progress?.Report(new ToolProgress(0.9, "写回结果"));
             LogDebug?.Invoke(
-                $"FatherUnbindPlus[{targetJudgeLineIndex}]: 采样完成（生成 {resultX.Count} 段），压缩并写回"
+                $"FatherUnbindPlus[{targetJudgeLineIndex}]: 采样完成（生成 {resultX.Count} 段），写回结果"
             );
             FatherUnbindHelpers.WriteResultToLine(judgeLineCopy, resultX, resultY, ch.Fr, Merge);
 
@@ -112,7 +112,7 @@ public class FatherUnbindPlusProcessor : FatherUnbindProcessorBase
             List<KpcEvents.Event<double>> Merge(
                 List<KpcEvents.Event<double>> a,
                 List<KpcEvents.Event<double>> b
-            ) => _merger.EventListMerge(a, b, precision, _tolerance);
+            ) => _merger.EventListMerge(a, b, precision, 0d);
         }
         catch (Exception ex)
         {

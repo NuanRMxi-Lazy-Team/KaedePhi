@@ -195,11 +195,13 @@ public static class JudgeLineBuilder
         }
 
         // 使用 JudgeLineUnbinder 解绑
+        var compressor = options.UnbindClassicMode ? new LayerProcessor() : null;
         foreach (var lineIndex in linesToUnbind)
         {
+            Kpc.JudgeLine unboundLine;
             if (options.UnbindClassicMode)
             {
-                result[lineIndex] = unbinder.FatherUnbind(
+                unboundLine = unbinder.FatherUnbind(
                     lineIndex,
                     result,
                     options.UnbindPrecision
@@ -207,13 +209,21 @@ public static class JudgeLineBuilder
             }
             else
             {
-                result[lineIndex] = unbinder.FatherUnbind(
+                unboundLine = unbinder.FatherUnbind(
                     lineIndex,
                     result,
                     options.UnbindPrecision,
                     options.UnbindTolerance
                 );
             }
+
+            if (compressor is not null)
+            {
+                foreach (var layer in unboundLine.EventLayers)
+                    compressor.LayerEventsCompress(layer, options.UnbindTolerance);
+            }
+
+            result[lineIndex] = unboundLine;
         }
 
         return result;

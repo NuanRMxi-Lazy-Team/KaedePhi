@@ -11,9 +11,9 @@ namespace KaedePhi.Tool.Common;
 public static class ChartProcessingValidator
 {
     /// <summary>
-    /// 允许的最大采样精度。
+    /// 允许的最大采样精度，需与 Beat 的可表示分母上限保持一致。
     /// </summary>
-    public const double MaximumPrecision = 4096d;
+    public const double MaximumPrecision = 1024d;
 
     /// <summary>
     /// 允许的最大渲染像素总数。
@@ -188,7 +188,7 @@ public static class ChartProcessingValidator
 #pragma warning disable CA2208
         if (!double.IsFinite(options.RangePaddingRatio) || options.RangePaddingRatio < 0)
             throw new ArgumentOutOfRangeException(nameof(options.RangePaddingRatio));
-        if (options.RangeSamplesPerEvent <= 0 || options.RangeSamplesPerEvent > 4096)
+        if (options.RangeSamplesPerEvent is <= 0 or > 4096)
             throw new ArgumentOutOfRangeException(nameof(options.RangeSamplesPerEvent));
         if (!double.IsFinite(options.SegmentGroupTolerance) || options.SegmentGroupTolerance < 0)
             throw new ArgumentOutOfRangeException(nameof(options.SegmentGroupTolerance));

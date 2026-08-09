@@ -1,6 +1,7 @@
 using KaedePhi.Core.Common;
 using KaedePhi.Tool.Common;
 using KaedePhi.Tool.Event.KaedePhi;
+using KaedePhi.Tool.JudgeLines.KaedePhi.Utils;
 using EventLayer = KaedePhi.Core.KaedePhi.Events.EventLayer;
 
 namespace KaedePhi.Tool.Layer.KaedePhi;
@@ -238,14 +239,22 @@ public class LayerProcessor : LoggableBase, ILayerProcessor<EventLayer>
             layer.AlphaEvents = _intCompressor.EventListCompressSlope(layer.AlphaEvents, tolerance);
         progress?.Report(new ToolProgress((double)++completedChannels / totalChannels));
 
-        if (layer.MoveXEvents is { Count: > 0 })
-            layer.MoveXEvents = _doubleCompressor.EventListCompressSqrt(
-                layer.MoveXEvents,
+        var canCompressPositionTogether = CanCompressPositionTogether(layer);
+        if (canCompressPositionTogether)
+        {
+            var (compressedX, compressedY) = FatherUnbindHelpers.CompressPositionEvents(
+                layer.MoveXEvents!,
+                layer.MoveYEvents!,
                 tolerance
             );
+            layer.MoveXEvents = compressedX;
+            layer.MoveYEvents = compressedY;
+        }
+        else if (layer.MoveXEvents is { Count: > 0 })
+            layer.MoveXEvents = _doubleCompressor.EventListCompressSqrt(layer.MoveXEvents, tolerance);
         progress?.Report(new ToolProgress((double)++completedChannels / totalChannels));
 
-        if (layer.MoveYEvents is { Count: > 0 })
+        if (!canCompressPositionTogether && layer.MoveYEvents is { Count: > 0 })
             layer.MoveYEvents = _doubleCompressor.EventListCompressSqrt(
                 layer.MoveYEvents,
                 tolerance
@@ -265,6 +274,27 @@ public class LayerProcessor : LoggableBase, ILayerProcessor<EventLayer>
                 tolerance
             );
         progress?.Report(new ToolProgress(1.0));
+    }
+
+    private static bool CanCompressPositionTogether(EventLayer layer)
+    {
+        if (
+            layer.MoveXEvents is not { Count: > 0 } xEvents
+            || layer.MoveYEvents is not { Count: > 0 } yEvents
+            || xEvents.Count != yEvents.Count
+        )
+            return false;
+
+        for (var i = 0; i < xEvents.Count; i++)
+        {
+            if (
+                xEvents[i].StartBeat != yEvents[i].StartBeat
+                || xEvents[i].EndBeat != yEvents[i].EndBeat
+            )
+                return false;
+        }
+
+        return true;
     }
 
     private List<EventLayer>? RemoveUnlessLayer(List<EventLayer>? layers)

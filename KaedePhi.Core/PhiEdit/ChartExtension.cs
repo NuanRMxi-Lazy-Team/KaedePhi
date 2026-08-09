@@ -339,9 +339,9 @@ namespace KaedePhi.Core.PhiEdit
 
         private static int ParseInteger(string text, string field)
         {
-            if (!TryParseInteger(text, out var value))
-                throw new FormatException($"Malformed chart field '{field}': '{text}'.");
-            return value;
+            return !TryParseInteger(text, out var value)
+                ? throw new FormatException($"Malformed chart field '{field}': '{text}'.")
+                : value;
         }
 
         private static float ParseFloat(string text, string field)

@@ -16,7 +16,7 @@ public class KpcToPhiChainConvertOptions
     public double UnbindPrecision { get; set; } = 64d;
 
     /// <summary>
-    /// 父子线解绑自适应采样容差，默认 0.1。
+    /// 父子线解绑相对原始运动范围的几何容差百分比，默认 0.1%。
     /// </summary>
     public double UnbindTolerance { get; set; } = 0.1d;
 

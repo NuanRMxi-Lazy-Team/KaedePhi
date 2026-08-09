@@ -24,14 +24,13 @@ public static class ChartGetType
     {
         ArgumentNullException.ThrowIfNull(chartText);
 
-        // 尝试校验是否是一个json文件，如果不是一个json文件，则一定是PhiEdit
+        // 尝试校验是否是一个json文件，如果不是一个json文件，则有概率是PhiEdit格式
         if (!chartText.TrimStart().StartsWith('{'))
         {
-            // 也不一定，如果第一行不是纯数字，那么这就是个无效文件
-            if (int.TryParse(chartText.Split('\n')[0].Trim(), out _))
-                return ChartType.PhiEdit;
-
-            throw new NotSupportedException(UnsupportedChartMessage);
+            // 如果第一行不是纯数字，那么这是个无效文件
+            return int.TryParse(chartText.Split('\n')[0].Trim(), out _)
+                ? ChartType.PhiEdit
+                : throw new NotSupportedException(UnsupportedChartMessage);
         }
 
         // 看起来是一个json文件，解析为JObject，按特征进行读取

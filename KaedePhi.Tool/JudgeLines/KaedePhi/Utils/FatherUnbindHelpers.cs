@@ -65,8 +65,33 @@ public static class FatherUnbindHelpers
         );
     }
 
+    private static double GetNormalizedKpcDistance(
+        (double X, double Y) left,
+        (double X, double Y) right
+    )
+    {
+        var profile = CoordinateProfile.KpcProfile;
+        var normalizedX = (left.X - right.X) / (profile.MaxX - profile.MinX);
+        var normalizedY = (left.Y - right.Y) / (profile.MaxY - profile.MinY);
+        return Math.Sqrt(normalizedX * normalizedX + normalizedY * normalizedY);
+    }
+
+    private static double GetNormalizedKpcRange(
+        (double X, double Y) first,
+        (double X, double Y) second,
+        (double X, double Y) third,
+        (double X, double Y) fourth
+    )
+    {
+        var minX = Math.Min(Math.Min(first.X, second.X), Math.Min(third.X, fourth.X));
+        var maxX = Math.Max(Math.Max(first.X, second.X), Math.Max(third.X, fourth.X));
+        var minY = Math.Min(Math.Min(first.Y, second.Y), Math.Min(third.Y, fourth.Y));
+        var maxY = Math.Max(Math.Max(first.Y, second.Y), Math.Max(third.Y, fourth.Y));
+        return GetNormalizedKpcDistance((maxX, maxY), (minX, minY));
+    }
+
     /// <summary>
-    /// 判断线段是否需要进一步切割以满足精度要求。
+    /// 判断线段相对原始运动范围的误差是否需要进一步切割。
     /// </summary>
     /// <param name="segmentStart">线段起点坐标</param>
     /// <param name="next">下一个采样点坐标</param>
@@ -74,7 +99,8 @@ public static class FatherUnbindHelpers
     /// <param name="segmentStartBeat">线段起始拍</param>
     /// <param name="intervalEndBeat">区间结束拍</param>
     /// <param name="nextBeat">下一采样点拍</param>
-    /// <param name="tolerance">容差百分比</param>
+    /// <param name="tolerance">相对原始运动范围的几何容差百分比</param>
+    /// <param name="originalMovementRange">当前区间原始路径的规范化运动范围</param>
     /// <returns>需要切割则返回 true</returns>
     public static bool NeedsAdaptiveCut(
         (double X, double Y) segmentStart,
@@ -83,7 +109,8 @@ public static class FatherUnbindHelpers
         Beat segmentStartBeat,
         Beat intervalEndBeat,
         Beat nextBeat,
-        double tolerance
+        double tolerance,
+        double originalMovementRange = 0d
     )
     {
         var segmentLength = (double)(intervalEndBeat - segmentStartBeat);
@@ -93,47 +120,15 @@ public static class FatherUnbindHelpers
             Y: segmentStart.Y + (intervalEnd.Y - segmentStart.Y) * progress
         );
 
-        var profile = CurrentRenderProfile;
-        var tolFraction = tolerance / 100.0;
+        var normalizedError = GetNormalizedKpcDistance(next, predicted);
+        var movementRange =
+            originalMovementRange > 1e-12
+                ? originalMovementRange
+                : GetNormalizedKpcDistance(segmentStart, intervalEnd);
+        if (movementRange <= 1e-12)
+            return normalizedError > 1e-12;
 
-        // 逐轴屏幕空间误差：测试点相对线性预测的各轴偏差
-        var screenErrorX = CoordinateGeometry.GetKpcScreenDistance(
-            (next.X, predicted.Y),
-            predicted,
-            profile
-        );
-        var screenErrorY = CoordinateGeometry.GetKpcScreenDistance(
-            (predicted.X, next.Y),
-            predicted,
-            profile
-        );
-
-        // 逐轴屏幕空间位移尺度：局部运动范围
-        var segEndXScale = CoordinateGeometry.GetKpcScreenDistance(
-            (intervalEnd.X, segmentStart.Y),
-            segmentStart,
-            profile
-        );
-        var nextXScale = CoordinateGeometry.GetKpcScreenDistance(
-            (next.X, segmentStart.Y),
-            segmentStart,
-            profile
-        );
-        var segEndYScale = CoordinateGeometry.GetKpcScreenDistance(
-            (segmentStart.X, intervalEnd.Y),
-            segmentStart,
-            profile
-        );
-        var nextYScale = CoordinateGeometry.GetKpcScreenDistance(
-            (segmentStart.X, next.Y),
-            segmentStart,
-            profile
-        );
-
-        var thresholdX = tolFraction * Math.Max(Math.Max(segEndXScale, nextXScale), 1e-3);
-        var thresholdY = tolFraction * Math.Max(Math.Max(segEndYScale, nextYScale), 1e-3);
-
-        return screenErrorX > thresholdX || screenErrorY > thresholdY;
+        return normalizedError / movementRange > tolerance / 100.0;
     }
 
     /// <summary>
@@ -336,6 +331,138 @@ public static class FatherUnbindHelpers
         }
 
         line.Father = -1;
+    }
+
+    /// <summary>
+    /// 联合压缩 X/Y 位置事件，使用原始运动范围的规范化相对误差判断是否合并。
+    /// </summary>
+    /// <param name="xEvents">X 位置事件列表。</param>
+    /// <param name="yEvents">Y 位置事件列表。</param>
+    /// <param name="tolerance">相对原始运动范围的几何容差百分比。</param>
+    /// <returns>压缩后的 X/Y 位置事件列表。</returns>
+    public static (
+        List<KpcEvents.Event<double>> X,
+        List<KpcEvents.Event<double>> Y
+    ) CompressPositionEvents(
+        List<KpcEvents.Event<double>> xEvents,
+        List<KpcEvents.Event<double>> yEvents,
+        double tolerance
+    )
+    {
+        ChartProcessingValidator.ValidateTolerance(tolerance);
+        if (
+            xEvents.Count == 0
+            || yEvents.Count == 0
+            || !ArePositionEventsAligned(xEvents, yEvents)
+        )
+            return (xEvents, yEvents);
+
+        var relativeTolerance = tolerance / 100.0;
+        var compressedX = new List<KpcEvents.Event<double>> { xEvents[0].Clone() };
+        var compressedY = new List<KpcEvents.Event<double>> { yEvents[0].Clone() };
+
+        for (var i = 1; i < xEvents.Count; i++)
+        {
+            var lastX = compressedX[^1];
+            var lastY = compressedY[^1];
+            var currentX = xEvents[i];
+            var currentY = yEvents[i];
+
+            if (
+                CanMergePositionSegments(
+                    lastX,
+                    lastY,
+                    currentX,
+                    currentY,
+                    relativeTolerance
+                )
+            )
+            {
+                lastX.EndBeat = currentX.EndBeat;
+                lastX.EndValue = currentX.EndValue;
+                lastY.EndBeat = currentY.EndBeat;
+                lastY.EndValue = currentY.EndValue;
+                continue;
+            }
+
+            compressedX.Add(currentX.Clone());
+            compressedY.Add(currentY.Clone());
+        }
+
+        return (compressedX, compressedY);
+    }
+
+    private static bool ArePositionEventsAligned(
+        List<KpcEvents.Event<double>> xEvents,
+        List<KpcEvents.Event<double>> yEvents
+    )
+    {
+        if (xEvents.Count != yEvents.Count)
+            return false;
+
+        for (var i = 0; i < xEvents.Count; i++)
+        {
+            if (
+                xEvents[i].StartBeat != yEvents[i].StartBeat
+                || xEvents[i].EndBeat != yEvents[i].EndBeat
+            )
+                return false;
+        }
+
+        return true;
+    }
+
+    private static bool CanMergePositionSegments(
+        KpcEvents.Event<double> lastX,
+        KpcEvents.Event<double> lastY,
+        KpcEvents.Event<double> currentX,
+        KpcEvents.Event<double> currentY,
+        double relativeTolerance
+    )
+    {
+        if (
+            lastX.Easing != 1
+            || lastY.Easing != 1
+            || currentX.Easing != 1
+            || currentY.Easing != 1
+            || lastX.EndBeat != currentX.StartBeat
+            || lastY.EndBeat != currentY.StartBeat
+        )
+            return false;
+
+        var actualJunction = (X: lastX.EndValue, Y: lastY.EndValue);
+        var currentStart = (X: currentX.StartValue, Y: currentY.StartValue);
+        var originalMovementRange = GetNormalizedKpcRange(
+            (lastX.StartValue, lastY.StartValue),
+            actualJunction,
+            currentStart,
+            (currentX.EndValue, currentY.EndValue)
+        );
+        if (originalMovementRange <= 1e-12)
+            return true;
+
+        if (
+            GetNormalizedKpcDistance(actualJunction, currentStart) / originalMovementRange
+            > relativeTolerance
+        )
+            return false;
+
+        var startBeat = (double)lastX.StartBeat;
+        var junctionBeat = (double)lastX.EndBeat;
+        var endBeat = (double)currentX.EndBeat;
+        var totalBeatSpan = endBeat - startBeat;
+        if (totalBeatSpan < 1e-12)
+            return true;
+
+        var progress = (junctionBeat - startBeat) / totalBeatSpan;
+        var predictedJunction = (
+            X: lastX.StartValue + (currentX.EndValue - lastX.StartValue) * progress,
+            Y: lastY.StartValue + (currentY.EndValue - lastY.StartValue) * progress
+        );
+        return (
+                GetNormalizedKpcDistance(actualJunction, predictedJunction)
+                / originalMovementRange
+            ) <= relativeTolerance;
     }
 
     #region 共享数据结构
@@ -614,7 +741,7 @@ public static class FatherUnbindHelpers
 
     /// <summary>
     /// 对单个区间 [<paramref name="iStart"/>, <paramref name="iEnd"/>] 进行自适应分段采样：
-    /// 以 <paramref name="step"/> 推进，当相邻采样点误差超出容差时插入切割点，否则延续当前段。
+    /// 以 <paramref name="step"/> 推进，当采样点相对原始运动范围的误差超过容差时插入切割点，否则延续当前段。
     /// </summary>
     private static (
         List<KpcEvents.Event<double>> x,
@@ -633,6 +760,7 @@ public static class FatherUnbindHelpers
         var localY = new List<KpcEvents.Event<double>>();
 
         var end = absPosOut(iEnd);
+        var originalMovementRange = GetOriginalMovementRange(iStart, iEnd, step, absPosIn, absPosOut, ct);
         var segStart = iStart;
         var seg = absPosIn(iStart);
 
@@ -643,7 +771,19 @@ public static class FatherUnbindHelpers
             var isLast = next >= iEnd;
             var nextPos = isLast ? end : absPosIn(next);
 
-            if (isLast || NeedsAdaptiveCut(seg, nextPos, end, segStart, iEnd, next, tolerance))
+            if (
+                isLast
+                || NeedsAdaptiveCut(
+                    seg,
+                    nextPos,
+                    end,
+                    segStart,
+                    iEnd,
+                    next,
+                    tolerance,
+                    originalMovementRange
+                )
+            )
             {
                 localX.Add(
                     new KpcEvents.Event<double>
@@ -671,6 +811,38 @@ public static class FatherUnbindHelpers
         }
 
         return (localX, localY);
+    }
+
+    private static double GetOriginalMovementRange(
+        Beat intervalStart,
+        Beat intervalEnd,
+        Beat step,
+        Func<Beat, (double X, double Y)> absPosIn,
+        Func<Beat, (double X, double Y)> absPosOut,
+        CancellationToken ct
+    )
+    {
+        var first = absPosIn(intervalStart);
+        var minX = first.X;
+        var maxX = first.X;
+        var minY = first.Y;
+        var maxY = first.Y;
+
+        for (var cur = intervalStart; cur < intervalEnd; )
+        {
+            ct.ThrowIfCancellationRequested();
+            var next = cur + step > intervalEnd ? intervalEnd : cur + step;
+            var point = next >= intervalEnd ? absPosOut(intervalEnd) : absPosIn(next);
+            minX = Math.Min(minX, point.X);
+            maxX = Math.Max(maxX, point.X);
+            minY = Math.Min(minY, point.Y);
+            maxY = Math.Max(maxY, point.Y);
+            if (next <= cur)
+                break;
+            cur = next;
+        }
+
+        return GetNormalizedKpcDistance((maxX, maxY), (minX, minY));
     }
 
     #endregion

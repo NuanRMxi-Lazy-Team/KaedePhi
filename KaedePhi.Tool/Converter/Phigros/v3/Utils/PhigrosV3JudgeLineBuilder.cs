@@ -2,6 +2,7 @@ using KaedePhi.Core.Common;
 using KaedePhi.Tool.Common;
 using KaedePhi.Tool.Converter.Phigros.v3.Model;
 using KaedePhi.Tool.JudgeLines.KaedePhi;
+using KaedePhi.Tool.Layer.KaedePhi;
 using KpcEventLayer = KaedePhi.Core.KaedePhi.Events.EventLayer;
 using KpcJudgeLine = KaedePhi.Core.KaedePhi.JudgeLine;
 using KpcSpeedEvent = KaedePhi.Core.KaedePhi.Events.Event<float>;
@@ -17,6 +18,7 @@ public class PhigrosV3JudgeLineBuilder
 {
     private readonly KpcToPhigrosV3ConvertOptions _options;
     private readonly PhigrosV3EventBuilder _phigrosV3EventBuilder;
+    private readonly LayerProcessor _layerProcessor = new();
     private readonly float _globalBpm;
     private readonly float _chartEndBeat;
     private readonly Action<string>? _warnLogger;
@@ -73,6 +75,15 @@ public class PhigrosV3JudgeLineBuilder
                     _options.FatherLineUnbind.Precision,
                     _options.FatherLineUnbind.Tolerance
                 );
+
+            if (_options.FatherLineUnbind.ClassicMode && _options.FatherLineUnbind.Compress)
+            {
+                foreach (var layer in preprocessedSrc.EventLayers)
+                    _layerProcessor.LayerEventsCompress(
+                        layer,
+                        _options.FatherLineUnbind.Tolerance
+                    );
+            }
         }
 
         var lineBpm = _globalBpm / preprocessedSrc.BpmFactor;

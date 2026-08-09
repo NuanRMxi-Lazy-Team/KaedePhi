@@ -1,6 +1,7 @@
 using KaedePhi.Core.Common;
 using KaedePhi.Tool.Common;
 using KaedePhi.Tool.Converter.PhiEdit.Model;
+using KaedePhi.Tool.Layer.KaedePhi;
 using KaedePhi.Tool.JudgeLines.KaedePhi;
 using ExtendLayer = KaedePhi.Core.KaedePhi.Events.ExtendLayer;
 using KpcJudgeLine = KaedePhi.Core.KaedePhi.JudgeLine;
@@ -14,6 +15,7 @@ public class PhiEditJudgeLineBuilder
 {
     private readonly KpcToPhiEditConvertOptions _options;
     private readonly LineEventBuilder _eventBuilder;
+    private readonly LayerProcessor _layerProcessor = new();
     private readonly Action<string>? _warnLogger;
 
     public PhiEditJudgeLineBuilder(KpcToPhiEditConvertOptions options, Action<string>? warnLogger)
@@ -63,6 +65,15 @@ public class PhiEditJudgeLineBuilder
                     _options.FatherLineUnbind.Precision,
                     _options.FatherLineUnbind.Tolerance
                 );
+
+            if (_options.FatherLineUnbind.ClassicMode && _options.FatherLineUnbind.Compress)
+            {
+                foreach (var layer in trueSrc.EventLayers)
+                    _layerProcessor.LayerEventsCompress(
+                        layer,
+                        _options.FatherLineUnbind.Tolerance
+                    );
+            }
         }
 
         _eventBuilder.ConvertLineEvents(pe, trueSrc.EventLayers);

@@ -65,7 +65,7 @@ public static class ChartProcessor
                     lineProgress,
                     ct
                 );
-            if (!disableCompress)
+            if (classic && !disableCompress)
             {
                 foreach (var layer in unboundLine.EventLayers)
                     compressor.LayerEventsCompress(layer, tolerance, lineProgress);
