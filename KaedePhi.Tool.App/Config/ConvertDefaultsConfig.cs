@@ -42,6 +42,10 @@ public sealed class ConvertDefaultsConfig
     public bool PhigrosNegativeAlphaElevation { get; set; }
     public double PhigrosNegativeAlphaStep { get; set; } = 4.0d;
 
+    // PhiFans 转换选项
+    public int PhiFansUnsupportedEasingPrecision { get; set; } = 64;
+    public int PhiFansDiscontinuityBeatPrecision { get; set; } = 64;
+
     // 通用选项
     public double UnbindPrecision { get; set; } = 64d;
     public double UnbindTolerance { get; set; } = 1d;

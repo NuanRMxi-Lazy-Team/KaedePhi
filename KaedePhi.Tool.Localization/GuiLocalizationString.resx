@@ -514,6 +514,12 @@
   <data name="convert_phichain_options" xml:space="preserve">
     <value>转换到 PhiChain 格式选项</value>
   </data>
+  <data name="convert_phifans_options" xml:space="preserve">
+    <value>转换到 PhiFans 格式选项</value>
+  </data>
+  <data name="convert_phifans_discontinuity_precision" xml:space="preserve">
+    <value>不连续节点向后推迟拍数精分（1 / x 拍）</value>
+  </data>
   <data name="convert_unbind_non_rotating" xml:space="preserve">
     <value>解绑非旋转子线</value>
   </data>

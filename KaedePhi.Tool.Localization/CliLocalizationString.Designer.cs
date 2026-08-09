@@ -535,6 +535,24 @@ namespace KaedePhi.Tool.Localization {
                 return ResourceManager.GetString("convert_opt_phigros_xy_precision", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to PhiFans 节点式格式中相邻事件值不连续时，将后事件开始拍向后推迟的拍数精分（实际偏移为 1 / x 拍）.
+        /// </summary>
+        public static string convert_opt_phifans_discontinuity_precision {
+            get {
+                return ResourceManager.GetString("convert_opt_phifans_discontinuity_precision", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to PhiFans 输出时非支持缓动的切割精度（数值越大越精细）.
+        /// </summary>
+        public static string convert_opt_phifans_easing_precision {
+            get {
+                return ResourceManager.GetString("convert_opt_phifans_easing_precision", resourceCulture);
+            }
+        }
         
         /// <summary>
         ///   Looks up a localized string similar to 移除带有 AttachUi 的判定线.

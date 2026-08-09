@@ -326,6 +326,13 @@
     <data name="convert_opt_phigros_speed_precision" xml:space="preserve">
         <value>Phigros 输出时速度通道的切割精度</value>
     </data>
+    <!-- ── convert option descriptions（PhiFans） ───────────────────────────────── -->
+    <data name="convert_opt_phifans_easing_precision" xml:space="preserve">
+        <value>PhiFans 输出时非支持缓动的切割精度（数值越大越精细）</value>
+    </data>
+    <data name="convert_opt_phifans_discontinuity_precision" xml:space="preserve">
+        <value>PhiFans 节点式格式中相邻事件值不连续时，将后事件开始拍向后推迟的拍数精分（实际偏移为 1 / x 拍）</value>
+    </data>
     <!-- ── convert option descriptions（解绑） ────────────────────────────────── -->
     <data name="convert_opt_unbind_precision" xml:space="preserve">
         <value>父级解绑时的采样精度（数值越高越精细，不建议超过64）</value>

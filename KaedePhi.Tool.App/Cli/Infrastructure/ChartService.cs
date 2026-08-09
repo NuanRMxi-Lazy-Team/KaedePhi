@@ -1,6 +1,7 @@
 using KaedePhi.Tool.Common;
 using KaedePhi.Tool.Converter;
 using KaedePhi.Tool.Converter.PhiEdit.Model;
+using KaedePhi.Tool.Converter.PhiFans.Model;
 using KaedePhi.Tool.Converter.Phigros.v3.Model;
 using KaedePhi.Tool.Converter.RePhiEdit.Model;
 using Chart = KaedePhi.Core.KaedePhi.Chart;
@@ -27,6 +28,9 @@ public sealed record SaveAsOptions
     /// <summary>Phigros v3 转换选项（仅 <see cref="ChartType.PhigrosV3"/> 时生效）。</summary>
     public KpcToPhigrosV3ConvertOptions? PhigrosOptions { get; init; }
 
+    /// <summary>PhiFans 转换选项（仅 <see cref="ChartType.PhiFans"/> 时生效）。</summary>
+    public KpcToPhiFansConvertOptions? PhiFansOptions { get; init; }
+
     /// <summary>其他格式的转换选项，按目标格式自行匹配类型。</summary>
     public object? ExportOptions { get; init; }
 
@@ -40,6 +44,7 @@ public sealed record SaveAsOptions
         {
             ChartType.PhiEdit => PhiEditOptions ?? ExportOptions,
             ChartType.PhigrosV3 => PhigrosOptions ?? ExportOptions,
+            ChartType.PhiFans => PhiFansOptions ?? ExportOptions,
             _ => ExportOptions,
         };
 }

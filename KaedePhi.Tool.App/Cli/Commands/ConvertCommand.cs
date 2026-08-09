@@ -3,6 +3,7 @@ using KaedePhi.Tool.App.Config;
 using KaedePhi.Tool.Common;
 using KaedePhi.Tool.Converter;
 using KaedePhi.Tool.Converter.PhiEdit.Model;
+using KaedePhi.Tool.Converter.PhiFans.Model;
 using KaedePhi.Tool.Converter.Phigros.v3.Model;
 
 namespace KaedePhi.Tool.App.Cli.Commands;
@@ -118,6 +119,22 @@ public static partial class ConvertCommand
     )
     {
         Description = CliLocalizationString.convert_opt_phigros_speed_precision,
+        Arity = ArgumentArity.ExactlyOne,
+    };
+
+    private static readonly Option<int> PhiFansEasingPrecisionOpt = new(
+        "--phifans-easing-precision"
+    )
+    {
+        Description = CliLocalizationString.convert_opt_phifans_easing_precision,
+        Arity = ArgumentArity.ExactlyOne,
+    };
+
+    private static readonly Option<int> PhiFansDiscontinuityPrecisionOpt = new(
+        "--phifans-discontinuity-precision"
+    )
+    {
+        Description = CliLocalizationString.convert_opt_phifans_discontinuity_precision,
         Arity = ArgumentArity.ExactlyOne,
     };
 
@@ -393,6 +410,19 @@ public static partial class ConvertCommand
             },
         };
 
+        var phiFansOptions = new KpcToPhiFansConvertOptions
+        {
+            Cutting = new KpcToPhiFansConvertOptions.CuttingOptions
+            {
+                UnsupportedEasingPrecision =
+                    SharedOptions.GetIfSpecified(result, PhiFansEasingPrecisionOpt)
+                    ?? c.PhiFansUnsupportedEasingPrecision,
+            },
+            DiscontinuityBeatPrecision =
+                SharedOptions.GetIfSpecified(result, PhiFansDiscontinuityPrecisionOpt)
+                ?? c.PhiFansDiscontinuityBeatPrecision,
+        };
+
         var saveResult = await ChartService.SaveAsAsync(
             kpc,
             output,
@@ -404,6 +434,7 @@ public static partial class ConvertCommand
                 DryRun = dryRun,
                 PhiEditOptions = peOptions,
                 PhigrosOptions = phigrosOptions,
+                PhiFansOptions = phiFansOptions,
             },
             ct
         );

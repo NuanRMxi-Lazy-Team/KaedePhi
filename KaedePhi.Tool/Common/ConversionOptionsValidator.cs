@@ -1,5 +1,6 @@
 using KaedePhi.Tool.Converter.PhiChain.Model;
 using KaedePhi.Tool.Converter.PhiEdit.Model;
+using KaedePhi.Tool.Converter.PhiFans.Model;
 using KaedePhi.Tool.Converter.Phigros.v3.Model;
 using KaedePhi.Tool.Converter.RePhiEdit.Model;
 
@@ -40,6 +41,15 @@ internal static class ConversionOptionsValidator
         ArgumentNullException.ThrowIfNull(options);
         if (options.Cutting is null || options.Cutting.UnsupportedEasingPrecision <= 0)
             throw new ArgumentOutOfRangeException(nameof(options));
+    }
+
+    public static void Validate(KpcToPhiFansConvertOptions options)
+    {
+        ArgumentNullException.ThrowIfNull(options);
+        if (options.Cutting is null || options.Cutting.UnsupportedEasingPrecision <= 0)
+            throw new ArgumentOutOfRangeException(nameof(options.Cutting.UnsupportedEasingPrecision));
+        if (options.DiscontinuityBeatPrecision <= 0)
+            throw new ArgumentOutOfRangeException(nameof(options.DiscontinuityBeatPrecision), "必须是正整数。");
     }
 
     public static void Validate(KpcToPhigrosV3ConvertOptions options)

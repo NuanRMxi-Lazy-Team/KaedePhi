@@ -213,6 +213,8 @@
     <data name="convert_opt_phigros_alpha_precision" xml:space="preserve"><value>Phigros Alpha 切割精度</value></data>
     <data name="convert_opt_phigros_alpha_tolerance" xml:space="preserve"><value>Phigros Alpha 切割容差</value></data>
     <data name="convert_opt_phigros_speed_precision" xml:space="preserve"><value>Phigros 速度切割精度</value></data>
+    <data name="convert_opt_phifans_easing_precision" xml:space="preserve"><value>PhiFans 非支援緩動切割精度</value></data>
+    <data name="convert_opt_phifans_discontinuity_precision" xml:space="preserve"><value>PhiFans 相鄰事件值不連續時後事件開始拍精分（實際偏移為 1 / x 拍）</value></data>
     <data name="convert_opt_unbind_precision" xml:space="preserve"><value>父子線解綁精度</value></data>
     <data name="convert_opt_unbind_tolerance" xml:space="preserve"><value>父子線解綁容差</value></data>
     <data name="convert_opt_unbind_classic" xml:space="preserve"><value>父子線解綁經典模式</value></data>

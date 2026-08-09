@@ -10,7 +10,7 @@ public sealed class ExportViewModel : INotifyPropertyChanged
     private ChartType _selectedFormat;
 
     public List<ChartType> AvailableFormats { get; } =
-    [ChartType.RePhiEdit, ChartType.PhiEdit, ChartType.PhigrosV3, ChartType.PhiChain];
+    [ChartType.RePhiEdit, ChartType.PhiEdit, ChartType.PhigrosV3, ChartType.PhiChain, ChartType.PhiFans];
 
     public ChartType SourceFormat
     {
@@ -39,6 +39,7 @@ public sealed class ExportViewModel : INotifyPropertyChanged
             OnPropertyChanged(nameof(ShowPhigrosOptions));
             OnPropertyChanged(nameof(ShowRePhiEditOptions));
             OnPropertyChanged(nameof(ShowPhiChainOptions));
+            OnPropertyChanged(nameof(ShowPhiFansOptions));
             OnPropertyChanged(nameof(ShowGenericOptions));
             if (!IsJsonFormat)
                 IndentedOutput = false;
@@ -63,7 +64,8 @@ public sealed class ExportViewModel : INotifyPropertyChanged
             is ChartType.PhiEdit
                 or ChartType.PhigrosV3
                 or ChartType.RePhiEdit
-                or ChartType.PhiChain;
+                or ChartType.PhiChain
+                or ChartType.PhiFans;
 
     /// <summary>
     /// 是否显示 PhiEdit 专属转换选项（目标为 PhiEdit）
@@ -87,6 +89,12 @@ public sealed class ExportViewModel : INotifyPropertyChanged
     /// </summary>
     public bool ShowPhiChainOptions =>
         ShowConversionOptions && _selectedFormat == ChartType.PhiChain;
+
+    /// <summary>
+    /// 是否显示 PhiFans 专属转换选项（目标为 PhiFans）
+    /// </summary>
+    public bool ShowPhiFansOptions =>
+        ShowConversionOptions && _selectedFormat == ChartType.PhiFans;
 
     /// <summary>
     /// 是否显示通用转换选项（目标格式支持解绑/合并/线过滤）
@@ -586,6 +594,36 @@ public sealed class ExportViewModel : INotifyPropertyChanged
 
     #endregion
 
+    #region PhiFans 转换选项
+
+    /// <summary>
+    /// PhiFans 非支持缓动切割精度
+    /// </summary>
+    public int PhiFansUnsupportedEasingPrecision
+    {
+        get;
+        set
+        {
+            field = value;
+            OnPropertyChanged();
+        }
+    } = 64;
+
+    /// <summary>
+    /// PhiFans 节点式格式中相邻事件不连续时后事件开始拍向后推迟的拍数精分
+    /// </summary>
+    public int PhiFansDiscontinuityBeatPrecision
+    {
+        get;
+        set
+        {
+            field = value;
+            OnPropertyChanged();
+        }
+    } = 64;
+
+    #endregion
+
     public event Action? RequestExport;
     public event Action? RequestReturnToImport;
     public event Action? RequestCancelExport;
@@ -636,6 +674,9 @@ public sealed class ExportViewModel : INotifyPropertyChanged
         PhiChainMultiLayerMergePrecision = config.MultiLayerMergePrecision;
         PhiChainMultiLayerMergeTolerance = config.MultiLayerMergeTolerance;
         PhiChainMultiLayerMergeClassicMode = config.MultiLayerMergeClassicMode;
+
+        PhiFansUnsupportedEasingPrecision = config.PhiFansUnsupportedEasingPrecision;
+        PhiFansDiscontinuityBeatPrecision = config.PhiFansDiscontinuityBeatPrecision;
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;

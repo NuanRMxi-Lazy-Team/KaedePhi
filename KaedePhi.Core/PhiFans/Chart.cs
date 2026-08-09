@@ -3,7 +3,7 @@ using Newtonsoft.Json;
 
 namespace KaedePhi.Core.PhiFans
 {
-    public class Chart
+    public partial class Chart
     {
         /// <summary>
         /// 谱面基本信息
@@ -34,10 +34,20 @@ namespace KaedePhi.Core.PhiFans
         /// </summary>
         public static class CoordinateSystem
         {
+            /// <summary>X 轴最大值</summary>
             public const float MaxX = 100f;
+
+            /// <summary>X 轴最小值</summary>
             public const float MinX = -100f;
+
+            /// <summary>Y 轴最大值</summary>
             public const float MaxY = 100f;
+
+            /// <summary>Y 轴最小值</summary>
             public const float MinY = -100f;
+
+            /// <summary>旋转方向是否为顺时针</summary>
+            public const bool ClockwiseRotation = true;
         }
     }
 }

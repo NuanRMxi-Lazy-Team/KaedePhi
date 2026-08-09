@@ -514,6 +514,12 @@
   <data name="convert_phichain_options" xml:space="preserve">
     <value>PhiChain Conversion Options</value>
   </data>
+  <data name="convert_phifans_options" xml:space="preserve">
+    <value>PhiFans Conversion Options</value>
+  </data>
+  <data name="convert_phifans_discontinuity_precision" xml:space="preserve">
+    <value>Beat precision after discontinuous nodes (1 / x beat)</value>
+  </data>
   <data name="convert_unbind_non_rotating" xml:space="preserve">
     <value>Unbind Non-Rotating Children</value>
   </data>

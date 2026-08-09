@@ -149,6 +149,21 @@
                                 </StackPanel>
                             </StackPanel>
 
+                            <!-- PhiFans 转换选项 -->
+                            <StackPanel Spacing="8" IsVisible="{Binding ShowPhiFansOptions}">
+                                <TextBlock Text="{x:Static loc:GuiLocalizationString.convert_phifans_options}" FontSize="12" Opacity="0.7"/>
+                                <StackPanel Spacing="6">
+                                    <StackPanel Spacing="4">
+                                        <TextBlock Text="{x:Static loc:GuiLocalizationString.convert_easing_precision}" FontSize="12" Opacity="0.7"/>
+                                        <TextBox Text="{Binding PhiFansUnsupportedEasingPrecision}" Width="200" HorizontalAlignment="Left"/>
+                                    </StackPanel>
+                                    <StackPanel Spacing="4">
+                                        <TextBlock Text="{x:Static loc:GuiLocalizationString.convert_phifans_discontinuity_precision}" FontSize="12" Opacity="0.7"/>
+                                        <NumericUpDown Value="{Binding PhiFansDiscontinuityBeatPrecision}" Increment="1" FormatString="F0" Minimum="1" Maximum="4096" Width="200" HorizontalAlignment="Left"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </StackPanel>
+
                             <!-- 通用选项 -->
                             <StackPanel Spacing="8" IsVisible="{Binding ShowGenericOptions}">
                                 <TextBlock Text="{x:Static loc:GuiLocalizationString.convert_common_options}" FontSize="12" Opacity="0.7"/>

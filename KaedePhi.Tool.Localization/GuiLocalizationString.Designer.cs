@@ -382,6 +382,24 @@ namespace KaedePhi.Tool.Localization {
                 return ResourceManager.GetString("convert_phichain_options", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to 转换到 PhiFans 格式选项.
+        /// </summary>
+        public static string convert_phifans_options {
+            get {
+                return ResourceManager.GetString("convert_phifans_options", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to 不连续节点向后推迟拍数精分（1 / x 拍）.
+        /// </summary>
+        public static string convert_phifans_discontinuity_precision {
+            get {
+                return ResourceManager.GetString("convert_phifans_discontinuity_precision", resourceCulture);
+            }
+        }
         
         /// <summary>
         ///   Looks up a localized string similar to 转换到 PhigrosV3 格式选项.

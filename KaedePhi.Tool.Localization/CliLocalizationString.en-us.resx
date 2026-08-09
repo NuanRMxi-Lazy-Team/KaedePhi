@@ -219,6 +219,8 @@
     <data name="convert_opt_phigros_alpha_precision" xml:space="preserve"><value>Phigros alpha cut precision</value></data>
     <data name="convert_opt_phigros_alpha_tolerance" xml:space="preserve"><value>Phigros alpha cut tolerance</value></data>
     <data name="convert_opt_phigros_speed_precision" xml:space="preserve"><value>Phigros speed cut precision</value></data>
+    <data name="convert_opt_phifans_easing_precision" xml:space="preserve"><value>PhiFans unsupported easing cut precision</value></data>
+    <data name="convert_opt_phifans_discontinuity_precision" xml:space="preserve"><value>PhiFans discontinuity beat precision (1 / x beat)</value></data>
     <data name="convert_opt_unbind_precision" xml:space="preserve"><value>Father line unbind precision</value></data>
     <data name="convert_opt_unbind_tolerance" xml:space="preserve"><value>Father line unbind tolerance</value></data>
     <data name="convert_opt_unbind_classic" xml:space="preserve"><value>Father line unbind classic mode</value></data>

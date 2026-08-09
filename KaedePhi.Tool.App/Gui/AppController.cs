@@ -8,6 +8,7 @@ using KaedePhi.Tool.App.Gui.Views;
 using KaedePhi.Tool.Common;
 using KaedePhi.Tool.Converter.PhiChain.Model;
 using KaedePhi.Tool.Converter.PhiEdit.Model;
+using KaedePhi.Tool.Converter.PhiFans.Model;
 using KaedePhi.Tool.Converter.Phigros.v3.Model;
 using KaedePhi.Tool.Converter.RePhiEdit.Model;
 using KaedePhi.Tool.Render.KaedePhi;
@@ -725,6 +726,18 @@ internal sealed class AppController
         };
     }
 
+    private static KpcToPhiFansConvertOptions BuildPhiFansOptions(ExportViewModel vm)
+    {
+        return new KpcToPhiFansConvertOptions
+        {
+            Cutting = new KpcToPhiFansConvertOptions.CuttingOptions
+            {
+                UnsupportedEasingPrecision = vm.PhiFansUnsupportedEasingPrecision,
+            },
+            DiscontinuityBeatPrecision = vm.PhiFansDiscontinuityBeatPrecision,
+        };
+    }
+
     /// <summary>
     /// 根据目标格式构建导出选项
     /// </summary>
@@ -736,6 +749,7 @@ internal sealed class AppController
             ChartType.PhigrosV3 => BuildPhigrosV3Options(_exportVm),
             ChartType.PhiChain => BuildPhiChainOptions(_exportVm),
             ChartType.RePhiEdit => BuildRePhiEditOptions(_exportVm),
+            ChartType.PhiFans => BuildPhiFansOptions(_exportVm),
             _ => null,
         };
     }

@@ -1,5 +1,4 @@
 using System.Collections.ObjectModel;
-using System.IO;
 using KaedePhi.Tool.Common;
 using KaedePhi.Tool.Converter.PhiChain;
 using KaedePhi.Tool.Converter.PhiChain.Model;
@@ -7,13 +6,15 @@ using KaedePhi.Tool.Converter.PhiEdit;
 using KaedePhi.Tool.Converter.PhiEdit.Model;
 using KaedePhi.Tool.Converter.Phigros.v3;
 using KaedePhi.Tool.Converter.Phigros.v3.Model;
+using KaedePhi.Tool.Converter.PhiFans;
+using KaedePhi.Tool.Converter.PhiFans.Model;
 using KaedePhi.Tool.Converter.RePhiEdit;
 using KaedePhi.Tool.Converter.RePhiEdit.Model;
 
 namespace KaedePhi.Tool.Converter;
 
 /// <summary>
-/// 谱面格式注册表，集中描述各格式的导入导出能力，供 CLI 与 GUI 共用。
+/// 谱面格式注册表，集中描述各格式的导入导出能力
 /// </summary>
 public static class ChartFormatRegistry
 {
@@ -88,8 +89,8 @@ public static class ChartFormatRegistry
                     await WriteAsync(
                         path,
                         write,
-                        () => target.ExportAsync(),
-                        stream => target.ExportToStreamAsync(stream),
+                        target.ExportAsync,
+                        target.ExportToStreamAsync,
                         ct
                     );
                 },
@@ -170,7 +171,39 @@ public static class ChartFormatRegistry
                 },
             },
 
-            [ChartType.PhiFans] = new() { Type = ChartType.PhiFans, FileExtension = "json" },
+            [ChartType.PhiFans] = new()
+            {
+                Type = ChartType.PhiFans,
+                FileExtension = "json",
+                ExportOptionsFactory = () => new KpcToPhiFansConvertOptions(),
+                Importer = async (text, _, log, ct) =>
+                {
+                    var converter = Prepare(new PhiFansConverter(), log, ct);
+                    var source = await Core.PhiFans.Chart.LoadFromJsonAsync(text);
+                    return converter.ToKpc(source, null);
+                },
+                StreamImporter = async (stream, _, log, ct) =>
+                {
+                    var converter = Prepare(new PhiFansConverter(), log, ct);
+                    var source = await Core.PhiFans.Chart.LoadFromStreamAsync(stream);
+                    return converter.ToKpc(source, null);
+                },
+                Exporter = async (chart, path, write, options, log, ct) =>
+                {
+                    var converter = Prepare(new PhiFansConverter(), log, ct);
+                    var target = converter.FromKpc(
+                        chart,
+                        Coerce(options, () => new KpcToPhiFansConvertOptions())
+                    );
+                    await WriteAsync(
+                        path,
+                        write,
+                        () => target.ExportToJsonAsync(write.Indented),
+                        stream => target.ExportToJsonStreamAsync(stream, write.Indented),
+                        ct
+                    );
+                },
+            },
             [ChartType.PhigrosV1] = new() { Type = ChartType.PhigrosV1, FileExtension = "json" },
         }
     );
@@ -269,7 +302,8 @@ public static class ChartFormatRegistry
             else
             {
                 var temporaryPath = fullPath + "." + Guid.NewGuid().ToString("N") + ".tmp";
-                Directory.CreateDirectory(Path.GetDirectoryName(fullPath)!);
+                Directory.CreateDirectory(Path.GetDirectoryName(fullPath) ??
+                                          throw new InvalidOperationException("Invalid output path"));
                 try
                 {
                     await using (
@@ -286,6 +320,7 @@ public static class ChartFormatRegistry
                         await serializeStream(stream);
                         await stream.FlushAsync(ct);
                     }
+
                     ct.ThrowIfCancellationRequested();
                     File.Move(temporaryPath, fullPath, true);
                 }
@@ -302,7 +337,8 @@ public static class ChartFormatRegistry
             if (!write.DryRun)
             {
                 var temporaryPath = fullPath + "." + Guid.NewGuid().ToString("N") + ".tmp";
-                Directory.CreateDirectory(Path.GetDirectoryName(fullPath)!);
+                Directory.CreateDirectory(Path.GetDirectoryName(fullPath) ??
+                                          throw new InvalidOperationException("Invalid output path"));
                 try
                 {
                     await File.WriteAllTextAsync(temporaryPath, text, ct);
