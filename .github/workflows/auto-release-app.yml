@@ -260,8 +260,8 @@ jobs:
           CHANGE_LEVEL: ${{ needs.build-app.outputs.change_level }}
         run: |
           TAG="App-v${VERSION}"
-          if git rev-parse "$TAG" >/dev/null 2>&1; then
-            echo "::warning::Tag $TAG already exists, skipping release creation."
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            echo "Release $TAG already exists, skipping release creation."
             exit 0
           fi
 
@@ -310,8 +310,12 @@ jobs:
 
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git tag "$TAG"
-          git push origin "$TAG"
+          if git rev-parse "$TAG" >/dev/null 2>&1; then
+            echo "Tag $TAG already exists, reusing it to create the missing release..."
+          else
+            git tag "$TAG"
+            git push origin "$TAG"
+          fi
 
           RELEASE_FILES=()
           for dir in ./artifacts/app-*/; do
