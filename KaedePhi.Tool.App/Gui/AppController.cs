@@ -164,8 +164,13 @@ internal sealed class AppController
 
         try
         {
+            await Task.Yield();
+
             // 先检测格式
-            var detectedType = await _chart.DetectChartTypeAsync(filePath, useStream, ct);
+            var detectedType = await Task.Run(
+                () => _chart.DetectChartTypeAsync(filePath, useStream, ct),
+                ct
+            );
 
             // 检查是否需要显示导入选项
             if (detectedType is ChartType.PhiEdit or ChartType.PhiChain)
@@ -219,6 +224,8 @@ internal sealed class AppController
 
         try
         {
+            await Task.Yield();
+
             var detectedType = _importOptionsVm.DetectedFormat;
             var importOptions = BuildImportOptions(detectedType);
             await LoadChartWithOptions(
@@ -270,7 +277,11 @@ internal sealed class AppController
         CancellationToken ct = default
     )
     {
-        await _chart.LoadChartAsync(filePath, useStream, ct, importOptions);
+        await Task.Run(
+            () => _chart.LoadChartAsync(filePath, useStream, ct, importOptions),
+            ct
+        );
+        ct.ThrowIfCancellationRequested();
 
         _toolVm.CurrentFileName = Path.GetFileName(filePath);
         _toolVm.DetectedFormat = detectedType.ToString();
