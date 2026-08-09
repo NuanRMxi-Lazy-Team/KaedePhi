@@ -21,7 +21,11 @@ public class ChartProcessingValidatorTests
     [Fact]
     public void ValidateJudgeLineHierarchy_RejectsCyclesAndInvalidIndexes()
     {
-        var cyclic = new List<JudgeLine> { new() { Father = 1 }, new() { Father = 0 } };
+        var cyclic = new List<JudgeLine>
+        {
+            new() { Father = 1 },
+            new() { Father = 0 },
+        };
         var invalid = new List<JudgeLine> { new() { Father = 2 } };
 
         Action cycleCheck = () => ChartProcessingValidator.ValidateJudgeLineHierarchy(cyclic);

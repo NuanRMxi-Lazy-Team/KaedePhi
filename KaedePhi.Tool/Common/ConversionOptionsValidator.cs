@@ -43,7 +43,10 @@ internal static class ConversionOptionsValidator
         ArgumentNullException.ThrowIfNull(options);
         ValidatePositive(options.DefaultBpm, nameof(options.DefaultBpm));
         ValidatePositive(options.Cutting.EasingPrecision, "Cutting.EasingPrecision");
-        ValidatePositive(options.Cutting.MisalignedXyEventPrecision, "Cutting.MisalignedXyEventPrecision");
+        ValidatePositive(
+            options.Cutting.MisalignedXyEventPrecision,
+            "Cutting.MisalignedXyEventPrecision"
+        );
         ValidatePositive(options.Alpha.CutPrecision, "Alpha.CutPrecision");
         ValidatePositive(options.Speed.CutPrecision, "Speed.CutPrecision");
         ValidatePositive(options.FatherLineUnbind.Precision, "FatherLineUnbind.Precision");
@@ -58,10 +61,16 @@ internal static class ConversionOptionsValidator
     {
         ArgumentNullException.ThrowIfNull(options);
         ValidatePositive(options.UnbindPrecision, nameof(options.UnbindPrecision));
-        ValidatePositive(options.MultiLayerMergePrecision, nameof(options.MultiLayerMergePrecision));
+        ValidatePositive(
+            options.MultiLayerMergePrecision,
+            nameof(options.MultiLayerMergePrecision)
+        );
         ValidatePositive(options.EasingCutPrecision, nameof(options.EasingCutPrecision));
         ValidateTolerance(options.UnbindTolerance, nameof(options.UnbindTolerance));
-        ValidateTolerance(options.MultiLayerMergeTolerance, nameof(options.MultiLayerMergeTolerance));
+        ValidateTolerance(
+            options.MultiLayerMergeTolerance,
+            nameof(options.MultiLayerMergeTolerance)
+        );
         ValidateTolerance(options.EasingCutTolerance, nameof(options.EasingCutTolerance));
     }
 

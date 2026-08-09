@@ -270,14 +270,16 @@ public static class ChartFormatRegistry
                 Directory.CreateDirectory(Path.GetDirectoryName(fullPath)!);
                 try
                 {
-                    await using (var stream = new FileStream(
-                        temporaryPath,
-                        FileMode.CreateNew,
-                        FileAccess.Write,
-                        FileShare.None,
-                        4096,
-                        useAsync: true
-                    ))
+                    await using (
+                        var stream = new FileStream(
+                            temporaryPath,
+                            FileMode.CreateNew,
+                            FileAccess.Write,
+                            FileShare.None,
+                            4096,
+                            useAsync: true
+                        )
+                    )
                     {
                         await serializeStream(stream);
                         await stream.FlushAsync(ct);

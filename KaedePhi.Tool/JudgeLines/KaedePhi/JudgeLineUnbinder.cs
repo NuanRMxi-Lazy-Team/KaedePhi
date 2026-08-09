@@ -151,7 +151,14 @@ public class JudgeLineUnbinder : LoggableBase, IJudgeLineUnbinder<JudgeLine>
     )
     {
         using var _ = FatherUnbindHelpers.UseRenderProfile(renderProfile);
-        return FatherUnbind(targetJudgeLineIndex, allJudgeLines, precision, tolerance, progress, ct);
+        return FatherUnbind(
+            targetJudgeLineIndex,
+            allJudgeLines,
+            precision,
+            tolerance,
+            progress,
+            ct
+        );
     }
 
     private JudgeLineUnbinder ValidateInput(

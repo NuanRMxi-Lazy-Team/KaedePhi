@@ -94,14 +94,16 @@ public class KpcChartRenderExporter : LoggableBase, IChartRenderExporter<Chart, 
         var temporaryPath = filePath + "." + Guid.NewGuid().ToString("N") + ".tmp";
         try
         {
-            using (var stream = new FileStream(
-                temporaryPath,
-                FileMode.CreateNew,
-                FileAccess.Write,
-                FileShare.None,
-                4096,
-                useAsync: false
-            ))
+            using (
+                var stream = new FileStream(
+                    temporaryPath,
+                    FileMode.CreateNew,
+                    FileAccess.Write,
+                    FileShare.None,
+                    4096,
+                    useAsync: false
+                )
+            )
             {
                 data.SaveTo(stream);
                 stream.Flush(true);

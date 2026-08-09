@@ -35,10 +35,7 @@ public class PhigrosV3JudgeLineBuilderTests
         var options = new KpcToPhigrosV3ConvertOptions();
         options.NegativeAlpha.Enabled = true;
 
-        new PhigrosV3JudgeLineBuilder(options, 120f, 2f, null).ConvertJudgeLine(
-            line,
-            [line]
-        );
+        new PhigrosV3JudgeLineBuilder(options, 120f, 2f, null).ConvertJudgeLine(line, [line]);
 
         var moveY = line.EventLayers[0].MoveYEvents;
         moveY.Should().NotBeNull();
@@ -81,15 +78,9 @@ public class PhigrosV3JudgeLineBuilderTests
         var options = new KpcToPhigrosV3ConvertOptions();
         options.NegativeAlpha.Enabled = true;
 
-        new PhigrosV3JudgeLineBuilder(options, 120f, 4f, null).ConvertJudgeLine(
-            line,
-            [line]
-        );
+        new PhigrosV3JudgeLineBuilder(options, 120f, 4f, null).ConvertJudgeLine(line, [line]);
 
-        var value = KpcEvents.EventLayer.GetValueAtBeat(
-            line.EventLayers[0].MoveYEvents!,
-            Beat(2)
-        );
+        var value = KpcEvents.EventLayer.GetValueAtBeat(line.EventLayers[0].MoveYEvents!, Beat(2));
         value.Should().BeApproximately(4.2, 1e-6);
     }
 
@@ -100,14 +91,7 @@ public class PhigrosV3JudgeLineBuilderTests
         var source = new CollidingJudgeLine
         {
             Father = 0,
-            Notes =
-            [
-                new Note
-                {
-                    StartBeat = Beat(1),
-                    EndBeat = Beat(1),
-                },
-            ],
+            Notes = [new Note { StartBeat = Beat(1), EndBeat = Beat(1) }],
         };
         var options = new KpcToPhigrosV3ConvertOptions();
 

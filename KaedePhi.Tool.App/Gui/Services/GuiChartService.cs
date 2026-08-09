@@ -89,9 +89,10 @@ public sealed class GuiChartService
         _log.Information(log_file_selected, filePath, stream);
 
         ChartProcessingValidator.ValidateInputFile(filePath);
-        var text = _detectedFilePath == filePath && _detectedText is not null
-            ? _detectedText
-            : await File.ReadAllTextAsync(filePath, ct);
+        var text =
+            _detectedFilePath == filePath && _detectedText is not null
+                ? _detectedText
+                : await File.ReadAllTextAsync(filePath, ct);
         _detectedFilePath = null;
         _detectedText = null;
 

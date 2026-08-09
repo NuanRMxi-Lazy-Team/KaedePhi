@@ -42,7 +42,16 @@ namespace KaedePhi.Core.PhiEdit
                 var aboveNumber = Above ? aboveNote : belowNote; // 上方为1，下方为2
                 var isFakeNumber = IsFake ? fakeNote : realNote; // 假音符为1，真音符为0
                 stringBuilder.AppendLine(
-                    string.Format(CultureInfo.InvariantCulture, "{0} {1} {2} {3} {4} {5}", $"n{(int)Type}", judgeLineIndex, StartBeat, PositionX, aboveNumber, isFakeNumber)
+                    string.Format(
+                        CultureInfo.InvariantCulture,
+                        "{0} {1} {2} {3} {4} {5}",
+                        $"n{(int)Type}",
+                        judgeLineIndex,
+                        StartBeat,
+                        PositionX,
+                        aboveNumber,
+                        isFakeNumber
+                    )
                 );
             }
             else
@@ -50,12 +59,26 @@ namespace KaedePhi.Core.PhiEdit
                 var aboveNumber = Above ? aboveNote : belowNote; // 上方为1，下方为2
                 var isFakeNumber = IsFake ? fakeNote : realNote; // 假音符为1，真音符为0
                 stringBuilder.AppendLine(
-                    string.Format(CultureInfo.InvariantCulture, "{0} {1} {2} {3} {4} {5} {6}", $"n{(int)Type}", judgeLineIndex, StartBeat, EndBeat, PositionX, aboveNumber, isFakeNumber)
+                    string.Format(
+                        CultureInfo.InvariantCulture,
+                        "{0} {1} {2} {3} {4} {5} {6}",
+                        $"n{(int)Type}",
+                        judgeLineIndex,
+                        StartBeat,
+                        EndBeat,
+                        PositionX,
+                        aboveNumber,
+                        isFakeNumber
+                    )
                 );
             }
 
-            stringBuilder.AppendLine(string.Format(CultureInfo.InvariantCulture, "{0} {1}", "#", SpeedMultiplier));
-            stringBuilder.AppendLine(string.Format(CultureInfo.InvariantCulture, "{0} {1}", "&", WidthRatio));
+            stringBuilder.AppendLine(
+                string.Format(CultureInfo.InvariantCulture, "{0} {1}", "#", SpeedMultiplier)
+            );
+            stringBuilder.AppendLine(
+                string.Format(CultureInfo.InvariantCulture, "{0} {1}", "&", WidthRatio)
+            );
 
             return stringBuilder.ToString().Trim();
         }

@@ -69,14 +69,13 @@ public static class ConsoleWriter
         var lastPercentage = -1;
         return new Progress<ToolProgress>(progress =>
         {
-            var rawPercentage = progress.OverallPercentage >= 0
-                ? progress.OverallPercentage
-                : progress.Percentage;
+            var rawPercentage =
+                progress.OverallPercentage >= 0 ? progress.OverallPercentage : progress.Percentage;
             var percentage = (int)(Math.Clamp(rawPercentage, 0, 1) * 100);
             if (percentage == lastPercentage && string.IsNullOrWhiteSpace(progress.Detail))
                 return;
             lastPercentage = percentage;
-            Console.Error.WriteLine($"[{percentage,3}%] {progress.Detail}");
+            Console.Error.WriteLine($"[{percentage, 3}%] {progress.Detail}");
         });
     }
 

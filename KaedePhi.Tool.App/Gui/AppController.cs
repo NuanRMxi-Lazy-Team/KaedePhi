@@ -383,10 +383,19 @@ internal sealed class AppController
                                     SamplesPerEvent = _toolVm.SamplesPerEvent,
                                     BeatSubdivisions = _toolVm.BeatSubdivisions,
                                     RangePaddingRatio = _config.Config.Render.RangePaddingRatio,
-                                    RangeSamplesPerEvent = _config.Config.Render.RangeSamplesPerEvent,
-                                    SegmentGroupTolerance = _config.Config.Render.SegmentGroupTolerance,
+                                    RangeSamplesPerEvent = _config
+                                        .Config
+                                        .Render
+                                        .RangeSamplesPerEvent,
+                                    SegmentGroupTolerance = _config
+                                        .Config
+                                        .Render
+                                        .SegmentGroupTolerance,
                                     MinValueRangeHalf = _config.Config.Render.MinValueRangeHalf,
-                                    MinValueRangeHalfRatio = _config.Config.Render.MinValueRangeHalfRatio,
+                                    MinValueRangeHalfRatio = _config
+                                        .Config
+                                        .Render
+                                        .MinValueRangeHalfRatio,
                                 },
                                 toolProgress,
                                 ct

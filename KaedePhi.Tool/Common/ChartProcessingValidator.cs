@@ -1,6 +1,8 @@
 using KaedePhi.Core.KaedePhi;
 using KaedePhi.Tool.Render.KaedePhi;
 
+// ReSharper disable MemberCanBePrivate.Global
+
 namespace KaedePhi.Tool.Common;
 
 /// <summary>
@@ -37,7 +39,6 @@ public static class ChartProcessingValidator
     /// 校验输入文件存在且没有超过大小上限。
     /// </summary>
     /// <param name="path">输入文件路径。</param>
-    /// <returns>无返回值。</returns>
     public static void ValidateInputFile(string path)
     {
         if (string.IsNullOrWhiteSpace(path))
@@ -48,10 +49,7 @@ public static class ChartProcessingValidator
             throw new FileNotFoundException("输入谱面文件不存在。", path);
         if (info.Length > MaximumInputBytes)
             throw new IOException(
-                string.Format(
-                    "输入谱面文件超过 {0} MB 大小限制。",
-                    MaximumInputBytes / 1024 / 1024
-                )
+                $"输入谱面文件超过 {MaximumInputBytes / 1024 / 1024} MB 大小限制。"
             );
     }
 
@@ -60,7 +58,6 @@ public static class ChartProcessingValidator
     /// </summary>
     /// <param name="precision">每拍采样次数。</param>
     /// <param name="parameterName">参数名称。</param>
-    /// <returns>无返回值。</returns>
     public static void ValidatePrecision(double precision, string parameterName = "precision")
     {
         if (!double.IsFinite(precision) || precision <= 0 || precision > MaximumPrecision)
@@ -108,7 +105,8 @@ public static class ChartProcessingValidator
             {
                 if ((object?)layer is null)
                     throw new FormatException("谱面包含空的事件层。");
-                itemCount += (layer.MoveXEvents?.Count ?? 0)
+                itemCount +=
+                    (layer.MoveXEvents?.Count ?? 0)
                     + (layer.MoveYEvents?.Count ?? 0)
                     + (layer.RotateEvents?.Count ?? 0)
                     + (layer.AlphaEvents?.Count ?? 0)
@@ -122,9 +120,7 @@ public static class ChartProcessingValidator
         {
             var father = judgeLines[index].Father;
             if (father < -1 || father >= judgeLines.Count)
-                throw new FormatException(
-                    string.Format("判定线 {0} 的父线索引 {1} 超出范围。", index, father)
-                );
+                throw new FormatException($"判定线 {index} 的父线索引 {father} 超出范围。");
         }
 
         var state = new byte[judgeLines.Count];
@@ -138,9 +134,7 @@ public static class ChartProcessingValidator
             }
 
             if (current >= 0 && state[current] == 1)
-                throw new FormatException(
-                    string.Format("判定线父子关系包含循环，循环起点为 {0}。", current)
-                );
+                throw new FormatException($"判定线父子关系包含循环，循环起点为 {current}。");
 
             current = start;
             while (current >= 0 && state[current] == 1)
@@ -169,16 +163,20 @@ public static class ChartProcessingValidator
         ArgumentNullException.ThrowIfNull(chart);
         ValidateRenderOptions(options);
 
-        if (!double.IsFinite(options.PixelsPerBeat) || options.PixelsPerBeat <= 0)
+#pragma warning disable CA2208
+        if (
+            !double.IsFinite(options.PixelsPerBeat)
+            || options.PixelsPerBeat <= 0
+            || options.PixelsPerBeat > 10_000
+        )
             throw new ArgumentOutOfRangeException(nameof(options.PixelsPerBeat));
-        if (options.PixelsPerBeat > 10_000)
-            throw new ArgumentOutOfRangeException(nameof(options.PixelsPerBeat));
-        if (options.ChannelWidth <= 0 || options.ChannelWidth > 10_000)
+        if (options.ChannelWidth is <= 0 or > 10_000)
             throw new ArgumentOutOfRangeException(nameof(options.ChannelWidth));
-        if (options.SamplesPerEvent <= 0 || options.SamplesPerEvent > 4096)
+        if (options.SamplesPerEvent is <= 0 or > 4096)
             throw new ArgumentOutOfRangeException(nameof(options.SamplesPerEvent));
-        if (options.BeatSubdivisions <= 0 || options.BeatSubdivisions > 128)
+        if (options.BeatSubdivisions is <= 0 or > 128)
             throw new ArgumentOutOfRangeException(nameof(options.BeatSubdivisions));
+#pragma warning restore CA2208
         if (
             options.LeftMargin < 0
             || options.HeaderHeight < 0
@@ -187,6 +185,7 @@ public static class ChartProcessingValidator
             || options.StrokeWidth < 0
         )
             throw new ArgumentOutOfRangeException(nameof(options));
+#pragma warning disable CA2208
         if (!double.IsFinite(options.RangePaddingRatio) || options.RangePaddingRatio < 0)
             throw new ArgumentOutOfRangeException(nameof(options.RangePaddingRatio));
         if (options.RangeSamplesPerEvent <= 0 || options.RangeSamplesPerEvent > 4096)
@@ -197,12 +196,15 @@ public static class ChartProcessingValidator
             throw new ArgumentOutOfRangeException(nameof(options.MinValueRangeHalf));
         if (!double.IsFinite(options.MinValueRangeHalfRatio) || options.MinValueRangeHalfRatio < 0)
             throw new ArgumentOutOfRangeException(nameof(options.MinValueRangeHalfRatio));
-
+#pragma warning restore CA2208
         if (lineIndex is < 0 || lineIndex >= chart.JudgeLineList.Count)
             throw new ArgumentOutOfRangeException(nameof(lineIndex));
 
         if (layerIndex is not null && lineIndex is null)
-            throw new ArgumentException("指定事件层索引时必须同时指定判定线索引。", nameof(layerIndex));
+            throw new ArgumentException(
+                "指定事件层索引时必须同时指定判定线索引。",
+                nameof(layerIndex)
+            );
 
         if (lineIndex is not null && layerIndex is not null)
         {
@@ -212,8 +214,7 @@ public static class ChartProcessingValidator
         }
 
         var totalBeats = 4d;
-        foreach (var line in chart.JudgeLineList)
-        foreach (var layer in line.EventLayers)
+        foreach (var layer in chart.JudgeLineList.SelectMany(line => line.EventLayers))
         {
             UpdateMax(layer.MoveXEvents?.Select(e => (double)e.EndBeat));
             UpdateMax(layer.MoveYEvents?.Select(e => (double)e.EndBeat));
@@ -222,18 +223,26 @@ public static class ChartProcessingValidator
             UpdateMax(layer.SpeedEvents?.Select(e => (double)e.EndBeat));
         }
 
-        if (totalBeats < 0 || totalBeats > 1_000_000d)
+        if (totalBeats is < 0 or > 1_000_000d)
             throw new ArgumentOutOfRangeException(nameof(chart), "谱面总拍数超过安全上限。");
 
-        var heightDouble = options.HeaderHeight + Math.Ceiling(totalBeats * options.PixelsPerBeat)
+        var heightDouble =
+            options.HeaderHeight
+            + Math.Ceiling(totalBeats * options.PixelsPerBeat)
             + options.BottomPadding;
         if (!double.IsFinite(heightDouble) || heightDouble > int.MaxValue)
             throw new ArgumentOutOfRangeException(nameof(options), "渲染位图高度超过安全上限。");
         var height = (long)heightDouble;
-        var width = options.LeftMargin + 5L * options.ChannelWidth
-            + 4L * options.ChannelPadding + 8L;
-        if (height <= 0 || width <= 0 || width > int.MaxValue || width * height > MaximumRenderPixels)
+        var width =
+            options.LeftMargin + 5L * options.ChannelWidth + 4L * options.ChannelPadding + 8L;
+        if (
+            height <= 0
+            || width <= 0
+            || width > int.MaxValue
+            || width * height > MaximumRenderPixels
+        )
             throw new ArgumentOutOfRangeException(nameof(options), "渲染位图尺寸超过安全上限。");
+        return;
 
         void UpdateMax(IEnumerable<double>? values)
         {
@@ -257,16 +266,20 @@ public static class ChartProcessingValidator
     public static void ValidateRenderOptions(KpcRenderOptions options)
     {
         ArgumentNullException.ThrowIfNull(options);
-        if (!double.IsFinite(options.PixelsPerBeat) || options.PixelsPerBeat <= 0)
+#pragma warning disable CA2208
+        if (
+            !double.IsFinite(options.PixelsPerBeat)
+            || options.PixelsPerBeat <= 0
+            || options.PixelsPerBeat > 10_000
+        )
             throw new ArgumentOutOfRangeException(nameof(options.PixelsPerBeat));
-        if (options.PixelsPerBeat > 10_000)
-            throw new ArgumentOutOfRangeException(nameof(options.PixelsPerBeat));
-        if (options.ChannelWidth <= 0 || options.ChannelWidth > 10_000)
+        if (options.ChannelWidth is <= 0 or > 10_000)
             throw new ArgumentOutOfRangeException(nameof(options.ChannelWidth));
-        if (options.SamplesPerEvent <= 0 || options.SamplesPerEvent > 4096)
+        if (options.SamplesPerEvent is <= 0 or > 4096)
             throw new ArgumentOutOfRangeException(nameof(options.SamplesPerEvent));
-        if (options.BeatSubdivisions <= 0 || options.BeatSubdivisions > 128)
+        if (options.BeatSubdivisions is <= 0 or > 128)
             throw new ArgumentOutOfRangeException(nameof(options.BeatSubdivisions));
+#pragma warning restore CA2208
         if (
             options.LeftMargin < 0
             || options.HeaderHeight < 0
@@ -275,9 +288,10 @@ public static class ChartProcessingValidator
             || options.StrokeWidth < 0
         )
             throw new ArgumentOutOfRangeException(nameof(options));
+#pragma warning disable CA2208
         if (!double.IsFinite(options.RangePaddingRatio) || options.RangePaddingRatio < 0)
             throw new ArgumentOutOfRangeException(nameof(options.RangePaddingRatio));
-        if (options.RangeSamplesPerEvent <= 0 || options.RangeSamplesPerEvent > 4096)
+        if (options.RangeSamplesPerEvent is <= 0 or > 4096)
             throw new ArgumentOutOfRangeException(nameof(options.RangeSamplesPerEvent));
         if (!double.IsFinite(options.SegmentGroupTolerance) || options.SegmentGroupTolerance < 0)
             throw new ArgumentOutOfRangeException(nameof(options.SegmentGroupTolerance));
@@ -285,5 +299,6 @@ public static class ChartProcessingValidator
             throw new ArgumentOutOfRangeException(nameof(options.MinValueRangeHalf));
         if (!double.IsFinite(options.MinValueRangeHalfRatio) || options.MinValueRangeHalfRatio < 0)
             throw new ArgumentOutOfRangeException(nameof(options.MinValueRangeHalfRatio));
+#pragma warning restore CA2208
     }
 }

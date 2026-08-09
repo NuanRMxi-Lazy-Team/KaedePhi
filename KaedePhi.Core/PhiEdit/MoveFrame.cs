@@ -20,7 +20,15 @@ namespace KaedePhi.Core.PhiEdit
         /// <param name="judgeLineIndex">判定线索引</param>
         /// <returns>PhiEditor Chart格式字符串</returns>
         public string ToString(int judgeLineIndex) =>
-            string.Format(CultureInfo.InvariantCulture, "{0} {1} {2} {3} {4}", "cp", judgeLineIndex, Beat, XValue, YValue);
+            string.Format(
+                CultureInfo.InvariantCulture,
+                "{0} {1} {2} {3} {4}",
+                "cp",
+                judgeLineIndex,
+                Beat,
+                XValue,
+                YValue
+            );
 
         public MoveFrame Clone()
         {

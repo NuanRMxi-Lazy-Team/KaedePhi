@@ -38,9 +38,7 @@ public class ChartExtensionTests
     [Fact]
     public async Task LoadStreamAsync_ParsesWithInvariantCulture()
     {
-        await using var stream = new MemoryStream(
-            Encoding.UTF8.GetBytes("0\nbp 1.25 90.5\n")
-        );
+        await using var stream = new MemoryStream(Encoding.UTF8.GetBytes("0\nbp 1.25 90.5\n"));
 
         var chart = await Chart.LoadStreamAsync(stream);
 
@@ -76,10 +74,7 @@ public class ChartExtensionTests
                 BpmList = [new BpmItem { StartBeat = 1.5f, Bpm = 120.5f }],
                 JudgeLineList =
                 [
-                    new JudgeLine
-                    {
-                        SpeedFrames = [new Frame { Beat = 2.5f, Value = 3.5f }],
-                    },
+                    new JudgeLine { SpeedFrames = [new Frame { Beat = 2.5f, Value = 3.5f }] },
                 ],
             };
 

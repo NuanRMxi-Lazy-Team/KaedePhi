@@ -191,7 +191,8 @@ public sealed class AppConfigService
         {
             if (File.Exists(ConfigPath))
             {
-                var backupPath = ConfigPath + ".invalid." + DateTime.UtcNow.ToString("yyyyMMddHHmmss");
+                var backupPath =
+                    ConfigPath + ".invalid." + DateTime.UtcNow.ToString("yyyyMMddHHmmss");
                 File.Move(ConfigPath, backupPath, true);
             }
         }

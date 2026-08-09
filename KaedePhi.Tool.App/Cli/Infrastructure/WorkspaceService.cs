@@ -129,22 +129,26 @@ public sealed class WorkspaceService
         var temporaryPath = destinationPath + "." + Guid.NewGuid().ToString("N") + ".tmp";
         try
         {
-            await using (var src = new FileStream(
-                sourcePath,
-                FileMode.Open,
-                FileAccess.Read,
-                FileShare.Read,
-                bufferSize: 65536,
-                useAsync: true
-            ))
-            await using (var dst = new FileStream(
-                temporaryPath,
-                FileMode.CreateNew,
-                FileAccess.Write,
-                FileShare.None,
-                bufferSize: 65536,
-                useAsync: true
-            ))
+            await using (
+                var src = new FileStream(
+                    sourcePath,
+                    FileMode.Open,
+                    FileAccess.Read,
+                    FileShare.Read,
+                    bufferSize: 65536,
+                    useAsync: true
+                )
+            )
+            await using (
+                var dst = new FileStream(
+                    temporaryPath,
+                    FileMode.CreateNew,
+                    FileAccess.Write,
+                    FileShare.None,
+                    bufferSize: 65536,
+                    useAsync: true
+                )
+            )
             {
                 await src.CopyToAsync(dst, ct);
                 await dst.FlushAsync(ct);

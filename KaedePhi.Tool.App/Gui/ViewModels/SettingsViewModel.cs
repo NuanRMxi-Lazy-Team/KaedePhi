@@ -1,7 +1,7 @@
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using KaedePhi.Tool.Common;
 using KaedePhi.Tool.App.Config;
+using KaedePhi.Tool.Common;
 using static KaedePhi.Tool.Localization.GuiLocalizationString;
 
 namespace KaedePhi.Tool.App.Gui.ViewModels;

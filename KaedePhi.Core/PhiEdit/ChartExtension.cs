@@ -335,12 +335,7 @@ namespace KaedePhi.Core.PhiEdit
         }
 
         private static bool TryParseInteger(string? text, out int value) =>
-            int.TryParse(
-                text,
-                NumberStyles.Integer,
-                CultureInfo.InvariantCulture,
-                out value
-            );
+            int.TryParse(text, NumberStyles.Integer, CultureInfo.InvariantCulture, out value);
 
         private static int ParseInteger(string text, string field)
         {

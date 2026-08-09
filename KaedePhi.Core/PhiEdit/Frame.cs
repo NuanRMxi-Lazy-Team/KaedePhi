@@ -25,7 +25,14 @@ namespace KaedePhi.Core.PhiEdit
                 ? throw new ArgumentException(
                     "请使用 MoveFrame 或 MoveEvent 的 ToString 方法，这不是一个 MoveFrame 或 MoveEvent"
                 )
-                : string.Format(CultureInfo.InvariantCulture, "{0} {1} {2} {3}", head, judgeLineIndex, Beat, Value);
+                : string.Format(
+                    CultureInfo.InvariantCulture,
+                    "{0} {1} {2} {3}",
+                    head,
+                    judgeLineIndex,
+                    Beat,
+                    Value
+                );
         }
 
         public Frame Clone()
