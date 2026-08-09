@@ -6,6 +6,8 @@
     <LangVersion>default</LangVersion>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Nullable>enable</Nullable>
+    <!--由于代码本地化了GUI的日志输出文本，所以必然会出现CA2254提示，故禁用本警告，不得注释或删除此警告-->
+    <NoWarn>CA2254</NoWarn>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
     <ApplicationIcon>..\KaedePhiIcon.ico</ApplicationIcon>
