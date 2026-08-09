@@ -123,7 +123,7 @@ public class KpcToPhigrosV3ConvertOptions
         /// 父子线解绑相对原始运动范围的几何容差百分比。
         /// 自适应模式用于决定切段，经典模式用于压缩等间隔采样结果。
         /// </summary>
-        public double Tolerance { get; set; } = 0.1d;
+        public double Tolerance { get; set; } = 1d;
 
         /// <summary>
         /// 在经典模式下是否对等间隔采样结果进行压缩。

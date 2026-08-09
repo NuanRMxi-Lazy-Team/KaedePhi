@@ -22,7 +22,7 @@ public sealed class SettingsViewModel : INotifyPropertyChanged
     #region Unbind
 
     public double UnbindPrecision { get; set; } = 64;
-    public double UnbindTolerance { get; set; } = 0.1;
+    public double UnbindTolerance { get; set; } = 1;
 
     public bool UnbindClassicMode
     {
@@ -139,7 +139,7 @@ public sealed class SettingsViewModel : INotifyPropertyChanged
     #region Convert (Common)
 
     public double ConvertUnbindPrecision { get; set; } = 64d;
-    public double ConvertUnbindTolerance { get; set; } = 0.1d;
+    public double ConvertUnbindTolerance { get; set; } = 1d;
     public bool ConvertUnbindClassicMode { get; set; }
     public double ConvertMultiLayerMergePrecision { get; set; } = 64d;
     public double ConvertMultiLayerMergeTolerance { get; set; } = 0.1d;

@@ -19,7 +19,7 @@ public sealed class AppConfig
         new()
         {
             Precision = 64,
-            Tolerance = 0.1,
+            Tolerance = 1,
             ClassicMode = false,
             DisableCompress = false,
         };

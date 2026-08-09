@@ -190,7 +190,7 @@ public sealed class ExportViewModel : INotifyPropertyChanged
             field = value;
             OnPropertyChanged();
         }
-    } = 0.1d;
+    } = 1d;
 
     public double PeSpeedCutPrecision
     {
@@ -210,7 +210,7 @@ public sealed class ExportViewModel : INotifyPropertyChanged
             field = value;
             OnPropertyChanged();
         }
-    } = 0.1d;
+    } = 1d;
 
     #endregion
 
@@ -298,7 +298,7 @@ public sealed class ExportViewModel : INotifyPropertyChanged
             field = value;
             OnPropertyChanged();
         }
-    } = 0.1d;
+    } = 1d;
 
     public bool UnbindClassicMode
     {
@@ -468,7 +468,7 @@ public sealed class ExportViewModel : INotifyPropertyChanged
             field = value;
             OnPropertyChanged();
         }
-    } = 0.1d;
+    } = 1d;
 
     /// <summary>
     /// PhiChain 父子线解绑是否使用经典模式

@@ -55,6 +55,7 @@ public sealed class ToolViewModel : INotifyPropertyChanged
             HasTolerance = true,
             HasClassicMode = true,
             HasDisableCompress = true,
+            DefaultTolerance = 1,
         },
         new()
         {

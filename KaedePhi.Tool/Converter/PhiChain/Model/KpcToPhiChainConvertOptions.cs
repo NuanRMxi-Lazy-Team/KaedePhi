@@ -18,7 +18,7 @@ public class KpcToPhiChainConvertOptions
     /// <summary>
     /// 父子线解绑相对原始运动范围的几何容差百分比，默认 0.1%。
     /// </summary>
-    public double UnbindTolerance { get; set; } = 0.1d;
+    public double UnbindTolerance { get; set; } = 1d;
 
     /// <summary>
     /// 父子线解绑是否使用经典模式（等间隔采样），默认 false（自适应采样）。
