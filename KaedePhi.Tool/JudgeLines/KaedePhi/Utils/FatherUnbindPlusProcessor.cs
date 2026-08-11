@@ -26,15 +26,7 @@ public class FatherUnbindPlusProcessor : FatherUnbindProcessorBase
         Action<string>? logError = null,
         Action<string>? logDebug = null
     )
-        : this(
-            cache,
-            tolerance,
-            tolerance,
-            logInfo,
-            logWarning,
-            logError,
-            logDebug
-        ) { }
+        : this(cache, tolerance, tolerance, logInfo, logWarning, logError, logDebug) { }
 
     public FatherUnbindPlusProcessor(
         ConcurrentDictionary<FatherUnbindHelpers.UnbindCacheKey, JudgeLine> cache,
@@ -77,15 +69,14 @@ public class FatherUnbindPlusProcessor : FatherUnbindProcessorBase
                 allJudgeLines,
                 logTag: "FatherUnbindPlus",
                 startAction: "开始解绑（自适应采样）",
-                cacheKeyFactory: index =>
-                    new FatherUnbindHelpers.UnbindCacheKey(
-                        index,
-                        precision,
-                        _tolerance,
-                        _mergeTolerance,
-                        true,
-                        FatherUnbindHelpers.CurrentRenderProfile
-                    ),
+                cacheKeyFactory: index => new FatherUnbindHelpers.UnbindCacheKey(
+                    index,
+                    precision,
+                    _tolerance,
+                    _mergeTolerance,
+                    true,
+                    FatherUnbindHelpers.CurrentRenderProfile
+                ),
                 recursiveUnbind: (idx, lines) => FatherUnbind(idx, lines, precision, progress, ct)
             );
 

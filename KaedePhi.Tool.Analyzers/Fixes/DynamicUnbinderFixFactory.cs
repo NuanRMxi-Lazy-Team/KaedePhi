@@ -19,14 +19,16 @@ internal static class DynamicUnbinderFixFactory
     /// <returns>改写后的调用表达式</returns>
     public static InvocationExpressionSyntax Create(
         InvocationExpressionSyntax invocation,
-        IInvocationOperation operation)
+        IInvocationOperation operation
+    )
     {
         // 先记录需要移除的容差实参在实参列表中的索引
         var removedIndices = new HashSet<int>(
-            operation.Arguments
-                .Select((argument, index) => (argument, index))
+            operation
+                .Arguments.Select((argument, index) => (argument, index))
                 .Where(item => item.argument.Parameter?.Name is "tolerance" or "mergeTolerance")
-                .Select(item => item.index));
+                .Select(item => item.index)
+        );
         var arguments = invocation.ArgumentList.Arguments;
         // 从后向前移除，避免前面的索引发生偏移
         for (var i = arguments.Count - 1; i >= 0; i--)
@@ -37,11 +39,14 @@ internal static class DynamicUnbinderFixFactory
 
         var expression = invocation.Expression;
         // 将方法名 FatherUnbindDynamic 替换为普通解绑方法 FatherUnbind
-        if (expression is MemberAccessExpressionSyntax memberAccess &&
-            memberAccess.Name.Identifier.Text == "FatherUnbindDynamic")
+        if (
+            expression is MemberAccessExpressionSyntax memberAccess
+            && memberAccess.Name.Identifier.Text == "FatherUnbindDynamic"
+        )
         {
             expression = memberAccess.WithName(
-                SyntaxFactory.IdentifierName("FatherUnbind").WithTriviaFrom(memberAccess.Name));
+                SyntaxFactory.IdentifierName("FatherUnbind").WithTriviaFrom(memberAccess.Name)
+            );
         }
 
         return invocation

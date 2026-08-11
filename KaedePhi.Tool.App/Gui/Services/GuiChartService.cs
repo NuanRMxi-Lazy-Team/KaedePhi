@@ -95,9 +95,7 @@ public sealed class GuiChartService
         _log.Information(log_file_selected, filePath, stream);
 
         ChartProcessingValidator.ValidateInputFile(filePath);
-        var hasDetectedType =
-            _detectedFilePath == filePath
-            && _detectedType is not null;
+        var hasDetectedType = _detectedFilePath == filePath && _detectedType is not null;
         ChartType detectedType;
         if (hasDetectedType)
         {

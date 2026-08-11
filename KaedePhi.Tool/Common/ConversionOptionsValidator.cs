@@ -47,9 +47,14 @@ internal static class ConversionOptionsValidator
     {
         ArgumentNullException.ThrowIfNull(options);
         if (options.Cutting is null || options.Cutting.UnsupportedEasingPrecision <= 0)
-            throw new ArgumentOutOfRangeException(nameof(options.Cutting.UnsupportedEasingPrecision));
+            throw new ArgumentOutOfRangeException(
+                nameof(options.Cutting.UnsupportedEasingPrecision)
+            );
         if (options.DiscontinuityBeatPrecision <= 0)
-            throw new ArgumentOutOfRangeException(nameof(options.DiscontinuityBeatPrecision), "必须是正整数。");
+            throw new ArgumentOutOfRangeException(
+                nameof(options.DiscontinuityBeatPrecision),
+                "必须是正整数。"
+            );
     }
 
     public static void Validate(KpcToPhigrosV3ConvertOptions options)

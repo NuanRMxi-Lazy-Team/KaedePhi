@@ -251,7 +251,10 @@ public class LayerProcessor : LoggableBase, ILayerProcessor<EventLayer>
             layer.MoveYEvents = compressedY;
         }
         else if (layer.MoveXEvents is { Count: > 0 })
-            layer.MoveXEvents = _doubleCompressor.EventListCompressSqrt(layer.MoveXEvents, tolerance);
+            layer.MoveXEvents = _doubleCompressor.EventListCompressSqrt(
+                layer.MoveXEvents,
+                tolerance
+            );
         progress?.Report(new ToolProgress((double)++completedChannels / totalChannels));
 
         if (!canCompressPositionTogether && layer.MoveYEvents is { Count: > 0 })

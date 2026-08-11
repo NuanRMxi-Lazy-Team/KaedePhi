@@ -28,9 +28,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\KaedePhi.Core.Analyzers\KaedePhi.Core.Analyzers\KaedePhi.Core.Analyzers.csproj"
-                      OutputItemType="Analyzer"
-                      ReferenceOutputAssembly="false" />
+    <ProjectReference
+      Include="..\KaedePhi.Core.Analyzers\KaedePhi.Core.Analyzers\KaedePhi.Core.Analyzers.csproj"
+      OutputItemType="Analyzer"
+      ReferenceOutputAssembly="false"
+    />
   </ItemGroup>
 
   <ItemGroup>

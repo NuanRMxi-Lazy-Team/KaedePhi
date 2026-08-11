@@ -80,10 +80,7 @@ public class PhigrosV3JudgeLineBuilder
             if (_options.FatherLineUnbind.ClassicMode && _options.FatherLineUnbind.Compress)
             {
                 foreach (var layer in preprocessedSrc.EventLayers)
-                    _layerProcessor.LayerEventsCompress(
-                        layer,
-                        _options.FatherLineUnbind.Tolerance
-                    );
+                    _layerProcessor.LayerEventsCompress(layer, _options.FatherLineUnbind.Tolerance);
             }
         }
 

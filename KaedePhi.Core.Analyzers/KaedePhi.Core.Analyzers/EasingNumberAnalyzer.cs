@@ -15,14 +15,23 @@ public sealed class EasingNumberAnalyzer : DiagnosticAnalyzer
     public const string DiagnosticId = "KPCE0001";
 
     // 标题、消息与描述均来自本地化资源，随资源文件切换语言
-    private static readonly LocalizableString Title =
-        new LocalizableResourceString(nameof(Resources.kpce_0001_title), Resources.ResourceManager, typeof(Resources));
+    private static readonly LocalizableString Title = new LocalizableResourceString(
+        nameof(Resources.kpce_0001_title),
+        Resources.ResourceManager,
+        typeof(Resources)
+    );
 
-    private static readonly LocalizableString MessageFormat =
-        new LocalizableResourceString(nameof(Resources.kpce_0001_message_format), Resources.ResourceManager, typeof(Resources));
+    private static readonly LocalizableString MessageFormat = new LocalizableResourceString(
+        nameof(Resources.kpce_0001_message_format),
+        Resources.ResourceManager,
+        typeof(Resources)
+    );
 
-    private static readonly LocalizableString Description =
-        new LocalizableResourceString(nameof(Resources.kpce_0001_description), Resources.ResourceManager, typeof(Resources));
+    private static readonly LocalizableString Description = new LocalizableResourceString(
+        nameof(Resources.kpce_0001_description),
+        Resources.ResourceManager,
+        typeof(Resources)
+    );
 
     /// <summary>
     /// 缓动编号超出格式有效范围时报告错误。
@@ -34,7 +43,8 @@ public sealed class EasingNumberAnalyzer : DiagnosticAnalyzer
         "Usage",
         DiagnosticSeverity.Error,
         isEnabledByDefault: true,
-        description: Description);
+        description: Description
+    );
 
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } = [Rule];
 
@@ -53,14 +63,19 @@ public sealed class EasingNumberAnalyzer : DiagnosticAnalyzer
     private static void AnalyzeObjectCreation(OperationAnalysisContext context)
     {
         // 仅处理注册表中已知的缓动类型，且构造参数恰好为一个
-        if (context.Operation is not IObjectCreationOperation creation ||
-            creation.Type is not INamedTypeSymbol type ||
-            !EasingFormatRegistry.TryGetRange(type, out var range) ||
-            creation.Arguments.Length != 1)
+        if (
+            context.Operation is not IObjectCreationOperation creation
+            || creation.Type is not INamedTypeSymbol type
+            || !EasingFormatRegistry.TryGetRange(type, out var range)
+            || creation.Arguments.Length != 1
+        )
             return;
 
         // 只检查编译期可确定的缓动编号，动态值无法在编译期判定。
-        if (creation.Arguments[0].Value.ConstantValue is not { HasValue: true, Value: int easingNumber })
+        if (
+            creation.Arguments[0].Value.ConstantValue
+            is not { HasValue: true, Value: int easingNumber }
+        )
             return;
 
         // 编号位于有效范围内则无需诊断
@@ -68,12 +83,8 @@ public sealed class EasingNumberAnalyzer : DiagnosticAnalyzer
             return;
 
         var location = creation.Arguments[0].Value.Syntax.GetLocation();
-        context.ReportDiagnostic(Diagnostic.Create(
-            Rule,
-            location,
-            easingNumber,
-            range.DisplayName,
-            range.Min,
-            range.Max));
+        context.ReportDiagnostic(
+            Diagnostic.Create(Rule, location, easingNumber, range.DisplayName, range.Min, range.Max)
+        );
     }
 }

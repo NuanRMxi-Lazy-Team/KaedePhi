@@ -1,10 +1,10 @@
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Xunit;
-using Verifier =
-    Microsoft.CodeAnalysis.CSharp.Testing.CSharpAnalyzerVerifier<
-        KaedePhi.Tool.Analyzers.JudgeLineUnbinderAnalyzer,
-        Microsoft.CodeAnalysis.Testing.DefaultVerifier>;
+using Verifier = Microsoft.CodeAnalysis.CSharp.Testing.CSharpAnalyzerVerifier<
+    KaedePhi.Tool.Analyzers.JudgeLineUnbinderAnalyzer,
+    Microsoft.CodeAnalysis.Testing.DefaultVerifier
+>;
 
 namespace KaedePhi.Tool.Analyzers.Tests;
 
@@ -59,11 +59,13 @@ public sealed class JudgeLineUnbinderAnalyzerTests
             }
             """;
 
-        var toleranceExpected = Verifier.Diagnostic(JudgeLineUnbinderAnalyzer.DiagnosticId)
+        var toleranceExpected = Verifier
+            .Diagnostic(JudgeLineUnbinderAnalyzer.DiagnosticId)
             .WithSpan(9, 69, 9, 73)
             .WithSeverity(DiagnosticSeverity.Error)
             .WithArguments("100");
-        var mergeToleranceExpected = Verifier.Diagnostic(JudgeLineUnbinderAnalyzer.DiagnosticId)
+        var mergeToleranceExpected = Verifier
+            .Diagnostic(JudgeLineUnbinderAnalyzer.DiagnosticId)
             .WithSpan(9, 75, 9, 79)
             .WithSeverity(DiagnosticSeverity.Error)
             .WithArguments("100");
@@ -118,7 +120,8 @@ public sealed class JudgeLineUnbinderAnalyzerTests
             }
             """;
 
-        var expected = Verifier.Diagnostic(JudgeLineUnbinderAnalyzer.DiagnosticId)
+        var expected = Verifier
+            .Diagnostic(JudgeLineUnbinderAnalyzer.DiagnosticId)
             .WithSpan(8, 69, 8, 73)
             .WithSeverity(DiagnosticSeverity.Error)
             .WithArguments("100");
@@ -224,7 +227,8 @@ public sealed class JudgeLineUnbinderAnalyzerTests
             }
             """;
 
-        var expected = Verifier.Diagnostic(JudgeLineUnbinderAnalyzer.ZeroToleranceDiagnosticId)
+        var expected = Verifier
+            .Diagnostic(JudgeLineUnbinderAnalyzer.ZeroToleranceDiagnosticId)
             .WithSpan(8, 69, 8, 71)
             .WithSeverity(DiagnosticSeverity.Warning)
             .WithArguments("0");
@@ -279,7 +283,8 @@ public sealed class JudgeLineUnbinderAnalyzerTests
             }
             """;
 
-        var expected = Verifier.Diagnostic(JudgeLineUnbinderAnalyzer.SmallToleranceDiagnosticId)
+        var expected = Verifier
+            .Diagnostic(JudgeLineUnbinderAnalyzer.SmallToleranceDiagnosticId)
             .WithSpan(8, 69, 8, 75)
             .WithSeverity(DiagnosticSeverity.Info)
             .WithArguments("0.001");

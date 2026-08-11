@@ -150,9 +150,7 @@ public static partial class ConvertCommand
         Arity = ArgumentArity.ExactlyOne,
     };
 
-    private static readonly Option<double> UnbindMergeToleranceOpt = new(
-        "--unbind-merge-tolerance"
-    )
+    private static readonly Option<double> UnbindMergeToleranceOpt = new("--unbind-merge-tolerance")
     {
         Description = CliLocalizationString.convert_opt_unbind_merge_tolerance,
         Arity = ArgumentArity.ExactlyOne,

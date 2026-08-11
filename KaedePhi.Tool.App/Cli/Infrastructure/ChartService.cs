@@ -79,14 +79,16 @@ public sealed class ChartService
         ChartProcessingValidator.ValidateInputFile(path);
 
         ChartType detectedType;
-        await using (var detectStream = new FileStream(
-            path,
-            FileMode.Open,
-            FileAccess.Read,
-            FileShare.Read,
-            65536,
-            useAsync: true
-        ))
+        await using (
+            var detectStream = new FileStream(
+                path,
+                FileMode.Open,
+                FileAccess.Read,
+                FileShare.Read,
+                65536,
+                useAsync: true
+            )
+        )
         {
             detectedType = await ChartGetType.GetTypeAsync(detectStream, ct);
         }

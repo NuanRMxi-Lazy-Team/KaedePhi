@@ -245,13 +245,7 @@ public class JudgeLineUnbinder : LoggableBase, IJudgeLineUnbinder<JudgeLine>
         IProgress<ToolProgress>? progress,
         CancellationToken cancellationToken
     ) =>
-        ValidateInput(
-                targetJudgeLineIndex,
-                allJudgeLines,
-                precision,
-                tolerance,
-                mergeTolerance
-            )
+        ValidateInput(targetJudgeLineIndex, allJudgeLines, precision, tolerance, mergeTolerance)
             .CreatePlusProcessor(allJudgeLines, tolerance, mergeTolerance)
             .FatherUnbind(
                 targetJudgeLineIndex,

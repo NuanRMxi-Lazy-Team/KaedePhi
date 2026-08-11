@@ -1,9 +1,9 @@
 using System.Threading.Tasks;
 using Xunit;
-using Verifier =
-    Microsoft.CodeAnalysis.CSharp.Testing.CSharpAnalyzerVerifier<
-        KaedePhi.Tool.Analyzers.EventCutterAnalyzer,
-        Microsoft.CodeAnalysis.Testing.DefaultVerifier>;
+using Verifier = Microsoft.CodeAnalysis.CSharp.Testing.CSharpAnalyzerVerifier<
+    KaedePhi.Tool.Analyzers.EventCutterAnalyzer,
+    Microsoft.CodeAnalysis.Testing.DefaultVerifier
+>;
 
 namespace KaedePhi.Tool.Analyzers.Tests;
 
@@ -41,7 +41,8 @@ public sealed class EventCutterAnalyzerTests
             }
             """;
 
-        var expected = Verifier.Diagnostic(EventCutterAnalyzer.DiagnosticId)
+        var expected = Verifier
+            .Diagnostic(EventCutterAnalyzer.DiagnosticId)
             .WithSpan(8, 36, 8, 38)
             .WithArguments("4");
         await Verifier.VerifyAnalyzerAsync(source, expected);
@@ -80,7 +81,8 @@ public sealed class EventCutterAnalyzerTests
             }
             """;
 
-        var expected = Verifier.Diagnostic(EventCutterAnalyzer.DiagnosticId)
+        var expected = Verifier
+            .Diagnostic(EventCutterAnalyzer.DiagnosticId)
             .WithSpan(9, 36, 9, 48)
             .WithArguments("4");
         await Verifier.VerifyAnalyzerAsync(source, expected);
@@ -110,7 +112,8 @@ public sealed class EventCutterAnalyzerTests
             }
             """;
 
-        var expected = Verifier.Diagnostic(EventCutterAnalyzer.EqualOneDiagnosticId)
+        var expected = Verifier
+            .Diagnostic(EventCutterAnalyzer.EqualOneDiagnosticId)
             .WithSpan(8, 36, 8, 38);
         await Verifier.VerifyAnalyzerAsync(source, expected);
     }

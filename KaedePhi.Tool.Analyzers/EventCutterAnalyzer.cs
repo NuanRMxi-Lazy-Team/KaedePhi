@@ -17,7 +17,7 @@ public sealed class EventCutterAnalyzer : DiagnosticAnalyzer
     public const string EqualOneDiagnosticId = EventCutterDiagnostic.EqualOneId;
 
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } =
-        [EventCutterDiagnostic.Rule, EventCutterDiagnostic.EqualOneRule];
+    [EventCutterDiagnostic.Rule, EventCutterDiagnostic.EqualOneRule];
 
     public override void Initialize(AnalysisContext context)
     {
@@ -32,19 +32,24 @@ public sealed class EventCutterAnalyzer : DiagnosticAnalyzer
     private static void AnalyzeInvocation(OperationAnalysisContext context)
     {
         // 非目标调用直接忽略
-        if (context.Operation is not IInvocationOperation invocation ||
-            !EventCutterApi.TryGetCutLengthArgument(invocation, out var argument))
+        if (
+            context.Operation is not IInvocationOperation invocation
+            || !EventCutterApi.TryGetCutLengthArgument(invocation, out var argument)
+        )
             return;
 
         // 仅报告编译期可确定且疑似忘记取倒数（大于等于 1）的常量值
-        if (!ConstantExpressionEvaluator.TryGetValue(
+        if (
+            !ConstantExpressionEvaluator.TryGetValue(
                 context.Compilation,
                 argument,
                 context.CancellationToken,
-                out var value) ||
-            double.IsNaN(value) ||
-            double.IsInfinity(value) ||
-            value < 1.0)
+                out var value
+            )
+            || double.IsNaN(value)
+            || double.IsInfinity(value)
+            || value < 1.0
+        )
             return;
 
         var expression = argument.Value.Syntax;
@@ -53,10 +58,7 @@ public sealed class EventCutterAnalyzer : DiagnosticAnalyzer
 
         var display = NumericValueFormatter.Format(value);
         // 恰好等于 1 使用专门规则，其余过大值使用默认规则
-        var rule = value == 1.0
-            ? EventCutterDiagnostic.EqualOneRule
-            : EventCutterDiagnostic.Rule;
-        context.ReportDiagnostic(
-            Diagnostic.Create(rule, expression.GetLocation(), display));
+        var rule = value == 1.0 ? EventCutterDiagnostic.EqualOneRule : EventCutterDiagnostic.Rule;
+        context.ReportDiagnostic(Diagnostic.Create(rule, expression.GetLocation(), display));
     }
 }

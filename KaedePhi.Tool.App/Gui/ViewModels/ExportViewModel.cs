@@ -10,7 +10,13 @@ public sealed class ExportViewModel : INotifyPropertyChanged
     private ChartType _selectedFormat;
 
     public List<ChartType> AvailableFormats { get; } =
-    [ChartType.RePhiEdit, ChartType.PhiEdit, ChartType.PhigrosV3, ChartType.PhiChain, ChartType.PhiFans];
+    [
+        ChartType.RePhiEdit,
+        ChartType.PhiEdit,
+        ChartType.PhigrosV3,
+        ChartType.PhiChain,
+        ChartType.PhiFans,
+    ];
 
     public ChartType SourceFormat
     {
@@ -93,8 +99,7 @@ public sealed class ExportViewModel : INotifyPropertyChanged
     /// <summary>
     /// 是否显示 PhiFans 专属转换选项（目标为 PhiFans）
     /// </summary>
-    public bool ShowPhiFansOptions =>
-        ShowConversionOptions && _selectedFormat == ChartType.PhiFans;
+    public bool ShowPhiFansOptions => ShowConversionOptions && _selectedFormat == ChartType.PhiFans;
 
     /// <summary>
     /// 是否显示通用转换选项（目标格式支持解绑/合并/线过滤）

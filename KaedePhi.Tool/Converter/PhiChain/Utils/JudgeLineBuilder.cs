@@ -201,11 +201,7 @@ public static class JudgeLineBuilder
             Kpc.JudgeLine unboundLine;
             if (options.UnbindClassicMode)
             {
-                unboundLine = unbinder.FatherUnbind(
-                    lineIndex,
-                    result,
-                    options.UnbindPrecision
-                );
+                unboundLine = unbinder.FatherUnbind(lineIndex, result, options.UnbindPrecision);
             }
             else
             {
@@ -245,7 +241,8 @@ public static class JudgeLineBuilder
         var serializedLine = ConvertLineToPhiChain(kpcLine, options, warn);
 
         // 递归处理子线
-        if (!childMap.TryGetValue(lineIndex, out var children)) return serializedLine;
+        if (!childMap.TryGetValue(lineIndex, out var children))
+            return serializedLine;
         foreach (var childIndex in children)
         {
             serializedLine.Children.Add(

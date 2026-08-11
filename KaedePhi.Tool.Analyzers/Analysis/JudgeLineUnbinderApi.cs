@@ -25,7 +25,8 @@ internal static class JudgeLineUnbinderApi
     /// <returns>是否找到至少一个容差实参</returns>
     public static bool TryGetToleranceArguments(
         IInvocationOperation invocation,
-        out ImmutableArray<IArgumentOperation> arguments)
+        out ImmutableArray<IArgumentOperation> arguments
+    )
     {
         arguments = [];
         if (!IsSupportedMethod(invocation.TargetMethod))
@@ -35,9 +36,11 @@ internal static class JudgeLineUnbinderApi
         var builder = ImmutableArray.CreateBuilder<IArgumentOperation>();
         foreach (var argument in invocation.Arguments)
         {
-            if (argument.Parameter is not { } parameter ||
-                !IsToleranceParameter(parameter) ||
-                parameter.Type.SpecialType != SpecialType.System_Double)
+            if (
+                argument.Parameter is not { } parameter
+                || !IsToleranceParameter(parameter)
+                || parameter.Type.SpecialType != SpecialType.System_Double
+            )
                 continue;
 
             builder.Add(argument);
@@ -53,15 +56,17 @@ internal static class JudgeLineUnbinderApi
     /// <param name="method">待判断的方法符号</param>
     /// <returns>是否为解绑接口或实现中的 FatherUnbindDynamic 方法</returns>
     public static bool IsDynamicMethod(IMethodSymbol method) =>
-        method.MethodKind == MethodKind.Ordinary &&
-        method.Name == "FatherUnbindDynamic" &&
-        IsUnbinderType(method.ContainingType);
+        method.MethodKind == MethodKind.Ordinary
+        && method.Name == "FatherUnbindDynamic"
+        && IsUnbinderType(method.ContainingType);
 
     private static bool IsSupportedMethod(IMethodSymbol method)
     {
         // 仅匹配解绑接口及实现中的普通解绑与动态解绑方法
-        if (method.MethodKind != MethodKind.Ordinary ||
-            method.Name is not ("FatherUnbind" or "FatherUnbindDynamic"))
+        if (
+            method.MethodKind != MethodKind.Ordinary
+            || method.Name is not ("FatherUnbind" or "FatherUnbindDynamic")
+        )
             return false;
 
         return IsUnbinderType(method.ContainingType);
@@ -90,10 +95,10 @@ internal static class JudgeLineUnbinderApi
     }
 
     private static bool IsUnbinderInterface(INamedTypeSymbol type) =>
-        type.ContainingNamespace?.ToDisplayString() == JudgeLineNamespace &&
-        type.MetadataName == InterfaceMetadataName;
+        type.ContainingNamespace?.ToDisplayString() == JudgeLineNamespace
+        && type.MetadataName == InterfaceMetadataName;
 
     private static bool IsUnbinderImplementation(INamedTypeSymbol type) =>
-        type.ContainingNamespace?.ToDisplayString() == ImplementationNamespace &&
-        type.MetadataName == ImplementationMetadataName;
+        type.ContainingNamespace?.ToDisplayString() == ImplementationNamespace
+        && type.MetadataName == ImplementationMetadataName;
 }

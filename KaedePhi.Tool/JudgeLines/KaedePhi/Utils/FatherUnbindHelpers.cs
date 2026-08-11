@@ -269,9 +269,7 @@ public static class FatherUnbindHelpers
     {
         if (judgeLineCopy.Father > -1)
             return false;
-        logWarning?.Invoke(
-            $"{logTag}[{cacheKey.TargetJudgeLineIndex}]: 判定线无父线，跳过。"
-        );
+        logWarning?.Invoke($"{logTag}[{cacheKey.TargetJudgeLineIndex}]: 判定线无父线，跳过。");
         cache.TryAdd(cacheKey, judgeLineCopy);
         return true;
     }
@@ -366,11 +364,7 @@ public static class FatherUnbindHelpers
     )
     {
         ChartProcessingValidator.ValidateTolerance(tolerance);
-        if (
-            xEvents.Count == 0
-            || yEvents.Count == 0
-            || !ArePositionEventsAligned(xEvents, yEvents)
-        )
+        if (xEvents.Count == 0 || yEvents.Count == 0 || !ArePositionEventsAligned(xEvents, yEvents))
             return (xEvents, yEvents);
 
         var relativeTolerance = tolerance / 100.0;
@@ -384,15 +378,7 @@ public static class FatherUnbindHelpers
             var currentX = xEvents[i];
             var currentY = yEvents[i];
 
-            if (
-                CanMergePositionSegments(
-                    lastX,
-                    lastY,
-                    currentX,
-                    currentY,
-                    relativeTolerance
-                )
-            )
+            if (CanMergePositionSegments(lastX, lastY, currentX, currentY, relativeTolerance))
             {
                 lastX.EndBeat = currentX.EndBeat;
                 lastX.EndValue = currentX.EndValue;
@@ -475,10 +461,8 @@ public static class FatherUnbindHelpers
             X: lastX.StartValue + (currentX.EndValue - lastX.StartValue) * progress,
             Y: lastY.StartValue + (currentY.EndValue - lastY.StartValue) * progress
         );
-        return (
-                GetNormalizedKpcDistance(actualJunction, predictedJunction)
-                / originalMovementRange
-            ) <= relativeTolerance;
+        return (GetNormalizedKpcDistance(actualJunction, predictedJunction) / originalMovementRange)
+            <= relativeTolerance;
     }
 
     #region 共享数据结构
@@ -776,7 +760,14 @@ public static class FatherUnbindHelpers
         var localY = new List<KpcEvents.Event<double>>();
 
         var end = absPosOut(iEnd);
-        var originalMovementRange = GetOriginalMovementRange(iStart, iEnd, step, absPosIn, absPosOut, ct);
+        var originalMovementRange = GetOriginalMovementRange(
+            iStart,
+            iEnd,
+            step,
+            absPosIn,
+            absPosOut,
+            ct
+        );
         var segStart = iStart;
         var seg = absPosIn(iStart);
 

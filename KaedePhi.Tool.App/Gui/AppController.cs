@@ -278,10 +278,7 @@ internal sealed class AppController
         CancellationToken ct = default
     )
     {
-        await Task.Run(
-            () => _chart.LoadChartAsync(filePath, useStream, ct, importOptions),
-            ct
-        );
+        await Task.Run(() => _chart.LoadChartAsync(filePath, useStream, ct, importOptions), ct);
         ct.ThrowIfCancellationRequested();
 
         _toolVm.CurrentFileName = Path.GetFileName(filePath);

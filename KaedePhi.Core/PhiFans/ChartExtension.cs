@@ -78,8 +78,7 @@ namespace KaedePhi.Core.PhiFans
         /// </summary>
         /// <param name="format">是否需要格式化</param>
         /// <returns>JSON 字符串</returns>
-        public Task<string> ExportToJsonAsync(bool format) =>
-            Task.Run(() => ExportToJson(format));
+        public Task<string> ExportToJsonAsync(bool format) => Task.Run(() => ExportToJson(format));
 
         /// <summary>
         /// 从 JSON 反序列化谱面。
@@ -90,10 +89,10 @@ namespace KaedePhi.Core.PhiFans
         [PublicAPI]
         public static Chart LoadFromJson(string json)
         {
-            return JsonConvert.DeserializeObject<Chart>(
-                json,
-                JsonDefaults.DeserializeSettings
-            ) ?? throw new InvalidOperationException("Failed to deserialize PhiFans Chart from JSON.");
+            return JsonConvert.DeserializeObject<Chart>(json, JsonDefaults.DeserializeSettings)
+                ?? throw new InvalidOperationException(
+                    "Failed to deserialize PhiFans Chart from JSON."
+                );
         }
 
         /// <summary>
@@ -122,7 +121,9 @@ namespace KaedePhi.Core.PhiFans
             using var jsonReader = new JsonTextReader(streamReader);
             var serializer = JsonDefaults.CreateSerializer(Formatting.None);
             return serializer.Deserialize<Chart>(jsonReader)
-                ?? throw new InvalidOperationException("Failed to deserialize PhiFans Chart from stream.");
+                ?? throw new InvalidOperationException(
+                    "Failed to deserialize PhiFans Chart from stream."
+                );
         }
 
         /// <summary>
@@ -143,8 +144,11 @@ namespace KaedePhi.Core.PhiFans
                 );
                 using var jsonReader = new JsonTextReader(streamReader);
                 var serializer = JsonDefaults.CreateSerializer(Formatting.None);
-                var chart = serializer.Deserialize<Chart>(jsonReader)
-                    ?? throw new InvalidOperationException("Failed to deserialize PhiFans Chart from stream.");
+                var chart =
+                    serializer.Deserialize<Chart>(jsonReader)
+                    ?? throw new InvalidOperationException(
+                        "Failed to deserialize PhiFans Chart from stream."
+                    );
                 return Task.FromResult(chart);
             }
             catch (Exception exception)

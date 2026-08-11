@@ -2,9 +2,9 @@ using KaedePhi.Core.Common;
 using KaedePhi.Core.PhiFans;
 using KaedePhi.Tool.Common;
 using KaedePhi.Tool.Converter.PhiFans.Model;
+using KpcNoteType = KaedePhi.Core.Common.NoteType;
 using PfEvent = KaedePhi.Core.PhiFans.Event;
 using PfNoteType = KaedePhi.Core.PhiFans.NoteType;
-using KpcNoteType = KaedePhi.Core.Common.NoteType;
 
 namespace KaedePhi.Tool.Converter.PhiFans;
 
@@ -17,6 +17,7 @@ public class PhiFansConverter
         ICancellableChartConverter
 {
     private CancellationToken _ct;
+
     // 此值为粗略估算，并非严谨计算后得出的内容，请知悉。
     private const float SpeedRatio = 7.15f;
     private const double BeatEpsilon = 1e-7;
@@ -126,10 +127,7 @@ public class PhiFansConverter
 
     private static Kpc.JudgeLine ConvertLine(Line src)
     {
-        var line = new Kpc.JudgeLine
-        {
-            Notes = src.NoteList.ConvertAll(ConvertNoteToKpc),
-        };
+        var line = new Kpc.JudgeLine { Notes = src.NoteList.ConvertAll(ConvertNoteToKpc) };
 
         var layer = new KpcEvents.EventLayer();
         var props = src.Props;
@@ -138,10 +136,16 @@ public class PhiFansConverter
             layer.SpeedEvents = ConvertPhifansEventsToFloat(props.Speed, v => v * SpeedRatio);
 
         if (props.PositionX.Count > 0)
-            layer.MoveXEvents = ConvertPhifansEventsToDouble(props.PositionX, v => v / Chart.CoordinateSystem.MaxX);
+            layer.MoveXEvents = ConvertPhifansEventsToDouble(
+                props.PositionX,
+                v => v / Chart.CoordinateSystem.MaxX
+            );
 
         if (props.PositionY.Count > 0)
-            layer.MoveYEvents = ConvertPhifansEventsToDouble(props.PositionY, v => v / Chart.CoordinateSystem.MaxY);
+            layer.MoveYEvents = ConvertPhifansEventsToDouble(
+                props.PositionY,
+                v => v / Chart.CoordinateSystem.MaxY
+            );
 
         if (props.Rotate.Count > 0)
             layer.RotateEvents = ConvertPhifansEventsToDouble(
@@ -158,10 +162,7 @@ public class PhiFansConverter
 
     private static Line ConvertLine(Kpc.JudgeLine src, KpcToPhiFansConvertOptions options)
     {
-        var line = new Line
-        {
-            NoteList = src.Notes.ConvertAll(ConvertNoteFromKpc),
-        };
+        var line = new Line { NoteList = src.Notes.ConvertAll(ConvertNoteFromKpc) };
 
         foreach (var layer in src.EventLayers)
         {
@@ -172,22 +173,32 @@ public class PhiFansConverter
             if (layer.MoveXEvents is not null)
                 foreach (var e in layer.MoveXEvents)
                     ConvertKpcEventToPhiFans(
-                        e, line.Props.PositionX, v => (float)(v * 100.0), MapKpcEasingToPp);
+                        e,
+                        line.Props.PositionX,
+                        v => (float)(v * 100.0),
+                        MapKpcEasingToPp
+                    );
 
             if (layer.MoveYEvents is not null)
                 foreach (var e in layer.MoveYEvents)
                     ConvertKpcEventToPhiFans(
-                        e, line.Props.PositionY, v => (float)(v * 100.0), MapKpcEasingToPp);
+                        e,
+                        line.Props.PositionY,
+                        v => (float)(v * 100.0),
+                        MapKpcEasingToPp
+                    );
 
             if (layer.RotateEvents is not null)
                 foreach (var e in layer.RotateEvents)
                     ConvertKpcEventToPhiFans(
                         e,
                         line.Props.Rotate,
-                        v => (float)CoordinateGeometry.ToTargetAngle(
-                            v,
-                            CoordinateProfile.PhiFansProfile
-                        ),
+                        v =>
+                            (float)
+                                CoordinateGeometry.ToTargetAngle(
+                                    v,
+                                    CoordinateProfile.PhiFansProfile
+                                ),
                         MapKpcEasingToPp
                     );
 
@@ -263,10 +274,35 @@ public class PhiFansConverter
     private static int MapPpEasingToKpc(int pfEasing) =>
         pfEasing switch
         {
-            0 => 1, 1 => 2, 2 => 3, 3 => 4, 4 => 5, 5 => 6, 6 => 7, 7 => 8, 8 => 9,
-            9 => 10, 10 => 11, 11 => 12, 12 => 13, 13 => 14, 14 => 15,
-            16 => 18, 17 => 17, 19 => 20, 20 => 21, 21 => 22, 22 => 23,
-            23 => 24, 24 => 25, 25 => 26, 26 => 27, 27 => 28, 28 => 29, 29 => 30, 30 => 31,
+            0 => 1,
+            1 => 2,
+            2 => 3,
+            3 => 4,
+            4 => 5,
+            5 => 6,
+            6 => 7,
+            7 => 8,
+            8 => 9,
+            9 => 10,
+            10 => 11,
+            11 => 12,
+            12 => 13,
+            13 => 14,
+            14 => 15,
+            16 => 18,
+            17 => 17,
+            19 => 20,
+            20 => 21,
+            21 => 22,
+            22 => 23,
+            23 => 24,
+            24 => 25,
+            25 => 26,
+            26 => 27,
+            27 => 28,
+            28 => 29,
+            29 => 30,
+            30 => 31,
             _ => 1,
         };
 
@@ -276,11 +312,37 @@ public class PhiFansConverter
     private static int MapKpcEasingToPp(int kpcEasing) =>
         kpcEasing switch
         {
-            1 => 0, 2 => 1, 3 => 2, 4 => 3, 5 => 4, 6 => 5, 7 => 6, 8 => 7, 9 => 8,
-            10 => 9, 11 => 10, 12 => 11, 13 => 12, 14 => 13, 15 => 14,
-            16 => 17, 17 => 15, 18 => 16, 19 => 0, 20 => 19, 21 => 20, 22 => 21,
-            23 => 22, 24 => 23, 25 => 24, 26 => 25, 27 => 26, 28 => 27, 29 => 28,
-            30 => 29, 31 => 30,
+            1 => 0,
+            2 => 1,
+            3 => 2,
+            4 => 3,
+            5 => 4,
+            6 => 5,
+            7 => 6,
+            8 => 7,
+            9 => 8,
+            10 => 9,
+            11 => 10,
+            12 => 11,
+            13 => 12,
+            14 => 13,
+            15 => 14,
+            16 => 17,
+            17 => 15,
+            18 => 16,
+            19 => 0,
+            20 => 19,
+            21 => 20,
+            22 => 21,
+            23 => 22,
+            24 => 23,
+            25 => 24,
+            26 => 25,
+            27 => 26,
+            28 => 27,
+            29 => 28,
+            30 => 29,
+            31 => 30,
             _ => 0,
         };
 
@@ -307,14 +369,16 @@ public class PhiFansConverter
             if (i + 1 < src.Count && src[i + 1].Continuous)
             {
                 var endItem = src[i + 1];
-                result.Add(new KpcEvents.Event<double>
-                {
-                    StartBeat = new Beat((int[])item.Beat),
-                    EndBeat = new Beat((int[])endItem.Beat),
-                    StartValue = valueTransform(item.Value),
-                    EndValue = valueTransform(endItem.Value),
-                    Easing = new Kpc.Easing(MapPpEasingToKpc(item.Easing)),
-                });
+                result.Add(
+                    new KpcEvents.Event<double>
+                    {
+                        StartBeat = new Beat((int[])item.Beat),
+                        EndBeat = new Beat((int[])endItem.Beat),
+                        StartValue = valueTransform(item.Value),
+                        EndValue = valueTransform(endItem.Value),
+                        Easing = new Kpc.Easing(MapPpEasingToKpc(item.Easing)),
+                    }
+                );
                 i += 2;
             }
             else
@@ -345,14 +409,16 @@ public class PhiFansConverter
             if (i + 1 < src.Count && src[i + 1].Continuous)
             {
                 var endItem = src[i + 1];
-                result.Add(new KpcEvents.Event<float>
-                {
-                    StartBeat = new Beat((int[])item.Beat),
-                    EndBeat = new Beat((int[])endItem.Beat),
-                    StartValue = valueTransform(item.Value),
-                    EndValue = valueTransform(endItem.Value),
-                    Easing = new Kpc.Easing(1),
-                });
+                result.Add(
+                    new KpcEvents.Event<float>
+                    {
+                        StartBeat = new Beat((int[])item.Beat),
+                        EndBeat = new Beat((int[])endItem.Beat),
+                        StartValue = valueTransform(item.Value),
+                        EndValue = valueTransform(endItem.Value),
+                        Easing = new Kpc.Easing(1),
+                    }
+                );
                 i += 2;
             }
             else
@@ -383,14 +449,16 @@ public class PhiFansConverter
             if (i + 1 < src.Count && src[i + 1].Continuous)
             {
                 var endItem = src[i + 1];
-                result.Add(new KpcEvents.Event<int>
-                {
-                    StartBeat = new Beat((int[])item.Beat),
-                    EndBeat = new Beat((int[])endItem.Beat),
-                    StartValue = valueTransform(item.Value),
-                    EndValue = valueTransform(endItem.Value),
-                    Easing = new Kpc.Easing(MapPpEasingToKpc(item.Easing)),
-                });
+                result.Add(
+                    new KpcEvents.Event<int>
+                    {
+                        StartBeat = new Beat((int[])item.Beat),
+                        EndBeat = new Beat((int[])endItem.Beat),
+                        StartValue = valueTransform(item.Value),
+                        EndValue = valueTransform(endItem.Value),
+                        Easing = new Kpc.Easing(MapPpEasingToKpc(item.Easing)),
+                    }
+                );
                 i += 2;
             }
             else
@@ -403,8 +471,11 @@ public class PhiFansConverter
     }
 
     private static KpcEvents.Event<T> CreateInstantKpcEvent<T>(
-        Beat beat, float value, Func<float, T> valueTransform
-    ) where T : notnull
+        Beat beat,
+        float value,
+        Func<float, T> valueTransform
+    )
+        where T : notnull
     {
         var v = valueTransform(value);
         return new KpcEvents.Event<T>
@@ -421,11 +492,13 @@ public class PhiFansConverter
 
     #region 事件转换：KPC 区间编码 → PhiFans 增量编码
 
-    private static void ConvertKpcEventToPhiFans<T>(KpcEvents.Event<T> src,
+    private static void ConvertKpcEventToPhiFans<T>(
+        KpcEvents.Event<T> src,
         List<PfEvent> dst,
         Func<T, float> valueTransform,
         Func<int, int> easingMap
-    ) where T : notnull
+    )
+        where T : notnull
     {
         var startVal = valueTransform(src.StartValue);
         var endVal = valueTransform(src.EndValue);
@@ -433,31 +506,37 @@ public class PhiFansConverter
 
         if (Math.Abs(startVal - endVal) < float.Epsilon)
         {
-            dst.Add(new PfEvent
+            dst.Add(
+                new PfEvent
+                {
+                    Beat = new Beat((int[])src.StartBeat),
+                    Value = startVal,
+                    Continuous = false,
+                    Easing = easing,
+                }
+            );
+            return;
+        }
+
+        dst.Add(
+            new PfEvent
             {
                 Beat = new Beat((int[])src.StartBeat),
                 Value = startVal,
                 Continuous = false,
                 Easing = easing,
-            });
-            return;
-        }
+            }
+        );
 
-        dst.Add(new PfEvent
-        {
-            Beat = new Beat((int[])src.StartBeat),
-            Value = startVal,
-            Continuous = false,
-            Easing = easing,
-        });
-
-        dst.Add(new PfEvent
-        {
-            Beat = new Beat((int[])src.EndBeat),
-            Value = endVal,
-            Continuous = true,
-            Easing = easing,
-        });
+        dst.Add(
+            new PfEvent
+            {
+                Beat = new Beat((int[])src.EndBeat),
+                Value = endVal,
+                Continuous = true,
+                Easing = easing,
+            }
+        );
     }
 
     /// <summary>

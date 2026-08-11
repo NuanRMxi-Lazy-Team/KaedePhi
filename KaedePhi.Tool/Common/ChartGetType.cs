@@ -81,10 +81,7 @@ public static class ChartGetType
     /// <returns>检测到的谱面类型。</returns>
     /// <exception cref="NotSupportedException">输入了不支持的谱面类别。</exception>
     [PublicAPI]
-    public static async Task<ChartType> GetTypeAsync(
-        Stream stream,
-        CancellationToken ct = default
-    )
+    public static async Task<ChartType> GetTypeAsync(Stream stream, CancellationToken ct = default)
     {
         ArgumentNullException.ThrowIfNull(stream);
         using var textReader = new StreamReader(
@@ -106,11 +103,7 @@ public static class ChartGetType
     }
 
     private static JsonTextReader CreateJsonReader(TextReader textReader) =>
-        new(textReader)
-        {
-            DateParseHandling = DateParseHandling.None,
-            CloseInput = false,
-        };
+        new(textReader) { DateParseHandling = DateParseHandling.None, CloseInput = false };
 
     private static ChartType GetType(JsonTextReader reader)
     {
@@ -181,10 +174,7 @@ public static class ChartGetType
         throw new NotSupportedException(UnsupportedChartMessage);
     }
 
-    private static async Task<ChartType> GetTypeAsync(
-        JsonTextReader reader,
-        CancellationToken ct
-    )
+    private static async Task<ChartType> GetTypeAsync(JsonTextReader reader, CancellationToken ct)
     {
         if (!await ReadNextAsync(reader, ct))
             throw new NotSupportedException(UnsupportedChartMessage);
@@ -327,13 +317,13 @@ public static class ChartGetType
 
         var text = Convert.ToString(reader.Value, CultureInfo.InvariantCulture);
         return long.TryParse(
-                   text,
-                   NumberStyles.Integer,
-                   CultureInfo.InvariantCulture,
-                   out var parsed
-               )
-               && parsed is >= int.MinValue and <= int.MaxValue
-               && (formatVersion = (int)parsed) == parsed;
+                text,
+                NumberStyles.Integer,
+                CultureInfo.InvariantCulture,
+                out var parsed
+            )
+            && parsed is >= int.MinValue and <= int.MaxValue
+            && (formatVersion = (int)parsed) == parsed;
     }
 
     private static bool IsIntegerValue(JsonTextReader reader, ulong expected)
@@ -342,11 +332,12 @@ public static class ChartGetType
             return false;
 
         return ulong.TryParse(
-            Convert.ToString(reader.Value, CultureInfo.InvariantCulture),
-            NumberStyles.Integer,
-            CultureInfo.InvariantCulture,
-            out var value
-        ) && value == expected;
+                Convert.ToString(reader.Value, CultureInfo.InvariantCulture),
+                NumberStyles.Integer,
+                CultureInfo.InvariantCulture,
+                out var value
+            )
+            && value == expected;
     }
 
     private static ChartType GetTypeFromFormatVersion(int formatVersion) =>

@@ -25,16 +25,20 @@ internal static class EventCutterApi
     /// <returns>是否找到受支持的 cutLength 实参</returns>
     public static bool TryGetCutLengthArgument(
         IInvocationOperation invocation,
-        out IArgumentOperation argument)
+        out IArgumentOperation argument
+    )
     {
         argument = null!;
         if (!IsSupportedMethod(invocation.TargetMethod))
             return false;
 
         // 形参名与形参类型双重匹配，避免同名实参误判
-        foreach (var candidate in invocation.Arguments.Where(candidate =>
-                     candidate.Parameter?.Name == CutLengthParameterName &&
-                     IsSupportedCutLengthType(candidate.Parameter.Type)))
+        foreach (
+            var candidate in invocation.Arguments.Where(candidate =>
+                candidate.Parameter?.Name == CutLengthParameterName
+                && IsSupportedCutLengthType(candidate.Parameter.Type)
+            )
+        )
         {
             argument = candidate;
             return true;
@@ -50,15 +54,17 @@ internal static class EventCutterApi
     /// <returns>是否为 Beat 类型</returns>
     public static bool IsBeat(ITypeSymbol? type) =>
         // 与原始定义比对，避免泛型实例化带来的符号差异
-        type is INamedTypeSymbol namedType &&
-        namedType.OriginalDefinition.ContainingNamespace?.ToDisplayString() == BeatNamespace &&
-        namedType.OriginalDefinition.MetadataName == BeatMetadataName;
+        type is INamedTypeSymbol namedType
+        && namedType.OriginalDefinition.ContainingNamespace?.ToDisplayString() == BeatNamespace
+        && namedType.OriginalDefinition.MetadataName == BeatMetadataName;
 
     private static bool IsSupportedMethod(IMethodSymbol method)
     {
         // 仅匹配事件切割接口及实现中的普通切割方法
-        if (method.MethodKind != MethodKind.Ordinary ||
-            method.Name is not ("CutEventToLinear" or "CutEventsInRange"))
+        if (
+            method.MethodKind != MethodKind.Ordinary
+            || method.Name is not ("CutEventToLinear" or "CutEventsInRange")
+        )
             return false;
 
         return IsEventCutterType(method.ContainingType);
@@ -87,10 +93,10 @@ internal static class EventCutterApi
     }
 
     private static bool IsEventCutterInterface(INamedTypeSymbol type) =>
-        type.ContainingNamespace?.ToDisplayString() == EventNamespace &&
-        type.MetadataName == InterfaceMetadataName;
+        type.ContainingNamespace?.ToDisplayString() == EventNamespace
+        && type.MetadataName == InterfaceMetadataName;
 
     private static bool IsEventCutterImplementation(INamedTypeSymbol type) =>
-        type.ContainingNamespace?.ToDisplayString() == ImplementationNamespace &&
-        type.MetadataName == ImplementationMetadataName;
+        type.ContainingNamespace?.ToDisplayString() == ImplementationNamespace
+        && type.MetadataName == ImplementationMetadataName;
 }

@@ -18,11 +18,11 @@ public sealed class JudgeLineUnbinderAnalyzer : DiagnosticAnalyzer
     public const string ZeroToleranceDiagnosticId = JudgeLineUnbinderDiagnostic.ZeroToleranceId;
 
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } =
-        [
-            JudgeLineUnbinderDiagnostic.Rule,
-            JudgeLineUnbinderDiagnostic.SmallToleranceRule,
-            JudgeLineUnbinderDiagnostic.ZeroToleranceRule,
-        ];
+    [
+        JudgeLineUnbinderDiagnostic.Rule,
+        JudgeLineUnbinderDiagnostic.SmallToleranceRule,
+        JudgeLineUnbinderDiagnostic.ZeroToleranceRule,
+    ];
 
     public override void Initialize(AnalysisContext context)
     {
@@ -37,8 +37,10 @@ public sealed class JudgeLineUnbinderAnalyzer : DiagnosticAnalyzer
     private static void AnalyzeInvocation(OperationAnalysisContext context)
     {
         // 非目标调用直接忽略
-        if (context.Operation is not IInvocationOperation invocation ||
-            !JudgeLineUnbinderApi.TryGetToleranceArguments(invocation, out var arguments))
+        if (
+            context.Operation is not IInvocationOperation invocation
+            || !JudgeLineUnbinderApi.TryGetToleranceArguments(invocation, out var arguments)
+        )
             return;
 
         // 零容差诊断仅针对动态解绑方法的 tolerance 实参
@@ -46,26 +48,28 @@ public sealed class JudgeLineUnbinderAnalyzer : DiagnosticAnalyzer
         foreach (var argument in arguments)
         {
             // 仅分析编译期可确定的常量值
-            if (!ConstantExpressionEvaluator.TryGetValue(
+            if (
+                !ConstantExpressionEvaluator.TryGetValue(
                     context.Compilation,
                     argument,
                     context.CancellationToken,
-                    out var value) ||
-                double.IsNaN(value) ||
-                double.IsInfinity(value) ||
-                argument.Value.Syntax is not SyntaxNode expression)
+                    out var value
+                )
+                || double.IsNaN(value)
+                || double.IsInfinity(value)
+                || argument.Value.Syntax is not SyntaxNode expression
+            )
                 continue;
 
             // 依次按阈值匹配规则：动态零容差、过大、过小
-            var diagnostic = isDynamicMethod &&
-                argument.Parameter?.Name == "tolerance" &&
-                value == 0.0
-                ? JudgeLineUnbinderDiagnostic.ZeroToleranceRule
+            var diagnostic =
+                isDynamicMethod && argument.Parameter?.Name == "tolerance" && value == 0.0
+                    ? JudgeLineUnbinderDiagnostic.ZeroToleranceRule
                 : value >= JudgeLineUnbinderTolerance.ErrorThreshold
-                ? JudgeLineUnbinderDiagnostic.Rule
+                    ? JudgeLineUnbinderDiagnostic.Rule
                 : value > 0.0 && value < JudgeLineUnbinderTolerance.SmallToleranceThreshold
                     ? JudgeLineUnbinderDiagnostic.SmallToleranceRule
-                    : null;
+                : null;
             if (diagnostic is null)
                 continue;
 
@@ -73,7 +77,9 @@ public sealed class JudgeLineUnbinderAnalyzer : DiagnosticAnalyzer
                 Diagnostic.Create(
                     diagnostic,
                     expression.GetLocation(),
-                    NumericValueFormatter.Format(value)));
+                    NumericValueFormatter.Format(value)
+                )
+            );
         }
     }
 }

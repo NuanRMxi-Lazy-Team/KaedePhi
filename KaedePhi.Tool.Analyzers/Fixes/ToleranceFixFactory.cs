@@ -28,17 +28,21 @@ internal static class ToleranceFixFactory
     private static ExpressionSyntax Create(
         ExpressionSyntax expression,
         SyntaxKind operatorKind,
-        string operandText)
+        string operandText
+    )
     {
         var numerator = expression.WithoutTrivia();
         // 复合表达式需加括号，避免 a + b * 100 改变运算顺序
-        if (numerator is BinaryExpressionSyntax or ConditionalExpressionSyntax or AssignmentExpressionSyntax)
+        if (
+            numerator
+            is BinaryExpressionSyntax
+                or ConditionalExpressionSyntax
+                or AssignmentExpressionSyntax
+        )
             numerator = SyntaxFactory.ParenthesizedExpression(numerator);
 
-        return SyntaxFactory.BinaryExpression(
-                operatorKind,
-                numerator,
-                SyntaxFactory.ParseExpression(operandText))
+        return SyntaxFactory
+            .BinaryExpression(operatorKind, numerator, SyntaxFactory.ParseExpression(operandText))
             .WithTriviaFrom(expression);
     }
 }

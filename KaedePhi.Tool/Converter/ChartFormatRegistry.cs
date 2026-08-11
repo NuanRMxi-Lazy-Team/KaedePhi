@@ -4,10 +4,10 @@ using KaedePhi.Tool.Converter.PhiChain;
 using KaedePhi.Tool.Converter.PhiChain.Model;
 using KaedePhi.Tool.Converter.PhiEdit;
 using KaedePhi.Tool.Converter.PhiEdit.Model;
-using KaedePhi.Tool.Converter.Phigros.v3;
-using KaedePhi.Tool.Converter.Phigros.v3.Model;
 using KaedePhi.Tool.Converter.PhiFans;
 using KaedePhi.Tool.Converter.PhiFans.Model;
+using KaedePhi.Tool.Converter.Phigros.v3;
+using KaedePhi.Tool.Converter.Phigros.v3.Model;
 using KaedePhi.Tool.Converter.RePhiEdit;
 using KaedePhi.Tool.Converter.RePhiEdit.Model;
 
@@ -302,8 +302,10 @@ public static class ChartFormatRegistry
             else
             {
                 var temporaryPath = fullPath + "." + Guid.NewGuid().ToString("N") + ".tmp";
-                Directory.CreateDirectory(Path.GetDirectoryName(fullPath) ??
-                                          throw new InvalidOperationException("Invalid output path"));
+                Directory.CreateDirectory(
+                    Path.GetDirectoryName(fullPath)
+                        ?? throw new InvalidOperationException("Invalid output path")
+                );
                 try
                 {
                     await using (
@@ -337,8 +339,10 @@ public static class ChartFormatRegistry
             if (!write.DryRun)
             {
                 var temporaryPath = fullPath + "." + Guid.NewGuid().ToString("N") + ".tmp";
-                Directory.CreateDirectory(Path.GetDirectoryName(fullPath) ??
-                                          throw new InvalidOperationException("Invalid output path"));
+                Directory.CreateDirectory(
+                    Path.GetDirectoryName(fullPath)
+                        ?? throw new InvalidOperationException("Invalid output path")
+                );
                 try
                 {
                     await File.WriteAllTextAsync(temporaryPath, text, ct);

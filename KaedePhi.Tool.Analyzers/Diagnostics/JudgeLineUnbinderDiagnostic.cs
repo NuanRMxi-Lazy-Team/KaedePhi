@@ -17,47 +17,60 @@ internal static class JudgeLineUnbinderDiagnostic
     private static readonly LocalizableString Title = new LocalizableResourceString(
         nameof(Resource.kpte_0001_title),
         Resource.ResourceManager,
-        typeof(Resource));
+        typeof(Resource)
+    );
 
     private static readonly LocalizableString MessageFormat = new LocalizableResourceString(
         nameof(Resource.kpte_0001_message_format),
         Resource.ResourceManager,
-        typeof(Resource));
+        typeof(Resource)
+    );
 
     private static readonly LocalizableString Description = new LocalizableResourceString(
         nameof(Resource.kpte_0001_description),
         Resource.ResourceManager,
-        typeof(Resource));
+        typeof(Resource)
+    );
 
     private static readonly LocalizableString SmallToleranceTitle = new LocalizableResourceString(
         nameof(Resource.kpti_0003_title),
         Resource.ResourceManager,
-        typeof(Resource));
+        typeof(Resource)
+    );
 
-    private static readonly LocalizableString SmallToleranceMessageFormat = new LocalizableResourceString(
-        nameof(Resource.kpti_0003_message_format),
-        Resource.ResourceManager,
-        typeof(Resource));
+    private static readonly LocalizableString SmallToleranceMessageFormat =
+        new LocalizableResourceString(
+            nameof(Resource.kpti_0003_message_format),
+            Resource.ResourceManager,
+            typeof(Resource)
+        );
 
-    private static readonly LocalizableString SmallToleranceDescription = new LocalizableResourceString(
-        nameof(Resource.kpti_0003_description),
-        Resource.ResourceManager,
-        typeof(Resource));
+    private static readonly LocalizableString SmallToleranceDescription =
+        new LocalizableResourceString(
+            nameof(Resource.kpti_0003_description),
+            Resource.ResourceManager,
+            typeof(Resource)
+        );
 
     private static readonly LocalizableString ZeroToleranceTitle = new LocalizableResourceString(
         nameof(Resource.kptr_0001_title),
         Resource.ResourceManager,
-        typeof(Resource));
+        typeof(Resource)
+    );
 
-    private static readonly LocalizableString ZeroToleranceMessageFormat = new LocalizableResourceString(
-        nameof(Resource.kptr_0001_message_format),
-        Resource.ResourceManager,
-        typeof(Resource));
+    private static readonly LocalizableString ZeroToleranceMessageFormat =
+        new LocalizableResourceString(
+            nameof(Resource.kptr_0001_message_format),
+            Resource.ResourceManager,
+            typeof(Resource)
+        );
 
-    private static readonly LocalizableString ZeroToleranceDescription = new LocalizableResourceString(
-        nameof(Resource.kptr_0001_description),
-        Resource.ResourceManager,
-        typeof(Resource));
+    private static readonly LocalizableString ZeroToleranceDescription =
+        new LocalizableResourceString(
+            nameof(Resource.kptr_0001_description),
+            Resource.ResourceManager,
+            typeof(Resource)
+        );
 
     /// <summary>
     /// 容差大于等于阈值（过大）时报告错误。
@@ -69,7 +82,8 @@ internal static class JudgeLineUnbinderDiagnostic
         "Usage",
         DiagnosticSeverity.Error,
         isEnabledByDefault: true,
-        description: Description);
+        description: Description
+    );
 
     /// <summary>
     /// 容差过小时报告提示。
@@ -81,7 +95,8 @@ internal static class JudgeLineUnbinderDiagnostic
         "Usage",
         DiagnosticSeverity.Info,
         isEnabledByDefault: true,
-        description: SmallToleranceDescription);
+        description: SmallToleranceDescription
+    );
 
     /// <summary>
     /// 动态解绑容差为 0 时报告性能警告。
@@ -93,5 +108,6 @@ internal static class JudgeLineUnbinderDiagnostic
         "Performance",
         DiagnosticSeverity.Warning,
         isEnabledByDefault: true,
-        description: ZeroToleranceDescription);
+        description: ZeroToleranceDescription
+    );
 }

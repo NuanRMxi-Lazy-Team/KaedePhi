@@ -44,12 +44,8 @@ public class PhiFansConverterTests
 
         events.Should().HaveCount(4);
         events.Select(e => e.Continuous).Should().Equal(false, true, true, true);
-        events.Select(e => (double)e.Beat)
-            .Should()
-            .Equal(0d, 1d, 2d, 3d);
-        events.Select(e => e.Value)
-            .Should()
-            .Equal(0f, 10f, 20f, 30f);
+        events.Select(e => (double)e.Beat).Should().Equal(0d, 1d, 2d, 3d);
+        events.Select(e => e.Value).Should().Equal(0f, 10f, 20f, 30f);
     }
 
     [Fact]
@@ -141,10 +137,7 @@ public class PhiFansConverterTests
             [
                 new Kpc.JudgeLine
                 {
-                    EventLayers =
-                    [
-                        new KpcEvents.EventLayer { MoveXEvents = events.ToList() },
-                    ],
+                    EventLayers = [new KpcEvents.EventLayer { MoveXEvents = events.ToList() }],
                 },
             ],
         };

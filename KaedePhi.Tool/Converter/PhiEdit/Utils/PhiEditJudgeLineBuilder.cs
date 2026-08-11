@@ -1,8 +1,8 @@
 using KaedePhi.Core.Common;
 using KaedePhi.Tool.Common;
 using KaedePhi.Tool.Converter.PhiEdit.Model;
-using KaedePhi.Tool.Layer.KaedePhi;
 using KaedePhi.Tool.JudgeLines.KaedePhi;
+using KaedePhi.Tool.Layer.KaedePhi;
 using ExtendLayer = KaedePhi.Core.KaedePhi.Events.ExtendLayer;
 using KpcJudgeLine = KaedePhi.Core.KaedePhi.JudgeLine;
 
@@ -70,10 +70,7 @@ public class PhiEditJudgeLineBuilder
             if (_options.FatherLineUnbind is { ClassicMode: true, Compress: true })
             {
                 foreach (var layer in trueSrc.EventLayers)
-                    _layerProcessor.LayerEventsCompress(
-                        layer,
-                        _options.FatherLineUnbind.Tolerance
-                    );
+                    _layerProcessor.LayerEventsCompress(layer, _options.FatherLineUnbind.Tolerance);
             }
         }
 

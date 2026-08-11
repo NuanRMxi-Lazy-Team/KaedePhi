@@ -21,7 +21,8 @@ internal static class ConstantExpressionEvaluator
         Compilation compilation,
         IArgumentOperation argument,
         CancellationToken cancellationToken,
-        out double value)
+        out double value
+    )
     {
         value = 0;
         if (argument.Parameter is null || argument.Value.Syntax is not ExpressionSyntax expression)
@@ -38,14 +39,17 @@ internal static class ConstantExpressionEvaluator
         SemanticModel semanticModel,
         ExpressionSyntax expression,
         CancellationToken cancellationToken,
-        out double value)
+        out double value
+    )
     {
         value = 0;
         expression = UnwrapParentheses(expression);
         // 仅接受构造参数唯一且类型确为 Beat 的构造表达式
-        if (expression is not ObjectCreationExpressionSyntax creation ||
-            creation.ArgumentList is not { Arguments.Count: 1 } ||
-            !EventCutterApi.IsBeat(semanticModel.GetTypeInfo(creation, cancellationToken).Type))
+        if (
+            expression is not ObjectCreationExpressionSyntax creation
+            || creation.ArgumentList is not { Arguments.Count: 1 }
+            || !EventCutterApi.IsBeat(semanticModel.GetTypeInfo(creation, cancellationToken).Type)
+        )
             return false;
 
         // 构造参数即 Beat 内部封装的数值，递归求值该参数
@@ -53,14 +57,16 @@ internal static class ConstantExpressionEvaluator
             semanticModel,
             creation.ArgumentList.Arguments[0].Expression,
             cancellationToken,
-            out value);
+            out value
+        );
     }
 
     private static bool TryGetNumericValue(
         SemanticModel semanticModel,
         ExpressionSyntax expression,
         CancellationToken cancellationToken,
-        out double value)
+        out double value
+    )
     {
         value = 0;
         // 仅当表达式在编译期具有确定的常量值时才能成功

@@ -19,12 +19,17 @@ internal static class CutLengthFixFactory
     {
         var unwrapped = UnwrapParentheses(expression);
         // Beat 实参需要改写其构造参数，而不是整个 Beat 构造表达式
-        if (isBeat &&
-            unwrapped is ObjectCreationExpressionSyntax creation &&
-            creation.ArgumentList is { Arguments.Count: 1 })
+        if (
+            isBeat
+            && unwrapped is ObjectCreationExpressionSyntax creation
+            && creation.ArgumentList is { Arguments.Count: 1 }
+        )
         {
             var originalArgument = creation.ArgumentList.Arguments[0].Expression;
-            var fixedCreation = creation.ReplaceNode(originalArgument, CreateReciprocal(originalArgument));
+            var fixedCreation = creation.ReplaceNode(
+                originalArgument,
+                CreateReciprocal(originalArgument)
+            );
             return expression.ReplaceNode(creation, fixedCreation).WithTriviaFrom(expression);
         }
 
@@ -35,13 +40,20 @@ internal static class CutLengthFixFactory
     {
         var denominator = expression.WithoutTrivia();
         // 复合表达式需加括号，避免 1d / a + b 改变运算顺序
-        if (denominator is BinaryExpressionSyntax or ConditionalExpressionSyntax or AssignmentExpressionSyntax)
+        if (
+            denominator
+            is BinaryExpressionSyntax
+                or ConditionalExpressionSyntax
+                or AssignmentExpressionSyntax
+        )
             denominator = SyntaxFactory.ParenthesizedExpression(denominator);
 
-        return SyntaxFactory.BinaryExpression(
+        return SyntaxFactory
+            .BinaryExpression(
                 SyntaxKind.DivideExpression,
                 SyntaxFactory.ParseExpression("1d"),
-                denominator)
+                denominator
+            )
             .WithTriviaFrom(expression);
     }
 

@@ -1,9 +1,9 @@
 using KaedePhi.Core.Common;
-using KpcEvents = KaedePhi.Core.KaedePhi.Events;
 using KaedePhi.Tool.Common;
 using KaedePhi.Tool.JudgeLines;
 using KaedePhi.Tool.JudgeLines.KaedePhi;
 using JudgeLine = KaedePhi.Core.KaedePhi.JudgeLine;
+using KpcEvents = KaedePhi.Core.KaedePhi.Events;
 
 namespace KaedePhi.Tests.JudgeLines;
 
@@ -95,10 +95,6 @@ public sealed class JudgeLineUnbinderContractTests
                     },
                 ],
             },
-            new JudgeLine
-            {
-                Father = 0,
-                EventLayers = [new KpcEvents.EventLayer()],
-            },
+            new JudgeLine { Father = 0, EventLayers = [new KpcEvents.EventLayer()] },
         ];
 }

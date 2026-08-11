@@ -16,32 +16,38 @@ internal static class EventCutterDiagnostic
     private static readonly LocalizableString Kpa0001Title = new LocalizableResourceString(
         nameof(Resource.kpti_0001_title),
         Resource.ResourceManager,
-        typeof(Resource));
+        typeof(Resource)
+    );
 
     private static readonly LocalizableString Kpa0001MessageFormat = new LocalizableResourceString(
         nameof(Resource.kpti_0001_message_format),
         Resource.ResourceManager,
-        typeof(Resource));
+        typeof(Resource)
+    );
 
     private static readonly LocalizableString Kpa0001Description = new LocalizableResourceString(
         nameof(Resource.kpti_0001_description),
         Resource.ResourceManager,
-        typeof(Resource));
+        typeof(Resource)
+    );
 
     private static readonly LocalizableString Kpa0002Title = new LocalizableResourceString(
         nameof(Resource.kpti_0002_title),
         Resource.ResourceManager,
-        typeof(Resource));
+        typeof(Resource)
+    );
 
     private static readonly LocalizableString Kpa0002MessageFormat = new LocalizableResourceString(
         nameof(Resource.kpti_0002_message_format),
         Resource.ResourceManager,
-        typeof(Resource));
+        typeof(Resource)
+    );
 
     private static readonly LocalizableString Kpa0002Description = new LocalizableResourceString(
         nameof(Resource.kpti_0002_description),
         Resource.ResourceManager,
-        typeof(Resource));
+        typeof(Resource)
+    );
 
     /// <summary>
     /// cutLength 大于 1 时报告，疑似忘记取倒数。
@@ -53,7 +59,8 @@ internal static class EventCutterDiagnostic
         "Usage",
         DiagnosticSeverity.Info,
         isEnabledByDefault: true,
-        description: Kpa0001Description);
+        description: Kpa0001Description
+    );
 
     /// <summary>
     /// cutLength 恰好等于 1 时报告，疑似参数填入错误。
@@ -65,5 +72,6 @@ internal static class EventCutterDiagnostic
         "Usage",
         DiagnosticSeverity.Info,
         isEnabledByDefault: true,
-        description: Kpa0002Description);
+        description: Kpa0002Description
+    );
 }

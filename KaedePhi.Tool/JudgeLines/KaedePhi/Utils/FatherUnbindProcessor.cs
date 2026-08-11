@@ -47,15 +47,14 @@ public class FatherUnbindProcessor : FatherUnbindProcessorBase
                 allJudgeLines,
                 logTag: "FatherUnbind",
                 startAction: "开始解绑",
-                cacheKeyFactory: index =>
-                    new FatherUnbindHelpers.UnbindCacheKey(
-                        index,
-                        precision,
-                        0d,
-                        0d,
-                        false,
-                        FatherUnbindHelpers.CurrentRenderProfile
-                    ),
+                cacheKeyFactory: index => new FatherUnbindHelpers.UnbindCacheKey(
+                    index,
+                    precision,
+                    0d,
+                    0d,
+                    false,
+                    FatherUnbindHelpers.CurrentRenderProfile
+                ),
                 recursiveUnbind: (idx, lines) => FatherUnbind(idx, lines, precision, progress, ct)
             );
 

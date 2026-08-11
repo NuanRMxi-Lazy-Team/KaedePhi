@@ -10,10 +10,7 @@ namespace KaedePhi.Tool.JudgeLines.KaedePhi.Utils;
 /// </summary>
 public abstract class FatherUnbindProcessorBase
 {
-    protected readonly ConcurrentDictionary<
-        FatherUnbindHelpers.UnbindCacheKey,
-        JudgeLine
-    > Cache;
+    protected readonly ConcurrentDictionary<FatherUnbindHelpers.UnbindCacheKey, JudgeLine> Cache;
     protected readonly Action<string>? LogInfo;
     protected readonly Action<string>? LogWarning;
     protected readonly Action<string>? LogError;

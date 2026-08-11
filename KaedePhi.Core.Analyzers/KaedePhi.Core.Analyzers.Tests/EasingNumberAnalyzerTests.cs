@@ -1,15 +1,16 @@
 ﻿using System.Threading.Tasks;
 using Xunit;
-using Verifier =
-    Microsoft.CodeAnalysis.CSharp.Testing.CSharpAnalyzerVerifier<
-        KaedePhi.Core.Analyzers.EasingNumberAnalyzer,
-        Microsoft.CodeAnalysis.Testing.DefaultVerifier>;
+using Verifier = Microsoft.CodeAnalysis.CSharp.Testing.CSharpAnalyzerVerifier<
+    KaedePhi.Core.Analyzers.EasingNumberAnalyzer,
+    Microsoft.CodeAnalysis.Testing.DefaultVerifier
+>;
 
 namespace KaedePhi.Core.Analyzers.Tests;
 
 public class EasingNumberAnalyzerTests
 {
-    private const string KpcEasingStub = @"
+    private const string KpcEasingStub =
+        @"
 namespace KaedePhi.Core.KaedePhi
 {
     public class Easing
@@ -19,7 +20,8 @@ namespace KaedePhi.Core.KaedePhi
 }
 ";
 
-    private const string PeEasingStub = @"
+    private const string PeEasingStub =
+        @"
 namespace KaedePhi.Core.PhiEdit
 {
     public class Easing
@@ -29,7 +31,8 @@ namespace KaedePhi.Core.PhiEdit
 }
 ";
 
-    private const string RePhiEditEasingStub = @"
+    private const string RePhiEditEasingStub =
+        @"
 namespace KaedePhi.Core.RePhiEdit
 {
     public class Easing
@@ -42,7 +45,8 @@ namespace KaedePhi.Core.RePhiEdit
     [Fact]
     public async Task KpcEasing_WithinRange_NoDiagnostic()
     {
-        const string text = @"
+        const string text =
+            @"
 class Program
 {
     static void Main()
@@ -58,7 +62,8 @@ class Program
     [Fact]
     public async Task KpcEasing_AboveMax_ReportsDiagnostic()
     {
-        const string text = @"
+        const string text =
+            @"
 class Program
 {
     static void Main()
@@ -68,7 +73,8 @@ class Program
 }
 " + KpcEasingStub;
 
-        var expected = Verifier.Diagnostic()
+        var expected = Verifier
+            .Diagnostic()
             .WithLocation(6, 56)
             .WithArguments("32", "KPC", "1", "31");
         await Verifier.VerifyAnalyzerAsync(text, expected);
@@ -77,7 +83,8 @@ class Program
     [Fact]
     public async Task KpcEasing_BelowMin_ReportsDiagnostic()
     {
-        const string text = @"
+        const string text =
+            @"
 class Program
 {
     static void Main()
@@ -87,7 +94,8 @@ class Program
 }
 " + KpcEasingStub;
 
-        var expected = Verifier.Diagnostic()
+        var expected = Verifier
+            .Diagnostic()
             .WithLocation(6, 56)
             .WithArguments("0", "KPC", "1", "31");
         await Verifier.VerifyAnalyzerAsync(text, expected);
@@ -96,7 +104,8 @@ class Program
     [Fact]
     public async Task PeEasing_WithinRange_NoDiagnostic()
     {
-        const string text = @"
+        const string text =
+            @"
 class Program
 {
     static void Main()
@@ -112,7 +121,8 @@ class Program
     [Fact]
     public async Task PeEasing_AboveMax_ReportsDiagnostic()
     {
-        const string text = @"
+        const string text =
+            @"
 class Program
 {
     static void Main()
@@ -122,7 +132,8 @@ class Program
 }
 " + PeEasingStub;
 
-        var expected = Verifier.Diagnostic()
+        var expected = Verifier
+            .Diagnostic()
             .WithLocation(6, 55)
             .WithArguments("30", "PE", "1", "29");
         await Verifier.VerifyAnalyzerAsync(text, expected);
@@ -131,7 +142,8 @@ class Program
     [Fact]
     public async Task RePhiEditEasing_AboveMax_ReportsDiagnostic()
     {
-        const string text = @"
+        const string text =
+            @"
 class Program
 {
     static void Main()
@@ -141,7 +153,8 @@ class Program
 }
 " + RePhiEditEasingStub;
 
-        var expected = Verifier.Diagnostic()
+        var expected = Verifier
+            .Diagnostic()
             .WithLocation(6, 57)
             .WithArguments("45", "RePhiEdit", "1", "29");
         await Verifier.VerifyAnalyzerAsync(text, expected);
@@ -150,7 +163,8 @@ class Program
     [Fact]
     public async Task Easing_NonConstantNumber_NoDiagnostic()
     {
-        const string text = @"
+        const string text =
+            @"
 class Program
 {
     static void Main()
