@@ -59,7 +59,7 @@ public static class ChartProcessor
                 });
             var unboundLine = classic
                 ? unbinder.FatherUnbind(i, chart.JudgeLineList, precision, lineProgress, ct)
-                : unbinder.FatherUnbind(
+                : unbinder.FatherUnbindDynamic(
                     i,
                     chart.JudgeLineList,
                     precision,

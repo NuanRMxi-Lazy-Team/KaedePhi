@@ -59,7 +59,7 @@ public class PhiEditJudgeLineBuilder
                 );
             }
             else
-                trueSrc = unbinder.FatherUnbind(
+                trueSrc = unbinder.FatherUnbindDynamic(
                     allLine.FindIndex(l => ReferenceEquals(l, src)),
                     allLine,
                     _options.FatherLineUnbind.Precision,
@@ -67,7 +67,7 @@ public class PhiEditJudgeLineBuilder
                     _options.FatherLineUnbind.MergeTolerance
                 );
 
-            if (_options.FatherLineUnbind.ClassicMode && _options.FatherLineUnbind.Compress)
+            if (_options.FatherLineUnbind is { ClassicMode: true, Compress: true })
             {
                 foreach (var layer in trueSrc.EventLayers)
                     _layerProcessor.LayerEventsCompress(

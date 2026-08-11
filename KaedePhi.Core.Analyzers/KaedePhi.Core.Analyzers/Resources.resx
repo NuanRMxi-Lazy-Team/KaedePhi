@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<root>
+    <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+        <xsd:element name="root" msdata:IsDataSet="true">
+            
+        </xsd:element>
+    </xsd:schema>
+    <resheader name="resmimetype">
+        <value>text/microsoft-resx</value>
+    </resheader>
+    <resheader name="version">
+        <value>1.3</value>
+    </resheader>
+    <resheader name="reader">
+        <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    </resheader>
+    <resheader name="writer">
+        <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    </resheader>
+    <data name="KPCE0001Title" xml:space="preserve">
+        <value>缓动编号超出格式有效范围</value><comment>诊断的标题。</comment>
+    </data>
+    <data name="KPCE0001MessageFormat" xml:space="preserve">
+        <value>缓动编号 {0} 超出 {1} 格式的有效范围 [{2}, {3}]</value><comment>诊断显示的可格式化消息。</comment>
+    </data>
+    <data name="KPCE0001Description" xml:space="preserve">
+        <value>创建缓动对象时，缓动编号必须位于该格式定义的有效范围内。</value><comment>诊断的可选长描述。</comment>
+    </data>
+</root>

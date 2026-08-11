@@ -209,7 +209,7 @@ public static class JudgeLineBuilder
             }
             else
             {
-                unboundLine = unbinder.FatherUnbind(
+                unboundLine = unbinder.FatherUnbindDynamic(
                     lineIndex,
                     result,
                     options.UnbindPrecision,

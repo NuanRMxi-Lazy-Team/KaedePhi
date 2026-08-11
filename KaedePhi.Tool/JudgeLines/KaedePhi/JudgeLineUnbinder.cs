@@ -6,7 +6,7 @@ namespace KaedePhi.Tool.JudgeLines.KaedePhi;
 
 /// <summary>
 /// KPC 谱面判定线父子解绑器。
-/// <para>等间隔采样：<see cref="FatherUnbindProcessor"/>；自适应采样：<see cref="FatherUnbindPlusProcessor"/>。</para>
+/// <para>不带 Dynamic 的方法使用等间隔采样；带 Dynamic 的方法使用自适应采样。</para>
 /// </summary>
 public class JudgeLineUnbinder : LoggableBase, IJudgeLineUnbinder<JudgeLine>
 {
@@ -29,9 +29,11 @@ public class JudgeLineUnbinder : LoggableBase, IJudgeLineUnbinder<JudgeLine>
         CoordinateProfile renderProfile
     )
     {
-        using var _ = FatherUnbindHelpers.UseRenderProfile(renderProfile);
+        using var profileScope = FatherUnbindHelpers.UseRenderProfile(renderProfile);
         return FatherUnbindHelpers.GetLinePos(fatherLineX, fatherLineY, angleDegrees, lineX, lineY);
     }
+
+    #region 处理器创建
 
     private FatherUnbindProcessor CreateProcessor(List<JudgeLine> allJudgeLines) =>
         new(
@@ -57,87 +59,101 @@ public class JudgeLineUnbinder : LoggableBase, IJudgeLineUnbinder<JudgeLine>
             LogDebug
         );
 
+    #endregion
+
+    #region 等间隔采样
+
     /// <inheritdoc/>
     public JudgeLine FatherUnbind(
         int targetJudgeLineIndex,
         List<JudgeLine> allJudgeLines,
         double precision,
         IProgress<ToolProgress>? progress = null
-    ) => FatherUnbind(targetJudgeLineIndex, allJudgeLines, precision, progress, default);
+    ) =>
+        UnbindEqualSpacing(
+            targetJudgeLineIndex,
+            allJudgeLines,
+            precision,
+            progress,
+            CancellationToken.None
+        );
 
-    /// <summary>
-    /// 将判定线与父判定线解绑，并支持取消长时间采样。
-    /// </summary>
+    /// <inheritdoc/>
     public JudgeLine FatherUnbind(
         int targetJudgeLineIndex,
         List<JudgeLine> allJudgeLines,
         double precision,
         IProgress<ToolProgress>? progress,
-        CancellationToken ct
+        CancellationToken cancellationToken
+    ) =>
+        UnbindEqualSpacing(
+            targetJudgeLineIndex,
+            allJudgeLines,
+            precision,
+            progress,
+            cancellationToken
+        );
+
+    /// <inheritdoc/>
+    public JudgeLine FatherUnbind(
+        int targetJudgeLineIndex,
+        List<JudgeLine> allJudgeLines,
+        CoordinateProfile renderProfile,
+        double precision,
+        IProgress<ToolProgress>? progress = null
+    ) =>
+        FatherUnbind(
+            targetJudgeLineIndex,
+            allJudgeLines,
+            renderProfile,
+            precision,
+            progress,
+            CancellationToken.None
+        );
+
+    /// <inheritdoc/>
+    public JudgeLine FatherUnbind(
+        int targetJudgeLineIndex,
+        List<JudgeLine> allJudgeLines,
+        CoordinateProfile renderProfile,
+        double precision,
+        IProgress<ToolProgress>? progress,
+        CancellationToken cancellationToken
+    )
+    {
+        using var profileScope = FatherUnbindHelpers.UseRenderProfile(renderProfile);
+        return UnbindEqualSpacing(
+            targetJudgeLineIndex,
+            allJudgeLines,
+            precision,
+            progress,
+            cancellationToken
+        );
+    }
+
+    private JudgeLine UnbindEqualSpacing(
+        int targetJudgeLineIndex,
+        List<JudgeLine> allJudgeLines,
+        double precision,
+        IProgress<ToolProgress>? progress,
+        CancellationToken cancellationToken
     ) =>
         ValidateInput(targetJudgeLineIndex, allJudgeLines, precision, null)
             .CreateProcessor(allJudgeLines)
-            .FatherUnbind(targetJudgeLineIndex, allJudgeLines, precision, progress, ct);
+            .FatherUnbind(
+                targetJudgeLineIndex,
+                allJudgeLines,
+                precision,
+                progress,
+                cancellationToken
+            );
+
+    #endregion
+
+    #region 自适应采样
 
     /// <inheritdoc/>
-    public JudgeLine FatherUnbind(
-        int targetJudgeLineIndex,
-        List<JudgeLine> allJudgeLines,
-        CoordinateProfile renderProfile,
-        double precision,
-        IProgress<ToolProgress>? progress = null
-    ) =>
-        FatherUnbind(
-            targetJudgeLineIndex,
-            allJudgeLines,
-            renderProfile,
-            precision,
-            progress,
-            default
-        );
-
-    /// <summary>
-    /// 在指定坐标系中解绑判定线，并支持取消长时间采样。
-    /// </summary>
-    public JudgeLine FatherUnbind(
-        int targetJudgeLineIndex,
-        List<JudgeLine> allJudgeLines,
-        CoordinateProfile renderProfile,
-        double precision,
-        IProgress<ToolProgress>? progress,
-        CancellationToken ct
-    )
-    {
-        using var _ = FatherUnbindHelpers.UseRenderProfile(renderProfile);
-        return FatherUnbind(targetJudgeLineIndex, allJudgeLines, precision, progress, ct);
-    }
-
-    /// <summary>
-    /// 将判定线与父判定线解绑（自适应采样）。
-    /// 以事件边界为强制切割点，仅在误差超过容差时插入新采样段，相较等间隔版可减少冗余段数。
-    /// </summary>
-    [Obsolete("请改用包含 mergeTolerance 参数的自适应解绑重载。")]
-    public JudgeLine FatherUnbind(
-        int targetJudgeLineIndex,
-        List<JudgeLine> allJudgeLines,
-        double precision,
-        double tolerance,
-        IProgress<ToolProgress>? progress = null
-    ) =>
-        FatherUnbind(
-            targetJudgeLineIndex,
-            allJudgeLines,
-            precision,
-            tolerance,
-            tolerance,
-            progress,
-            default
-        );
-
-    /// <summary>
-    /// 将判定线与父判定线解绑，并分别指定几何拟合和事件通道合并容差。
-    /// </summary>
-    public JudgeLine FatherUnbind(
+    public JudgeLine FatherUnbindDynamic(
         int targetJudgeLineIndex,
         List<JudgeLine> allJudgeLines,
         double precision,
@@ -145,81 +161,107 @@ public class JudgeLineUnbinder : LoggableBase, IJudgeLineUnbinder<JudgeLine>
         double mergeTolerance,
         IProgress<ToolProgress>? progress = null
     ) =>
-        FatherUnbind(
+        UnbindAdaptive(
             targetJudgeLineIndex,
             allJudgeLines,
             precision,
             tolerance,
             mergeTolerance,
             progress,
-            default
+            CancellationToken.None
         );
 
-    /// <summary>
-    /// 将判定线与父判定线解绑（自适应采样），并支持取消长时间采样。
-    /// </summary>
-    public JudgeLine FatherUnbind(
+    /// <inheritdoc/>
+    public JudgeLine FatherUnbindDynamic(
         int targetJudgeLineIndex,
         List<JudgeLine> allJudgeLines,
         double precision,
         double tolerance,
         double mergeTolerance,
         IProgress<ToolProgress>? progress,
-        CancellationToken ct
+        CancellationToken cancellationToken
     ) =>
-        ValidateInput(targetJudgeLineIndex, allJudgeLines, precision, tolerance, mergeTolerance)
+        UnbindAdaptive(
+            targetJudgeLineIndex,
+            allJudgeLines,
+            precision,
+            tolerance,
+            mergeTolerance,
+            progress,
+            cancellationToken
+        );
+
+    /// <inheritdoc/>
+    public JudgeLine FatherUnbindDynamic(
+        int targetJudgeLineIndex,
+        List<JudgeLine> allJudgeLines,
+        CoordinateProfile renderProfile,
+        double precision,
+        double tolerance,
+        double mergeTolerance,
+        IProgress<ToolProgress>? progress = null
+    ) =>
+        FatherUnbindDynamic(
+            targetJudgeLineIndex,
+            allJudgeLines,
+            renderProfile,
+            precision,
+            tolerance,
+            mergeTolerance,
+            progress,
+            CancellationToken.None
+        );
+
+    /// <inheritdoc/>
+    public JudgeLine FatherUnbindDynamic(
+        int targetJudgeLineIndex,
+        List<JudgeLine> allJudgeLines,
+        CoordinateProfile renderProfile,
+        double precision,
+        double tolerance,
+        double mergeTolerance,
+        IProgress<ToolProgress>? progress,
+        CancellationToken cancellationToken
+    )
+    {
+        using var profileScope = FatherUnbindHelpers.UseRenderProfile(renderProfile);
+        return UnbindAdaptive(
+            targetJudgeLineIndex,
+            allJudgeLines,
+            precision,
+            tolerance,
+            mergeTolerance,
+            progress,
+            cancellationToken
+        );
+    }
+
+    private JudgeLine UnbindAdaptive(
+        int targetJudgeLineIndex,
+        List<JudgeLine> allJudgeLines,
+        double precision,
+        double tolerance,
+        double mergeTolerance,
+        IProgress<ToolProgress>? progress,
+        CancellationToken cancellationToken
+    ) =>
+        ValidateInput(
+                targetJudgeLineIndex,
+                allJudgeLines,
+                precision,
+                tolerance,
+                mergeTolerance
+            )
             .CreatePlusProcessor(allJudgeLines, tolerance, mergeTolerance)
-            .FatherUnbind(targetJudgeLineIndex, allJudgeLines, precision, progress, ct);
+            .FatherUnbind(
+                targetJudgeLineIndex,
+                allJudgeLines,
+                precision,
+                progress,
+                cancellationToken
+            );
 
-    /// <summary>
-    /// 将判定线与父判定线解绑（自适应采样，指定渲染坐标系）。
-    /// </summary>
-    [Obsolete("请改用包含 mergeTolerance 参数的自适应解绑重载。")]
-    public JudgeLine FatherUnbind(
-        int targetJudgeLineIndex,
-        List<JudgeLine> allJudgeLines,
-        CoordinateProfile renderProfile,
-        double precision,
-        double tolerance,
-        IProgress<ToolProgress>? progress,
-        CancellationToken ct
-    ) =>
-        FatherUnbind(
-            targetJudgeLineIndex,
-            allJudgeLines,
-            renderProfile,
-            precision,
-            tolerance,
-            tolerance,
-            progress,
-            ct
-        );
-
-    /// <summary>
-    /// 将判定线与父判定线解绑（自适应采样，指定渲染坐标系）。
-    /// </summary>
-    public JudgeLine FatherUnbind(
-        int targetJudgeLineIndex,
-        List<JudgeLine> allJudgeLines,
-        CoordinateProfile renderProfile,
-        double precision,
-        double tolerance,
-        double mergeTolerance,
-        IProgress<ToolProgress>? progress,
-        CancellationToken ct
-    )
-    {
-        using var _ = FatherUnbindHelpers.UseRenderProfile(renderProfile);
-        return FatherUnbind(
-            targetJudgeLineIndex,
-            allJudgeLines,
-            precision,
-            tolerance,
-            mergeTolerance,
-            progress,
-            ct
-        );
-    }
+    #endregion
 
     private JudgeLineUnbinder ValidateInput(
         int targetJudgeLineIndex,

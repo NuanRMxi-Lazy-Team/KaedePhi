@@ -69,7 +69,7 @@ public class PhigrosV3JudgeLineBuilder
                 );
             }
             else
-                preprocessedSrc = unbinder.FatherUnbind(
+                preprocessedSrc = unbinder.FatherUnbindDynamic(
                     allLine.FindIndex(l => ReferenceEquals(l, src)),
                     allLine,
                     _options.FatherLineUnbind.Precision,

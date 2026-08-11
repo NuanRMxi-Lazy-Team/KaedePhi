@@ -22,7 +22,7 @@ public static class EventBuilder
         return new KpcEvents.Event<T>
         {
             IsBezier = src.IsBezier,
-            BezierPoints = src.BezierPoints.ToArray(),
+            BezierPoints = [.. src.BezierPoints],
             EasingLeft = src.EasingLeft,
             EasingRight = src.EasingRight,
             Easing = EasingConverter.ConvertEasing(src.Easing),
@@ -46,7 +46,7 @@ public static class EventBuilder
         return new RpeEvents.Event<T>
         {
             IsBezier = src.IsBezier,
-            BezierPoints = src.BezierPoints.ToArray(),
+            BezierPoints = [.. src.BezierPoints],
             EasingLeft = src.EasingLeft,
             EasingRight = src.EasingRight,
             Easing = EasingConverter.ConvertEasing(src.Easing, src.IsBezier),
@@ -66,7 +66,7 @@ public static class EventBuilder
         return new KpcEvents.Event<double>
         {
             IsBezier = src.IsBezier,
-            BezierPoints = src.BezierPoints.ToArray(),
+            BezierPoints = [.. src.BezierPoints],
             EasingLeft = src.EasingLeft,
             EasingRight = src.EasingRight,
             Easing = EasingConverter.ConvertEasing(src.Easing),
@@ -100,12 +100,12 @@ public static class EventBuilder
 
     public static KpcEvents.Event<byte[]> ConvertByteArrayEvent(RpeEvents.Event<byte[]> src)
     {
-        return ConvertEvent(src, v => v.ToArray());
+        return ConvertEvent(src, v => [.. v]);
     }
 
     public static RpeEvents.Event<byte[]> ConvertByteArrayEvent(KpcEvents.Event<byte[]> src)
     {
-        return ConvertEvent(src, v => v.ToArray());
+        return ConvertEvent(src, v => [.. v]);
     }
 
     public static List<RpeEvents.Event<float>> ConvertFloatEventExpanding(
@@ -146,7 +146,7 @@ public static class EventBuilder
                 new RpeEvents.Event<float>
                 {
                     IsBezier = src.IsBezier,
-                    BezierPoints = src.BezierPoints.ToArray(),
+                    BezierPoints = [.. src.BezierPoints],
                     EasingLeft = src.EasingLeft,
                     EasingRight = src.EasingRight,
                     Easing = EasingConverter.ConvertEasing(src.Easing, src.IsBezier),
@@ -161,7 +161,7 @@ public static class EventBuilder
         catch (PhiEdit.Utils.EasingConverter.EasingNotSupportedException)
         {
             return DoubleCutter
-                .CutEventToLinear(src, 1d / options.UnsupportedEasingPrecision)
+                .CutEventToLinear(src, new Beat(1d))
                 .ConvertAll(e => new RpeEvents.Event<float>
                 {
                     StartBeat = new Beat((int[])e.StartBeat),

@@ -36,7 +36,7 @@
     <PackageReference Include="Avalonia.Desktop" Version="12.1.1" />
     <PackageReference Include="Avalonia.Themes.Fluent" Version="12.1.1" />
     <PackageReference Include="Avalonia.Fonts.Inter" Version="12.1.1" />
-    <PackageReference Include="Avalonia.Diagnostics" Version="11.3.19">
+    <PackageReference Include="Avalonia.Diagnostics" Version="11.3.20">
       <IncludeAssets Condition="'$(Configuration)' != 'Debug'">None</IncludeAssets>
       <PrivateAssets Condition="'$(Configuration)' != 'Debug'">All</PrivateAssets>
     </PackageReference>
@@ -48,6 +48,11 @@
     <ProjectReference Include="..\KaedePhi.Tool.Localization\KaedePhi.Tool.Localization.csproj" />
     <ProjectReference
       Include="..\KaedePhi.Tool.App.Generators\KaedePhi.Tool.App.Generators.csproj"
+      OutputItemType="Analyzer"
+      ReferenceOutputAssembly="false"
+    />
+    <ProjectReference
+      Include="..\KaedePhi.Core.Analyzers\KaedePhi.Core.Analyzers\KaedePhi.Core.Analyzers.csproj"
       OutputItemType="Analyzer"
       ReferenceOutputAssembly="false"
     />

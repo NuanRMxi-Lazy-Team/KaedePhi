@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:element name="root" msdata:IsDataSet="true" />
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>1.3</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="KPTI0001Title" xml:space="preserve">
+    <value>cutLength 参数可能过大</value>
+    <comment>KPTI0001 诊断标题。</comment>
+  </data>
+  <data name="KPTI0001MessageFormat" xml:space="preserve">
+    <value>此值通常不大于 1，您是否指的是 1 / {0}？</value>
+    <comment>KPTI0001 诊断消息。</comment>
+  </data>
+  <data name="KPTI0001Description" xml:space="preserve">
+    <value>传递给 CutEventToLinear/CutEventsInRange 的 cutLength 参数大于 1，可能是忘记做倒数运算。</value>
+    <comment>KPTI0001 诊断描述。</comment>
+  </data>
+  <data name="KPTI0002Title" xml:space="preserve">
+    <value>cutLength 参数可能不正确</value>
+    <comment>KPTI0002 诊断标题。</comment>
+  </data>
+  <data name="KPTI0002MessageFormat" xml:space="preserve">
+    <value>此值通常不等于1，您是否指小数或某值的倒数？</value>
+    <comment>KPTI0002 诊断消息。</comment>
+  </data>
+  <data name="KPTI0002Description" xml:space="preserve">
+    <value>传递给 CutEventToLinear/CutEventsInRange 的 cutLength 参数等于 1，可能不是预期的切割长度。</value>
+    <comment>KPTI0002 诊断描述。</comment>
+  </data>
+  <data name="KPTI0001CodeFixTitle" xml:space="preserve">
+    <value>将 cutLength 改为倒数</value>
+    <comment>KPTI0001 代码修复标题。</comment>
+  </data>
+  <data name="KPTE0001Title" xml:space="preserve">
+    <value>容差参数可能过大</value>
+    <comment>KPTE0001 诊断标题。</comment>
+  </data>
+  <data name="KPTE0001MessageFormat" xml:space="preserve">
+    <value>容差参数使用百分比表示，值 {0} 过大，是否指的是 {0} / 100？</value>
+    <comment>KPTE0001 诊断消息。</comment>
+  </data>
+  <data name="KPTE0001Description" xml:space="preserve">
+    <value>容差参数使用百分比表示，值大于或等于 100 会导致父线解绑结果难以预期。</value>
+    <comment>KPTE0001 诊断描述。</comment>
+  </data>
+  <data name="KPTE0001CodeFixTitle" xml:space="preserve">
+    <value>将容差参数除以 100</value>
+    <comment>KPTE0001 代码修复标题。</comment>
+  </data>
+  <data name="KPTI0003Title" xml:space="preserve">
+    <value>容差参数可能过小</value>
+    <comment>KPTI0003 诊断标题。</comment>
+  </data>
+  <data name="KPTI0003MessageFormat" xml:space="preserve">
+    <value>容差参数使用百分比表示，值 {0} 过小，可能导致最终结果大量消耗内存；是否指的是 {0} * 100？</value>
+    <comment>KPTI0003 诊断消息。</comment>
+  </data>
+  <data name="KPTI0003Description" xml:space="preserve">
+    <value>容差参数使用百分比表示，小于 0.01 的值可能生成大量事件并消耗过多内存。</value>
+    <comment>KPTI0003 诊断描述。</comment>
+  </data>
+  <data name="KPTI0003CodeFixTitle" xml:space="preserve">
+    <value>将容差参数乘以 100</value>
+    <comment>KPTI0003 代码修复标题。</comment>
+  </data>
+  <data name="KPTR0001Title" xml:space="preserve">
+    <value>动态解绑可能浪费性能</value>
+    <comment>KPTR0001 诊断标题。</comment>
+  </data>
+  <data name="KPTR0001MessageFormat" xml:space="preserve">
+    <value>自适应采样的 tolerance 为 0，可能导致额外性能开销；如果想禁用容差行为，是否改用普通解绑器？</value>
+    <comment>KPTR0001 诊断消息。</comment>
+  </data>
+  <data name="KPTR0001Description" xml:space="preserve">
+    <value>自适应采样的 tolerance 为 0 可能产生额外性能开销；如需禁用容差行为，应调用不包含容差参数的普通解绑器。</value>
+    <comment>KPTR0001 诊断描述。</comment>
+  </data>
+  <data name="KPTR0001CodeFixTitle" xml:space="preserve">
+    <value>改用普通 FatherUnbind 解绑器</value>
+    <comment>KPTR0001 代码修复标题。</comment>
+  </data>
+</root>

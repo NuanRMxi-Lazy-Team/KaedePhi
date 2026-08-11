@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:element name="root" msdata:IsDataSet="true" />
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>1.3</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="KPTI0001Title" xml:space="preserve">
+    <value>cutLength 參數可能過大</value>
+  </data>
+  <data name="KPTI0001MessageFormat" xml:space="preserve">
+    <value>此值通常不大於 1，您是否指的是 1 / {0}？</value>
+  </data>
+  <data name="KPTI0001Description" xml:space="preserve">
+    <value>傳入 CutEventToLinear/CutEventsInRange 的 cutLength 參數大於 1，可能是忘記做倒數運算。</value>
+  </data>
+  <data name="KPTI0002Title" xml:space="preserve">
+    <value>cutLength 參數可能不正確</value>
+  </data>
+  <data name="KPTI0002MessageFormat" xml:space="preserve">
+    <value>此值通常不等於1，您是否指小數或某值的倒數？</value>
+  </data>
+  <data name="KPTI0002Description" xml:space="preserve">
+    <value>傳入 CutEventToLinear/CutEventsInRange 的 cutLength 參數等於 1，可能不是預期的切割長度。</value>
+  </data>
+  <data name="KPTI0001CodeFixTitle" xml:space="preserve">
+    <value>將 cutLength 改為倒數</value>
+  </data>
+  <data name="KPTE0001Title" xml:space="preserve">
+    <value>容差參數可能過大</value>
+  </data>
+  <data name="KPTE0001MessageFormat" xml:space="preserve">
+    <value>容差參數以百分比表示，值 {0} 過大，是否指的是 {0} / 100？</value>
+  </data>
+  <data name="KPTE0001Description" xml:space="preserve">
+    <value>容差參數以百分比表示，大於或等於 100 可能導致父線解除綁定結果難以預期。</value>
+  </data>
+  <data name="KPTE0001CodeFixTitle" xml:space="preserve">
+    <value>將容差參數除以 100</value>
+  </data>
+  <data name="KPTI0003Title" xml:space="preserve">
+    <value>容差參數可能過小</value>
+  </data>
+  <data name="KPTI0003MessageFormat" xml:space="preserve">
+    <value>容差參數以百分比表示，值 {0} 過小，可能導致最終結果大量消耗記憶體；是否指的是 {0} * 100？</value>
+  </data>
+  <data name="KPTI0003Description" xml:space="preserve">
+    <value>容差參數以百分比表示，小於 0.01 的值可能產生大量事件並消耗過多記憶體。</value>
+  </data>
+  <data name="KPTI0003CodeFixTitle" xml:space="preserve">
+    <value>將容差參數乘以 100</value>
+  </data>
+  <data name="KPTR0001Title" xml:space="preserve">
+    <value>動態解除綁定可能浪費效能</value>
+  </data>
+  <data name="KPTR0001MessageFormat" xml:space="preserve">
+    <value>自適應採樣的 tolerance 為 0，可能導致額外效能開銷；如果想停用容差行為，是否改用普通解除綁定器？</value>
+  </data>
+  <data name="KPTR0001Description" xml:space="preserve">
+    <value>自適應採樣的 tolerance 為 0 可能產生額外效能開銷；如需停用容差行為，應呼叫不包含容差參數的普通解除綁定器。</value>
+  </data>
+  <data name="KPTR0001CodeFixTitle" xml:space="preserve">
+    <value>改用普通 FatherUnbind 解除綁定器</value>
+  </data>
+</root>
