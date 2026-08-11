@@ -42,6 +42,17 @@ namespace KaedePhi.Core.RePhiEdit
 }
 ";
 
+    private const string PhiFansEasingStub =
+        @"
+namespace KaedePhi.Core.PhiFans
+{
+    public class Easing
+    {
+        public Easing(int easingNumber) { }
+    }
+}
+";
+
     [Fact]
     public async Task KpcEasing_WithinRange_NoDiagnostic()
     {
@@ -176,5 +187,64 @@ class Program
 " + KpcEasingStub;
 
         await Verifier.VerifyAnalyzerAsync(text);
+    }
+
+    [Fact]
+    public async Task PhiFansEasing_WithinRange_NoDiagnostic()
+    {
+        const string text =
+            @"
+class Program
+{
+    static void Main()
+    {
+        var easing = new KaedePhi.Core.PhiFans.Easing(30);
+    }
+}
+" + PhiFansEasingStub;
+
+        await Verifier.VerifyAnalyzerAsync(text);
+    }
+
+    [Fact]
+    public async Task PhiFansEasing_AboveMax_ReportsDiagnostic()
+    {
+        const string text =
+            @"
+class Program
+{
+    static void Main()
+    {
+        var easing = new KaedePhi.Core.PhiFans.Easing(31);
+    }
+}
+" + PhiFansEasingStub;
+
+        var expected = Verifier
+            .Diagnostic()
+            .WithLocation(6, 55)
+            .WithArguments("31", "PhiFans", "0", "30");
+        await Verifier.VerifyAnalyzerAsync(text, expected);
+    }
+
+    [Fact]
+    public async Task PhiFansEasing_BelowMin_ReportsDiagnostic()
+    {
+        const string text =
+            @"
+class Program
+{
+    static void Main()
+    {
+        var easing = new KaedePhi.Core.PhiFans.Easing(-1);
+    }
+}
+" + PhiFansEasingStub;
+
+        var expected = Verifier
+            .Diagnostic()
+            .WithLocation(6, 55)
+            .WithArguments("-1", "PhiFans", "0", "30");
+        await Verifier.VerifyAnalyzerAsync(text, expected);
     }
 }

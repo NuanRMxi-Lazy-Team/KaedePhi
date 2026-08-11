@@ -15,6 +15,6 @@ namespace KaedePhi.Core.PhiFans
         public bool Continuous { get; set; }
 
         [JsonProperty("easing")]
-        public int Easing { get; set; }
+        public Easing Easing { get; set; } = new(0);
     }
 }

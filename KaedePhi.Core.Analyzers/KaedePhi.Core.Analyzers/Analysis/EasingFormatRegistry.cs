@@ -13,6 +13,7 @@ internal static class EasingFormatRegistry
         new("KaedePhi.Core.KaedePhi.Easing", "KPC", 1, 31),
         new("KaedePhi.Core.PhiEdit.Easing", "PE", 1, 29),
         new("KaedePhi.Core.RePhiEdit.Easing", "RePhiEdit", 1, 29),
+        new("KaedePhi.Core.PhiFans.Easing", "PhiFans", 0, 30),
     ];
 
     /// <summary>

@@ -289,8 +289,10 @@ public class PhiFansConverter
             12 => 13,
             13 => 14,
             14 => 15,
-            16 => 18,
-            17 => 17,
+            15 => 16,
+            16 => 17,
+            17 => 18,
+            18 => 19,
             19 => 20,
             20 => 21,
             21 => 22,
@@ -327,10 +329,10 @@ public class PhiFansConverter
             13 => 12,
             14 => 13,
             15 => 14,
-            16 => 17,
-            17 => 15,
-            18 => 16,
-            19 => 0,
+            16 => 15,
+            17 => 16,
+            18 => 17,
+            19 => 18,
             20 => 19,
             21 => 20,
             22 => 21,
@@ -376,7 +378,7 @@ public class PhiFansConverter
                         EndBeat = new Beat((int[])endItem.Beat),
                         StartValue = valueTransform(item.Value),
                         EndValue = valueTransform(endItem.Value),
-                        Easing = new Kpc.Easing(MapPpEasingToKpc(item.Easing)),
+                        Easing = new Kpc.Easing(MapPpEasingToKpc((int)item.Easing)),
                     }
                 );
                 i += 2;
@@ -456,7 +458,7 @@ public class PhiFansConverter
                         EndBeat = new Beat((int[])endItem.Beat),
                         StartValue = valueTransform(item.Value),
                         EndValue = valueTransform(endItem.Value),
-                        Easing = new Kpc.Easing(MapPpEasingToKpc(item.Easing)),
+                        Easing = new Kpc.Easing(MapPpEasingToKpc((int)item.Easing)),
                     }
                 );
                 i += 2;
@@ -512,7 +514,7 @@ public class PhiFansConverter
                     Beat = new Beat((int[])src.StartBeat),
                     Value = startVal,
                     Continuous = false,
-                    Easing = easing,
+                    Easing = new Easing(easing),
                 }
             );
             return;
@@ -524,7 +526,7 @@ public class PhiFansConverter
                 Beat = new Beat((int[])src.StartBeat),
                 Value = startVal,
                 Continuous = false,
-                Easing = easing,
+                Easing = new Easing(easing),
             }
         );
 
@@ -534,7 +536,7 @@ public class PhiFansConverter
                 Beat = new Beat((int[])src.EndBeat),
                 Value = endVal,
                 Continuous = true,
-                Easing = easing,
+                Easing = new Easing(easing),
             }
         );
     }
