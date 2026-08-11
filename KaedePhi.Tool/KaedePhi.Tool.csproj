@@ -12,7 +12,7 @@
   <ItemGroup>
     <ProjectReference Include="..\KaedePhi.Core\KaedePhi.Core.csproj" />
     <ProjectReference
-      Include="..\KaedePhi.Tool.Analyzers\KaedePhi.Tool.Analyzers.csproj"
+      Include="..\KaedePhi.Tool.Analyzers\KaedePhi.Tool.Analyzers\KaedePhi.Tool.Analyzers.csproj"
       OutputItemType="Analyzer"
       ReferenceOutputAssembly="false"
     />

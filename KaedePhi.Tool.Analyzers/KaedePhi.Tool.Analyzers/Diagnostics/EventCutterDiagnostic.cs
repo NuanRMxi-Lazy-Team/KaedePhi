@@ -1,4 +1,3 @@
-using KaedePhi.Tool.Analyzers;
 using Microsoft.CodeAnalysis;
 
 namespace KaedePhi.Tool.Analyzers.Diagnostics;
