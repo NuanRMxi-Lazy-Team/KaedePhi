@@ -14,15 +14,19 @@ public sealed class EasingNumberAnalyzer : DiagnosticAnalyzer
 {
     public const string DiagnosticId = "KPCE0001";
 
+    // 标题、消息与描述均来自本地化资源，随资源文件切换语言
     private static readonly LocalizableString Title =
-        new LocalizableResourceString(nameof(Resources.KPCE0001Title), Resources.ResourceManager, typeof(Resources));
+        new LocalizableResourceString(nameof(Resources.kpce_0001_title), Resources.ResourceManager, typeof(Resources));
 
     private static readonly LocalizableString MessageFormat =
-        new LocalizableResourceString(nameof(Resources.KPCE0001MessageFormat), Resources.ResourceManager, typeof(Resources));
+        new LocalizableResourceString(nameof(Resources.kpce_0001_message_format), Resources.ResourceManager, typeof(Resources));
 
     private static readonly LocalizableString Description =
-        new LocalizableResourceString(nameof(Resources.KPCE0001Description), Resources.ResourceManager, typeof(Resources));
+        new LocalizableResourceString(nameof(Resources.kpce_0001_description), Resources.ResourceManager, typeof(Resources));
 
+    /// <summary>
+    /// 缓动编号超出格式有效范围时报告错误。
+    /// </summary>
     private static readonly DiagnosticDescriptor Rule = new(
         DiagnosticId,
         Title,
@@ -36,18 +40,19 @@ public sealed class EasingNumberAnalyzer : DiagnosticAnalyzer
 
     public override void Initialize(AnalysisContext context)
     {
-        // 必须调用此方法以避免分析自动生成的代码。
+        // 不分析自动生成的代码，避免误报
         context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
 
-        // 必须调用此方法以启用并发执行。
+        // 启用并发执行以提升构建性能
         context.EnableConcurrentExecution();
 
-        // 对象创建（含 new(...) 目标类型推断形式）都会产生 ObjectCreation 操作。
+        // 对象创建（含 new(...) 目标类型推断形式）都会产生 ObjectCreation 操作
         context.RegisterOperationAction(AnalyzeObjectCreation, OperationKind.ObjectCreation);
     }
 
     private static void AnalyzeObjectCreation(OperationAnalysisContext context)
     {
+        // 仅处理注册表中已知的缓动类型，且构造参数恰好为一个
         if (context.Operation is not IObjectCreationOperation creation ||
             creation.Type is not INamedTypeSymbol type ||
             !EasingFormatRegistry.TryGetRange(type, out var range) ||
@@ -58,6 +63,7 @@ public sealed class EasingNumberAnalyzer : DiagnosticAnalyzer
         if (creation.Arguments[0].Value.ConstantValue is not { HasValue: true, Value: int easingNumber })
             return;
 
+        // 编号位于有效范围内则无需诊断
         if (easingNumber >= range.Min && easingNumber <= range.Max)
             return;
 

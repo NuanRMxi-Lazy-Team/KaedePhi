@@ -34,6 +34,7 @@ public sealed class JudgeLineUnbinderCodeFixProvider : CodeFixProvider
         if (diagnostic is null)
             return;
 
+        // 由诊断位置回溯到所在调用表达式
         var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken)
             .ConfigureAwait(false);
         var node = root?.FindNode(diagnostic.Location.SourceSpan);
@@ -41,6 +42,7 @@ public sealed class JudgeLineUnbinderCodeFixProvider : CodeFixProvider
         if (invocation is null)
             return;
 
+        // 解析操作树，并找出与诊断位置精确对应的容差实参
         var semanticModel = await context.Document.GetSemanticModelAsync(context.CancellationToken)
             .ConfigureAwait(false);
         if (semanticModel?.GetOperation(invocation, context.CancellationToken) is not IInvocationOperation operation ||
@@ -49,6 +51,7 @@ public sealed class JudgeLineUnbinderCodeFixProvider : CodeFixProvider
             argument.Value.Syntax is not ExpressionSyntax expression)
             return;
 
+        // 仅对编译期可确定且满足对应规则取值范围的常量值提供修复
         if (!ConstantExpressionEvaluator.TryGetValue(
                 semanticModel.Compilation,
                 argument,
@@ -57,6 +60,7 @@ public sealed class JudgeLineUnbinderCodeFixProvider : CodeFixProvider
             double.IsNaN(value) ||
             double.IsInfinity(value) ||
             !CanFix(diagnostic.Id, value) ||
+            // 零容差修复仅适用于动态解绑方法
             (diagnostic.Id == JudgeLineUnbinderAnalyzer.ZeroToleranceDiagnosticId &&
              !JudgeLineUnbinderApi.IsDynamicMethod(operation.TargetMethod)))
             return;
@@ -64,6 +68,7 @@ public sealed class JudgeLineUnbinderCodeFixProvider : CodeFixProvider
         context.RegisterCodeFix(
             CodeAction.Create(
                 GetCodeFixTitle(diagnostic.Id),
+                // 零容差诊断整体改写调用，其余诊断仅换算容差表达式
                 cancellationToken => diagnostic.Id == JudgeLineUnbinderAnalyzer.ZeroToleranceDiagnosticId
                     ? ApplyDynamicFixAsync(
                         context.Document,
@@ -93,6 +98,7 @@ public sealed class JudgeLineUnbinderCodeFixProvider : CodeFixProvider
         if (invocation is null)
             return document;
 
+        // 在修复文档中重新解析调用，保证生成的替换表达式与最新代码一致
         var semanticModel = await document.GetSemanticModelAsync(cancellationToken)
             .ConfigureAwait(false);
         if (semanticModel?.GetOperation(invocation, cancellationToken) is not IInvocationOperation operation ||
@@ -100,6 +106,7 @@ public sealed class JudgeLineUnbinderCodeFixProvider : CodeFixProvider
             FindArgument(arguments, diagnosticSpan) is not { Value.Syntax: ExpressionSyntax expression })
             return document;
 
+        // 容差过小乘以 100，容差过大除以 100
         var replacement = diagnosticId == JudgeLineUnbinderAnalyzer.SmallToleranceDiagnosticId
             ? ToleranceFixFactory.CreateMultiplyByHundred(expression)
             : ToleranceFixFactory.CreateDivideByHundred(expression);
@@ -110,13 +117,14 @@ public sealed class JudgeLineUnbinderCodeFixProvider : CodeFixProvider
         diagnosticId switch
         {
             var id when id == JudgeLineUnbinderAnalyzer.SmallToleranceDiagnosticId =>
-                Resource.KPTI0003CodeFixTitle,
+                Resource.kpti_0003_code_fix_title,
             var id when id == JudgeLineUnbinderAnalyzer.ZeroToleranceDiagnosticId =>
-                Resource.KPTR0001CodeFixTitle,
-            _ => Resource.KPTE0001CodeFixTitle,
+                Resource.kptr_0001_code_fix_title,
+            _ => Resource.kpte_0001_code_fix_title,
         };
 
     private static bool CanFix(string diagnosticId, double value) =>
+        // 仅当常量值落在对应诊断的触发区间内才提供修复
         diagnosticId == JudgeLineUnbinderAnalyzer.SmallToleranceDiagnosticId
             ? value > 0.0 && value < JudgeLineUnbinderTolerance.SmallToleranceThreshold
             : diagnosticId == JudgeLineUnbinderAnalyzer.ZeroToleranceDiagnosticId
@@ -139,5 +147,6 @@ public sealed class JudgeLineUnbinderCodeFixProvider : CodeFixProvider
     private static IArgumentOperation? FindArgument(
         ImmutableArray<IArgumentOperation> arguments,
         TextSpan diagnosticSpan) =>
+        // 诊断位置与实参表达式位置逐一比对，定位被诊断的具体实参
         arguments.FirstOrDefault(argument => argument.Value.Syntax.Span == diagnosticSpan);
 }

@@ -18,13 +18,13 @@
     <resheader name="writer">
         <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
     </resheader>
-    <data name="KPCE0001Title" xml:space="preserve">
+    <data name="kpce_0001_title" xml:space="preserve">
         <value>缓动编号超出格式有效范围</value><comment>诊断的标题。</comment>
     </data>
-    <data name="KPCE0001MessageFormat" xml:space="preserve">
+    <data name="kpce_0001_message_format" xml:space="preserve">
         <value>缓动编号 {0} 超出 {1} 格式的有效范围 [{2}, {3}]</value><comment>诊断显示的可格式化消息。</comment>
     </data>
-    <data name="KPCE0001Description" xml:space="preserve">
+    <data name="kpce_0001_description" xml:space="preserve">
         <value>创建缓动对象时，缓动编号必须位于该格式定义的有效范围内。</value><comment>诊断的可选长描述。</comment>
     </data>
 </root>

@@ -15,61 +15,61 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="KPTI0001Title" xml:space="preserve">
+  <data name="kpti_0001_title" xml:space="preserve">
     <value>cutLength parameter may be too large</value>
   </data>
-  <data name="KPTI0001MessageFormat" xml:space="preserve">
+  <data name="kpti_0001_message_format" xml:space="preserve">
     <value>This value is usually no greater than 1. Did you mean 1 / {0}?</value>
   </data>
-  <data name="KPTI0001Description" xml:space="preserve">
+  <data name="kpti_0001_description" xml:space="preserve">
     <value>The cutLength parameter passed to CutEventToLinear/CutEventsInRange is greater than 1 and may be missing a reciprocal operation.</value>
   </data>
-  <data name="KPTI0002Title" xml:space="preserve">
+  <data name="kpti_0002_title" xml:space="preserve">
     <value>cutLength parameter may be incorrect</value>
   </data>
-  <data name="KPTI0002MessageFormat" xml:space="preserve">
+  <data name="kpti_0002_message_format" xml:space="preserve">
     <value>This value is usually not equal to 1. Did you mean a fraction or the reciprocal of a value?</value>
   </data>
-  <data name="KPTI0002Description" xml:space="preserve">
+  <data name="kpti_0002_description" xml:space="preserve">
     <value>The cutLength parameter passed to CutEventToLinear/CutEventsInRange equals 1 and may not be the intended cut length.</value>
   </data>
-  <data name="KPTI0001CodeFixTitle" xml:space="preserve">
+  <data name="kpti_0001_code_fix_title" xml:space="preserve">
     <value>Change cutLength to its reciprocal</value>
   </data>
-  <data name="KPTE0001Title" xml:space="preserve">
+  <data name="kpte_0001_title" xml:space="preserve">
     <value>Tolerance parameter may be too large</value>
   </data>
-  <data name="KPTE0001MessageFormat" xml:space="preserve">
+  <data name="kpte_0001_message_format" xml:space="preserve">
     <value>Tolerance parameters are percentages. The value {0} is too large; did you mean {0} / 100?</value>
   </data>
-  <data name="KPTE0001Description" xml:space="preserve">
+  <data name="kpte_0001_description" xml:space="preserve">
     <value>Tolerance parameters are percentages. Values greater than or equal to 100 can make parent-line unbinding results unpredictable.</value>
   </data>
-  <data name="KPTE0001CodeFixTitle" xml:space="preserve">
+  <data name="kpte_0001_code_fix_title" xml:space="preserve">
     <value>Divide the tolerance parameter by 100</value>
   </data>
-  <data name="KPTI0003Title" xml:space="preserve">
+  <data name="kpti_0003_title" xml:space="preserve">
     <value>Tolerance parameter may be too small</value>
   </data>
-  <data name="KPTI0003MessageFormat" xml:space="preserve">
+  <data name="kpti_0003_message_format" xml:space="preserve">
     <value>Tolerance parameters are percentages. The value {0} is too small and may cause the final result to consume a large amount of memory; did you mean {0} * 100?</value>
   </data>
-  <data name="KPTI0003Description" xml:space="preserve">
+  <data name="kpti_0003_description" xml:space="preserve">
     <value>Tolerance parameters are percentages. Values smaller than 0.01 may generate many events and consume excessive memory.</value>
   </data>
-  <data name="KPTI0003CodeFixTitle" xml:space="preserve">
+  <data name="kpti_0003_code_fix_title" xml:space="preserve">
     <value>Multiply the tolerance parameter by 100</value>
   </data>
-  <data name="KPTR0001Title" xml:space="preserve">
+  <data name="kptr_0001_title" xml:space="preserve">
     <value>Dynamic unbinding may waste performance</value>
   </data>
-  <data name="KPTR0001MessageFormat" xml:space="preserve">
+  <data name="kptr_0001_message_format" xml:space="preserve">
     <value>Adaptive sampling uses a tolerance of 0, which may incur extra performance cost. If you intend to disable tolerance behavior, use the regular unbinder instead.</value>
   </data>
-  <data name="KPTR0001Description" xml:space="preserve">
+  <data name="kptr_0001_description" xml:space="preserve">
     <value>An adaptive sampling tolerance of 0 may incur extra performance cost. Use the regular unbinder without tolerance parameters to disable tolerance behavior.</value>
   </data>
-  <data name="KPTR0001CodeFixTitle" xml:space="preserve">
+  <data name="kptr_0001_code_fix_title" xml:space="preserve">
     <value>Use the regular FatherUnbind unbinder</value>
   </data>
 </root>
