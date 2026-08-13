@@ -27,4 +27,40 @@
     <data name="kpce_0001_description" xml:space="preserve">
         <value>创建缓动对象时，缓动编号必须位于该格式定义的有效范围内。</value><comment>诊断的可选长描述。</comment>
     </data>
+    <data name="kpce_0002_title" xml:space="preserve">
+        <value>Beat 数组长度不是 3</value><comment>KPCE0002 诊断标题。</comment>
+    </data>
+    <data name="kpce_0002_message_format" xml:space="preserve">
+        <value>Beat 数组必须恰好包含 3 个元素（整数部分、分子、分母），当前长度为 {0}。</value><comment>KPCE0002 诊断消息。</comment>
+    </data>
+    <data name="kpce_0002_description" xml:space="preserve">
+        <value>new Beat(int[]) 的数组长度不是 3，运行时必然抛出 ArgumentException。</value><comment>KPCE0002 诊断描述。</comment>
+    </data>
+    <data name="kpce_0003_title" xml:space="preserve">
+        <value>Beat 分母为零</value><comment>KPCE0003 诊断标题。</comment>
+    </data>
+    <data name="kpce_0003_message_format" xml:space="preserve">
+        <value>Beat 数组的分母（下标 2）不能为 0。</value><comment>KPCE0003 诊断消息。</comment>
+    </data>
+    <data name="kpce_0003_description" xml:space="preserve">
+        <value>Beat 分母为零在运行时必然抛出 ArgumentException。</value><comment>KPCE0003 诊断描述。</comment>
+    </data>
+    <data name="kpce_0004_title" xml:space="preserve">
+        <value>Beat 分母为负数</value><comment>KPCE0004 诊断标题。</comment>
+    </data>
+    <data name="kpce_0004_message_format" xml:space="preserve">
+        <value>Beat 数组的分母（下标 2）必须为正数，当前为 {0}。</value><comment>KPCE0004 诊断消息。</comment>
+    </data>
+    <data name="kpce_0004_description" xml:space="preserve">
+        <value>Beat 分母为负在运行时必然抛出 ArgumentException。</value><comment>KPCE0004 诊断描述。</comment>
+    </data>
+    <data name="kpce_0005_title" xml:space="preserve">
+        <value>Beat 数值必须有限</value><comment>KPCE0005 诊断标题。</comment>
+    </data>
+    <data name="kpce_0005_message_format" xml:space="preserve">
+        <value>Beat 构造参数必须是有限数值，不能为 NaN 或无穷大。</value><comment>KPCE0005 诊断消息。</comment>
+    </data>
+    <data name="kpce_0005_description" xml:space="preserve">
+        <value>new Beat(double) 传入 NaN 或无穷大在运行时必然抛出 ArgumentOutOfRangeException。</value><comment>KPCE0005 诊断描述。</comment>
+    </data>
 </root>

@@ -96,6 +96,222 @@ namespace KaedePhi.Tool.Analyzers {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to 采样精度必须大于 0.
+        /// </summary>
+        internal static string kpte_0002_description {
+            get {
+                return ResourceManager.GetString("kpte_0002_description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 采样精度参数必须大于 0，当前值为 {0}。.
+        /// </summary>
+        internal static string kpte_0002_message_format {
+            get {
+                return ResourceManager.GetString("kpte_0002_message_format", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 采样精度必须大于 0.
+        /// </summary>
+        internal static string kpte_0002_title {
+            get {
+                return ResourceManager.GetString("kpte_0002_title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 采样精度超过运行时允许的上限，会在运行时抛出参数异常。.
+        /// </summary>
+        internal static string kpte_0003_description {
+            get {
+                return ResourceManager.GetString("kpte_0003_description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 采样精度参数超过最大允许值 1024，当前值为 {0}。.
+        /// </summary>
+        internal static string kpte_0003_message_format {
+            get {
+                return ResourceManager.GetString("kpte_0003_message_format", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 采样精度超出上限.
+        /// </summary>
+        internal static string kpte_0003_title {
+            get {
+                return ResourceManager.GetString("kpte_0003_title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 容差参数大于等于 100 时，拟合或压缩结果将失去意义，难以预期。.
+        /// </summary>
+        internal static string kpte_0004_description {
+            get {
+                return ResourceManager.GetString("kpte_0004_description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 容差参数使用百分比表示，值 {0} 过大，可能导致拟合或压缩结果失真。.
+        /// </summary>
+        internal static string kpte_0004_message_format {
+            get {
+                return ResourceManager.GetString("kpte_0004_message_format", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 容差参数可能过大.
+        /// </summary>
+        internal static string kpte_0004_title {
+            get {
+                return ResourceManager.GetString("kpte_0004_title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 负容差在运行时会被拒绝，且在百分比语义下没有意义。.
+        /// </summary>
+        internal static string kpte_0005_description {
+            get {
+                return ResourceManager.GetString("kpte_0005_description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 容差参数不能为负数，当前值为 {0}。.
+        /// </summary>
+        internal static string kpte_0005_message_format {
+            get {
+                return ResourceManager.GetString("kpte_0005_message_format", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 容差参数为负数.
+        /// </summary>
+        internal static string kpte_0005_title {
+            get {
+                return ResourceManager.GetString("kpte_0005_title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 精度、比率等转换选项必须为正数，否则运行时校验会抛出异常。.
+        /// </summary>
+        internal static string kpte_0010_description {
+            get {
+                return ResourceManager.GetString("kpte_0010_description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 转换选项属性 {0} 必须为正数，当前值为 {1}。.
+        /// </summary>
+        internal static string kpte_0010_message_format {
+            get {
+                return ResourceManager.GetString("kpte_0010_message_format", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 转换选项数值必须为正数.
+        /// </summary>
+        internal static string kpte_0010_title {
+            get {
+                return ResourceManager.GetString("kpte_0010_title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 转换选项中的容差属性使用百分比表示，超出 0 到 100 的范围会在运行时被拒绝。.
+        /// </summary>
+        internal static string kpte_0011_description {
+            get {
+                return ResourceManager.GetString("kpte_0011_description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 转换选项容差属性 {0} 必须在 0 到 100 之间，当前值为 {1}。.
+        /// </summary>
+        internal static string kpte_0011_message_format {
+            get {
+                return ResourceManager.GetString("kpte_0011_message_format", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 转换选项容差越界.
+        /// </summary>
+        internal static string kpte_0011_title {
+            get {
+                return ResourceManager.GetString("kpte_0011_title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 尾部拍填充等非负属性为负数时，运行时校验会抛出异常。.
+        /// </summary>
+        internal static string kpte_0012_description {
+            get {
+                return ResourceManager.GetString("kpte_0012_description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 转换选项属性 {0} 不能为负数，当前值为 {1}。.
+        /// </summary>
+        internal static string kpte_0012_message_format {
+            get {
+                return ResourceManager.GetString("kpte_0012_message_format", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 尾部拍填充不能为负数.
+        /// </summary>
+        internal static string kpte_0012_title {
+            get {
+                return ResourceManager.GetString("kpte_0012_title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to KpcRenderOptions 的数值属性超出运行时允许范围，会在渲染前抛出参数异常。.
+        /// </summary>
+        internal static string kpte_0013_description {
+            get {
+                return ResourceManager.GetString("kpte_0013_description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 渲染配置属性 {0} 的值 {1} 非法，允许范围：{2}。.
+        /// </summary>
+        internal static string kpte_0013_message_format {
+            get {
+                return ResourceManager.GetString("kpte_0013_message_format", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 渲染配置数值越界.
+        /// </summary>
+        internal static string kpte_0013_title {
+            get {
+                return ResourceManager.GetString("kpte_0013_title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to 将 cutLength 改为倒数.
         /// </summary>
         internal static string kpti_0001_code_fix_title {
@@ -195,6 +411,33 @@ namespace KaedePhi.Tool.Analyzers {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to 容差为 0 意味着每个采样点都必须精确匹配，拟合或压缩通常不会产生任何合并。.
+        /// </summary>
+        internal static string kpti_0004_description {
+            get {
+                return ResourceManager.GetString("kpti_0004_description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 容差参数为 0，拟合或压缩将退化为保留原始事件，请确认是否有意为之。.
+        /// </summary>
+        internal static string kpti_0004_message_format {
+            get {
+                return ResourceManager.GetString("kpti_0004_message_format", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 容差参数为 0 时拟合或压缩可能失效.
+        /// </summary>
+        internal static string kpti_0004_title {
+            get {
+                return ResourceManager.GetString("kpti_0004_title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to 改用普通 FatherUnbind 解绑器.
         /// </summary>
         internal static string kptr_0001_code_fix_title {
@@ -227,6 +470,33 @@ namespace KaedePhi.Tool.Analyzers {
         internal static string kptr_0001_title {
             get {
                 return ResourceManager.GetString("kptr_0001_title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 采样精度超过 256 时每个采样段生成的事件数量较大，可能显著增加内存与时间开销。.
+        /// </summary>
+        internal static string kptr_0002_description {
+            get {
+                return ResourceManager.GetString("kptr_0002_description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 采样精度 {0} 偏高，可能生成大量事件并消耗过多内存，请确认是否有意为之。.
+        /// </summary>
+        internal static string kptr_0002_message_format {
+            get {
+                return ResourceManager.GetString("kptr_0002_message_format", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 采样精度可能过高.
+        /// </summary>
+        internal static string kptr_0002_title {
+            get {
+                return ResourceManager.GetString("kptr_0002_title", resourceCulture);
             }
         }
     }

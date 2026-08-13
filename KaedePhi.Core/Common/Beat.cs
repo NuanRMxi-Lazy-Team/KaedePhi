@@ -51,7 +51,7 @@ namespace KaedePhi.Core.Common
         {
             if (double.IsNaN(beat) || double.IsInfinity(beat))
                 throw new ArgumentOutOfRangeException(nameof(beat), "Beat must be finite.");
-            if (beat < int.MinValue || beat > int.MaxValue)
+            if (beat is < int.MinValue or > int.MaxValue)
                 throw new ArgumentOutOfRangeException(
                     nameof(beat),
                     "Beat must fit in the supported integer part range."
@@ -93,7 +93,7 @@ namespace KaedePhi.Core.Common
                 numerator = tempNum;
                 denominator = tempDen;
 
-                remaining = remaining - digit;
+                remaining -= digit;
                 if (
                     Math.Abs(remaining) < 1e-9
                     || Math.Abs((double)numerator / denominator - fractionalPart) < 1e-9

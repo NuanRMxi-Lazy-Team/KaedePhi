@@ -72,4 +72,94 @@
   <data name="kptr_0001_code_fix_title" xml:space="preserve">
     <value>改用普通 FatherUnbind 解除綁定器</value>
   </data>
+  <data name="kpte_0002_title" xml:space="preserve">
+    <value>取樣精度必須大於 0</value>
+  </data>
+  <data name="kpte_0002_message_format" xml:space="preserve">
+    <value>取樣精度參數必須大於 0，目前值為 {0}。</value>
+  </data>
+  <data name="kpte_0002_description" xml:space="preserve">
+    <value>傳給取樣類方法的 precision 參數小於或等於 0，執行時必然拋出參數例外。</value>
+  </data>
+  <data name="kpte_0003_title" xml:space="preserve">
+    <value>取樣精度超出上限</value>
+  </data>
+  <data name="kpte_0003_message_format" xml:space="preserve">
+    <value>取樣精度參數超過最大允許值 1024，目前值為 {0}。</value>
+  </data>
+  <data name="kpte_0003_description" xml:space="preserve">
+    <value>取樣精度超過執行時允許的上限，會在執行時拋出參數例外。</value>
+  </data>
+  <data name="kptr_0002_title" xml:space="preserve">
+    <value>取樣精度可能過高</value>
+  </data>
+  <data name="kptr_0002_message_format" xml:space="preserve">
+    <value>取樣精度 {0} 偏高，可能產生大量事件並消耗過多記憶體，請確認是否有意為之。</value>
+  </data>
+  <data name="kptr_0002_description" xml:space="preserve">
+    <value>取樣精度超過 256 時每個取樣段產生的事件數量較大，可能明顯增加記憶體與時間開銷。</value>
+  </data>
+  <data name="kpte_0004_title" xml:space="preserve">
+    <value>容差參數可能過大</value>
+  </data>
+  <data name="kpte_0004_message_format" xml:space="preserve">
+    <value>容差參數以百分比表示，值 {0} 過大，可能導致擬合或壓縮結果失真。</value>
+  </data>
+  <data name="kpte_0004_description" xml:space="preserve">
+    <value>容差參數大於等於 100 時，擬合或壓縮結果將失去意義，難以預期。</value>
+  </data>
+  <data name="kpte_0005_title" xml:space="preserve">
+    <value>容差參數為負數</value>
+  </data>
+  <data name="kpte_0005_message_format" xml:space="preserve">
+    <value>容差參數不能為負數，目前值為 {0}。</value>
+  </data>
+  <data name="kpte_0005_description" xml:space="preserve">
+    <value>負容差在執行時會被拒絕，且在百分比語意下沒有意義。</value>
+  </data>
+  <data name="kpti_0004_title" xml:space="preserve">
+    <value>容差參數為 0 時擬合或壓縮可能失效</value>
+  </data>
+  <data name="kpti_0004_message_format" xml:space="preserve">
+    <value>容差參數為 0，擬合或壓縮將退化為保留原始事件，請確認是否有意為之。</value>
+  </data>
+  <data name="kpti_0004_description" xml:space="preserve">
+    <value>容差為 0 表示每個取樣點都必須精確相符，擬合或壓縮通常不會產生任何合併。</value>
+  </data>
+  <data name="kpte_0010_title" xml:space="preserve">
+    <value>轉換選項數值必須為正數</value>
+  </data>
+  <data name="kpte_0010_message_format" xml:space="preserve">
+    <value>轉換選項屬性 {0} 必須為正數，目前值為 {1}。</value>
+  </data>
+  <data name="kpte_0010_description" xml:space="preserve">
+    <value>精度、比率等轉換選項必須為正數，否則執行時驗證會拋出例外。</value>
+  </data>
+  <data name="kpte_0011_title" xml:space="preserve">
+    <value>轉換選項容差越界</value>
+  </data>
+  <data name="kpte_0011_message_format" xml:space="preserve">
+    <value>轉換選項容差屬性 {0} 必須在 0 到 100 之間，目前值為 {1}。</value>
+  </data>
+  <data name="kpte_0011_description" xml:space="preserve">
+    <value>轉換選項中的容差屬性以百分比表示，超出 0 到 100 的範圍會在執行時被拒絕。</value>
+  </data>
+  <data name="kpte_0012_title" xml:space="preserve">
+    <value>尾部拍填充不能為負數</value>
+  </data>
+  <data name="kpte_0012_message_format" xml:space="preserve">
+    <value>轉換選項屬性 {0} 不能為負數，目前值為 {1}。</value>
+  </data>
+  <data name="kpte_0012_description" xml:space="preserve">
+    <value>尾部拍填充等非負屬性為負數時，執行時驗證會拋出例外。</value>
+  </data>
+  <data name="kpte_0013_title" xml:space="preserve">
+    <value>渲染設定數值越界</value>
+  </data>
+  <data name="kpte_0013_message_format" xml:space="preserve">
+    <value>渲染設定屬性 {0} 的值 {1} 非法，允許範圍：{2}。</value>
+  </data>
+  <data name="kpte_0013_description" xml:space="preserve">
+    <value>KpcRenderOptions 的數值屬性超出執行時允許範圍，會在渲染前拋出參數例外。</value>
+  </data>
 </root>

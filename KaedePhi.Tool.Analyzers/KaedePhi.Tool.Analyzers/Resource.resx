@@ -91,4 +91,124 @@
     <value>改用普通 FatherUnbind 解绑器</value>
     <comment>KPTR0001 代码修复标题。</comment>
   </data>
+  <data name="kpte_0002_title" xml:space="preserve">
+    <value>采样精度必须大于 0</value>
+    <comment>KPTE0002 诊断标题。</comment>
+  </data>
+  <data name="kpte_0002_message_format" xml:space="preserve">
+    <value>采样精度参数必须大于 0，当前值为 {0}。</value>
+    <comment>KPTE0002 诊断消息。</comment>
+  </data>
+  <data name="kpte_0002_description" xml:space="preserve">
+    <value>传递给采样类方法的 precision 参数小于或等于 0，运行时必然抛出参数异常。</value>
+    <comment>KPTE0002 诊断描述。</comment>
+  </data>
+  <data name="kpte_0003_title" xml:space="preserve">
+    <value>采样精度超出上限</value>
+    <comment>KPTE0003 诊断标题。</comment>
+  </data>
+  <data name="kpte_0003_message_format" xml:space="preserve">
+    <value>采样精度参数超过最大允许值 1024，当前值为 {0}。</value>
+    <comment>KPTE0003 诊断消息。</comment>
+  </data>
+  <data name="kpte_0003_description" xml:space="preserve">
+    <value>采样精度超过运行时允许的上限，会在运行时抛出参数异常。</value>
+    <comment>KPTE0003 诊断描述。</comment>
+  </data>
+  <data name="kptr_0002_title" xml:space="preserve">
+    <value>采样精度可能过高</value>
+    <comment>KPTR0002 诊断标题。</comment>
+  </data>
+  <data name="kptr_0002_message_format" xml:space="preserve">
+    <value>采样精度 {0} 偏高，可能生成大量事件并消耗过多内存，请确认是否有意为之。</value>
+    <comment>KPTR0002 诊断消息。</comment>
+  </data>
+  <data name="kptr_0002_description" xml:space="preserve">
+    <value>采样精度超过 256 时每个采样段生成的事件数量较大，可能显著增加内存与时间开销。</value>
+    <comment>KPTR0002 诊断描述。</comment>
+  </data>
+  <data name="kpte_0004_title" xml:space="preserve">
+    <value>容差参数可能过大</value>
+    <comment>KPTE0004 诊断标题。</comment>
+  </data>
+  <data name="kpte_0004_message_format" xml:space="preserve">
+    <value>容差参数使用百分比表示，值 {0} 过大，可能导致拟合或压缩结果失真。</value>
+    <comment>KPTE0004 诊断消息。</comment>
+  </data>
+  <data name="kpte_0004_description" xml:space="preserve">
+    <value>容差参数大于等于 100 时，拟合或压缩结果将失去意义，难以预期。</value>
+    <comment>KPTE0004 诊断描述。</comment>
+  </data>
+  <data name="kpte_0005_title" xml:space="preserve">
+    <value>容差参数为负数</value>
+    <comment>KPTE0005 诊断标题。</comment>
+  </data>
+  <data name="kpte_0005_message_format" xml:space="preserve">
+    <value>容差参数不能为负数，当前值为 {0}。</value>
+    <comment>KPTE0005 诊断消息。</comment>
+  </data>
+  <data name="kpte_0005_description" xml:space="preserve">
+    <value>负容差在运行时会被拒绝，且在百分比语义下没有意义。</value>
+    <comment>KPTE0005 诊断描述。</comment>
+  </data>
+  <data name="kpti_0004_title" xml:space="preserve">
+    <value>容差参数为 0 时拟合或压缩可能失效</value>
+    <comment>KPTI0004 诊断标题。</comment>
+  </data>
+  <data name="kpti_0004_message_format" xml:space="preserve">
+    <value>容差参数为 0，拟合或压缩将退化为保留原始事件，请确认是否有意为之。</value>
+    <comment>KPTI0004 诊断消息。</comment>
+  </data>
+  <data name="kpti_0004_description" xml:space="preserve">
+    <value>容差为 0 意味着每个采样点都必须精确匹配，拟合或压缩通常不会产生任何合并。</value>
+    <comment>KPTI0004 诊断描述。</comment>
+  </data>
+  <data name="kpte_0010_title" xml:space="preserve">
+    <value>转换选项数值必须为正数</value>
+    <comment>KPTE0010 诊断标题。</comment>
+  </data>
+  <data name="kpte_0010_message_format" xml:space="preserve">
+    <value>转换选项属性 {0} 必须为正数，当前值为 {1}。</value>
+    <comment>KPTE0010 诊断消息。</comment>
+  </data>
+  <data name="kpte_0010_description" xml:space="preserve">
+    <value>精度、比率等转换选项必须为正数，否则运行时校验会抛出异常。</value>
+    <comment>KPTE0010 诊断描述。</comment>
+  </data>
+  <data name="kpte_0011_title" xml:space="preserve">
+    <value>转换选项容差越界</value>
+    <comment>KPTE0011 诊断标题。</comment>
+  </data>
+  <data name="kpte_0011_message_format" xml:space="preserve">
+    <value>转换选项容差属性 {0} 必须在 0 到 100 之间，当前值为 {1}。</value>
+    <comment>KPTE0011 诊断消息。</comment>
+  </data>
+  <data name="kpte_0011_description" xml:space="preserve">
+    <value>转换选项中的容差属性使用百分比表示，超出 0 到 100 的范围会在运行时被拒绝。</value>
+    <comment>KPTE0011 诊断描述。</comment>
+  </data>
+  <data name="kpte_0012_title" xml:space="preserve">
+    <value>尾部拍填充不能为负数</value>
+    <comment>KPTE0012 诊断标题。</comment>
+  </data>
+  <data name="kpte_0012_message_format" xml:space="preserve">
+    <value>转换选项属性 {0} 不能为负数，当前值为 {1}。</value>
+    <comment>KPTE0012 诊断消息。</comment>
+  </data>
+  <data name="kpte_0012_description" xml:space="preserve">
+    <value>尾部拍填充等非负属性为负数时，运行时校验会抛出异常。</value>
+    <comment>KPTE0012 诊断描述。</comment>
+  </data>
+  <data name="kpte_0013_title" xml:space="preserve">
+    <value>渲染配置数值越界</value>
+    <comment>KPTE0013 诊断标题。</comment>
+  </data>
+  <data name="kpte_0013_message_format" xml:space="preserve">
+    <value>渲染配置属性 {0} 的值 {1} 非法，允许范围：{2}。</value>
+    <comment>KPTE0013 诊断消息。</comment>
+  </data>
+  <data name="kpte_0013_description" xml:space="preserve">
+    <value>KpcRenderOptions 的数值属性超出运行时允许范围，会在渲染前抛出参数异常。</value>
+    <comment>KPTE0013 诊断描述。</comment>
+  </data>
 </root>

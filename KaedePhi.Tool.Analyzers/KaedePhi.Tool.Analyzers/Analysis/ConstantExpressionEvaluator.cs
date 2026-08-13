@@ -46,8 +46,8 @@ internal static class ConstantExpressionEvaluator
         expression = UnwrapParentheses(expression);
         // 仅接受构造参数唯一且类型确为 Beat 的构造表达式
         if (
-            expression is not ObjectCreationExpressionSyntax creation
-            || creation.ArgumentList is not { Arguments.Count: 1 }
+            expression
+                is not ObjectCreationExpressionSyntax { ArgumentList.Arguments.Count: 1 } creation
             || !EventCutterApi.IsBeat(semanticModel.GetTypeInfo(creation, cancellationToken).Type)
         )
             return false;
@@ -66,13 +66,8 @@ internal static class ConstantExpressionEvaluator
         ExpressionSyntax expression,
         CancellationToken cancellationToken,
         out double value
-    )
-    {
-        value = 0;
-        // 仅当表达式在编译期具有确定的常量值时才能成功
-        var constant = semanticModel.GetConstantValue(expression, cancellationToken);
-        return constant.HasValue && TryConvertNumeric(constant.Value, out value);
-    }
+    ) =>
+        NumericConstantReader.TryGetDouble(semanticModel, expression, cancellationToken, out value);
 
     private static ExpressionSyntax UnwrapParentheses(ExpressionSyntax expression)
     {
@@ -80,49 +75,5 @@ internal static class ConstantExpressionEvaluator
             expression = parenthesized.Expression;
 
         return expression;
-    }
-
-    private static bool TryConvertNumeric(object? rawValue, out double value)
-    {
-        // 覆盖所有数值类型以避免精度损失式的意外转换，decimal 转为 double 供统一比较
-        switch (rawValue)
-        {
-            case byte number:
-                value = number;
-                return true;
-            case sbyte number:
-                value = number;
-                return true;
-            case short number:
-                value = number;
-                return true;
-            case ushort number:
-                value = number;
-                return true;
-            case int number:
-                value = number;
-                return true;
-            case uint number:
-                value = number;
-                return true;
-            case long number:
-                value = number;
-                return true;
-            case ulong number:
-                value = number;
-                return true;
-            case float number:
-                value = number;
-                return true;
-            case double number:
-                value = number;
-                return true;
-            case decimal number:
-                value = (double)number;
-                return true;
-            default:
-                value = 0;
-                return false;
-        }
     }
 }

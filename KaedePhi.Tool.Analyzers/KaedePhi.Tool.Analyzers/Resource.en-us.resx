@@ -72,4 +72,94 @@
   <data name="kptr_0001_code_fix_title" xml:space="preserve">
     <value>Use the regular FatherUnbind unbinder</value>
   </data>
+  <data name="kpte_0002_title" xml:space="preserve">
+    <value>Sampling precision must be greater than 0</value>
+  </data>
+  <data name="kpte_0002_message_format" xml:space="preserve">
+    <value>The precision parameter must be greater than 0, but the current value is {0}.</value>
+  </data>
+  <data name="kpte_0002_description" xml:space="preserve">
+    <value>A precision of 0 or less passed to sampling methods always throws at runtime.</value>
+  </data>
+  <data name="kpte_0003_title" xml:space="preserve">
+    <value>Sampling precision exceeds the maximum</value>
+  </data>
+  <data name="kpte_0003_message_format" xml:space="preserve">
+    <value>The precision parameter exceeds the maximum allowed value of 1024, but the current value is {0}.</value>
+  </data>
+  <data name="kpte_0003_description" xml:space="preserve">
+    <value>A precision exceeding the runtime limit always throws at runtime.</value>
+  </data>
+  <data name="kptr_0002_title" xml:space="preserve">
+    <value>Sampling precision may be too high</value>
+  </data>
+  <data name="kptr_0002_message_format" xml:space="preserve">
+    <value>The precision {0} is high and may generate many events and consume excessive memory; please confirm this is intentional.</value>
+  </data>
+  <data name="kptr_0002_description" xml:space="preserve">
+    <value>A precision above 256 generates a large number of sampling segments, which may significantly increase memory and time usage.</value>
+  </data>
+  <data name="kpte_0004_title" xml:space="preserve">
+    <value>Tolerance parameter may be too large</value>
+  </data>
+  <data name="kpte_0004_message_format" xml:space="preserve">
+    <value>Tolerance parameters are percentages. The value {0} is too large and may make fitting or compression results unreliable.</value>
+  </data>
+  <data name="kpte_0004_description" xml:space="preserve">
+    <value>A tolerance of 100 or more makes fitting or compression results meaningless and hard to predict.</value>
+  </data>
+  <data name="kpte_0005_title" xml:space="preserve">
+    <value>Tolerance parameter must not be negative</value>
+  </data>
+  <data name="kpte_0005_message_format" xml:space="preserve">
+    <value>The tolerance parameter cannot be negative; the current value is {0}.</value>
+  </data>
+  <data name="kpte_0005_description" xml:space="preserve">
+    <value>A negative tolerance is rejected at runtime and has no meaning as a percentage.</value>
+  </data>
+  <data name="kpti_0004_title" xml:space="preserve">
+    <value>Zero tolerance may disable fitting or compression</value>
+  </data>
+  <data name="kpti_0004_message_format" xml:space="preserve">
+    <value>A tolerance of 0 degrades fitting or compression to keeping the original events; is this intentional?</value>
+  </data>
+  <data name="kpti_0004_description" xml:space="preserve">
+    <value>A tolerance of 0 requires every sample point to match exactly, so fitting or compression typically merges nothing.</value>
+  </data>
+  <data name="kpte_0010_title" xml:space="preserve">
+    <value>Convert option value must be positive</value>
+  </data>
+  <data name="kpte_0010_message_format" xml:space="preserve">
+    <value>The convert option property {0} must be positive, but the current value is {1}.</value>
+  </data>
+  <data name="kpte_0010_description" xml:space="preserve">
+    <value>Precision, ratio and other convert options must be positive; otherwise runtime validation throws.</value>
+  </data>
+  <data name="kpte_0011_title" xml:space="preserve">
+    <value>Convert option tolerance is out of range</value>
+  </data>
+  <data name="kpte_0011_message_format" xml:space="preserve">
+    <value>The convert option tolerance property {0} must be between 0 and 100, but the current value is {1}.</value>
+  </data>
+  <data name="kpte_0011_description" xml:space="preserve">
+    <value>Tolerance properties in convert options use percentages; values outside 0 to 100 are rejected at runtime.</value>
+  </data>
+  <data name="kpte_0012_title" xml:space="preserve">
+    <value>Trailing beat padding must not be negative</value>
+  </data>
+  <data name="kpte_0012_message_format" xml:space="preserve">
+    <value>The convert option property {0} cannot be negative, but the current value is {1}.</value>
+  </data>
+  <data name="kpte_0012_description" xml:space="preserve">
+    <value>Negative values for non-negative properties such as trailing beat padding throw at runtime validation.</value>
+  </data>
+  <data name="kpte_0013_title" xml:space="preserve">
+    <value>Render option value is out of range</value>
+  </data>
+  <data name="kpte_0013_message_format" xml:space="preserve">
+    <value>The render option property {0} has the invalid value {1}; allowed range: {2}.</value>
+  </data>
+  <data name="kpte_0013_description" xml:space="preserve">
+    <value>KpcRenderOptions numeric properties outside the allowed range throw before rendering.</value>
+  </data>
 </root>

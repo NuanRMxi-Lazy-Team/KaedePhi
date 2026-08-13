@@ -85,5 +85,113 @@ namespace KaedePhi.Core.Analyzers {
                 return ResourceManager.GetString("kpce_0001_title", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to new Beat(int[]) 的数组长度不是 3，运行时必然抛出 ArgumentException。.
+        /// </summary>
+        internal static string kpce_0002_description {
+            get {
+                return ResourceManager.GetString("kpce_0002_description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Beat 数组必须恰好包含 3 个元素（整数部分、分子、分母），当前长度为 {0}。.
+        /// </summary>
+        internal static string kpce_0002_message_format {
+            get {
+                return ResourceManager.GetString("kpce_0002_message_format", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Beat 数组长度不是 3.
+        /// </summary>
+        internal static string kpce_0002_title {
+            get {
+                return ResourceManager.GetString("kpce_0002_title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Beat 分母为零在运行时必然抛出 ArgumentException。.
+        /// </summary>
+        internal static string kpce_0003_description {
+            get {
+                return ResourceManager.GetString("kpce_0003_description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Beat 数组的分母（下标 2）不能为 0。.
+        /// </summary>
+        internal static string kpce_0003_message_format {
+            get {
+                return ResourceManager.GetString("kpce_0003_message_format", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Beat 分母为零.
+        /// </summary>
+        internal static string kpce_0003_title {
+            get {
+                return ResourceManager.GetString("kpce_0003_title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Beat 分母为负在运行时必然抛出 ArgumentException。.
+        /// </summary>
+        internal static string kpce_0004_description {
+            get {
+                return ResourceManager.GetString("kpce_0004_description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Beat 数组的分母（下标 2）必须为正数，当前为 {0}。.
+        /// </summary>
+        internal static string kpce_0004_message_format {
+            get {
+                return ResourceManager.GetString("kpce_0004_message_format", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Beat 分母为负数.
+        /// </summary>
+        internal static string kpce_0004_title {
+            get {
+                return ResourceManager.GetString("kpce_0004_title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to new Beat(double) 传入 NaN 或无穷大在运行时必然抛出 ArgumentOutOfRangeException。.
+        /// </summary>
+        internal static string kpce_0005_description {
+            get {
+                return ResourceManager.GetString("kpce_0005_description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Beat 构造参数必须是有限数值，不能为 NaN 或无穷大。.
+        /// </summary>
+        internal static string kpce_0005_message_format {
+            get {
+                return ResourceManager.GetString("kpce_0005_message_format", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Beat 数值必须有限.
+        /// </summary>
+        internal static string kpce_0005_title {
+            get {
+                return ResourceManager.GetString("kpce_0005_title", resourceCulture);
+            }
+        }
     }
 }

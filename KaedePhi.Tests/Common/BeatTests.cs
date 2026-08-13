@@ -51,6 +51,8 @@ public class BeatTests
     [Fact]
     public void Constructor_WithInvalidLength_ThrowsArgumentException()
     {
+        // 以下三个用例有意构造非法 Beat，用于验证运行时的异常路径，分析器诊断在此是预期的
+#pragma warning disable KPCE0002, KPCE0003, KPCE0004
         var act = () => new Beat(new[] { 1, 2 });
 
         act.Should().Throw<ArgumentException>().WithMessage("*3 elements*");
@@ -70,6 +72,7 @@ public class BeatTests
         var act = () => new Beat(new[] { 1, 1, -2 });
 
         act.Should().Throw<ArgumentException>().WithMessage("*denominator*positive*");
+#pragma warning restore KPCE0002, KPCE0003, KPCE0004
     }
 
     [Theory]
