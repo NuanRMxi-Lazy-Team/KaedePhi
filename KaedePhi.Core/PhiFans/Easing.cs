@@ -5,14 +5,31 @@ namespace KaedePhi.Core.PhiFans
 {
     /// <summary>
     /// 缓动类型封装，编号范围 0-30。
+    /// 结构与 PhiEdit 的缓动类型一致：缓存缓动函数，
+    /// 插值仅需起止值与归一化时间，不包含 KPC/RePhiEdit 的截取参数（PhiFans 无此概念）。
     /// </summary>
     [JsonConverter(typeof(EasingJsonConverter))]
     public class Easing
     {
+        private static readonly Easing?[] Cache = new Easing[31];
+
         /// <summary>
         /// 线性缓动（编号0）。
         /// </summary>
-        public static Easing Linear { get; } = new(0);
+        public static Easing Linear { get; } = Get(0);
+
+        private readonly int _easingNumber;
+        private readonly Utils.Easings.EasingFunction _function;
+
+        /// <summary>获取缓存的 Easing 实例，避免重复创建。</summary>
+        /// <param name="easingNumber">缓动编号</param>
+        /// <returns>缓动类型实例</returns>
+        public static Easing Get(int easingNumber)
+        {
+            if (easingNumber is >= 0 and <= 30)
+                return Cache[easingNumber] ??= new Easing(easingNumber);
+            return new Easing(easingNumber);
+        }
 
         /// <summary>
         /// 创建指定编号的缓动类型。
@@ -21,54 +38,40 @@ namespace KaedePhi.Core.PhiFans
         public Easing(int easingNumber)
         {
             _easingNumber = easingNumber;
+            _function = Easings.GetFunction(easingNumber);
         }
 
-        private readonly int _easingNumber;
-
-        /// <summary>
-        /// 在指定缓动函数的 minLim 和 maxLim 之间对 [start, end] 区间在 t 处进行插值
-        /// </summary>
-        /// <param name="minLim">缓动函数左界限</param>
-        /// <param name="maxLim">缓动函数右界限</param>
+        /// <summary>对 [start, end] 区间在归一化时间 t 处进行插值</summary>
         /// <param name="start">开始数值</param>
         /// <param name="end">结束数值</param>
-        /// <param name="t">插值点</param>
+        /// <param name="t">归一化时间（0 到 1）</param>
         /// <returns>插值结果</returns>
-        public float Interpolate(float minLim, float maxLim, float start, float end, float t)
+        public float Interpolate(float start, float end, float t)
         {
-            var easedTime = Easings.Evaluate(_easingNumber, minLim, maxLim, t);
-            //插值后返回
+            var easedTime = _function(t);
             return (float)(start + (end - start) * easedTime);
         }
 
-        /// <inheritdoc cref="Interpolate(float,float,float,float,float)"/>
-        public double Interpolate(float minLim, float maxLim, double start, double end, double t)
+        /// <inheritdoc cref="Interpolate(float,float,float)"/>
+        /// <param name="start">开始数值</param>
+        /// <param name="end">结束数值</param>
+        /// <param name="t">归一化时间（0 到 1）</param>
+        /// <returns>插值结果</returns>
+        public double Interpolate(double start, double end, double t)
         {
-            var easedTime = Easings.Evaluate(_easingNumber, minLim, maxLim, t);
-            //插值后返回
+            var easedTime = _function(t);
             return start + (end - start) * easedTime;
-        }
-
-        /// <inheritdoc cref="Interpolate(float,float,float,float,float)"/>
-        public int Interpolate(float minLim, float maxLim, int start, int end, float t)
-        {
-            var easedTime = Easings.Evaluate(_easingNumber, minLim, maxLim, t);
-            //插值后返回
-            return (int)(start + (end - start) * easedTime);
-        }
-
-        /// <inheritdoc cref="Interpolate(float,float,float,float,float)"/>
-        public byte Interpolate(float minLim, float maxLim, byte start, byte end, float t)
-        {
-            var easedTime = Easings.Evaluate(_easingNumber, minLim, maxLim, t);
-            //插值后返回
-            return (byte)(start + (end - start) * easedTime);
         }
 
         /// <summary>
         /// 隐式转换为 int，返回缓动编号。
         /// </summary>
         public static implicit operator int(Easing easing) => easing._easingNumber;
+
+        /// <summary>
+        /// 从缓动编号隐式创建缓动类型。
+        /// </summary>
+        public static implicit operator Easing(int easingNumber) => Get(easingNumber);
 
         /// <summary>
         /// 返回缓动函数名称。

@@ -1,23 +1,16 @@
+using JetBrains.Annotations;
 using static KaedePhi.Core.Utils.Easings;
 
 namespace KaedePhi.Core.PhiFans
 {
     public static class Easings
     {
-        // 在任意起点和终点之间评估缓动
-        private static double Evaluate(EasingFunction function, double start, double end, double t)
-        {
-            // 代码来自 PhiZone Player
-            double progress = function(start + (end - start) * t);
-            double progressStart = function(start);
-            double progressEnd = function(end);
-            return (progress - progressStart) / (progressEnd - progressStart);
-        }
-
-        // 使用 int 指定对应的缓动函数
-        public static double Evaluate(int easingType, double start, double end, double t)
-        {
-            EasingFunction function = easingType switch
+        /// <summary>
+        /// 根据 PhiFans 缓动编号获取对应的缓动函数。
+        /// PhiFans 没有缓动截取（minLim/maxLim）概念，因此插值仅需归一化时间。
+        /// </summary>
+        public static EasingFunction GetFunction(int easingType) =>
+            easingType switch
             {
                 0 => Linear,
                 // 正弦
@@ -64,7 +57,12 @@ namespace KaedePhi.Core.PhiFans
                 _ => Linear,
             };
 
-            return Evaluate(function, start, end, t);
-        }
+        // 在归一化时间 t 处评估缓动
+        [PublicAPI]
+        public static double Evaluate(EasingFunction function, double t) => function(t);
+
+        // 使用 int 指定对应的缓动函数
+        public static double Evaluate(int easingType, double t) =>
+            Evaluate(GetFunction(easingType), t);
     }
 }

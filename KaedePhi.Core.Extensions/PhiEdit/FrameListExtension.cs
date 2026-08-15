@@ -12,13 +12,11 @@ namespace KaedePhi.Core.Extensions.PhiEdit
         /// </summary>
         /// <param name="frameList">帧列表</param>
         /// <param name="frame">帧</param>
-        /// <exception cref="ArgumentNullException">帧列表或帧为 <see langword="null"/></exception>
+        /// <exception cref="ArgumentNullException">帧列表为 <see langword="null"/></exception>
         public static void AppendFrame(this List<Frame> frameList, Frame frame)
         {
             if (frameList is null)
                 throw new ArgumentNullException(nameof(frameList));
-            if (frame is null)
-                throw new ArgumentNullException(nameof(frame));
             var index = frameList.FindIndex(f => f.Beat > frame.Beat);
             if (index == -1)
                 frameList.Add(frame);
@@ -32,13 +30,11 @@ namespace KaedePhi.Core.Extensions.PhiEdit
         /// </summary>
         /// <param name="frameList">移动帧列表</param>
         /// <param name="frame">移动帧</param>
-        /// <exception cref="ArgumentNullException">帧列表或帧为 <see langword="null"/></exception>
+        /// <exception cref="ArgumentNullException">帧列表为 <see langword="null"/></exception>
         public static void AppendMoveFrame(this List<MoveFrame> frameList, MoveFrame frame)
         {
             if (frameList is null)
                 throw new ArgumentNullException(nameof(frameList));
-            if (frame is null)
-                throw new ArgumentNullException(nameof(frame));
             var index = frameList.FindIndex(f => f.Beat > frame.Beat);
             if (index == -1)
                 frameList.Add(frame);

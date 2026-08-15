@@ -106,7 +106,7 @@ public class PhiEditFrameEventBuilder
             if (frameAtBoundary is not null && !IsMoveEventStartBeat(orderedEvents, startBeat))
             {
                 var convertedValue = valueTransformer(
-                    selector((frameAtBoundary.XValue, frameAtBoundary.YValue))
+                    selector((frameAtBoundary.Value.XValue, frameAtBoundary.Value.YValue))
                 );
                 result.Add(CreateConstantEvent(startBeat, endBeat, convertedValue));
                 continue;
@@ -192,7 +192,7 @@ public class PhiEditFrameEventBuilder
             if (frameAtBoundary is not null && !IsScalarEventStartBeat(orderedEvents, startBeat))
             {
                 result.Add(
-                    CreateConstantEvent(startBeat, endBeat, valueTransformer(frameAtBoundary.Value))
+                    CreateConstantEvent(startBeat, endBeat, valueTransformer(frameAtBoundary.Value.Value))
                 );
                 continue;
             }
@@ -479,16 +479,18 @@ public class PhiEditFrameEventBuilder
             ev => ev.EndBeat
         );
 
-        var previousFrame = previousFrameIndex >= 0 ? frames[previousFrameIndex] : null;
+        Pe.MoveFrame? previousFrame = previousFrameIndex >= 0 ? frames[previousFrameIndex] : null;
         var previousEvent = previousEventIndex >= 0 ? events[previousEventIndex] : null;
 
         if (
             previousEvent is not null
-            && (previousFrame is null || previousEvent.EndBeat > previousFrame.Beat)
+            && (previousFrame is null || previousEvent.EndBeat > previousFrame.Value.Beat)
         )
             return (previousEvent.EndXValue, previousEvent.EndYValue);
 
-        return previousFrame is not null ? (previousFrame.XValue, previousFrame.YValue) : (0f, 0f);
+        return previousFrame is not null
+            ? (previousFrame.Value.XValue, previousFrame.Value.YValue)
+            : (0f, 0f);
     }
 
     /// <summary>
@@ -515,16 +517,17 @@ public class PhiEditFrameEventBuilder
             ev => ev.EndBeat
         );
 
-        var previousFrame = previousFrameIndex >= 0 ? frames[previousFrameIndex] : null;
+        Pe.Frame? previousFrame = previousFrameIndex >= 0 ? frames[previousFrameIndex] : null;
         var previousEvent = previousEventIndex >= 0 ? events[previousEventIndex] : null;
 
         if (
             previousEvent is not null
-            && (previousFrame is null || previousEvent.EndBeat > previousFrame.Beat)
+            && (previousFrame is null || previousEvent.EndBeat > previousFrame.Value.Beat)
         )
             return previousEvent.EndValue;
 
-        return previousFrame?.Value ?? 0f;
+        // Nullable<Frame> 的 HasValue 判断后取出其内层 Value 属性
+        return previousFrame.HasValue ? previousFrame.Value.Value : 0f;
     }
 
     /// <summary>
@@ -575,7 +578,7 @@ public class PhiEditFrameEventBuilder
         // 优先：ev.StartBeat 处有精确帧
         var frameAtStart = FindMoveFrameAtBeat(frames, ev.StartBeat);
         if (frameAtStart is not null)
-            return (frameAtStart.XValue, frameAtStart.YValue);
+            return (frameAtStart.Value.XValue, frameAtStart.Value.YValue);
 
         // 查找前驱主导事件：从 evIndex 向前查找
         Pe.MoveEvent? precedingDominant = null;
@@ -656,7 +659,7 @@ public class PhiEditFrameEventBuilder
         // 优先：ev.StartBeat 处有精确帧
         var frameAtStart = FindScalarFrameAtBeat(frames, ev.StartBeat);
         if (frameAtStart is not null)
-            return frameAtStart.Value;
+            return frameAtStart.Value.Value;
 
         // 查找前驱主导事件：从 evIndex 向前查找
         Pe.Event? precedingDominant = null;

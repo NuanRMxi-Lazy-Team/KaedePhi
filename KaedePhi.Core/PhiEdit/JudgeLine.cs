@@ -49,7 +49,7 @@ namespace KaedePhi.Core.PhiEdit
                 return (previousEvent.EndXValue, previousEvent.EndYValue);
 
             if (previousFrame is not null)
-                return (previousFrame.XValue, previousFrame.YValue);
+                return (previousFrame.Value.XValue, previousFrame.Value.YValue);
 
             return (0, 0);
         }
@@ -195,7 +195,7 @@ namespace KaedePhi.Core.PhiEdit
             // 优先：activeEvent.StartBeat 处有精确帧
             var frameAtStart = FindMoveFrameExactAt(activeEvent.StartBeat);
             if (frameAtStart != null)
-                return (frameAtStart.XValue, frameAtStart.YValue);
+                return (frameAtStart.Value.XValue, frameAtStart.Value.YValue);
 
             // 找前驱主导事件
             var preceding = FindPrecedingDominantMoveEvent(activeEvent);
@@ -214,7 +214,7 @@ namespace KaedePhi.Core.PhiEdit
 
             // 无前驱事件，使用 hintPreviousFrame（它一定在 activeEvent.StartBeat 之前或恰好处）
             if (hintPreviousFrame != null)
-                return (hintPreviousFrame.XValue, hintPreviousFrame.YValue);
+                return (hintPreviousFrame.Value.XValue, hintPreviousFrame.Value.YValue);
 
             return (0, 0);
         }
@@ -231,7 +231,7 @@ namespace KaedePhi.Core.PhiEdit
         )
         {
             return previousEvent != null
-                && (previousFrame == null || previousEvent.EndBeat > previousFrame.Beat);
+                && (previousFrame == null || previousEvent.EndBeat > previousFrame.Value.Beat);
         }
 
         /// <summary>

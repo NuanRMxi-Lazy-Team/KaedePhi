@@ -12,14 +12,11 @@ namespace KaedePhi.Core.Extensions.Phigros.v3
         /// </summary>
         /// <param name="eventList">事件列表</param>
         /// <param name="event">事件</param>
-        /// <exception cref="ArgumentNullException">事件列表或事件为 <see langword="null"/></exception>
-        public static void AppendEvent<T>(this List<T> eventList, T @event)
-            where T : Event
+        /// <exception cref="ArgumentNullException">事件列表为 <see langword="null"/></exception>
+        public static void AppendEvent(this List<Event> eventList, Event @event)
         {
             if (eventList is null)
                 throw new ArgumentNullException(nameof(eventList));
-            if (@event is null)
-                throw new ArgumentNullException(nameof(@event));
             var index = eventList.FindIndex(e => e.StartTime > @event.StartTime);
             if (index == -1)
                 eventList.Add(@event);
@@ -33,14 +30,11 @@ namespace KaedePhi.Core.Extensions.Phigros.v3
         /// </summary>
         /// <param name="eventList">事件列表</param>
         /// <param name="event">速度事件</param>
-        /// <exception cref="ArgumentNullException">事件列表或事件为 <see langword="null"/></exception>
-        public static void AppendSpeedEvent<T>(this List<T> eventList, T @event)
-            where T : SpeedEvent
+        /// <exception cref="ArgumentNullException">事件列表为 <see langword="null"/></exception>
+        public static void AppendSpeedEvent(this List<SpeedEvent> eventList, SpeedEvent @event)
         {
             if (eventList is null)
                 throw new ArgumentNullException(nameof(eventList));
-            if (@event is null)
-                throw new ArgumentNullException(nameof(@event));
             var index = eventList.FindIndex(e => e.StartTime > @event.StartTime);
             if (index == -1)
                 eventList.Add(@event);

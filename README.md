@@ -117,8 +117,8 @@ GitHub Actions 是唯一权威发布入口，负责 Core、Tool 和 App 的标�
 - [x] RePhiEdit层级合并
 - [x] PhiEdit反序列化
 - [x] PhiEdit序列化
-- [ ] PhiFans反序列化
-- [ ] PhiFans序列化  
+- [x] PhiFans反序列化
+- [x] PhiFans序列化  
 - [x] PhiChain反序列化
 - [x] PhiChain序列化
 - [x] 本家谱面反序列化
