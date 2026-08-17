@@ -1,5 +1,6 @@
 using System.Collections.Immutable;
 using KaedePhi.Core.Analyzers.Analysis;
+using KaedePhi.Core.Analyzers.Diagnostics;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
@@ -13,144 +14,19 @@ namespace KaedePhi.Core.Analyzers;
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class BeatConstructorAnalyzer : DiagnosticAnalyzer
 {
-    public const string LengthDiagnosticId = "KPCE0002";
-    public const string DenominatorZeroDiagnosticId = "KPCE0003";
-    public const string DenominatorNegativeDiagnosticId = "KPCE0004";
-    public const string NonFiniteDiagnosticId = "KPCE0005";
-
-    // 标题、消息与描述均来自本地化资源
-    private static readonly LocalizableString LengthTitle = new LocalizableResourceString(
-        nameof(Resources.kpce_0002_title),
-        Resources.ResourceManager,
-        typeof(Resources)
-    );
-
-    private static readonly LocalizableString LengthMessageFormat = new LocalizableResourceString(
-        nameof(Resources.kpce_0002_message_format),
-        Resources.ResourceManager,
-        typeof(Resources)
-    );
-
-    private static readonly LocalizableString LengthDescription = new LocalizableResourceString(
-        nameof(Resources.kpce_0002_description),
-        Resources.ResourceManager,
-        typeof(Resources)
-    );
-
-    private static readonly LocalizableString DenominatorZeroTitle = new LocalizableResourceString(
-        nameof(Resources.kpce_0003_title),
-        Resources.ResourceManager,
-        typeof(Resources)
-    );
-
-    private static readonly LocalizableString DenominatorZeroMessageFormat =
-        new LocalizableResourceString(
-            nameof(Resources.kpce_0003_message_format),
-            Resources.ResourceManager,
-            typeof(Resources)
-        );
-
-    private static readonly LocalizableString DenominatorZeroDescription =
-        new LocalizableResourceString(
-            nameof(Resources.kpce_0003_description),
-            Resources.ResourceManager,
-            typeof(Resources)
-        );
-
-    private static readonly LocalizableString DenominatorNegativeTitle =
-        new LocalizableResourceString(
-            nameof(Resources.kpce_0004_title),
-            Resources.ResourceManager,
-            typeof(Resources)
-        );
-
-    private static readonly LocalizableString DenominatorNegativeMessageFormat =
-        new LocalizableResourceString(
-            nameof(Resources.kpce_0004_message_format),
-            Resources.ResourceManager,
-            typeof(Resources)
-        );
-
-    private static readonly LocalizableString DenominatorNegativeDescription =
-        new LocalizableResourceString(
-            nameof(Resources.kpce_0004_description),
-            Resources.ResourceManager,
-            typeof(Resources)
-        );
-
-    private static readonly LocalizableString NonFiniteTitle = new LocalizableResourceString(
-        nameof(Resources.kpce_0005_title),
-        Resources.ResourceManager,
-        typeof(Resources)
-    );
-
-    private static readonly LocalizableString NonFiniteMessageFormat =
-        new LocalizableResourceString(
-            nameof(Resources.kpce_0005_message_format),
-            Resources.ResourceManager,
-            typeof(Resources)
-        );
-
-    private static readonly LocalizableString NonFiniteDescription = new LocalizableResourceString(
-        nameof(Resources.kpce_0005_description),
-        Resources.ResourceManager,
-        typeof(Resources)
-    );
-
-    /// <summary>
-    /// Beat 数组长度不是 3 时报告错误。
-    /// </summary>
-    private static readonly DiagnosticDescriptor LengthRule = new(
-        LengthDiagnosticId,
-        LengthTitle,
-        LengthMessageFormat,
-        "Usage",
-        DiagnosticSeverity.Error,
-        isEnabledByDefault: true,
-        description: LengthDescription
-    );
-
-    /// <summary>
-    /// Beat 数组分母为 0 时报告错误。
-    /// </summary>
-    private static readonly DiagnosticDescriptor DenominatorZeroRule = new(
-        DenominatorZeroDiagnosticId,
-        DenominatorZeroTitle,
-        DenominatorZeroMessageFormat,
-        "Usage",
-        DiagnosticSeverity.Error,
-        isEnabledByDefault: true,
-        description: DenominatorZeroDescription
-    );
-
-    /// <summary>
-    /// Beat 数组分母为负数时报告错误。
-    /// </summary>
-    private static readonly DiagnosticDescriptor DenominatorNegativeRule = new(
-        DenominatorNegativeDiagnosticId,
-        DenominatorNegativeTitle,
-        DenominatorNegativeMessageFormat,
-        "Usage",
-        DiagnosticSeverity.Error,
-        isEnabledByDefault: true,
-        description: DenominatorNegativeDescription
-    );
-
-    /// <summary>
-    /// Beat 构造参数非有限数值时报告错误。
-    /// </summary>
-    private static readonly DiagnosticDescriptor NonFiniteRule = new(
-        NonFiniteDiagnosticId,
-        NonFiniteTitle,
-        NonFiniteMessageFormat,
-        "Usage",
-        DiagnosticSeverity.Error,
-        isEnabledByDefault: true,
-        description: NonFiniteDescription
-    );
+    public const string LengthDiagnosticId = BeatConstructorDiagnostic.LengthId;
+    public const string DenominatorZeroDiagnosticId = BeatConstructorDiagnostic.DenominatorZeroId;
+    public const string DenominatorNegativeDiagnosticId =
+        BeatConstructorDiagnostic.DenominatorNegativeId;
+    public const string NonFiniteDiagnosticId = BeatConstructorDiagnostic.NonFiniteId;
 
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } =
-    [LengthRule, DenominatorZeroRule, DenominatorNegativeRule, NonFiniteRule];
+    [
+        BeatConstructorDiagnostic.LengthRule,
+        BeatConstructorDiagnostic.DenominatorZeroRule,
+        BeatConstructorDiagnostic.DenominatorNegativeRule,
+        BeatConstructorDiagnostic.NonFiniteRule,
+    ];
 
     public override void Initialize(AnalysisContext context)
     {
@@ -217,7 +93,7 @@ public sealed class BeatConstructorAnalyzer : DiagnosticAnalyzer
             // 长度不是 3：运行时必然抛出 ArgumentException
             context.ReportDiagnostic(
                 Diagnostic.Create(
-                    LengthRule,
+                    BeatConstructorDiagnostic.LengthRule,
                     expression.GetLocation(),
                     NumericValueFormatter.Format(elements.Length)
                 )
@@ -230,14 +106,17 @@ public sealed class BeatConstructorAnalyzer : DiagnosticAnalyzer
         if (denominator.Value == 0)
         {
             context.ReportDiagnostic(
-                Diagnostic.Create(DenominatorZeroRule, denominator.Expression.GetLocation())
+                Diagnostic.Create(
+                    BeatConstructorDiagnostic.DenominatorZeroRule,
+                    denominator.Expression.GetLocation()
+                )
             );
         }
         else if (denominator.Value < 0)
         {
             context.ReportDiagnostic(
                 Diagnostic.Create(
-                    DenominatorNegativeRule,
+                    BeatConstructorDiagnostic.DenominatorNegativeRule,
                     denominator.Expression.GetLocation(),
                     NumericValueFormatter.Format(denominator.Value)
                 )
@@ -268,6 +147,8 @@ public sealed class BeatConstructorAnalyzer : DiagnosticAnalyzer
         )
             return;
 
-        context.ReportDiagnostic(Diagnostic.Create(NonFiniteRule, expression.GetLocation()));
+        context.ReportDiagnostic(
+            Diagnostic.Create(BeatConstructorDiagnostic.NonFiniteRule, expression.GetLocation())
+        );
     }
 }

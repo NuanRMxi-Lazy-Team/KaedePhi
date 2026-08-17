@@ -62,12 +62,11 @@ namespace KaedePhi.Core.RePhiEdit
         private List<Note>? _notes = new();
 
         /// <summary>
-        /// Note总数量(包含 FakeNote，不包含Hold)。
-        /// 为什么？RePhiEdit就是这样设计的。。。
-        /// 用户绝对不要访问此值。
+        /// 音符总数，严格按 RePhiEdit 规范的 numOfNotes 计算（包含 FakeNote、不包含 Hold），
+        /// 不能反映 Note 的真实数量。除非你明确知道用途，否则请按自己的规则从 Notes 中计算。
         /// </summary>
         [JsonProperty("numOfNotes")]
-        private int TotalNumberOfNotes => Notes?.Count(note => note.Type != NoteType.Hold) ?? 0;
+        public int TotalNumberOfNotes => Notes?.Count(note => note.Type != NoteType.Hold) ?? 0;
 
         /// <summary>
         /// 特殊事件层（故事板）

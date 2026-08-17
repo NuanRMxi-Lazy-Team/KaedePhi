@@ -63,4 +63,13 @@
     <data name="kpce_0005_description" xml:space="preserve">
         <value>new Beat(double) 传入 NaN 或无穷大在运行时必然抛出 ArgumentOutOfRangeException。</value><comment>KPCE0005 诊断描述。</comment>
     </data>
+    <data name="kpcr_0006_title" xml:space="preserve">
+        <value>不应访问 TotalNumberOfNotes</value><comment>KPCR0006 诊断标题。</comment>
+    </data>
+    <data name="kpcr_0006_message_format" xml:space="preserve">
+        <value>除非你知道你在做什么，否则不要访问 TotalNumberOfNotes：该值严格按 RePhiEdit 规范计算（包含 FakeNote、不包含 Hold），不能反映 Note 的真实数量。请按你自己的规则从 JudgeLine.Notes 中计算音符数量。</value><comment>KPCR0006 诊断消息。</comment>
+    </data>
+    <data name="kpcr_0006_description" xml:space="preserve">
+        <value>TotalNumberOfNotes 的值遵循 RePhiEdit 规范（包含 FakeNote、不包含 Hold），与 Notes 的真实数量不一致。</value><comment>KPCR0006 诊断描述。</comment>
+    </data>
 </root>

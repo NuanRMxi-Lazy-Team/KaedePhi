@@ -1,5 +1,6 @@
 using System.Collections.Immutable;
 using KaedePhi.Core.Analyzers.Analysis;
+using KaedePhi.Core.Analyzers.Diagnostics;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
@@ -12,41 +13,10 @@ namespace KaedePhi.Core.Analyzers;
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class EasingNumberAnalyzer : DiagnosticAnalyzer
 {
-    public const string DiagnosticId = "KPCE0001";
+    public const string DiagnosticId = EasingNumberDiagnostic.Id;
 
-    // 标题、消息与描述均来自本地化资源，随资源文件切换语言
-    private static readonly LocalizableString Title = new LocalizableResourceString(
-        nameof(Resources.kpce_0001_title),
-        Resources.ResourceManager,
-        typeof(Resources)
-    );
-
-    private static readonly LocalizableString MessageFormat = new LocalizableResourceString(
-        nameof(Resources.kpce_0001_message_format),
-        Resources.ResourceManager,
-        typeof(Resources)
-    );
-
-    private static readonly LocalizableString Description = new LocalizableResourceString(
-        nameof(Resources.kpce_0001_description),
-        Resources.ResourceManager,
-        typeof(Resources)
-    );
-
-    /// <summary>
-    /// 缓动编号超出格式有效范围时报告错误。
-    /// </summary>
-    private static readonly DiagnosticDescriptor Rule = new(
-        DiagnosticId,
-        Title,
-        MessageFormat,
-        "Usage",
-        DiagnosticSeverity.Error,
-        isEnabledByDefault: true,
-        description: Description
-    );
-
-    public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } = [Rule];
+    public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } =
+    [EasingNumberDiagnostic.Rule];
 
     public override void Initialize(AnalysisContext context)
     {
@@ -84,7 +54,14 @@ public sealed class EasingNumberAnalyzer : DiagnosticAnalyzer
 
         var location = creation.Arguments[0].Value.Syntax.GetLocation();
         context.ReportDiagnostic(
-            Diagnostic.Create(Rule, location, easingNumber, range.DisplayName, range.Min, range.Max)
+            Diagnostic.Create(
+                EasingNumberDiagnostic.Rule,
+                location,
+                easingNumber,
+                range.DisplayName,
+                range.Min,
+                range.Max
+            )
         );
     }
 }

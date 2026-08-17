@@ -193,5 +193,32 @@ namespace KaedePhi.Core.Analyzers {
                 return ResourceManager.GetString("kpce_0005_title", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to TotalNumberOfNotes 的值遵循 RePhiEdit 规范（包含 FakeNote、不包含 Hold），与 Notes 的真实数量不一致。.
+        /// </summary>
+        internal static string kpcr_0006_description {
+            get {
+                return ResourceManager.GetString("kpcr_0006_description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 除非你知道你在做什么，否则不要访问 TotalNumberOfNotes：该值严格按 RePhiEdit 规范计算（包含 FakeNote、不包含 Hold），不能反映 Note 的真实数量。请按你自己的规则从 JudgeLine.Notes 中计算音符数量。.
+        /// </summary>
+        internal static string kpcr_0006_message_format {
+            get {
+                return ResourceManager.GetString("kpcr_0006_message_format", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 不应访问 TotalNumberOfNotes.
+        /// </summary>
+        internal static string kpcr_0006_title {
+            get {
+                return ResourceManager.GetString("kpcr_0006_title", resourceCulture);
+            }
+        }
     }
 }
