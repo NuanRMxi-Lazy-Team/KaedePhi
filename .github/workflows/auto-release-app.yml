@@ -39,7 +39,7 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v6.0.0
         with:
-          dotnet-version: '10.0.302'
+          dotnet-version: '10.0.400'
 
       - name: Restore dependencies
         run: dotnet restore KaedePhi.sln --locked-mode
@@ -145,7 +145,7 @@ jobs:
         if: steps.version.outputs.build_type != 'skip'
         uses: actions/setup-dotnet@v6.0.0
         with:
-          dotnet-version: '10.0.302'
+          dotnet-version: '10.0.400'
 
       - name: Build and publish App
         if: steps.version.outputs.build_type != 'skip'
