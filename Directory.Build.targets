@@ -1,0 +1,28 @@
+<Project>
+  <Target
+    Name="SetGitInformationalVersion"
+    BeforeTargets="GetAssemblyVersion"
+    Condition="'$(DesignTimeBuild)' != 'true' and ('$(Configuration)' == 'Debug' or '$(Configuration)' == 'PreRelease')"
+  >
+    <Exec
+      Command="git rev-parse --short=7 HEAD"
+      ConsoleToMSBuild="true"
+      StandardOutputImportance="Low"
+      IgnoreExitCode="true"
+    >
+      <Output TaskParameter="ConsoleOutput" PropertyName="_GitCommitHash" />
+    </Exec>
+    <Exec
+      Command="git status --porcelain --untracked-files=all"
+      ConsoleToMSBuild="true"
+      StandardOutputImportance="Low"
+      IgnoreExitCode="true"
+    >
+      <Output TaskParameter="ConsoleOutput" PropertyName="_GitStatus" />
+    </Exec>
+    <PropertyGroup Condition="'$(_GitCommitHash)' != ''">
+      <InformationalVersion>$(Version)+$(_GitCommitHash)</InformationalVersion>
+      <InformationalVersion Condition="'$(_GitStatus)' != ''">$(InformationalVersion)+maybe-dirty</InformationalVersion>
+    </PropertyGroup>
+  </Target>
+</Project>
