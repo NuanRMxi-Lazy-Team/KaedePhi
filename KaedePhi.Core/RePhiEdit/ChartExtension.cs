@@ -252,6 +252,10 @@ namespace KaedePhi.Core.RePhiEdit
             }
         }
 
+        /// <summary>
+        /// 深拷贝当前谱面及其可变子对象。
+        /// </summary>
+        /// <returns>与当前谱面数据一致且相互独立的副本</returns>
         public Chart Clone()
         {
             return new Chart
@@ -263,6 +267,7 @@ namespace KaedePhi.Core.RePhiEdit
                 JudgeLineGroup = JudgeLineGroup.ToArray(),
                 MultiLineString = MultiLineString,
                 MultiScale = MultiScale,
+                BeatTags = BeatTags.ConvertAll(tag => new BeatTag { Name = tag.Name, Time = tag.Time }),
                 XyBind = XyBind,
             };
         }

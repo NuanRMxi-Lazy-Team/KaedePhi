@@ -1,5 +1,6 @@
 using KaedePhi.Core.Common;
 using KaedePhi.Core.RePhiEdit;
+using KaedePhi.Core.RePhiEdit.Controls;
 using KaedePhi.Core.RePhiEdit.Events;
 
 namespace KaedePhi.Tests.Serialization;
@@ -250,6 +251,44 @@ public class RePhiEditSerializationTests
         original.Meta.Name.Should().Be("Test Chart");
     }
 
+    [Fact]
+    public void Clone_PreservesBeatTagsWithoutSharingMutableState()
+    {
+        var original = CreateMinimalChart();
+        original.BeatTags = [new BeatTag { Name = "Drop", Time = new Beat([4, 1, 2]) }];
+
+        var clone = original.Clone();
+
+        clone.BeatTags.Should().BeEquivalentTo(original.BeatTags);
+        clone.BeatTags.Should().NotBeSameAs(original.BeatTags);
+        clone.BeatTags[0].Should().NotBeSameAs(original.BeatTags[0]);
+
+        clone.BeatTags[0].Name = "Modified";
+        original.BeatTags[0].Name.Should().Be("Drop");
+    }
+
+    [Fact]
+    public void JudgeLineClone_PreservesAllValuesWithoutSharingMutableState()
+    {
+        var original = CreateFullyPopulatedJudgeLine();
+
+        var clone = original.Clone();
+
+        clone.Should().BeEquivalentTo(original);
+        clone.Anchor.Should().NotBeSameAs(original.Anchor);
+        clone.EventLayers.Should().NotBeSameAs(original.EventLayers);
+        clone.EventLayers[0].Should().NotBeSameAs(original.EventLayers[0]);
+        clone.Notes.Should().NotBeSameAs(original.Notes);
+        clone.Notes![0].Should().NotBeSameAs(original.Notes![0]);
+        clone.Extended.Should().NotBeSameAs(original.Extended);
+        clone.Extended.ScaleXEvents![0].Should().NotBeSameAs(original.Extended.ScaleXEvents![0]);
+        clone.PositionControls[0].Should().NotBeSameAs(original.PositionControls[0]);
+        clone.AlphaControls[0].Should().NotBeSameAs(original.AlphaControls[0]);
+        clone.SizeControls[0].Should().NotBeSameAs(original.SizeControls[0]);
+        clone.SkewControls[0].Should().NotBeSameAs(original.SkewControls[0]);
+        clone.YControls[0].Should().NotBeSameAs(original.YControls[0]);
+    }
+
     #endregion
 
     #region Anticipation Tests
@@ -309,6 +348,69 @@ public class RePhiEditSerializationTests
             },
             JudgeLineList = [new JudgeLine { EventLayers = [new EventLayer()] }],
             ChartTime = 60,
+        };
+    }
+
+    private static JudgeLine CreateFullyPopulatedJudgeLine()
+    {
+        return new JudgeLine
+        {
+            Name = "Clone source",
+            Texture = "custom.png",
+            Anchor = [0.25f, 0.75f],
+            EventLayers =
+            [
+                new EventLayer
+                {
+                    MoveXEvents =
+                    [
+                        new Event<float>
+                        {
+                            StartBeat = new Beat([1, 0, 1]),
+                            EndBeat = new Beat([2, 0, 1]),
+                            StartValue = 10f,
+                            EndValue = 20f,
+                        },
+                    ],
+                },
+            ],
+            Father = 2,
+            IsCover = false,
+            Notes =
+            [
+                new Note
+                {
+                    StartBeat = new Beat([3, 1, 4]),
+                    EndBeat = new Beat([4, 1, 2]),
+                    Type = NoteType.Hold,
+                    Color = [1, 2, 3],
+                    HitFxColor = [4, 5, 6],
+                },
+            ],
+            Extended = new ExtendLayer
+            {
+                ScaleXEvents =
+                [
+                    new Event<float>
+                    {
+                        StartBeat = new Beat([5, 0, 1]),
+                        EndBeat = new Beat([6, 0, 1]),
+                        StartValue = 1f,
+                        EndValue = 2f,
+                    },
+                ],
+            },
+            ZOrder = 7,
+            AttachUi = AttachUi.Score,
+            IsGif = true,
+            Group = 3,
+            BpmFactor = 1.5f,
+            RotateWithFather = true,
+            PositionControls = [new XControl { X = 1f, Pos = 0.8f }],
+            AlphaControls = [new AlphaControl { X = 2f, Alpha = 0.7f }],
+            SizeControls = [new SizeControl { X = 3f, Size = 1.2f }],
+            SkewControls = [new SkewControl { X = 4f, Skew = 0.3f }],
+            YControls = [new YControl { X = 5f, Y = 1.4f }],
         };
     }
 

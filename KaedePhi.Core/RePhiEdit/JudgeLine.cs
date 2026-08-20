@@ -205,28 +205,44 @@ namespace KaedePhi.Core.RePhiEdit
         [JsonIgnore]
         private List<Controls.YControl>? _yControls;
 
+        /// <summary>
+        /// 深拷贝当前判定线及其可变子对象。
+        /// </summary>
+        /// <returns>与当前判定线数据一致且相互独立的副本</returns>
         public JudgeLine Clone()
         {
-            var clone = new JudgeLine { Notes = new List<Note>() };
-
-            // 深拷贝列表
-            foreach (var eventLayer in EventLayers)
-                clone.EventLayers.Add(eventLayer.Clone());
-            if (Notes is not null)
-                foreach (var note in Notes)
-                    clone.Notes.Add(note.Clone());
-            foreach (var control in PositionControls)
-                clone.PositionControls.Add((Controls.XControl)control.Clone());
-            foreach (var control in AlphaControls)
-                clone.AlphaControls.Add((Controls.AlphaControl)control.Clone());
-            foreach (var control in SizeControls)
-                clone.SizeControls.Add((Controls.SizeControl)control.Clone());
-            foreach (var control in SkewControls)
-                clone.SkewControls.Add((Controls.SkewControl)control.Clone());
-            foreach (var control in YControls)
-                clone.YControls.Add((Controls.YControl)control.Clone());
-
-            return clone;
+            return new JudgeLine
+            {
+                Name = Name,
+                Texture = Texture,
+                Anchor = Anchor.ToArray(),
+                EventLayers = EventLayers.ConvertAll(eventLayer => eventLayer.Clone()),
+                Father = Father,
+                IsCover = IsCover,
+                Notes = Notes?.ConvertAll(note => note.Clone()) ?? new List<Note>(),
+                Extended = Extended.Clone(),
+                ZOrder = ZOrder,
+                AttachUi = AttachUi,
+                IsGif = IsGif,
+                Group = Group,
+                BpmFactor = BpmFactor,
+                RotateWithFather = RotateWithFather,
+                PositionControls = PositionControls.ConvertAll(control =>
+                    (Controls.XControl)control.Clone()
+                ),
+                AlphaControls = AlphaControls.ConvertAll(control =>
+                    (Controls.AlphaControl)control.Clone()
+                ),
+                SizeControls = SizeControls.ConvertAll(control =>
+                    (Controls.SizeControl)control.Clone()
+                ),
+                SkewControls = SkewControls.ConvertAll(control =>
+                    (Controls.SkewControl)control.Clone()
+                ),
+                YControls = YControls.ConvertAll(control =>
+                    (Controls.YControl)control.Clone()
+                ),
+            };
         }
     }
 }
