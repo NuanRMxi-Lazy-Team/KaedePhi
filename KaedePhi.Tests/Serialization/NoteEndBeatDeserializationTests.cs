@@ -1,6 +1,9 @@
+using System.Reflection;
+using System.Text;
 using KaedePhi.Core.Common;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Kpc = KaedePhi.Core.KaedePhi;
 using Pc = KaedePhi.Core.PhiChain.v6;
 using Pe = KaedePhi.Core.PhiEdit;
 using Pf = KaedePhi.Core.PhiFans;
@@ -17,10 +20,9 @@ public class NoteEndBeatDeserializationTests
     [InlineData("{\"type\":3,\"beat\":[0,0,1],\"holdEndBeat\":[-1,0,1]}")]
     public void PhiFansHold_WithMissingOrNonPositiveDuration_Throws(string json)
     {
-        var act = () => JsonConvert.DeserializeObject<Pf.Note>(json);
+        Action act = () => JsonConvert.DeserializeObject<Pf.Note>(json);
 
-        act.Should().Throw<Exception>().Which.GetBaseException()
-            .Should().BeOfType<JsonSerializationException>();
+        ShouldThrowCallbackJsonException(act);
     }
 
     [Theory]
@@ -29,10 +31,9 @@ public class NoteEndBeatDeserializationTests
     [InlineData("{\"type\":3,\"time\":0,\"holdTime\":-1}")]
     public void PhigrosHold_WithMissingOrNonPositiveDuration_Throws(string json)
     {
-        var act = () => JsonConvert.DeserializeObject<Ph.Note>(json);
+        Action act = () => JsonConvert.DeserializeObject<Ph.Note>(json);
 
-        act.Should().Throw<Exception>().Which.GetBaseException()
-            .Should().BeOfType<JsonSerializationException>();
+        ShouldThrowCallbackJsonException(act);
     }
 
     [Theory]
@@ -41,10 +42,9 @@ public class NoteEndBeatDeserializationTests
     [InlineData("{\"type\":2,\"startTime\":[0,0,1],\"endTime\":[-1,0,1]}")]
     public void RePhiEditHold_WithMissingOrNonPositiveDuration_Throws(string json)
     {
-        var act = () => JsonConvert.DeserializeObject<Rpe.Note>(json);
+        Action act = () => JsonConvert.DeserializeObject<Rpe.Note>(json);
 
-        act.Should().Throw<Exception>().Which.GetBaseException()
-            .Should().BeOfType<JsonSerializationException>();
+        ShouldThrowCallbackJsonException(act);
     }
 
     [Theory]
@@ -55,8 +55,7 @@ public class NoteEndBeatDeserializationTests
     {
         var act = () => JsonConvert.DeserializeObject<Pc.Note>(json);
 
-        act.Should().Throw<Exception>().Which.GetBaseException()
-            .Should().BeOfType<JsonSerializationException>();
+        act.Should().Throw<JsonSerializationException>();
     }
 
     [Theory]
@@ -66,10 +65,9 @@ public class NoteEndBeatDeserializationTests
     [InlineData("{\"from\":0,\"to\":1,\"kind\":\"hold\",\"hold_beat\":[-1,0,1]}")]
     public void PhiChainCurveHold_WithMissingOrNonPositiveDuration_Throws(string json)
     {
-        var act = () => JsonConvert.DeserializeObject<Pc.CurveNoteTrack>(json);
+        Action act = () => JsonConvert.DeserializeObject<Pc.CurveNoteTrack>(json);
 
-        act.Should().Throw<Exception>().Which.GetBaseException()
-            .Should().BeOfType<JsonSerializationException>();
+        ShouldThrowCallbackJsonException(act);
     }
 
     [Theory]
@@ -79,6 +77,103 @@ public class NoteEndBeatDeserializationTests
     public void PhiEditHold_WithMissingEqualOrReversedEnd_Throws(string pec)
     {
         var act = () => Pe.Chart.Load(pec);
+
+        act.Should().Throw<FormatException>();
+    }
+
+    [Fact]
+    public void KpcNote_EndBeatSetterRecordsExplicitMarker()
+    {
+        var note = new Kpc.Note();
+
+        ReadExplicitEndBeatMarker(note).Should().BeFalse();
+        note.EndBeat = new Beat([2, 0, 1]);
+
+        ReadExplicitEndBeatMarker(note).Should().BeTrue();
+        JObject.Parse(JsonConvert.SerializeObject(note)).Property("HasExplicitEndBeat")
+            .Should()
+            .BeNull();
+    }
+
+    [Fact]
+    public void KpcNoteClone_PreservesExplicitEndBeatMarker()
+    {
+        var implicitEnd = new Kpc.Note();
+        var explicitEnd = new Kpc.Note { EndBeat = new Beat([2, 0, 1]) };
+
+        ReadExplicitEndBeatMarker(implicitEnd.Clone()).Should().BeFalse();
+        ReadExplicitEndBeatMarker(explicitEnd.Clone()).Should().BeTrue();
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void PhiFansChartEntry_WithHoldMissingEnd_Throws(bool useStream)
+    {
+        const string json =
+            "{\"info\":{},\"offset\":0,\"bpm\":[],\"lines\":[{\"props\":{},\"notes\":[{\"type\":3,\"beat\":[0,0,1]}]}]}";
+        using var stream = CreateStream(json);
+        Action act = useStream
+            ? () => Pf.Chart.LoadFromStream(stream)
+            : () => Pf.Chart.LoadFromJson(json);
+
+        ShouldThrowCallbackJsonException(act);
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void PhigrosChartEntry_WithHoldMissingDuration_Throws(bool useStream)
+    {
+        const string json =
+            "{\"formatVersion\":3,\"offset\":0,\"judgeLineList\":[{\"bpm\":120,\"notesAbove\":[{\"type\":3,\"time\":0}],\"notesBelow\":[],\"speedEvents\":[],\"judgeLineMoveEvents\":[],\"judgeLineRotateEvents\":[],\"judgeLineDisappearEvents\":[]}]}";
+        using var stream = CreateStream(json);
+        Action act = useStream
+            ? () => Ph.Chart.LoadFromStream(stream)
+            : () => Ph.Chart.LoadFromJson(json);
+
+        ShouldThrowCallbackJsonException(act);
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void RePhiEditChartEntry_WithHoldMissingEnd_Throws(bool useStream)
+    {
+        const string json =
+            "{\"BPMList\":[],\"META\":{},\"judgeLineList\":[{\"eventLayers\":[],\"notes\":[{\"type\":2,\"startTime\":[0,0,1]}]}],\"chartTime\":0,\"judgeLineGroup\":[\"Default\"],\"multiLineString\":\"1\",\"multiScale\":1,\"timeTags\":[],\"xybind\":true}";
+        using var stream = CreateStream(json);
+        Action act = useStream
+            ? () => Rpe.Chart.LoadFromStream(stream)
+            : () => Rpe.Chart.LoadFromJson(json);
+
+        ShouldThrowCallbackJsonException(act);
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void PhiChainChartEntry_WithHoldMissingDuration_Throws(bool useStream)
+    {
+        const string json =
+            "{\"format\":6,\"offset\":0,\"bpm_list\":[{\"beat\":[0,0,1],\"bpm\":120}],\"lines\":[{\"name\":\"line\",\"notes\":[{\"kind\":\"hold\",\"beat\":[0,0,1]}],\"events\":[],\"children\":[],\"curve_note_tracks\":[]}]}";
+        using var stream = CreateStream(json);
+        Action act = useStream
+            ? () => Pc.Chart.LoadFromJsonStream(stream)
+            : () => Pc.Chart.LoadFromJson(json);
+
+        act.Should().Throw<InvalidOperationException>().Which.InnerException
+            .Should().BeOfType<JsonSerializationException>();
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void PhiEditChartEntry_WithHoldMissingEnd_Throws(bool useStream)
+    {
+        const string pec = "0\nn2 0 1 0 1 0\n# 1\n& 1";
+        using var stream = CreateStream(pec);
+        Action act = useStream ? () => Pe.Chart.LoadStream(stream) : () => Pe.Chart.Load(pec);
 
         act.Should().Throw<FormatException>();
     }
@@ -200,5 +295,24 @@ public class NoteEndBeatDeserializationTests
         rePhiEdit.Property("endTime").Should().NotBeNull();
         phiChain.Property("hold_beat").Should().NotBeNull();
         curveTrack.Property("hold_beat").Should().NotBeNull();
+    }
+
+    private static MemoryStream CreateStream(string value) =>
+        new(Encoding.UTF8.GetBytes(value));
+
+    private static bool ReadExplicitEndBeatMarker(Kpc.Note note)
+    {
+        var property = typeof(Kpc.Note).GetProperty(
+            "HasExplicitEndBeat",
+            BindingFlags.Instance | BindingFlags.NonPublic
+        );
+        property.Should().NotBeNull();
+        return (bool)property!.GetValue(note)!;
+    }
+
+    private static void ShouldThrowCallbackJsonException(Action act)
+    {
+        var exception = act.Should().Throw<TargetInvocationException>().Which;
+        exception.InnerException.Should().BeOfType<JsonSerializationException>();
     }
 }

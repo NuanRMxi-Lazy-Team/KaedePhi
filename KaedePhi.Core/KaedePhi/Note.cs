@@ -1,10 +1,14 @@
 using System.Linq;
 using KaedePhi.Core.Common;
+using Newtonsoft.Json;
 
 namespace KaedePhi.Core.KaedePhi
 {
     public class Note
     {
+        private Beat _endBeat = new(new[] { 1, 0, 1 });
+        private bool _hasExplicitEndBeat;
+
         /// <summary>
         /// 音符是否在判定线上方下落，true为上方，false为下方
         /// </summary>
@@ -28,7 +32,18 @@ namespace KaedePhi.Core.KaedePhi
         /// <summary>
         /// 音符的结束拍
         /// </summary>
-        public Beat EndBeat { get; set; } = new(new[] { 1, 0, 1 });
+        public Beat EndBeat
+        {
+            get => _endBeat;
+            set
+            {
+                _endBeat = value;
+                _hasExplicitEndBeat = true;
+            }
+        }
+
+        [JsonIgnore]
+        internal bool HasExplicitEndBeat => _hasExplicitEndBeat;
 
         /// <summary>
         /// 模拟器保留字段
@@ -128,6 +143,7 @@ namespace KaedePhi.Core.KaedePhi
                 HitSound = HitSound,
                 FloorPosition = FloorPosition,
                 EndFloorPosition = EndFloorPosition,
+                _hasExplicitEndBeat = _hasExplicitEndBeat,
             };
         }
     }
