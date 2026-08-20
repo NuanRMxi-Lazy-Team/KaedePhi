@@ -5,7 +5,6 @@ using KaedePhi.Tool.JudgeLines.KaedePhi;
 using KaedePhi.Tool.Layer.KaedePhi;
 using KpcEventLayer = KaedePhi.Core.KaedePhi.Events.EventLayer;
 using KpcJudgeLine = KaedePhi.Core.KaedePhi.JudgeLine;
-using KpcSpeedEvent = KaedePhi.Core.KaedePhi.Events.Event<float>;
 using PhigrosEvent = KaedePhi.Core.Phigros.v3.Event;
 using PhigrosJudgeLine = KaedePhi.Core.Phigros.v3.JudgeLine;
 
@@ -94,10 +93,12 @@ public class PhigrosV3JudgeLineBuilder
         }
 
         var lineBpm = _globalBpm / preprocessedSrc.BpmFactor;
-        var speedEvents = CollectSpeedEvents(preprocessedSrc.EventLayers);
 
         if (_options.NegativeAlpha.Enabled)
             ApplyNegativeAlphaElevation(preprocessedSrc);
+
+        var primaryLayer = _phigrosV3EventBuilder.ResolvePrimaryLayer(preprocessedSrc.EventLayers);
+        var speedEvents = primaryLayer.SpeedEvents;
 
         var (notesAbove, notesBelow) = PhigrosV3NoteBuilder.ConvertNotes(
             preprocessedSrc.Notes,
@@ -113,7 +114,7 @@ public class PhigrosV3JudgeLineBuilder
             NotesBelow = notesBelow,
         };
 
-        _phigrosV3EventBuilder.ConvertLineEvents(phigrosLine, preprocessedSrc.EventLayers);
+        _phigrosV3EventBuilder.ConvertLineEvents(phigrosLine, primaryLayer);
 
         if (phigrosLine.JudgeLineDisappearEvents.Count == 0)
         {
@@ -129,17 +130,6 @@ public class PhigrosV3JudgeLineBuilder
         }
 
         return phigrosLine;
-    }
-
-    private static List<KpcSpeedEvent> CollectSpeedEvents(List<KpcEventLayer>? layers)
-    {
-        if (layers is not { Count: > 0 })
-            return [];
-
-        var firstLayer = layers[0];
-        return firstLayer.SpeedEvents is not { Count: > 0 }
-            ? []
-            : firstLayer.SpeedEvents.OrderBy(e => (double)e.StartBeat).ToList();
     }
 
     #region 负不透明度段判定线抬高

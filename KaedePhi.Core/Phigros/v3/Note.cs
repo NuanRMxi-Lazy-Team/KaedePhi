@@ -51,7 +51,7 @@ namespace KaedePhi.Core.Phigros.v3
         public float HoldTime { get; set; }
 
         /// <summary>
-        /// 速度倍率
+        /// 非 Hold 音符表示速度倍率；Hold 音符表示结束时判定线的确切速度。
         /// </summary>
         [JsonProperty("speed")]
         public float Speed { get; set; }

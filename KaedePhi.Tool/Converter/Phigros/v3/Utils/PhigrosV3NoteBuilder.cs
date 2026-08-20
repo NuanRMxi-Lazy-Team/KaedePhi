@@ -1,5 +1,6 @@
 using KaedePhi.Core.Common;
 using KaedePhi.Tool.Common;
+using KpcEventLayer = KaedePhi.Core.KaedePhi.Events.EventLayer;
 using KpcNote = KaedePhi.Core.KaedePhi.Note;
 using KpcSpeedEvent = KaedePhi.Core.KaedePhi.Events.Event<float>;
 using PhigrosNote = KaedePhi.Core.Phigros.v3.Note;
@@ -79,20 +80,11 @@ public static class PhigrosV3NoteBuilder
             return 1f;
 
         var beatObj = new Beat(beat);
-        foreach (
-            var ev in from ev in speedEvents
-            let startBeat = (double)ev.StartBeat
-            let endBeat = (double)ev.EndBeat
-            where
-                beat >= startBeat - Constants.FloatEpsilon
-                && beat < endBeat - Constants.FloatEpsilon
-            select ev
-        )
-        {
-            return (float)(ev.GetValueAtBeat(beatObj) / Constants.SpeedValueRatio);
-        }
+        if (beatObj < speedEvents[0].StartBeat)
+            return 1f;
 
-        return (float)(speedEvents[^1].EndValue / Constants.SpeedValueRatio);
+        var speed = KpcEventLayer.GetValueAtBeat(speedEvents, beatObj);
+        return (float)(speed / Constants.SpeedValueRatio);
     }
 
     public static PhigrosNoteType ConvertNoteType(NoteType type) =>

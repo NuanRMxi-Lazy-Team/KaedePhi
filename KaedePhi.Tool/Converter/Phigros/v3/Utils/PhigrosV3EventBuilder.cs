@@ -33,28 +33,38 @@ public class PhigrosV3EventBuilder
 
     public void ConvertLineEvents(Core.Phigros.v3.JudgeLine target, List<KpcEventLayer> layers)
     {
-        if (layers.Count == 0)
-            return;
+        ConvertLineEvents(target, ResolvePrimaryLayer(layers));
+    }
 
-        var primaryLayer = layers[0];
-        for (var i = 1; i < layers.Count; i++)
+    internal KpcEventLayer ResolvePrimaryLayer(List<KpcEventLayer> layers)
+    {
+        if (layers.Count == 0)
+            return new KpcEventLayer();
+
+        KpcEventLayer primaryLayer;
+        if (layers.Skip(1).Any(HasAnyEventData))
         {
-            if (!HasAnyEventData(layers[i]))
-                continue;
             if (_options.MultiLayerMerge.ClassicMode)
                 primaryLayer = _layerProcessor.LayerMerge(
-                    layers,
+                    [.. layers],
                     _options.MultiLayerMerge.Precision
                 );
             else
                 primaryLayer = _layerProcessor.LayerMergePlus(
-                    layers,
+                    [.. layers],
                     _options.MultiLayerMerge.Precision,
                     _options.MultiLayerMerge.Tolerance
                 );
-            break;
         }
+        else
+            primaryLayer = layers[0].Clone();
 
+        primaryLayer.Sort();
+        return primaryLayer;
+    }
+
+    internal void ConvertLineEvents(Core.Phigros.v3.JudgeLine target, KpcEventLayer primaryLayer)
+    {
         ConvertMoveEvents(target, primaryLayer);
         ConvertScalarEvents(
             target.JudgeLineRotateEvents,
@@ -335,6 +345,8 @@ public class PhigrosV3EventBuilder
             .SelectMany(e => _eventCutterFloat.CutEventToLinear(e, cutLength))
             .ToList();
         var filled = FillGaps(cutEvents, 1f);
+        var hasConvertedEvent = false;
+        var tailValue = 0f;
 
         foreach (var ev in filled)
         {
@@ -351,9 +363,11 @@ public class PhigrosV3EventBuilder
                     Value = ev.StartValue / (float)Constants.SpeedValueRatio,
                 }
             );
+            hasConvertedEvent = true;
+            tailValue = ev.EndValue / (float)Constants.SpeedValueRatio;
         }
 
-        if (target.SpeedEvents.Count <= 0)
+        if (!hasConvertedEvent)
             return;
         var last = target.SpeedEvents[^1];
         target.SpeedEvents.Add(
@@ -361,7 +375,7 @@ public class PhigrosV3EventBuilder
             {
                 StartTime = last.EndTime,
                 EndTime = TailEventEndTime,
-                Value = last.Value,
+                Value = tailValue,
             }
         );
     }

@@ -201,6 +201,95 @@ public class PhigrosV3JudgeLineBuilderTests
     }
 
     [Fact]
+    public void FromKpc_HoldUsesMergedMultiLayerSpeedTimeline()
+    {
+        var line = new JudgeLine
+        {
+            Notes = [Hold(1, 5f)],
+            EventLayers =
+            [
+                new EventLayer { SpeedEvents = [SpeedEvent(0, 2, 4.5f, 4.5f)] },
+                new EventLayer { SpeedEvents = [SpeedEvent(0, 2, 4.5f, 4.5f)] },
+            ],
+        };
+        var options = new KpcToPhigrosV3ConvertOptions();
+        options.MultiLayerMerge.ClassicMode = true;
+        options.MultiLayerMerge.Precision = 1d;
+        options.Speed.CutPrecision = 1d;
+
+        var converted = new global::KaedePhi.Tool.Converter.Phigros.v3.PhigrosV3Converter()
+            .FromKpc(new Chart { JudgeLineList = [line] }, options)
+            .JudgeLineList.Single();
+
+        converted.NotesAbove.Single().Speed.Should().Be(2f);
+        converted.SpeedEvents[0].Value.Should().Be(2f);
+    }
+
+    [Fact]
+    public void FromKpc_ChangingFinalSpeedEmitsEndValueInTail()
+    {
+        var line = new JudgeLine
+        {
+            EventLayers =
+            [
+                new EventLayer { SpeedEvents = [SpeedEvent(0, 2, 4.5f, 13.5f)] },
+            ],
+        };
+        var options = new KpcToPhigrosV3ConvertOptions();
+        options.Speed.CutPrecision = 1d;
+
+        var converted = new global::KaedePhi.Tool.Converter.Phigros.v3.PhigrosV3Converter()
+            .FromKpc(new Chart { JudgeLineList = [line] }, options)
+            .JudgeLineList.Single();
+
+        converted
+            .SpeedEvents.Should()
+            .SatisfyRespectively(
+                e => e.Should().BeEquivalentTo(new { StartTime = 0f, EndTime = 32f, Value = 1f }),
+                e => e.Should().BeEquivalentTo(new { StartTime = 32f, EndTime = 64f, Value = 2f }),
+                e =>
+                    e.Should()
+                        .BeEquivalentTo(
+                            new
+                            {
+                                StartTime = 64f,
+                                EndTime = 1_000_000_000f,
+                                Value = 3f,
+                            }
+                        )
+            );
+    }
+
+    [Fact]
+    public void FromKpc_HoldSamplesSpeedPrefixGapBoundaryAndTail()
+    {
+        var line = new JudgeLine
+        {
+            Notes = [Hold(0.5), Hold(2), Hold(3), Hold(4), Hold(6)],
+            EventLayers =
+            [
+                new EventLayer
+                {
+                    SpeedEvents =
+                    [
+                        SpeedEvent(1, 2, 4.5f, 9f),
+                        SpeedEvent(4, 5, 13.5f, 13.5f),
+                    ],
+                },
+            ],
+        };
+        var options = new KpcToPhigrosV3ConvertOptions();
+        options.Speed.CutPrecision = 1d;
+
+        var converted = new global::KaedePhi.Tool.Converter.Phigros.v3.PhigrosV3Converter()
+            .FromKpc(new Chart { JudgeLineList = [line] }, options)
+            .JudgeLineList.Single();
+
+        converted.NotesAbove.Select(n => n.Speed).Should().Equal(1f, 2f, 2f, 3f, 3f);
+        converted.SpeedEvents[0].StartTime.Should().Be(32f);
+    }
+
+    [Fact]
     public void FatherLineLookup_UsesSourceObjectIdentity()
     {
         var father = new CollidingJudgeLine();
@@ -221,6 +310,29 @@ public class PhigrosV3JudgeLineBuilderTests
     }
 
     private static Beat Beat(double value) => new(value);
+
+    private static Note Hold(double endBeat, float speedMultiplier = 1f) =>
+        new()
+        {
+            Type = NoteType.Hold,
+            StartBeat = Beat(0),
+            EndBeat = Beat(endBeat),
+            SpeedMultiplier = speedMultiplier,
+        };
+
+    private static KpcEvents.Event<float> SpeedEvent(
+        double startBeat,
+        double endBeat,
+        float startValue,
+        float endValue
+    ) =>
+        new()
+        {
+            StartBeat = Beat(startBeat),
+            EndBeat = Beat(endBeat),
+            StartValue = startValue,
+            EndValue = endValue,
+        };
 
     private static float PhigrosTime(double beat) => (float)(beat * 32d);
 
