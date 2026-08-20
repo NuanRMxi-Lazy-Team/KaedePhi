@@ -26,6 +26,8 @@ public class KaedePhiConverter : LoggableBase, IChartConverter<Kpc.Chart, Unit?,
     /// <returns>原样返回</returns>
     public Kpc.Chart FromKpc(Kpc.Chart input, Unit? options)
     {
+        ArgumentNullException.ThrowIfNull(input);
+        ChartProcessingValidator.ValidateJudgeLineHierarchy(input.JudgeLineList);
         return input;
     }
 }

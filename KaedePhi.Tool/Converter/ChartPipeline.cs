@@ -1,3 +1,5 @@
+using KaedePhi.Tool.Common;
+
 namespace KaedePhi.Tool.Converter;
 
 /// <summary>
@@ -44,6 +46,7 @@ public sealed class ChartPipelineSource
     )
     {
         _ct.ThrowIfCancellationRequested();
+        ChartProcessingValidator.ValidateJudgeLineHierarchy(_kpc.JudgeLineList);
         return toConverter.FromKpc(_kpc, outOptions);
     }
 }

@@ -161,6 +161,7 @@ public static class ChartProcessingValidator
     )
     {
         ArgumentNullException.ThrowIfNull(chart);
+        ValidateJudgeLineHierarchy(chart.JudgeLineList);
         ValidateRenderOptions(options);
 
 #pragma warning disable CA2208

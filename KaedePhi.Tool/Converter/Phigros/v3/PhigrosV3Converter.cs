@@ -70,6 +70,7 @@ public class PhigrosV3Converter
         ArgumentNullException.ThrowIfNull(input);
         ArgumentNullException.ThrowIfNull(options);
         ConversionOptionsValidator.Validate(options);
+        ChartProcessingValidator.ValidateJudgeLineHierarchy(input.JudgeLineList);
         _ct.ThrowIfCancellationRequested();
 
         WarnIfUnsupportedMeta(input.Meta);

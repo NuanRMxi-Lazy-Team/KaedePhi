@@ -155,6 +155,8 @@ public sealed class ChartFormatDescriptor
     {
         if (Exporter is null)
             throw new NotSupportedException($"{Type} 不支持作为导出目标。");
+        ArgumentNullException.ThrowIfNull(chart);
+        ChartProcessingValidator.ValidateJudgeLineHierarchy(chart.JudgeLineList);
         return Exporter(
             chart,
             outputPath,

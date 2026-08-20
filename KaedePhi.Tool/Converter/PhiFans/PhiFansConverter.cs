@@ -68,6 +68,7 @@ public class PhiFansConverter
         ArgumentNullException.ThrowIfNull(input);
         ArgumentNullException.ThrowIfNull(options);
         ConversionOptionsValidator.Validate(options);
+        ChartProcessingValidator.ValidateJudgeLineHierarchy(input.JudgeLineList);
         _ct.ThrowIfCancellationRequested();
 
         var lines = new List<Line>(input.JudgeLineList.Count);
