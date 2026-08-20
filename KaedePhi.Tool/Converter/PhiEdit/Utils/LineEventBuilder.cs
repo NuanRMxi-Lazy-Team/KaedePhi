@@ -170,8 +170,9 @@ public class LineEventBuilder
                     ? (float)(double)slice.StartBeat
                     : (float)(double)slice.EndBeat;
                 var value =
-                    (useStartValue ? ToSingle(slice.StartValue) : ToSingle(slice.EndValue))
-                    * (14f / 9f);
+                    Transform.TransformToPeSpeed(
+                        useStartValue ? ToSingle(slice.StartValue) : ToSingle(slice.EndValue)
+                    );
 
                 target.SpeedFrames.Add(new Pe.Frame { Beat = beat, Value = value });
             }

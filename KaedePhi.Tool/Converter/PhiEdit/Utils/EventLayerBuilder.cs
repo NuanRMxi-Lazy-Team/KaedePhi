@@ -8,11 +8,9 @@ namespace KaedePhi.Tool.Converter.PhiEdit.Utils;
 public class EventLayerBuilder
 {
     private readonly PhiEditFrameEventBuilder _phiEditFrameEvent;
-    private readonly PhiEditToKpcConvertOptions _options;
 
     public EventLayerBuilder(PhiEditToKpcConvertOptions options)
     {
-        _options = options;
         _phiEditFrameEvent = new PhiEditFrameEventBuilder(options);
     }
 
@@ -52,7 +50,7 @@ public class EventLayerBuilder
                 src.SpeedFrames,
                 [],
                 horizonBeat,
-                value => (float)(value / _options.SpeedConversionRatio)
+                Transform.TransformToKpcSpeed
             ),
         };
 }

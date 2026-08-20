@@ -88,7 +88,6 @@ if (Math.Abs(previousEndBeat - startBeat) > FloatEpsilon)
 ```csharp
 #region PE 转换选项
 
-public double PeSpeedConversionRatio { get; set; } = 14d / 9d;
 public double PeTrailingBeatPadding { get; set; } = 1d / 64d;
 
 #endregion

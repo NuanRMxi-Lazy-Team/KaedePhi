@@ -13,7 +13,6 @@ internal static class ConversionOptionsValidator
         ArgumentNullException.ThrowIfNull(options);
         ValidatePositive(options.FrameDurationBeat, nameof(options.FrameDurationBeat));
         ValidateNonNegative(options.TrailingBeatPadding, nameof(options.TrailingBeatPadding));
-        ValidatePositive(options.SpeedConversionRatio, nameof(options.SpeedConversionRatio));
     }
 
     public static void Validate(KpcToPhiEditConvertOptions options)

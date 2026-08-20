@@ -110,6 +110,8 @@ GitHub Actions 是唯一权威发布入口，负责 Core、Tool 和 App 的标�
 也欢迎加入我的小群！QQ群号: 390530513
 
 ## TODO
+已知缺陷与维护工作统一记录在 [TODO.md](TODO.md)，按优先级逐项补充测试并修复。
+
 - [x] RePhiEdit反序列化功能
 - [x] RePhiEdit序列化功能
 - [x] RePhiEdit基础父子线解绑
