@@ -2,6 +2,8 @@ using KaedePhi.Core.Common;
 using KaedePhi.Core.PhiFans;
 using KaedePhi.Tool.Common;
 using KaedePhi.Tool.Converter.PhiFans.Model;
+using KaedePhi.Tool.Event.KaedePhi;
+using KaedePhi.Tool.Layer.KaedePhi;
 using KpcNoteType = KaedePhi.Core.Common.NoteType;
 using PfEvent = KaedePhi.Core.PhiFans.Event;
 using PfNoteType = KaedePhi.Core.PhiFans.NoteType;
@@ -166,49 +168,64 @@ public class PhiFansConverter
     private static Line ConvertLine(Kpc.JudgeLine src, KpcToPhiFansConvertOptions options)
     {
         var line = new Line { NoteList = src.Notes.ConvertAll(ConvertNoteFromKpc) };
-
-        foreach (var layer in src.EventLayers)
+        var layers = src.EventLayers.ConvertAll(layer => layer.Clone());
+        var layerProcessor = new LayerProcessor();
+        KpcEvents.EventLayer layer;
+        if (options.MultiLayerMerge.ClassicMode)
         {
-            if (layer.AlphaEvents is not null)
-                foreach (var e in layer.AlphaEvents)
-                    ConvertKpcEventToPhiFans(e, line.Props.Alpha, v => (float)v, MapKpcEasingToPp);
-
-            if (layer.MoveXEvents is not null)
-                foreach (var e in layer.MoveXEvents)
-                    ConvertKpcEventToPhiFans(
-                        e,
-                        line.Props.PositionX,
-                        v => (float)(v * 100.0),
-                        MapKpcEasingToPp
-                    );
-
-            if (layer.MoveYEvents is not null)
-                foreach (var e in layer.MoveYEvents)
-                    ConvertKpcEventToPhiFans(
-                        e,
-                        line.Props.PositionY,
-                        v => (float)(v * 100.0),
-                        MapKpcEasingToPp
-                    );
-
-            if (layer.RotateEvents is not null)
-                foreach (var e in layer.RotateEvents)
-                    ConvertKpcEventToPhiFans(
-                        e,
-                        line.Props.Rotate,
-                        v =>
-                            (float)
-                                CoordinateGeometry.ToTargetAngle(
-                                    v,
-                                    CoordinateProfile.PhiFansProfile
-                                ),
-                        MapKpcEasingToPp
-                    );
-
-            if (layer.SpeedEvents is not null)
-                foreach (var e in layer.SpeedEvents)
-                    ConvertKpcEventToPhiFans(e, line.Props.Speed, v => v / SpeedRatio, _ => 0);
+            layer = layerProcessor.LayerMerge(layers, options.MultiLayerMerge.Precision);
+            if (options.MultiLayerMerge.Compress)
+                layerProcessor.LayerEventsCompress(layer, options.MultiLayerMerge.Tolerance);
         }
+        else
+        {
+            layer = layerProcessor.LayerMergePlus(
+                layers,
+                options.MultiLayerMerge.Precision,
+                options.MultiLayerMerge.Tolerance
+            );
+        }
+
+        var cutLength = 1d / options.Cutting.UnsupportedEasingPrecision;
+        if (layer.AlphaEvents is not null)
+            foreach (var e in ExpandUnsupportedEvents(layer.AlphaEvents, cutLength, false))
+                ConvertKpcEventToPhiFans(e, line.Props.Alpha, v => (float)v, MapKpcEasingToPp);
+
+        if (layer.MoveXEvents is not null)
+            foreach (var e in ExpandUnsupportedEvents(layer.MoveXEvents, cutLength, false))
+                ConvertKpcEventToPhiFans(
+                    e,
+                    line.Props.PositionX,
+                    v => (float)(v * 100.0),
+                    MapKpcEasingToPp
+                );
+
+        if (layer.MoveYEvents is not null)
+            foreach (var e in ExpandUnsupportedEvents(layer.MoveYEvents, cutLength, false))
+                ConvertKpcEventToPhiFans(
+                    e,
+                    line.Props.PositionY,
+                    v => (float)(v * 100.0),
+                    MapKpcEasingToPp
+                );
+
+        if (layer.RotateEvents is not null)
+            foreach (var e in ExpandUnsupportedEvents(layer.RotateEvents, cutLength, false))
+                ConvertKpcEventToPhiFans(
+                    e,
+                    line.Props.Rotate,
+                    v =>
+                        (float)
+                            CoordinateGeometry.ToTargetAngle(
+                                v,
+                                CoordinateProfile.PhiFansProfile
+                            ),
+                    MapKpcEasingToPp
+                );
+
+        if (layer.SpeedEvents is not null)
+            foreach (var e in ExpandUnsupportedEvents(layer.SpeedEvents, cutLength, true))
+                ConvertKpcEventToPhiFans(e, line.Props.Speed, v => v / SpeedRatio, _ => 0);
 
         var paddingPrecision = options.DiscontinuityBeatPrecision;
         FixDiscontinuityGaps(line.Props.Alpha, paddingPrecision);
@@ -218,6 +235,37 @@ public class PhiFansConverter
         FixDiscontinuityGaps(line.Props.Speed, paddingPrecision);
 
         return line;
+    }
+
+    private static IEnumerable<KpcEvents.Event<T>> ExpandUnsupportedEvents<T>(
+        IEnumerable<KpcEvents.Event<T>> events,
+        double cutLength,
+        bool linearOnly
+    )
+        where T : notnull
+    {
+        var cutter = new EventCutter<T>();
+        foreach (var evt in events)
+        {
+            if (CanMapDirectly(evt, linearOnly))
+            {
+                yield return evt;
+                continue;
+            }
+
+            foreach (var segment in cutter.CutEventToLinear(evt, cutLength))
+                yield return segment;
+        }
+    }
+
+    private static bool CanMapDirectly<T>(KpcEvents.Event<T> evt, bool linearOnly)
+        where T : notnull
+    {
+        var easing = (int)evt.Easing;
+        return !evt.IsBezier
+            && Math.Abs(evt.EasingLeft) <= Constants.FloatEpsilon
+            && Math.Abs(evt.EasingRight - 1f) <= Constants.FloatEpsilon
+            && (linearOnly ? easing == 1 : easing is >= 1 and <= 31);
     }
 
     #endregion
@@ -358,7 +406,11 @@ public class PhiFansConverter
             29 => 28,
             30 => 29,
             31 => 30,
-            _ => 0,
+            _ => throw new ArgumentOutOfRangeException(
+                nameof(kpcEasing),
+                kpcEasing,
+                "PhiFans 不支持该缓动编号。"
+            ),
         };
 
     #endregion

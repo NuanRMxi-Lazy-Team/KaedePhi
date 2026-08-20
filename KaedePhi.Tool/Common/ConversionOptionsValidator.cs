@@ -44,10 +44,13 @@ internal static class ConversionOptionsValidator
     public static void Validate(KpcToPhiFansConvertOptions options)
     {
         ArgumentNullException.ThrowIfNull(options);
+        ArgumentNullException.ThrowIfNull(options.MultiLayerMerge);
         if (options.Cutting is null || options.Cutting.UnsupportedEasingPrecision <= 0)
             throw new ArgumentOutOfRangeException(
                 nameof(options.Cutting.UnsupportedEasingPrecision)
             );
+        ValidatePositive(options.MultiLayerMerge.Precision, "MultiLayerMerge.Precision");
+        ValidateTolerance(options.MultiLayerMerge.Tolerance, "MultiLayerMerge.Tolerance");
         if (options.DiscontinuityBeatPrecision <= 0)
             throw new ArgumentOutOfRangeException(
                 nameof(options.DiscontinuityBeatPrecision),
