@@ -28,24 +28,31 @@ public class PhiEditJudgeLineBuilder
     /// <summary>
     /// 转换单条判定线，并在转换前记录 PE 不支持字段的告警。
     /// </summary>
-    public Pe.JudgeLine ConvertJudgeLine(KpcJudgeLine src, List<KpcJudgeLine> allLine)
+    /// <param name="src">待转换的 KPC 判定线</param>
+    /// <param name="allLine">用于解除父子绑定的原始判定线列表</param>
+    /// <returns>转换后的 PE 判定线；匹配过滤条件时返回空值</returns>
+    public Pe.JudgeLine? ConvertJudgeLine(KpcJudgeLine src, List<KpcJudgeLine> allLine)
     {
         WarnIfUnsupportedJudgeLineFields(src);
+
+        if (
+            (
+                _options.LineFilter.RemoveTextureLine
+                && !string.Equals(
+                    src.Texture,
+                    CoreConstants.DefaultTexture,
+                    StringComparison.Ordinal
+                )
+            )
+            || (_options.LineFilter.RemoveAttachUiLine && src.AttachUi.HasValue)
+        )
+            return null;
+
         var trueSrc = src;
         var pe = new Pe.JudgeLine
         {
             NoteList = trueSrc.Notes.ConvertAll(n => NoteBuilder.ConvertNote(n, _warnLogger)),
         };
-
-        if (
-            !string.Equals(trueSrc.Texture, CoreConstants.DefaultTexture, StringComparison.Ordinal)
-            || _options.LineFilter.RemoveTextureLine
-            || trueSrc.AttachUi.HasValue
-            || _options.LineFilter.RemoveAttachUiLine
-        )
-        {
-            return pe;
-        }
 
         if (trueSrc.Father != -1)
         {

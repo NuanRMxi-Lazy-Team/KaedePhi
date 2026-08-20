@@ -61,7 +61,9 @@ public class PhiEditConverter
         foreach (var line in input.JudgeLineList)
         {
             _ct.ThrowIfCancellationRequested();
-            judgeLines.Add(judgeLineConverter.ConvertJudgeLine(line, input.JudgeLineList));
+            var converted = judgeLineConverter.ConvertJudgeLine(line, input.JudgeLineList);
+            if (converted is not null)
+                judgeLines.Add(converted);
         }
 
         return new Pe.Chart

@@ -100,7 +100,8 @@ public class PhigrosV3JudgeLineBuilderTests
             [father, source]
         );
 
-        converted.NotesAbove.Should().ContainSingle();
+        converted.Should().NotBeNull();
+        converted!.NotesAbove.Should().ContainSingle();
     }
 
     private static Beat Beat(double value) => new(value);

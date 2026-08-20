@@ -37,25 +37,30 @@ public class PhigrosV3JudgeLineBuilder
         _warnLogger = warnLogger;
     }
 
-    public PhigrosJudgeLine ConvertJudgeLine(KpcJudgeLine src, List<KpcJudgeLine> allLine)
+    /// <summary>
+    /// 将 KPC 判定线转换为 Phigros V3 判定线。
+    /// </summary>
+    /// <param name="src">待转换的 KPC 判定线</param>
+    /// <param name="allLine">用于解除父子绑定的原始判定线列表</param>
+    /// <returns>转换后的 Phigros V3 判定线；匹配过滤条件时返回空值</returns>
+    public PhigrosJudgeLine? ConvertJudgeLine(KpcJudgeLine src, List<KpcJudgeLine> allLine)
     {
         WarnIfUnsupportedJudgeLineFields(src);
-        var preprocessedSrc = src;
 
         if (
-            !string.Equals(
-                preprocessedSrc.Texture,
-                CoreConstants.DefaultTexture,
-                StringComparison.Ordinal
+            (
+                _options.LineFilter.RemoveTextureLine
+                && !string.Equals(
+                    src.Texture,
+                    CoreConstants.DefaultTexture,
+                    StringComparison.Ordinal
+                )
             )
-            || _options.LineFilter.RemoveTextureLine
-            || preprocessedSrc.AttachUi.HasValue
-            || _options.LineFilter.RemoveAttachUiLine
+            || (_options.LineFilter.RemoveAttachUiLine && src.AttachUi.HasValue)
         )
-        {
-            return new PhigrosJudgeLine { Bpm = _globalBpm / preprocessedSrc.BpmFactor };
-        }
+            return null;
 
+        var preprocessedSrc = src;
         if (preprocessedSrc.Father != -1)
         {
             Warn($"PhigrosV3 不支持 JudgeLine.Father（值={src.Father}），将自动解除父子绑定");
