@@ -1,4 +1,5 @@
 using System.Linq;
+using System.Runtime.Serialization;
 using KaedePhi.Core.Common;
 using KaedePhi.Core.RePhiEdit.JsonConverter;
 using Newtonsoft.Json;
@@ -7,6 +8,9 @@ namespace KaedePhi.Core.RePhiEdit
 {
     public class Note
     {
+        private Beat _endBeat = new(new[] { 1, 0, 1 });
+        private bool _hasExplicitEndBeat;
+
         /// <summary>
         /// 音符是否在判定线上方下落，true为上方，false为下方
         /// </summary>
@@ -30,7 +34,18 @@ namespace KaedePhi.Core.RePhiEdit
         /// 音符的结束拍
         /// </summary>
         [JsonProperty("endTime")]
-        public Beat EndBeat { get; set; } = new(new[] { 1, 0, 1 }); // 结束时间
+        public Beat EndBeat
+        {
+            get => _endBeat;
+            set
+            {
+                _endBeat = value;
+                _hasExplicitEndBeat = true;
+            }
+        }
+
+        [JsonIgnore]
+        internal bool HasExplicitEndBeat => _hasExplicitEndBeat;
 
         /// <summary>
         /// 音符是否为假音符
@@ -114,6 +129,16 @@ namespace KaedePhi.Core.RePhiEdit
         [JsonProperty("hitsound", NullValueHandling = NullValueHandling.Ignore)]
         public string? HitSound { get; set; } // 音效
 
+        [OnDeserializing]
+        private void OnDeserializing(StreamingContext context) => _hasExplicitEndBeat = false;
+
+        [OnDeserialized]
+        private void OnDeserialized(StreamingContext context)
+        {
+            if (Type == NoteType.Hold && (!_hasExplicitEndBeat || EndBeat <= StartBeat))
+                throw new JsonSerializationException("Hold 音符缺少有效的结束拍。");
+        }
+
         public Note Clone()
         {
             // 有Beat，不能使用MemberwiseClone
@@ -134,6 +159,7 @@ namespace KaedePhi.Core.RePhiEdit
                 Color = Color.ToArray(),
                 HitFxColor = HitFxColor?.ToArray(),
                 HitSound = HitSound,
+                _hasExplicitEndBeat = _hasExplicitEndBeat,
             };
         }
     }

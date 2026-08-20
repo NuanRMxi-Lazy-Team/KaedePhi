@@ -357,7 +357,7 @@ namespace KaedePhi.Core.PhiEdit
         /// <summary>
         /// 根据已拆分的字段数组构造一个 <see cref="Note"/> 对象。
         /// <para>
-        /// <c>part[0]</c> 的第二个字符决定音符类型；Hold 音符（类型 3）会从 <c>part</c> 读取结束拍，
+        /// <c>part[0]</c> 的第二个字符决定音符类型；Hold 音符（类型 2）会从 <c>part</c> 读取结束拍，
         /// 其余音符的结束拍等于起始拍。速度倍率和宽度比例分别从
         /// <paramref name="noteSpeedMultiplierPart"/>[1] 和 <paramref name="noteWidthRatioPart"/>[1] 读取。
         /// </para>
@@ -399,16 +399,25 @@ namespace KaedePhi.Core.PhiEdit
 
             var noteType = (NoteType)noteTypeValue;
             var isHold = noteType == NoteType.Hold;
-            EnsureMinParts(part, isHold ? 7 : 6, "note");
+            var requiredPartCount = isHold ? 7 : 6;
+            var inlineMarkerIndex = Array.IndexOf(part, "#");
+            var notePartCount = inlineMarkerIndex >= 0 ? inlineMarkerIndex : part.Length;
+            if (notePartCount < requiredPartCount)
+                throw new FormatException(
+                    $"Malformed 'note' command: expected at least {requiredPartCount} parts, got {notePartCount}."
+                );
             if (noteSpeedMultiplierPart[0] != "#" || noteWidthRatioPart[0] != "&")
                 throw new FormatException("Malformed note: invalid speed or width marker.");
 
+            var startBeat = ParseFloat(part[2], "note 起始拍");
+            var endBeat = isHold ? ParseFloat(part[3], "note 结束拍") : startBeat;
+            if (isHold && endBeat <= startBeat)
+                throw new FormatException("Hold 音符的结束拍必须晚于开始拍。");
+
             return new Note
             {
-                StartBeat = ParseFloat(part[2], "note 起始拍"),
-                EndBeat = isHold
-                    ? ParseFloat(part[3], "note 结束拍")
-                    : ParseFloat(part[2], "note 起始拍"),
+                StartBeat = startBeat,
+                EndBeat = endBeat,
                 PositionX = ParseFloat(part[isHold ? 4 : 3], "note X 坐标"),
                 Above = ParseAboveFlag(part[isHold ? 5 : 4]),
                 IsFake = ParseBinaryFlag(part[isHold ? 6 : 5], "note 假音符标记"),

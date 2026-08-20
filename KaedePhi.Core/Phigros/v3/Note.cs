@@ -1,4 +1,5 @@
 using System;
+using System.Runtime.Serialization;
 using KaedePhi.Core.Phigros.v3.JsonConverter;
 using Newtonsoft.Json;
 
@@ -6,6 +7,9 @@ namespace KaedePhi.Core.Phigros.v3
 {
     public class Note
     {
+        private float _holdTime;
+        private bool _hasExplicitHoldTime;
+
         /// <summary>
         /// 音符类型
         /// </summary>
@@ -48,7 +52,18 @@ namespace KaedePhi.Core.Phigros.v3
         /// 仅 Hold 音符有效，表示持续时间，单位为1.875 / bpm
         /// </summary>
         [JsonProperty("holdTime")]
-        public float HoldTime { get; set; }
+        public float HoldTime
+        {
+            get => _holdTime;
+            set
+            {
+                _holdTime = value;
+                _hasExplicitHoldTime = true;
+            }
+        }
+
+        [JsonIgnore]
+        internal bool HasExplicitHoldTime => _hasExplicitHoldTime;
 
         /// <summary>
         /// 非 Hold 音符表示速度倍率；Hold 音符表示结束时判定线的确切速度。
@@ -61,6 +76,16 @@ namespace KaedePhi.Core.Phigros.v3
         /// </summary>
         [JsonProperty("floorPosition")]
         public float FloorPosition { get; set; }
+
+        [OnDeserializing]
+        private void OnDeserializing(StreamingContext context) => _hasExplicitHoldTime = false;
+
+        [OnDeserialized]
+        private void OnDeserialized(StreamingContext context)
+        {
+            if (Type == NoteType.Hold && (!_hasExplicitHoldTime || HoldTime <= 0f))
+                throw new JsonSerializationException("Hold 音符缺少有效的持续时间。");
+        }
     }
 
     public enum NoteType

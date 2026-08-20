@@ -51,8 +51,15 @@ namespace KaedePhi.Core.PhiChain.v6.JsonConverter
 
             if (note.Type == NoteType.Hold)
             {
-                note.HoldBeat =
-                    obj["hold_beat"]?.ToObject<Beat>(serializer) ?? new Beat(new[] { 0, 0, 1 });
+                var holdBeatToken = obj["hold_beat"];
+                if (holdBeatToken is null || holdBeatToken.Type == JTokenType.Null)
+                    throw new JsonSerializationException("Hold 音符缺少持续拍。");
+
+                var holdBeat = holdBeatToken.ToObject<Beat>(serializer);
+                if (holdBeat <= new Beat(0))
+                    throw new JsonSerializationException("Hold 音符的持续拍必须大于零。");
+
+                note.HoldBeat = holdBeat;
             }
             else
             {
