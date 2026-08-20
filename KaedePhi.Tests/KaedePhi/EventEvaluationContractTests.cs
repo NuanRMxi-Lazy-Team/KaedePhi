@@ -90,6 +90,32 @@ public class EventEvaluationContractTests
         evt.GetValueAtBeat(Beat(1)).Should().Be(1);
     }
 
+    [Fact]
+    public void GetValueAtBeat_CollidingBeatRepresentations_PreservesNonzeroDurationBehavior()
+    {
+        var positive = CreateKpcEvent(CollidingStartBeat(), CollidingEndBeat(), 10, 20);
+        var reverse = CreateKpcEvent(CollidingEndBeat(), CollidingStartBeat(), 10, 20);
+
+        new[]
+        {
+            positive.GetValueAtBeat(positive.StartBeat),
+            reverse.GetValueAtBeat(reverse.StartBeat),
+        }.Should().Equal(10, 10);
+    }
+
+    [Fact]
+    public void GetValueAtBeatAsDouble_CollidingBeatRepresentations_PreservesNonzeroDurationBehavior()
+    {
+        var positive = CreateKpcEvent(CollidingStartBeat(), CollidingEndBeat(), 10, 20);
+        var reverse = CreateKpcEvent(CollidingEndBeat(), CollidingStartBeat(), 10, 20);
+
+        new[]
+        {
+            positive.GetValueAtBeatAsDouble(positive.StartBeat),
+            reverse.GetValueAtBeatAsDouble(reverse.StartBeat),
+        }.Should().Equal(10, 10);
+    }
+
     private static KpcEvents.Event<double> CreateKpcEvent(
         double startBeat,
         double endBeat,
@@ -105,5 +131,24 @@ public class EventEvaluationContractTests
             Easing = Kpc.Easing.Linear,
         };
 
+    private static KpcEvents.Event<double> CreateKpcEvent(
+        Beat startBeat,
+        Beat endBeat,
+        double startValue,
+        double endValue
+    ) =>
+        new()
+        {
+            StartBeat = startBeat,
+            EndBeat = endBeat,
+            StartValue = startValue,
+            EndValue = endValue,
+            Easing = Kpc.Easing.Linear,
+        };
+
     private static Beat Beat(double value) => new(value);
+
+    private static Beat CollidingStartBeat() => new(new[] { 2147483646, 0, 1 });
+
+    private static Beat CollidingEndBeat() => new(new[] { 2147483646, 1, 2000000000 });
 }

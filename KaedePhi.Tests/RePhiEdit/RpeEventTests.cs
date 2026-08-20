@@ -48,6 +48,19 @@ public class RpeEventTests
         value.Should().BeApproximately(25, 1e-6);
     }
 
+    [Fact]
+    public void GetValueAtBeat_CollidingBeatRepresentations_PreservesNonzeroDurationBehavior()
+    {
+        var positive = CreateRpeEvent(CollidingStartBeat(), CollidingEndBeat(), 10, 20);
+        var reverse = CreateRpeEvent(CollidingEndBeat(), CollidingStartBeat(), 10, 20);
+
+        new[]
+        {
+            positive.GetValueAtBeat(positive.StartBeat),
+            reverse.GetValueAtBeat(reverse.StartBeat),
+        }.Should().Equal(10, 10);
+    }
+
     private static RpeEvents.Event<double> CreateRpeEvent(
         double startBeat,
         double endBeat,
@@ -63,5 +76,24 @@ public class RpeEventTests
             Easing = Rpe.Easing.Linear,
         };
 
+    private static RpeEvents.Event<double> CreateRpeEvent(
+        Beat startBeat,
+        Beat endBeat,
+        double startValue,
+        double endValue
+    ) =>
+        new()
+        {
+            StartBeat = startBeat,
+            EndBeat = endBeat,
+            StartValue = startValue,
+            EndValue = endValue,
+            Easing = Rpe.Easing.Linear,
+        };
+
     private static Beat Beat(double value) => new(value);
+
+    private static Beat CollidingStartBeat() => new(new[] { 2147483646, 0, 1 });
+
+    private static Beat CollidingEndBeat() => new(new[] { 2147483646, 1, 2000000000 });
 }

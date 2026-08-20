@@ -104,10 +104,11 @@ namespace KaedePhi.Core.RePhiEdit.Events
         /// <returns>指定拍对应的事件值。</returns>
         public T GetValueAtBeat(Beat beat)
         {
-            if (EndBeat == StartBeat)
+            var duration = EndBeat - StartBeat;
+            if (duration[0] == 0 && duration[1] == 0)
                 return beat < StartBeat ? StartValue : EndValue;
 
-            var t = (beat - StartBeat) / (EndBeat - StartBeat);
+            var t = (beat - StartBeat) / duration;
             return t switch
             {
                 <= 0 => StartValue,
