@@ -14,19 +14,19 @@ namespace KaedePhi.Core.KaedePhi.Events
         public Easing Easing { get; set; } = new(1);
 
         /// <summary>
-        /// 模拟器保留字段
+        /// 模拟器保留字段，Core、Tool包目前不应该写此字段，此字段应该由开发者决定是否使用
         /// </summary>
         [PublicAPI]
         public float StartTime { get; set; }
 
         /// <summary>
-        /// 模拟器保留字段
+        /// 模拟器保留字段，Core、Tool包目前不应该写此字段，此字段应该由开发者决定是否使用
         /// </summary>
         [PublicAPI]
         public float EndTime { get; set; }
 
         /// <summary>
-        /// 保留字段
+        /// 保留字段，Core、Tool包目前不应该写此字段，此字段应该由开发者决定是否使用
         /// </summary>
         [PublicAPI]
         public float FloorPosition { get; set; }
@@ -50,7 +50,7 @@ namespace KaedePhi.Core.KaedePhi.Events
                 _ => IsBezier
                     ? Bezier.Do(
                         BezierPoints,
-                        (float)t,
+                        t,
                         GetStartValueAsDouble(),
                         GetEndValueAsDouble()
                     )

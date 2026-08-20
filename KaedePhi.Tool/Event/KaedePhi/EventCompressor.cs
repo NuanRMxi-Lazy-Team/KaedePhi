@@ -98,6 +98,19 @@ public class EventCompressor<TPayload> : LoggableBase, IEventCompressor<KpcEvent
         return Math.Abs(firstSlope - secondSlope) <= relTol;
     }
 
+    /// <summary>
+    /// 判断事件是否为可安全压缩的完整线性事件。
+    /// </summary>
+    private static bool IsEligibleForTransform(KpcEvents.Event<TPayload> evt)
+    {
+        return !evt.IsBezier
+            && (int)evt.Easing == 1
+            && evt.EasingLeft == 0f
+            && Math.Abs(evt.EasingRight - 1f) < Constants.FloatEpsilon
+            && evt.Font is null
+            && evt.FloorPosition == 0f;
+    }
+
     /// <inheritdoc/>
     public List<KpcEvents.Event<TPayload>> EventListCompressSqrt(
         List<KpcEvents.Event<TPayload>>? events,
@@ -109,7 +122,7 @@ public class EventCompressor<TPayload> : LoggableBase, IEventCompressor<KpcEvent
         if (events == null || events.Count == 0)
             return [];
 
-        var compressed = new List<KpcEvents.Event<TPayload>> { events[0] };
+        var compressed = new List<KpcEvents.Event<TPayload>> { events[0].Clone() };
         var relTol = tolerance / 100.0;
 
         for (var i = 1; i < events.Count; i++)
@@ -118,8 +131,8 @@ public class EventCompressor<TPayload> : LoggableBase, IEventCompressor<KpcEvent
             var currentEvent = events[i];
 
             if (
-                lastEvent.Easing == 1
-                && currentEvent.Easing == 1
+                IsEligibleForTransform(lastEvent)
+                && IsEligibleForTransform(currentEvent)
                 && lastEvent.EndBeat == currentEvent.StartBeat
                 && TryMergeSqrt(lastEvent, currentEvent, relTol)
             )
@@ -129,7 +142,7 @@ public class EventCompressor<TPayload> : LoggableBase, IEventCompressor<KpcEvent
                 continue;
             }
 
-            compressed.Add(currentEvent);
+            compressed.Add(currentEvent.Clone());
             progress?.Report(new ToolProgress((double)i / events.Count));
         }
 
@@ -148,7 +161,7 @@ public class EventCompressor<TPayload> : LoggableBase, IEventCompressor<KpcEvent
         if (events == null || events.Count == 0)
             return [];
 
-        var compressed = new List<KpcEvents.Event<TPayload>> { events[0] };
+        var compressed = new List<KpcEvents.Event<TPayload>> { events[0].Clone() };
         var relTol = tolerance / 100.0;
 
         for (var i = 1; i < events.Count; i++)
@@ -157,8 +170,8 @@ public class EventCompressor<TPayload> : LoggableBase, IEventCompressor<KpcEvent
             var currentEvent = events[i];
 
             if (
-                lastEvent.Easing == 1
-                && currentEvent.Easing == 1
+                IsEligibleForTransform(lastEvent)
+                && IsEligibleForTransform(currentEvent)
                 && lastEvent.EndBeat == currentEvent.StartBeat
                 && TryMergeSlope(lastEvent, currentEvent, relTol)
             )
@@ -168,7 +181,7 @@ public class EventCompressor<TPayload> : LoggableBase, IEventCompressor<KpcEvent
                 continue;
             }
 
-            compressed.Add(currentEvent);
+            compressed.Add(currentEvent.Clone());
             progress?.Report(new ToolProgress((double)i / events.Count));
         }
 
@@ -184,7 +197,7 @@ public class EventCompressor<TPayload> : LoggableBase, IEventCompressor<KpcEvent
     )
     {
         if (events == null || events.Count == 0)
-            return events ?? [];
+            return [];
 
         // 只有当列表只有一个事件且该事件为默认值时才需要修改
         if (
@@ -196,7 +209,6 @@ public class EventCompressor<TPayload> : LoggableBase, IEventCompressor<KpcEvent
             return [];
         }
 
-        // 其他情况直接返回原列表，无需克隆
-        return events;
+        return [.. events.Select(evt => evt.Clone())];
     }
 }
