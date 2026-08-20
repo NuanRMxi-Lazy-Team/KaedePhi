@@ -44,6 +44,19 @@ public class BeatJsonConverterTests
     }
 
     [Fact]
+    public void RoundTrip_DoubleConstructedBeat_PreservesRationalIdentity()
+    {
+        var original = new Beat(Math.PI);
+
+        var json = JsonConvert.SerializeObject(original);
+        var deserialized = JsonConvert.DeserializeObject<Beat>(json);
+
+        deserialized.Should().Be(original);
+        deserialized.GetHashCode().Should().Be(original.GetHashCode());
+        ((double)deserialized).Should().Be((double)original);
+    }
+
+    [Fact]
     public void Deserialize_ZeroBeat_Works()
     {
         var json = "[0,0,1]";

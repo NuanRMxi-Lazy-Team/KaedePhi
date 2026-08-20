@@ -12,6 +12,8 @@ namespace KaedePhi.Core.Common
     [JsonConverter(typeof(BeatJsonConverter))]
     public readonly struct Beat : IComparable<Beat>, IEquatable<Beat>
     {
+        private const int MaxDenominator = 1024;
+
         private readonly int _whole;
         private readonly int _numerator;
         private readonly int _denominator;
@@ -57,9 +59,6 @@ namespace KaedePhi.Core.Common
                     "Beat must fit in the supported integer part range."
                 );
 
-            _curBeatDouble = beat;
-            _curBeatFloat = (float)beat;
-
             var wholePart = (int)Math.Floor(beat);
             var fractionalPart = beat - wholePart;
 
@@ -68,53 +67,56 @@ namespace KaedePhi.Core.Common
                 _whole = wholePart;
                 _numerator = 0;
                 _denominator = 1;
-                return;
             }
-
-            int numerator = 1,
-                denominator = 0;
-            int prevNumerator = 0,
-                prevDenominator = 1;
-            var remaining = fractionalPart;
-            const int maxDenominator = 1000;
-
-            for (var iteration = 0; iteration < 20; iteration++)
+            else
             {
-                var digit = (int)Math.Floor(remaining);
+                int numerator = 1,
+                    denominator = 0;
+                int prevNumerator = 0,
+                    prevDenominator = 1;
+                var remaining = fractionalPart;
 
-                var tempNum = digit * numerator + prevNumerator;
-                var tempDen = digit * denominator + prevDenominator;
+                for (var iteration = 0; iteration < 20; iteration++)
+                {
+                    var digit = (int)Math.Floor(remaining);
 
-                if (tempDen > maxDenominator)
-                    break;
+                    var tempNum = digit * numerator + prevNumerator;
+                    var tempDen = digit * denominator + prevDenominator;
 
-                prevNumerator = numerator;
-                prevDenominator = denominator;
-                numerator = tempNum;
-                denominator = tempDen;
+                    if (tempDen > MaxDenominator)
+                        break;
 
-                remaining -= digit;
-                if (
-                    Math.Abs(remaining) < 1e-9
-                    || Math.Abs((double)numerator / denominator - fractionalPart) < 1e-9
-                )
-                    break;
+                    prevNumerator = numerator;
+                    prevDenominator = denominator;
+                    numerator = tempNum;
+                    denominator = tempDen;
 
-                remaining = 1.0 / remaining;
+                    remaining -= digit;
+                    if (
+                        Math.Abs(remaining) < 1e-9
+                        || Math.Abs((double)numerator / denominator - fractionalPart) < 1e-9
+                    )
+                        break;
+
+                    remaining = 1.0 / remaining;
+                }
+
+                if (denominator == 0)
+                {
+                    denominator = MaxDenominator;
+                    numerator = (int)Math.Round(fractionalPart * denominator);
+                    var gcd = Gcd(numerator, denominator);
+                    numerator /= gcd;
+                    denominator /= gcd;
+                }
+
+                _whole = wholePart;
+                _numerator = numerator;
+                _denominator = denominator;
             }
 
-            if (denominator == 0)
-            {
-                denominator = 1000;
-                numerator = (int)Math.Round(fractionalPart * denominator);
-                var gcd = Gcd(numerator, denominator);
-                numerator /= gcd;
-                denominator /= gcd;
-            }
-
-            _whole = wholePart;
-            _numerator = numerator;
-            _denominator = denominator;
+            _curBeatDouble = (double)_numerator / _denominator + _whole;
+            _curBeatFloat = (float)_curBeatDouble;
         }
 
         private Beat(int whole, int numerator, int denominator)

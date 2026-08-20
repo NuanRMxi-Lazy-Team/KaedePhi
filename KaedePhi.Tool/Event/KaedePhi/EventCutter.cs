@@ -94,6 +94,9 @@ public class EventCutter<TPayload> : LoggableBase, IEventCutter<KpcEvents.Event<
                 segmentEnd = evt.EndBeat;
             }
 
+            if (segmentEnd <= nowBeat)
+                throw new InvalidOperationException("切割步长无法推进事件位置。");
+
             cutEvents.Add(
                 new KpcEvents.Event<TPayload>
                 {

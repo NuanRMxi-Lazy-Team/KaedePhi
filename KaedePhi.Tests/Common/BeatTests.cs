@@ -114,6 +114,33 @@ public class BeatTests
         ((double)beat).Should().Be(0.0);
     }
 
+    [Fact]
+    public void Constructor_WithMaximumSupportedPrecision_KeepsRepresentationsConsistent()
+    {
+        var beat = new Beat(1d / 1024d);
+
+        beat[0].Should().Be(0);
+        beat[1].Should().Be(1);
+        beat[2].Should().Be(1024);
+        ((int[])beat).Should().Equal(0, 1, 1024);
+        ((double)beat).Should().Be(1d / 1024d);
+        ((float)beat).Should().Be(1f / 1024f);
+        (beat + default(Beat)).Should().Be(beat);
+    }
+
+    [Fact]
+    public void Constructor_WithApproximatedDouble_DerivesIdentityFromRationalFields()
+    {
+        var beat = new Beat(Math.PI);
+        var reconstructed = new Beat((int[])beat);
+
+        ((double)beat).Should().Be((double)reconstructed);
+        ((float)beat).Should().Be((float)reconstructed);
+        beat.Should().Be(reconstructed);
+        beat.GetHashCode().Should().Be(reconstructed.GetHashCode());
+        beat.CompareTo(reconstructed).Should().Be(0);
+    }
+
     [Theory]
     [InlineData(0.25, 0, 1, 4)]
     [InlineData(0.5, 0, 1, 2)]
