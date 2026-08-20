@@ -731,6 +731,13 @@ internal sealed class AppController
                 UnsupportedEasingPrecision = vm.PhiFansUnsupportedEasingPrecision,
             },
             DiscontinuityBeatPrecision = vm.PhiFansDiscontinuityBeatPrecision,
+            MultiLayerMerge = new KpcToPhiFansConvertOptions.MultiLayerMergeOptions
+            {
+                Precision = vm.MultiLayerMergePrecision,
+                Tolerance = vm.MultiLayerMergeTolerance,
+                ClassicMode = vm.MultiLayerMergeClassicMode,
+                Compress = vm.MultiLayerMergeCompress,
+            },
         };
     }
 

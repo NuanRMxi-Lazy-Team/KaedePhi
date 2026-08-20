@@ -63,6 +63,34 @@ public class PhiFansConverterTests
     }
 
     [Fact]
+    public void FromKpc_MultiLayerMergeOptions_ChangeEncodedNodeDensity()
+    {
+        var chart = CreateChartWithLayers(
+            new KpcEvents.EventLayer
+            {
+                MoveXEvents = [CreateDoubleEvent(0, 1, 0, 1)],
+            },
+            new KpcEvents.EventLayer
+            {
+                MoveXEvents = [CreateDoubleEvent(0, 1, 0, 1)],
+            }
+        );
+        var classicOptions = CreateOptions();
+        classicOptions.MultiLayerMerge.Precision = 2;
+        classicOptions.MultiLayerMerge.ClassicMode = true;
+        classicOptions.MultiLayerMerge.Compress = false;
+        var adaptiveOptions = CreateOptions();
+        adaptiveOptions.MultiLayerMerge.ClassicMode = false;
+        adaptiveOptions.MultiLayerMerge.Tolerance = 100;
+
+        var classic = new PhiFansConverter().FromKpc(chart, classicOptions);
+        var adaptive = new PhiFansConverter().FromKpc(chart, adaptiveOptions);
+
+        classic.JudgeLineList[0].Props.PositionX.Should().HaveCount(3);
+        adaptive.JudgeLineList[0].Props.PositionX.Should().HaveCount(2);
+    }
+
+    [Fact]
     public void FromKpc_BezierMove_CutsIntoLinearNodesAndPreservesBoundaryValues()
     {
         var sourceEvent = CreateDoubleEvent(0, 1, 0, 10);

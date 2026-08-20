@@ -409,6 +409,19 @@ public static partial class ConvertCommand
             DiscontinuityBeatPrecision =
                 SharedOptions.GetIfSpecified(result, PhiFansDiscontinuityPrecisionOpt)
                 ?? c.PhiFansDiscontinuityBeatPrecision,
+            MultiLayerMerge = new KpcToPhiFansConvertOptions.MultiLayerMergeOptions
+            {
+                Precision =
+                    SharedOptions.GetIfSpecified(result, MergePrecisionOpt)
+                    ?? c.MultiLayerMergePrecision,
+                Tolerance =
+                    SharedOptions.GetIfSpecified(result, MergeToleranceOpt)
+                    ?? c.MultiLayerMergeTolerance,
+                ClassicMode =
+                    SharedOptions.GetIfSpecified(result, MergeClassicOpt)
+                    ?? c.MultiLayerMergeClassicMode,
+                Compress = !disableMergeCompress,
+            },
         };
 
         var saveResult = await ChartService.SaveAsAsync(
