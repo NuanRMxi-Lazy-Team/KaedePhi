@@ -7,13 +7,22 @@ namespace KaedePhi.Tool.Converter.RePhiEdit.Utils;
 /// </summary>
 public static class NoteBuilder
 {
-    public static Kpc.Note ConvertNote(Rpe.Note src) =>
-        new()
+    public static Kpc.Note ConvertNote(Rpe.Note src)
+    {
+        if (
+            src.Type == NoteType.Hold
+            && (!src.HasExplicitEndBeat || src.EndBeat <= src.StartBeat)
+        )
+            throw new FormatException("RePhiEdit Hold 音符缺少有效的结束拍。");
+
+        return new Kpc.Note
         {
             Above = src.Above,
             Alpha = src.Alpha,
             StartBeat = new Beat((int[])src.StartBeat),
-            EndBeat = new Beat((int[])src.EndBeat),
+            EndBeat = new Beat(
+                (int[])(src.Type == NoteType.Hold ? src.EndBeat : src.StartBeat)
+            ),
             IsFake = src.IsFake,
             PositionX = Transform.TransformToKpcX(src.PositionX),
             WidthRatio = src.Size,
@@ -26,6 +35,7 @@ public static class NoteBuilder
             HitFxColor = src.HitFxColor?.ToArray(),
             HitSound = src.HitSound,
         };
+    }
 
     public static Rpe.Note ConvertNote(Kpc.Note src) =>
         new()

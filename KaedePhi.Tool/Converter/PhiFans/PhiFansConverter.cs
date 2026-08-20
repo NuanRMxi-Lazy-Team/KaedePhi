@@ -38,12 +38,13 @@ public class PhiFansConverter
     {
         ArgumentNullException.ThrowIfNull(source);
         _ct.ThrowIfCancellationRequested();
-        return new Kpc.Chart
+        var converted = new Kpc.Chart
         {
             BpmList = source.BpmList.ConvertAll(ConvertBpmItem),
             Meta = ConvertMeta(source.Info, source.Offset),
             JudgeLineList = ConvertLinesWithCancellation(source.JudgeLineList),
         };
+        return ChartProcessingValidator.NormalizeAndValidateNoteEndBeats(converted);
     }
 
     private List<Kpc.JudgeLine> ConvertLinesWithCancellation(List<Line> lines)
@@ -68,11 +69,12 @@ public class PhiFansConverter
         ArgumentNullException.ThrowIfNull(input);
         ArgumentNullException.ThrowIfNull(options);
         ConversionOptionsValidator.Validate(options);
-        ChartProcessingValidator.ValidateJudgeLineHierarchy(input.JudgeLineList);
+        var normalized = ChartProcessingValidator.NormalizeAndValidateNoteEndBeats(input);
+        ChartProcessingValidator.ValidateJudgeLineHierarchy(normalized.JudgeLineList);
         _ct.ThrowIfCancellationRequested();
 
-        var lines = new List<Line>(input.JudgeLineList.Count);
-        foreach (var line in input.JudgeLineList)
+        var lines = new List<Line>(normalized.JudgeLineList.Count);
+        foreach (var line in normalized.JudgeLineList)
         {
             _ct.ThrowIfCancellationRequested();
             lines.Add(ConvertLine(line, options));
@@ -80,9 +82,9 @@ public class PhiFansConverter
 
         return new Chart
         {
-            Offset = input.Meta.Offset,
-            Info = ConvertMeta(input.Meta),
-            BpmList = input.BpmList.ConvertAll(ConvertBpmItem),
+            Offset = normalized.Meta.Offset,
+            Info = ConvertMeta(normalized.Meta),
+            BpmList = normalized.BpmList.ConvertAll(ConvertBpmItem),
             JudgeLineList = lines,
         };
     }
@@ -222,16 +224,26 @@ public class PhiFansConverter
 
     #region Note 转换
 
-    private static Kpc.Note ConvertNoteToKpc(Note src) =>
-        new()
+    private static Kpc.Note ConvertNoteToKpc(Note src)
+    {
+        if (
+            src.Type == PfNoteType.Hold
+            && (!src.HasExplicitHoldEndBeat || src.HoldEndBeat <= src.Beat)
+        )
+            throw new FormatException("PhiFans Hold 音符缺少有效的结束拍。");
+
+        return new Kpc.Note
         {
             Type = MapPpNoteTypeToKpc(src.Type),
             StartBeat = new Beat((int[])src.Beat),
             PositionX = src.PositionX / 100.0,
             SpeedMultiplier = src.Speed,
             Above = src.IsAbove,
-            EndBeat = new Beat((int[])src.HoldEndBeat),
+            EndBeat = new Beat(
+                (int[])(src.Type == PfNoteType.Hold ? src.HoldEndBeat : src.Beat)
+            ),
         };
+    }
 
     private static Note ConvertNoteFromKpc(Kpc.Note src) =>
         new()

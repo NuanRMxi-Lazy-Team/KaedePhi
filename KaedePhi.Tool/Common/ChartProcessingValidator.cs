@@ -1,3 +1,4 @@
+using KaedePhi.Core.Common;
 using KaedePhi.Core.KaedePhi;
 using KaedePhi.Tool.Render.KaedePhi;
 
@@ -34,6 +35,38 @@ public static class ChartProcessingValidator
     /// 允许处理的最大事件和音符总数。
     /// </summary>
     public const long MaximumChartItems = 1_000_000_000_000L;
+
+    /// <summary>
+    /// 复制 KPC 谱面，校验 Hold 结束拍并规范非 Hold 结束拍。
+    /// </summary>
+    /// <param name="chart">待复制和校验的 KPC 谱面。</param>
+    /// <returns>音符结束拍已校验并规范的独立谱面副本。</returns>
+    public static Chart NormalizeAndValidateNoteEndBeats(Chart chart)
+    {
+        ArgumentNullException.ThrowIfNull(chart);
+        var normalized = chart.Clone();
+
+        for (var lineIndex = 0; lineIndex < normalized.JudgeLineList.Count; lineIndex++)
+        {
+            var notes = normalized.JudgeLineList[lineIndex].Notes;
+            for (var noteIndex = 0; noteIndex < notes.Count; noteIndex++)
+            {
+                var note = notes[noteIndex];
+                if (note.Type == NoteType.Hold)
+                {
+                    if (!note.HasExplicitEndBeat || note.EndBeat <= note.StartBeat)
+                        throw new FormatException(
+                            $"判定线 {lineIndex} 的音符 {noteIndex} 缺少有效的 Hold 结束拍。"
+                        );
+                    continue;
+                }
+
+                note.EndBeat = new Beat((int[])note.StartBeat);
+            }
+        }
+
+        return normalized;
+    }
 
     /// <summary>
     /// 校验输入文件存在且没有超过大小上限。

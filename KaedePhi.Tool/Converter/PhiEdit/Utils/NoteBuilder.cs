@@ -7,18 +7,23 @@ namespace KaedePhi.Tool.Converter.PhiEdit.Utils;
 /// </summary>
 public static class NoteBuilder
 {
-    public static Kpc.Note ConvertNote(Pe.Note src) =>
-        new()
+    public static Kpc.Note ConvertNote(Pe.Note src)
+    {
+        if (src.Type == Pe.NoteType.Hold && src.EndBeat <= src.StartBeat)
+            throw new FormatException("PhiEdit Hold 音符缺少有效的结束拍。");
+
+        return new Kpc.Note
         {
             Above = src.Above,
             StartBeat = new Beat(src.StartBeat),
-            EndBeat = new Beat(src.EndBeat),
+            EndBeat = new Beat(src.Type == Pe.NoteType.Hold ? src.EndBeat : src.StartBeat),
             IsFake = src.IsFake,
             PositionX = Transform.TransformToKpcX(src.PositionX) + Kpc.Chart.CoordinateSystem.MaxX,
             WidthRatio = src.WidthRatio,
             SpeedMultiplier = src.SpeedMultiplier,
             Type = (NoteType)(int)src.Type,
         };
+    }
 
     public static Pe.Note ConvertNote(Kpc.Note src, Action<string>? warnLogger)
     {

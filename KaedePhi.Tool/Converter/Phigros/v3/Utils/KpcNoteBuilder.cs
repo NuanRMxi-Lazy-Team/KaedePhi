@@ -29,8 +29,15 @@ public static class NoteBuilder
         return result;
     }
 
-    public static Kpc.Note ConvertNote(PhigrosNote src, bool above) =>
-        new()
+    public static Kpc.Note ConvertNote(PhigrosNote src, bool above)
+    {
+        if (
+            src.Type == PhigrosNoteType.Hold
+            && (!src.HasExplicitHoldTime || src.HoldTime <= 0f)
+        )
+            throw new FormatException("Phigros Hold 音符缺少有效的持续时间。");
+
+        return new Kpc.Note
         {
             Above = above,
             StartBeat = new Beat(src.Time / NoteSegmentation),
@@ -43,6 +50,7 @@ public static class NoteBuilder
             SpeedMultiplier = src.Type != PhigrosNoteType.Hold ? src.Speed : 1f,
             Type = ConvertNoteType(src.Type),
         };
+    }
 
     private static NoteType ConvertNoteType(PhigrosNoteType type) =>
         type switch

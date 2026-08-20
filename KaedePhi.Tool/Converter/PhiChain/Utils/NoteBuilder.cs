@@ -18,10 +18,14 @@ public static class NoteBuilder
     /// <returns>KPC 音符</returns>
     public static Kpc.Note ConvertNote(Note src)
     {
+        if (src.Type == PhiChainNoteType.Hold && src.HoldBeat <= new Beat(0))
+            throw new FormatException("PhiChain Hold 音符缺少有效的持续拍。");
+
         var kpcNote = new Kpc.Note
         {
             Above = src.Above,
             StartBeat = new Beat((int[])src.Beat),
+            EndBeat = new Beat((int[])src.Beat),
             PositionX = Transform.TransformToKpcX(src.X),
             SpeedMultiplier = src.Speed,
             Type = ConvertNoteType(src.Type),
@@ -120,10 +124,15 @@ public static class NoteBuilder
         var startBeatVal = (double)startBeat;
         var endBeatVal = (double)endBeat;
         var totalBeats = endBeatVal - startBeatVal;
+        var noteType = ConvertNoteType(track.NoteType);
+        if (
+            noteType == KpcNoteType.Hold
+            && (track.HoldBeat is null || track.HoldBeat <= new Beat(0))
+        )
+            throw new FormatException("PhiChain Hold 曲线音符缺少有效的持续拍。");
         if (totalBeats <= 0)
             return notes;
 
-        var noteType = ConvertNoteType(track.NoteType);
         var step = 1.0 / density;
 
         // 从 start 开始按步长生成，skip(1) 跳过起始音符
@@ -141,14 +150,15 @@ public static class NoteBuilder
             {
                 Above = fromNote.Above,
                 StartBeat = noteBeat,
+                EndBeat = new Beat((int[])noteBeat),
                 PositionX = Transform.TransformToKpcX(x),
                 SpeedMultiplier = fromNote.Speed,
                 Type = noteType,
             };
 
-            if (noteType == KpcNoteType.Hold && track.HoldBeat != null)
+            if (noteType == KpcNoteType.Hold)
             {
-                note.EndBeat = noteBeat + new Beat((int[])track.HoldBeat);
+                note.EndBeat = noteBeat + new Beat((int[])track.HoldBeat!);
             }
 
             notes.Add(note);

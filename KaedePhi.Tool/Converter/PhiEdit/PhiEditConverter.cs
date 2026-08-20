@@ -31,7 +31,7 @@ public class PhiEditConverter
 
         _ct.ThrowIfCancellationRequested();
 
-        return new Kpc.Chart
+        var converted = new Kpc.Chart
         {
             BpmList = source.BpmList.ConvertAll(Utils.BpmItemBuilder.ConvertBpmItem),
             Meta = Utils.MetaBuilder.ConvertMeta(source),
@@ -39,6 +39,7 @@ public class PhiEditConverter
                 source.JudgeLineList
             ),
         };
+        return ChartProcessingValidator.NormalizeAndValidateNoteEndBeats(converted);
     }
 
     /// <summary>
@@ -52,25 +53,26 @@ public class PhiEditConverter
         ArgumentNullException.ThrowIfNull(input);
         ArgumentNullException.ThrowIfNull(options);
         ConversionOptionsValidator.Validate(options);
-        ChartProcessingValidator.ValidateJudgeLineHierarchy(input.JudgeLineList);
+        var normalized = ChartProcessingValidator.NormalizeAndValidateNoteEndBeats(input);
+        ChartProcessingValidator.ValidateJudgeLineHierarchy(normalized.JudgeLineList);
         _ct.ThrowIfCancellationRequested();
 
-        WarnIfUnsupportedMeta(input.Meta);
+        WarnIfUnsupportedMeta(normalized.Meta);
 
         var judgeLineConverter = new Utils.PhiEditJudgeLineBuilder(options, OnWarning);
-        var judgeLines = new List<Pe.JudgeLine>(input.JudgeLineList.Count);
-        foreach (var line in input.JudgeLineList)
+        var judgeLines = new List<Pe.JudgeLine>(normalized.JudgeLineList.Count);
+        foreach (var line in normalized.JudgeLineList)
         {
             _ct.ThrowIfCancellationRequested();
-            var converted = judgeLineConverter.ConvertJudgeLine(line, input.JudgeLineList);
+            var converted = judgeLineConverter.ConvertJudgeLine(line, normalized.JudgeLineList);
             if (converted is not null)
                 judgeLines.Add(converted);
         }
 
         return new Pe.Chart
         {
-            Offset = Utils.MetaBuilder.GetPeOffset(input.Meta),
-            BpmList = input.BpmList.ConvertAll(Utils.BpmItemBuilder.ConvertBpmItem),
+            Offset = Utils.MetaBuilder.GetPeOffset(normalized.Meta),
+            BpmList = normalized.BpmList.ConvertAll(Utils.BpmItemBuilder.ConvertBpmItem),
             JudgeLineList = judgeLines,
         };
     }

@@ -51,12 +51,13 @@ public class PhigrosV3Converter
             );
         }
 
-        return new Kpc.Chart
+        var converted = new Kpc.Chart
         {
             BpmList = BpmItemBuilder.ConvertBpmList(input.JudgeLineList),
             Meta = MetaBuilder.ConvertMeta(input),
             JudgeLineList = judgeLines,
         };
+        return ChartProcessingValidator.NormalizeAndValidateNoteEndBeats(converted);
     }
 
     /// <summary>
@@ -70,13 +71,17 @@ public class PhigrosV3Converter
         ArgumentNullException.ThrowIfNull(input);
         ArgumentNullException.ThrowIfNull(options);
         ConversionOptionsValidator.Validate(options);
-        ChartProcessingValidator.ValidateJudgeLineHierarchy(input.JudgeLineList);
+        var normalized = ChartProcessingValidator.NormalizeAndValidateNoteEndBeats(input);
+        ChartProcessingValidator.ValidateJudgeLineHierarchy(normalized.JudgeLineList);
         _ct.ThrowIfCancellationRequested();
 
-        WarnIfUnsupportedMeta(input.Meta);
+        WarnIfUnsupportedMeta(normalized.Meta);
 
-        var globalBpm = input.BpmList is { Count: > 0 } ? input.BpmList[0].Bpm : options.DefaultBpm;
-        var chartEndTime = CalculateChartEndTime(input);
+        var globalBpm =
+            normalized.BpmList is { Count: > 0 }
+                ? normalized.BpmList[0].Bpm
+                : options.DefaultBpm;
+        var chartEndTime = CalculateChartEndTime(normalized);
 
         var judgeLineConverter = new PhigrosV3JudgeLineBuilder(
             options,
@@ -85,18 +90,18 @@ public class PhigrosV3Converter
             OnWarning
         );
 
-        var judgeLines = new List<PhigrosJudgeLine>(input.JudgeLineList.Count);
-        foreach (var line in input.JudgeLineList)
+        var judgeLines = new List<PhigrosJudgeLine>(normalized.JudgeLineList.Count);
+        foreach (var line in normalized.JudgeLineList)
         {
             _ct.ThrowIfCancellationRequested();
-            var converted = judgeLineConverter.ConvertJudgeLine(line, input.JudgeLineList);
+            var converted = judgeLineConverter.ConvertJudgeLine(line, normalized.JudgeLineList);
             if (converted is not null)
                 judgeLines.Add(converted);
         }
 
         return new PhigrosChart
         {
-            Offset = GetPhigrosV3Offset(input.Meta),
+            Offset = GetPhigrosV3Offset(normalized.Meta),
             JudgeLineList = judgeLines,
         };
     }

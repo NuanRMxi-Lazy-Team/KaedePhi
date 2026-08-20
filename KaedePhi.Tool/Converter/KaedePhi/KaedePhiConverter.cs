@@ -8,26 +8,26 @@ namespace KaedePhi.Tool.Converter.KaedePhi;
 public class KaedePhiConverter : LoggableBase, IChartConverter<Kpc.Chart, Unit?, Unit?>
 {
     /// <summary>
-    /// 直接返回输入的 KPC 谱面。
+    /// 复制并规范输入的 KPC 谱面。
     /// </summary>
     /// <param name="input">KPC 谱面</param>
     /// <param name="options">未使用</param>
-    /// <returns>原样返回</returns>
+    /// <returns>规范后的独立谱面副本</returns>
     public Kpc.Chart ToKpc(Kpc.Chart input, Unit? options)
     {
-        return input;
+        return ChartProcessingValidator.NormalizeAndValidateNoteEndBeats(input);
     }
 
     /// <summary>
-    /// 直接返回输入的 KPC 谱面。
+    /// 复制并规范输入的 KPC 谱面。
     /// </summary>
     /// <param name="input">KPC 谱面</param>
     /// <param name="options">未使用</param>
-    /// <returns>原样返回</returns>
+    /// <returns>规范后的独立谱面副本</returns>
     public Kpc.Chart FromKpc(Kpc.Chart input, Unit? options)
     {
-        ArgumentNullException.ThrowIfNull(input);
-        ChartProcessingValidator.ValidateJudgeLineHierarchy(input.JudgeLineList);
-        return input;
+        var normalized = ChartProcessingValidator.NormalizeAndValidateNoteEndBeats(input);
+        ChartProcessingValidator.ValidateJudgeLineHierarchy(normalized.JudgeLineList);
+        return normalized;
     }
 }

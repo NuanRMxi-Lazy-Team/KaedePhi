@@ -57,7 +57,7 @@ public class PhiChainConverter
             );
         }
 
-        return kpcChart;
+        return ChartProcessingValidator.NormalizeAndValidateNoteEndBeats(kpcChart);
     }
 
     /// <summary>
@@ -71,16 +71,17 @@ public class PhiChainConverter
         ArgumentNullException.ThrowIfNull(input);
         ArgumentNullException.ThrowIfNull(options);
         ConversionOptionsValidator.Validate(options);
-        ChartProcessingValidator.ValidateJudgeLineHierarchy(input.JudgeLineList);
+        var normalized = ChartProcessingValidator.NormalizeAndValidateNoteEndBeats(input);
+        ChartProcessingValidator.ValidateJudgeLineHierarchy(normalized.JudgeLineList);
         _ct.ThrowIfCancellationRequested();
-        WarnIfUnsupportedMeta(input.Meta);
+        WarnIfUnsupportedMeta(normalized.Meta);
 
         var chart = new PhiChainChart
         {
-            Offset = input.Meta.Offset, // PhiChain 和 KPC 的 offset 单位均为毫秒
-            BpmList = new BpmList(input.BpmList.ConvertAll(BpmBuilder.ConvertBpmItem)),
+            Offset = normalized.Meta.Offset, // PhiChain 和 KPC 的 offset 单位均为毫秒
+            BpmList = new BpmList(normalized.BpmList.ConvertAll(BpmBuilder.ConvertBpmItem)),
             // 构建父子关系树
-            Lines = JudgeLineBuilder.BuildLineTree(input.JudgeLineList, options, OnWarning),
+            Lines = JudgeLineBuilder.BuildLineTree(normalized.JudgeLineList, options, OnWarning),
         };
 
         return chart;

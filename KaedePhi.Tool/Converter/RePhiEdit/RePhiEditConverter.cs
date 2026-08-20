@@ -28,12 +28,13 @@ public class RePhiEditConverter
     {
         ArgumentNullException.ThrowIfNull(source);
         _ct.ThrowIfCancellationRequested();
-        return new Kpc.Chart
+        var converted = new Kpc.Chart
         {
             BpmList = source.BpmList.ConvertAll(ConvertBpmItem),
             Meta = MetaBuilder.ConvertMeta(source.Meta),
             JudgeLineList = ConvertJudgeLinesWithCancellation(source.JudgeLineList),
         };
+        return ChartProcessingValidator.NormalizeAndValidateNoteEndBeats(converted);
     }
 
     private List<Kpc.JudgeLine> ConvertJudgeLinesWithCancellation(List<Rpe.JudgeLine> judgeLines)
@@ -58,11 +59,12 @@ public class RePhiEditConverter
         ArgumentNullException.ThrowIfNull(input);
         ArgumentNullException.ThrowIfNull(options);
         ConversionOptionsValidator.Validate(options);
-        ChartProcessingValidator.ValidateJudgeLineHierarchy(input.JudgeLineList);
+        var normalized = ChartProcessingValidator.NormalizeAndValidateNoteEndBeats(input);
+        ChartProcessingValidator.ValidateJudgeLineHierarchy(normalized.JudgeLineList);
         _ct.ThrowIfCancellationRequested();
 
-        var lines = new List<Rpe.JudgeLine>(input.JudgeLineList.Count);
-        foreach (var line in input.JudgeLineList)
+        var lines = new List<Rpe.JudgeLine>(normalized.JudgeLineList.Count);
+        foreach (var line in normalized.JudgeLineList)
         {
             _ct.ThrowIfCancellationRequested();
             lines.Add(JudgeLineBuilder.ConvertJudgeLine(line, options.Cutting));
@@ -70,8 +72,8 @@ public class RePhiEditConverter
 
         return new Rpe.Chart
         {
-            BpmList = input.BpmList.ConvertAll(ConvertBpmItem),
-            Meta = MetaBuilder.ConvertMeta(input.Meta),
+            BpmList = normalized.BpmList.ConvertAll(ConvertBpmItem),
+            Meta = MetaBuilder.ConvertMeta(normalized.Meta),
             JudgeLineList = lines,
         };
     }
