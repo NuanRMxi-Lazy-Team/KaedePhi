@@ -212,7 +212,6 @@
     <data name="convert_opt_pe_alpha_precision" xml:space="preserve"><value>PhiEdit alpha cut precision</value></data>
     <data name="convert_opt_pe_alpha_tolerance" xml:space="preserve"><value>PhiEdit alpha cut tolerance</value></data>
     <data name="convert_opt_pe_speed_precision" xml:space="preserve"><value>PhiEdit speed cut precision</value></data>
-    <data name="convert_opt_pe_speed_tolerance" xml:space="preserve"><value>PhiEdit speed cut tolerance</value></data>
     <data name="convert_opt_phigros_bpm" xml:space="preserve"><value>Phigros default BPM</value></data>
     <data name="convert_opt_phigros_easing_precision" xml:space="preserve"><value>Phigros easing cut precision</value></data>
     <data name="convert_opt_phigros_xy_precision" xml:space="preserve"><value>Phigros misaligned XY event precision</value></data>

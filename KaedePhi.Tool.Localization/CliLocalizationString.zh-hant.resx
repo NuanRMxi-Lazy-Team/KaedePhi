@@ -206,7 +206,6 @@
     <data name="convert_opt_pe_alpha_precision" xml:space="preserve"><value>PhiEdit Alpha 切割精度</value></data>
     <data name="convert_opt_pe_alpha_tolerance" xml:space="preserve"><value>PhiEdit Alpha 切割容差</value></data>
     <data name="convert_opt_pe_speed_precision" xml:space="preserve"><value>PhiEdit 速度切割精度</value></data>
-    <data name="convert_opt_pe_speed_tolerance" xml:space="preserve"><value>PhiEdit 速度切割容差</value></data>
     <data name="convert_opt_phigros_bpm" xml:space="preserve"><value>Phigros 預設 BPM</value></data>
     <data name="convert_opt_phigros_easing_precision" xml:space="preserve"><value>Phigros 緩動切割精度</value></data>
     <data name="convert_opt_phigros_xy_precision" xml:space="preserve"><value>Phigros 非對齊 XY 事件精度</value></data>

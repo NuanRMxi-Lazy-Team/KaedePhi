@@ -79,16 +79,6 @@ public class KpcToPhiEditConvertOptions
         /// 速度事件切割精度
         /// </summary>
         public double CutPrecision { get; set; } = DefaultPrecision;
-
-        /// <summary>
-        /// 速度事件切割后是否压缩
-        /// </summary>
-        public bool CutCompress { get; set; } = true;
-
-        /// <summary>
-        /// 速度事件切割后压缩拟合容差百分比
-        /// </summary>
-        public double CutTolerance { get; set; } = DefaultTolerancePercent;
     }
 
     public class FatherLineUnbindOptions

@@ -72,12 +72,6 @@ public static partial class ConvertCommand
         Arity = ArgumentArity.ExactlyOne,
     };
 
-    private static readonly Option<double> PeSpeedToleranceOpt = new("--pe-speed-tolerance")
-    {
-        Description = CliLocalizationString.convert_opt_pe_speed_tolerance,
-        Arity = ArgumentArity.ExactlyOne,
-    };
-
     private static readonly Option<float> PhigrosBpmOpt = new("--phigros-bpm")
     {
         Description = CliLocalizationString.convert_opt_phigros_bpm,
@@ -282,10 +276,6 @@ public static partial class ConvertCommand
                 CutPrecision =
                     SharedOptions.GetIfSpecified(result, PeSpeedPrecisionOpt)
                     ?? c.PeSpeedCutPrecision,
-                CutCompress = c.PeSpeedCutCompress,
-                CutTolerance =
-                    SharedOptions.GetIfSpecified(result, PeSpeedToleranceOpt)
-                    ?? c.PeSpeedCutTolerance,
             },
             FatherLineUnbind = new KpcToPhiEditConvertOptions.FatherLineUnbindOptions
             {

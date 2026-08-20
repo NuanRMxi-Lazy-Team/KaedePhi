@@ -27,8 +27,6 @@ public sealed class ConvertDefaultsConfig
     public bool PeAlphaCutCompress { get; set; } = true;
     public double PeAlphaCutTolerance { get; set; } = 0.1d;
     public double PeSpeedCutPrecision { get; set; } = 64d;
-    public bool PeSpeedCutCompress { get; set; } = true;
-    public double PeSpeedCutTolerance { get; set; } = 0.1d;
 
     // PhigrosV3 转换选项
     public float PhigrosDefaultBpm { get; set; } = 120f;

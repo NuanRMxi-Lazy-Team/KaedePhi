@@ -122,7 +122,6 @@ public sealed class SettingsViewModel : INotifyPropertyChanged
     public double ConvertPeAlphaCutPrecision { get; set; } = 64d;
     public double ConvertPeAlphaCutTolerance { get; set; } = 0.1d;
     public double ConvertPeSpeedCutPrecision { get; set; } = 64d;
-    public double ConvertPeSpeedCutTolerance { get; set; } = 0.1d;
 
     #endregion
 
@@ -229,7 +228,6 @@ public sealed class SettingsViewModel : INotifyPropertyChanged
         c.Convert.PeAlphaCutPrecision = ConvertPeAlphaCutPrecision;
         c.Convert.PeAlphaCutTolerance = ConvertPeAlphaCutTolerance;
         c.Convert.PeSpeedCutPrecision = ConvertPeSpeedCutPrecision;
-        c.Convert.PeSpeedCutTolerance = ConvertPeSpeedCutTolerance;
         c.Convert.PhigrosDefaultBpm = ConvertPhigrosDefaultBpm;
         c.Convert.PhigrosEasingPrecision = ConvertPhigrosEasingPrecision;
         c.Convert.PhigrosMisalignedXyEventPrecision = ConvertPhigrosMisalignedXyEventPrecision;
@@ -293,7 +291,6 @@ public sealed class SettingsViewModel : INotifyPropertyChanged
         ConvertPeAlphaCutPrecision = c.Convert.PeAlphaCutPrecision;
         ConvertPeAlphaCutTolerance = c.Convert.PeAlphaCutTolerance;
         ConvertPeSpeedCutPrecision = c.Convert.PeSpeedCutPrecision;
-        ConvertPeSpeedCutTolerance = c.Convert.PeSpeedCutTolerance;
         ConvertPhigrosDefaultBpm = c.Convert.PhigrosDefaultBpm;
         ConvertPhigrosEasingPrecision = c.Convert.PhigrosEasingPrecision;
         ConvertPhigrosMisalignedXyEventPrecision = c.Convert.PhigrosMisalignedXyEventPrecision;

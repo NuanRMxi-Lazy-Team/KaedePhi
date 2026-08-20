@@ -670,7 +670,6 @@ internal sealed class AppController
             Speed = new KpcToPhiEditConvertOptions.SpeedOptions
             {
                 CutPrecision = vm.PeSpeedCutPrecision,
-                CutTolerance = vm.PeSpeedCutTolerance,
             },
             FatherLineUnbind = new KpcToPhiEditConvertOptions.FatherLineUnbindOptions
             {

@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using KaedePhi.Tool.Common;
+using YamlDotNet.RepresentationModel;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
 
@@ -54,7 +55,7 @@ public sealed class AppConfigService
         {
             if (File.Exists(ConfigPath))
             {
-                var yaml = File.ReadAllText(ConfigPath);
+                var yaml = RemoveObsoleteConvertOptions(File.ReadAllText(ConfigPath));
                 var config = _deserializer.Deserialize<AppConfig>(yaml);
                 if (config is null)
                     throw new FormatException("配置文件为空。");
@@ -171,7 +172,6 @@ public sealed class AppConfigService
         ChartProcessingValidator.ValidatePrecision(config.UnbindPrecision);
         ChartProcessingValidator.ValidatePrecision(config.MultiLayerMergePrecision);
         ChartProcessingValidator.ValidateTolerance(config.PeAlphaCutTolerance);
-        ChartProcessingValidator.ValidateTolerance(config.PeSpeedCutTolerance);
         ChartProcessingValidator.ValidateTolerance(config.UnbindTolerance);
         ChartProcessingValidator.ValidateTolerance(config.UnbindMergeTolerance);
         ChartProcessingValidator.ValidateTolerance(config.MultiLayerMergeTolerance);
@@ -185,6 +185,34 @@ public sealed class AppConfigService
             || config.PhigrosNegativeAlphaStep <= 0
         )
             throw new ArgumentOutOfRangeException(nameof(config));
+    }
+
+    private static string RemoveObsoleteConvertOptions(string yaml)
+    {
+        var yamlStream = new YamlStream();
+        yamlStream.Load(new StringReader(yaml));
+        if (yamlStream.Documents.FirstOrDefault()?.RootNode is not YamlMappingNode root)
+            return yaml;
+
+        var convertNode = root.Children.FirstOrDefault(pair =>
+            pair.Key is YamlScalarNode { Value: "convert" }
+        ).Value;
+        if (convertNode is not YamlMappingNode convert)
+            return yaml;
+
+        var obsoleteKeys = convert
+            .Children.Keys.OfType<YamlScalarNode>()
+            .Where(key => key.Value is "peSpeedCutCompress" or "peSpeedCutTolerance")
+            .ToList();
+        if (obsoleteKeys.Count == 0)
+            return yaml;
+
+        foreach (var key in obsoleteKeys)
+            convert.Children.Remove(key);
+
+        using var writer = new StringWriter();
+        yamlStream.Save(writer, false);
+        return writer.ToString();
     }
 
     private void TryBackupInvalidConfig()

@@ -156,26 +156,44 @@ public class LineEventBuilder
 
         WarnIfEventPayloadUnsupported(sourceEvents, "速度");
 
+        var speedFrames = new List<Pe.Frame>();
         foreach (var srcEvent in sourceEvents.OrderBy(e => (double)e.StartBeat))
         {
             var slices = _eventCutterFloat.CutEventToLinear(
                 srcEvent,
                 1d / _options.Speed.CutPrecision
             );
-            for (var i = 0; i < slices.Count; i++)
-            {
-                var slice = slices[i];
-                var useStartValue = i < 2;
-                var beat = useStartValue
-                    ? (float)(double)slice.StartBeat
-                    : (float)(double)slice.EndBeat;
-                var value =
-                    Transform.TransformToPeSpeed(
-                        useStartValue ? ToSingle(slice.StartValue) : ToSingle(slice.EndValue)
-                    );
+            if (slices.Count == 0)
+                continue;
 
-                target.SpeedFrames.Add(new Pe.Frame { Beat = beat, Value = value });
+            speedFrames.Add(
+                new Pe.Frame
+                {
+                    Beat = (float)(double)slices[0].StartBeat,
+                    Value = Transform.TransformToPeSpeed(ToSingle(slices[0].StartValue)),
+                }
+            );
+            foreach (var slice in slices)
+            {
+                speedFrames.Add(
+                    new Pe.Frame
+                    {
+                        Beat = (float)(double)slice.EndBeat,
+                        Value = Transform.TransformToPeSpeed(ToSingle(slice.EndValue)),
+                    }
+                );
             }
+        }
+
+        foreach (var frame in speedFrames.OrderBy(f => f.Beat))
+        {
+            if (
+                target.SpeedFrames.Count > 0
+                && Math.Abs(target.SpeedFrames[^1].Beat - frame.Beat) <= Constants.FloatEpsilon
+            )
+                target.SpeedFrames[^1] = frame;
+            else
+                target.SpeedFrames.Add(frame);
         }
     }
 

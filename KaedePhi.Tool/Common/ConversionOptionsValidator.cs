@@ -25,7 +25,6 @@ internal static class ConversionOptionsValidator
         ValidatePositive(options.FatherLineUnbind.Precision, "FatherLineUnbind.Precision");
         ValidatePositive(options.MultiLayerMerge.Precision, "MultiLayerMerge.Precision");
         ValidateTolerance(options.Alpha.CutTolerance, "Alpha.CutTolerance");
-        ValidateTolerance(options.Speed.CutTolerance, "Speed.CutTolerance");
         ValidateTolerance(options.FatherLineUnbind.Tolerance, "FatherLineUnbind.Tolerance");
         ValidateTolerance(
             options.FatherLineUnbind.MergeTolerance,

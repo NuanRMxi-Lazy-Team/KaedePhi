@@ -456,15 +456,6 @@ namespace KaedePhi.Tool.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to PE 输出时速度通道的压缩容差百分比.
-        /// </summary>
-        public static string convert_opt_pe_speed_tolerance {
-            get {
-                return ResourceManager.GetString("convert_opt_pe_speed_tolerance", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to PE 输出时帧结束后的尾部填充拍数（默认：1/64拍）.
         /// </summary>
         public static string convert_opt_pe_trailing_padding {

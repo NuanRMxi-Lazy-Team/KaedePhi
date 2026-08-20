@@ -215,16 +215,6 @@ public sealed class ExportViewModel : INotifyPropertyChanged
         }
     } = 64d;
 
-    public double PeSpeedCutTolerance
-    {
-        get;
-        set
-        {
-            field = value;
-            OnPropertyChanged();
-        }
-    } = 1d;
-
     #endregion
 
     #region PhigrosV3 转换选项
@@ -650,7 +640,6 @@ public sealed class ExportViewModel : INotifyPropertyChanged
         PeAlphaCutPrecision = config.PeAlphaCutPrecision;
         PeAlphaCutTolerance = config.PeAlphaCutTolerance;
         PeSpeedCutPrecision = config.PeSpeedCutPrecision;
-        PeSpeedCutTolerance = config.PeSpeedCutTolerance;
         PhigrosDefaultBpm = config.PhigrosDefaultBpm;
         PhigrosEasingPrecision = config.PhigrosEasingPrecision;
         PhigrosMisalignedXyEventPrecision = config.PhigrosMisalignedXyEventPrecision;
