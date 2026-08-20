@@ -85,6 +85,70 @@ public class PhigrosV3JudgeLineBuilderTests
     }
 
     [Fact]
+    public void NoAlphaEvents_KeepsJudgeLineInvisible()
+    {
+        var line = new JudgeLine();
+
+        var converted = new PhigrosV3JudgeLineBuilder(
+            new KpcToPhigrosV3ConvertOptions(),
+            120f,
+            97f,
+            null
+        ).ConvertJudgeLine(line, [line]);
+
+        converted.Should().NotBeNull();
+        converted!.JudgeLineDisappearEvents.Should().ContainSingle();
+        var fallback = converted.JudgeLineDisappearEvents[0];
+        fallback.StartTime.Should().Be(0f);
+        fallback.EndTime.Should().Be(97f);
+        fallback.Start.Should().Be(0f);
+        fallback.End.Should().Be(0f);
+    }
+
+    [Fact]
+    public void DelayedFirstAlpha_FillsInvisiblePrefix()
+    {
+        var line = new JudgeLine
+        {
+            EventLayers =
+            [
+                new EventLayer
+                {
+                    AlphaEvents =
+                    [
+                        new KpcEvents.Event<int>
+                        {
+                            StartBeat = Beat(2),
+                            EndBeat = Beat(3),
+                            StartValue = 255,
+                            EndValue = 255,
+                        },
+                    ],
+                },
+            ],
+        };
+        var options = new KpcToPhigrosV3ConvertOptions();
+        options.Alpha.CutPrecision = 1d;
+
+        var converted = new PhigrosV3JudgeLineBuilder(options, 120f, 97f, null).ConvertJudgeLine(
+            line,
+            [line]
+        );
+
+        converted.Should().NotBeNull();
+        var prefix = converted!.JudgeLineDisappearEvents[0];
+        prefix.StartTime.Should().Be(0f);
+        prefix.EndTime.Should().Be(64f);
+        prefix.Start.Should().Be(0f);
+        prefix.End.Should().Be(0f);
+        var sourceEvent = converted.JudgeLineDisappearEvents[1];
+        sourceEvent.StartTime.Should().Be(64f);
+        sourceEvent.EndTime.Should().Be(96f);
+        sourceEvent.Start.Should().Be(1f);
+        sourceEvent.End.Should().Be(1f);
+    }
+
+    [Fact]
     public void FatherLineLookup_UsesSourceObjectIdentity()
     {
         var father = new CollidingJudgeLine();

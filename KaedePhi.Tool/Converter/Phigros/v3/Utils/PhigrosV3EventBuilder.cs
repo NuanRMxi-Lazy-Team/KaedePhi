@@ -269,7 +269,20 @@ public class PhigrosV3EventBuilder
         var cutEvents = sourceEvents
             .SelectMany(e => _eventCutterInt.CutEventToLinear(e, cutLength))
             .ToList();
-        var filled = FillGaps(cutEvents, 255);
+        var filled = FillGaps(cutEvents, 0);
+        if (filled.Count > 0 && (double)filled[0].StartBeat > Constants.FloatEpsilon)
+        {
+            filled.Insert(
+                0,
+                new KpcEvents.Event<int>
+                {
+                    StartBeat = new Beat(0d),
+                    EndBeat = filled[0].StartBeat,
+                    StartValue = 0,
+                    EndValue = 0,
+                }
+            );
+        }
 
         foreach (var ev in filled)
         {
