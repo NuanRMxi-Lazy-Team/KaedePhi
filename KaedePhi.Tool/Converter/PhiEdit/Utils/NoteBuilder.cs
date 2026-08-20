@@ -9,7 +9,10 @@ public static class NoteBuilder
 {
     public static Kpc.Note ConvertNote(Pe.Note src)
     {
-        if (src.Type == Pe.NoteType.Hold && src.EndBeat <= src.StartBeat)
+        if (
+            src.Type == Pe.NoteType.Hold
+            && (!float.IsFinite(src.EndBeat) || !(src.EndBeat > src.StartBeat))
+        )
             throw new FormatException("PhiEdit Hold 音符缺少有效的结束拍。");
 
         return new Kpc.Note

@@ -33,7 +33,11 @@ public static class NoteBuilder
     {
         if (
             src.Type == PhigrosNoteType.Hold
-            && (!src.HasExplicitHoldTime || src.HoldTime <= 0f)
+            && (
+                !src.HasExplicitHoldTime
+                || !float.IsFinite(src.HoldTime)
+                || !(src.HoldTime > 0f)
+            )
         )
             throw new FormatException("Phigros Hold 音符缺少有效的持续时间。");
 

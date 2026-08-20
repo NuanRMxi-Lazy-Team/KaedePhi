@@ -149,6 +149,67 @@ public class NoteEndBeatInvariantTests
         act.Should().Throw<FormatException>();
     }
 
+    [Theory]
+    [InlineData(float.NaN)]
+    [InlineData(float.PositiveInfinity)]
+    [InlineData(float.NegativeInfinity)]
+    public void PhiEditConverter_ToKpcRejectsNonFiniteHoldEndBeat(float endBeat)
+    {
+        var source = new Pe.Chart
+        {
+            JudgeLineList =
+            [
+                new Pe.JudgeLine
+                {
+                    NoteList =
+                    [
+                        new Pe.Note
+                        {
+                            Type = Pe.NoteType.Hold,
+                            StartBeat = 3,
+                            EndBeat = endBeat,
+                        },
+                    ],
+                },
+            ],
+        };
+
+        Action act = () =>
+            new PhiEditConverter().ToKpc(source, new PhiEditToKpcConvertOptions());
+
+        act.Should().Throw<FormatException>();
+    }
+
+    [Fact]
+    public void PhiEditConverter_ToKpcKeepsValidHoldEndBeat()
+    {
+        var source = new Pe.Chart
+        {
+            JudgeLineList =
+            [
+                new Pe.JudgeLine
+                {
+                    NoteList =
+                    [
+                        new Pe.Note
+                        {
+                            Type = Pe.NoteType.Hold,
+                            StartBeat = 3,
+                            EndBeat = 5,
+                        },
+                    ],
+                },
+            ],
+        };
+
+        var converted = new PhiEditConverter().ToKpc(
+            source,
+            new PhiEditToKpcConvertOptions()
+        );
+
+        ((double)converted.JudgeLineList[0].Notes[0].EndBeat).Should().Be(5);
+    }
+
     [Fact]
     public void PhiFansConverter_ToKpcNormalizesNonHoldAndRejectsMissingSourceHoldEnd()
     {
@@ -173,6 +234,23 @@ public class NoteEndBeatInvariantTests
     }
 
     [Fact]
+    public void PhiFansConverter_ToKpcKeepsValidHoldEndBeat()
+    {
+        var source = CreatePhiFansChart(
+            new Pf.Note
+            {
+                Type = Pf.NoteType.Hold,
+                Beat = Beat(3),
+                HoldEndBeat = Beat(5),
+            }
+        );
+
+        var converted = new PhiFansConverter().ToKpc(source, null);
+
+        ((double)converted.JudgeLineList[0].Notes[0].EndBeat).Should().Be(5);
+    }
+
+    [Fact]
     public void PhigrosV3Converter_ToKpcNormalizesNonHoldAndRejectsMissingSourceHoldTime()
     {
         var converter = new PhigrosV3Converter();
@@ -193,6 +271,43 @@ public class NoteEndBeatInvariantTests
 
         ((double)converted.JudgeLineList[0].Notes[0].EndBeat).Should().Be(3);
         act.Should().Throw<FormatException>();
+    }
+
+    [Theory]
+    [InlineData(float.NaN)]
+    [InlineData(float.PositiveInfinity)]
+    [InlineData(float.NegativeInfinity)]
+    public void PhigrosV3Converter_ToKpcRejectsNonFiniteHoldTime(float holdTime)
+    {
+        var source = CreatePhigrosChart(
+            new Phigros.Note
+            {
+                Type = Phigros.NoteType.Hold,
+                Time = 96,
+                HoldTime = holdTime,
+            }
+        );
+
+        Action act = () => new PhigrosV3Converter().ToKpc(source, null);
+
+        act.Should().Throw<FormatException>();
+    }
+
+    [Fact]
+    public void PhigrosV3Converter_ToKpcKeepsValidHoldEndBeat()
+    {
+        var source = CreatePhigrosChart(
+            new Phigros.Note
+            {
+                Type = Phigros.NoteType.Hold,
+                Time = 96,
+                HoldTime = 64,
+            }
+        );
+
+        var converted = new PhigrosV3Converter().ToKpc(source, null);
+
+        ((double)converted.JudgeLineList[0].Notes[0].EndBeat).Should().Be(5);
     }
 
     [Fact]
@@ -219,6 +334,23 @@ public class NoteEndBeatInvariantTests
     }
 
     [Fact]
+    public void RePhiEditConverter_ToKpcKeepsValidHoldEndBeat()
+    {
+        var source = CreateRePhiEditChart(
+            new Rpe.Note
+            {
+                Type = NoteType.Hold,
+                StartBeat = Beat(3),
+                EndBeat = Beat(5),
+            }
+        );
+
+        var converted = new RePhiEditConverter().ToKpc(source, null);
+
+        ((double)converted.JudgeLineList[0].Notes[0].EndBeat).Should().Be(5);
+    }
+
+    [Fact]
     public void PhiChainConverter_ToKpcNormalizesNonHoldAndRejectsZeroDurationSourceHold()
     {
         var converter = new PhiChainConverter();
@@ -240,6 +372,26 @@ public class NoteEndBeatInvariantTests
 
         ((double)converted.JudgeLineList[0].Notes[0].EndBeat).Should().Be(3);
         act.Should().Throw<FormatException>();
+    }
+
+    [Fact]
+    public void PhiChainConverter_ToKpcKeepsValidOrdinaryHoldEndBeat()
+    {
+        var source = CreatePhiChainChart(
+            new Pc.Note
+            {
+                Type = Pc.NoteType.Hold,
+                Beat = Beat(3),
+                HoldBeat = Beat(2),
+            }
+        );
+
+        var converted = new PhiChainConverter().ToKpc(
+            source,
+            new PhiChainToKpcConvertOptions()
+        );
+
+        ((double)converted.JudgeLineList[0].Notes[0].EndBeat).Should().Be(5);
     }
 
     [Fact]
@@ -268,6 +420,40 @@ public class NoteEndBeatInvariantTests
             new PhiChainConverter().ToKpc(source, new PhiChainToKpcConvertOptions());
 
         act.Should().Throw<FormatException>();
+    }
+
+    [Fact]
+    public void PhiChainConverter_ToKpcKeepsValidCurveHoldEndBeat()
+    {
+        var line = new Pc.SerializedLine
+        {
+            Notes =
+            [
+                new Pc.Note { Beat = Beat(0) },
+                new Pc.Note { Beat = Beat(1) },
+            ],
+            CurveNoteTracks =
+            [
+                new Pc.CurveNoteTrack
+                {
+                    From = 0,
+                    To = 1,
+                    NoteType = Pc.NoteType.Hold,
+                    HoldBeat = Beat(2),
+                    Density = 2,
+                },
+            ],
+        };
+        var source = new Pc.Chart { Lines = [line] };
+
+        var converted = new PhiChainConverter().ToKpc(
+            source,
+            new PhiChainToKpcConvertOptions()
+        );
+
+        converted.JudgeLineList[0].Notes.Should().HaveCount(3);
+        converted.JudgeLineList[0].Notes[2].Type.Should().Be(NoteType.Hold);
+        ((double)converted.JudgeLineList[0].Notes[2].EndBeat).Should().Be(2.5);
     }
 
     [Theory]
