@@ -75,12 +75,12 @@ public class PhigrosV3Converter
         WarnIfUnsupportedMeta(input.Meta);
 
         var globalBpm = input.BpmList is { Count: > 0 } ? input.BpmList[0].Bpm : options.DefaultBpm;
-        var chartEndBeat = CalculateChartEndBeat(input);
+        var chartEndTime = CalculateChartEndTime(input);
 
         var judgeLineConverter = new PhigrosV3JudgeLineBuilder(
             options,
             globalBpm,
-            chartEndBeat,
+            chartEndTime,
             OnWarning
         );
 
@@ -100,7 +100,7 @@ public class PhigrosV3Converter
         };
     }
 
-    private static float CalculateChartEndBeat(Kpc.Chart input)
+    private static float CalculateChartEndTime(Kpc.Chart input)
     {
         var maxBeat = 0d;
 

@@ -35,7 +35,10 @@ public class PhigrosV3JudgeLineBuilderTests
         var options = new KpcToPhigrosV3ConvertOptions();
         options.NegativeAlpha.Enabled = true;
 
-        new PhigrosV3JudgeLineBuilder(options, 120f, 2f, null).ConvertJudgeLine(line, [line]);
+        new PhigrosV3JudgeLineBuilder(options, 120f, PhigrosTime(2), null).ConvertJudgeLine(
+            line,
+            [line]
+        );
 
         var moveY = line.EventLayers[0].MoveYEvents;
         moveY.Should().NotBeNull();
@@ -78,7 +81,10 @@ public class PhigrosV3JudgeLineBuilderTests
         var options = new KpcToPhigrosV3ConvertOptions();
         options.NegativeAlpha.Enabled = true;
 
-        new PhigrosV3JudgeLineBuilder(options, 120f, 4f, null).ConvertJudgeLine(line, [line]);
+        new PhigrosV3JudgeLineBuilder(options, 120f, PhigrosTime(4), null).ConvertJudgeLine(
+            line,
+            [line]
+        );
 
         var value = KpcEvents.EventLayer.GetValueAtBeat(line.EventLayers[0].MoveYEvents!, Beat(2));
         value.Should().BeApproximately(4.2, 1e-6);
@@ -149,6 +155,52 @@ public class PhigrosV3JudgeLineBuilderTests
     }
 
     [Fact]
+    public void FromKpc_NegativeAlphaTailUsesChartEndTime()
+    {
+        var negativeAlphaLine = new JudgeLine
+        {
+            EventLayers =
+            [
+                new EventLayer
+                {
+                    AlphaEvents =
+                    [
+                        new KpcEvents.Event<int>
+                        {
+                            StartBeat = Beat(0),
+                            EndBeat = Beat(1),
+                            StartValue = -1,
+                            EndValue = -1,
+                        },
+                    ],
+                },
+            ],
+        };
+        var chart = new Chart
+        {
+            JudgeLineList = [negativeAlphaLine, new JudgeLine()],
+        };
+        var options = new KpcToPhigrosV3ConvertOptions();
+        options.NegativeAlpha.Enabled = true;
+        options.Cutting.MisalignedXyEventPrecision = 1d;
+        options.Alpha.CutPrecision = 1d;
+
+        var converted = new global::KaedePhi.Tool.Converter.Phigros.v3.PhigrosV3Converter().FromKpc(
+            chart,
+            options
+        );
+
+        var chartEndTime = converted.JudgeLineList[1]
+            .JudgeLineDisappearEvents.Single()
+            .EndTime;
+        chartEndTime.Should().Be(33f);
+        var elevatedEndTime = converted.JudgeLineList[0]
+            .JudgeLineMoveEvents.Where(e => e.Start2 > 1f || e.End2 > 1f)
+            .Max(e => e.EndTime);
+        elevatedEndTime.Should().Be(chartEndTime);
+    }
+
+    [Fact]
     public void FatherLineLookup_UsesSourceObjectIdentity()
     {
         var father = new CollidingJudgeLine();
@@ -169,6 +221,8 @@ public class PhigrosV3JudgeLineBuilderTests
     }
 
     private static Beat Beat(double value) => new(value);
+
+    private static float PhigrosTime(double beat) => (float)(beat * 32d);
 
     private sealed class CollidingJudgeLine : JudgeLine
     {

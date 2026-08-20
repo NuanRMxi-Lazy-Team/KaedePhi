@@ -16,24 +16,28 @@ namespace KaedePhi.Tool.Converter.Phigros.v3.Utils;
 /// </summary>
 public class PhigrosV3JudgeLineBuilder
 {
+    private const float PhigrosTimePerBeat = 32f;
+
     private readonly KpcToPhigrosV3ConvertOptions _options;
     private readonly PhigrosV3EventBuilder _phigrosV3EventBuilder;
     private readonly LayerProcessor _layerProcessor = new();
     private readonly float _globalBpm;
-    private readonly float _chartEndBeat;
+    private readonly Beat _chartEndBeat;
+    private readonly float _chartEndTime;
     private readonly Action<string>? _warnLogger;
 
     public PhigrosV3JudgeLineBuilder(
         KpcToPhigrosV3ConvertOptions options,
         float globalBpm,
-        float chartEndBeat,
+        float chartEndTime,
         Action<string>? warnLogger
     )
     {
         _options = options;
         _phigrosV3EventBuilder = new PhigrosV3EventBuilder(options, warnLogger);
         _globalBpm = globalBpm;
-        _chartEndBeat = chartEndBeat;
+        _chartEndBeat = new Beat(chartEndTime / PhigrosTimePerBeat);
+        _chartEndTime = chartEndTime;
         _warnLogger = warnLogger;
     }
 
@@ -117,7 +121,7 @@ public class PhigrosV3JudgeLineBuilder
                 new PhigrosEvent
                 {
                     StartTime = 0,
-                    EndTime = _chartEndBeat,
+                    EndTime = _chartEndTime,
                     Start = 0f,
                     End = 0f,
                 }
@@ -283,7 +287,7 @@ public class PhigrosV3JudgeLineBuilder
         if (segStart.HasValue)
         {
             if (lastEndValue < 0)
-                segments.Add((segStart.Value, new Beat(_chartEndBeat)));
+                segments.Add((segStart.Value, _chartEndBeat));
             else
                 segments.Add((segStart.Value, lastEndBeat));
         }
