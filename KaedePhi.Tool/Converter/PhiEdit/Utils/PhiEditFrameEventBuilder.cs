@@ -479,7 +479,9 @@ public class PhiEditFrameEventBuilder
             ev => ev.EndBeat
         );
 
-        Pe.MoveFrame? previousFrame = previousFrameIndex >= 0 ? frames[previousFrameIndex] : null;
+        Pe.MoveFrame? previousFrame = null;
+        if (previousFrameIndex >= 0)
+            previousFrame = frames[previousFrameIndex];
         var previousEvent = previousEventIndex >= 0 ? events[previousEventIndex] : null;
 
         if (
@@ -517,7 +519,9 @@ public class PhiEditFrameEventBuilder
             ev => ev.EndBeat
         );
 
-        Pe.Frame? previousFrame = previousFrameIndex >= 0 ? frames[previousFrameIndex] : null;
+        Pe.Frame? previousFrame = null;
+        if (previousFrameIndex >= 0)
+            previousFrame = frames[previousFrameIndex];
         var previousEvent = previousEventIndex >= 0 ? events[previousEventIndex] : null;
 
         if (
@@ -722,7 +726,9 @@ public class PhiEditFrameEventBuilder
     private static Pe.MoveFrame? FindMoveFrameAtBeat(List<Pe.MoveFrame> frames, double beat)
     {
         var idx = FindLastIndexAtOrBeforeBeat(frames, beat, frame => frame.Beat);
-        return idx >= 0 && IsSameBeat(frames[idx].Beat, beat) ? frames[idx] : null;
+        if (idx >= 0 && IsSameBeat(frames[idx].Beat, beat))
+            return frames[idx];
+        return null;
     }
 
     /// <summary>
@@ -734,7 +740,9 @@ public class PhiEditFrameEventBuilder
     private static Pe.Frame? FindScalarFrameAtBeat(List<Pe.Frame> frames, double beat)
     {
         var idx = FindLastIndexAtOrBeforeBeat(frames, beat, frame => frame.Beat);
-        return idx >= 0 && IsSameBeat(frames[idx].Beat, beat) ? frames[idx] : null;
+        if (idx >= 0 && IsSameBeat(frames[idx].Beat, beat))
+            return frames[idx];
+        return null;
     }
 
     /// <summary>

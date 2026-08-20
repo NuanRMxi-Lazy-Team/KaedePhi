@@ -1,13 +1,57 @@
 using KaedePhi.Core.Common;
+using KaedePhi.Tool.Converter.PhiEdit;
 using KaedePhi.Tool.Converter.PhiEdit.Model;
 using KaedePhi.Tool.Converter.PhiEdit.Utils;
 using KpcSpeedEvent = KaedePhi.Core.KaedePhi.Events.Event<float>;
+using PeChart = KaedePhi.Core.PhiEdit.Chart;
+using PeEvent = KaedePhi.Core.PhiEdit.Event;
+using PeFrame = KaedePhi.Core.PhiEdit.Frame;
 using PeJudgeLine = KaedePhi.Core.PhiEdit.JudgeLine;
+using PeMoveEvent = KaedePhi.Core.PhiEdit.MoveEvent;
 
 namespace KaedePhi.Tests.Converter;
 
 public class PhiEditSpeedConversionTests
 {
+    [Fact]
+    public void ToKpc_ConvertsEventsWhenMoveAndRotateFramesAreMissing()
+    {
+        var source = new PeChart
+        {
+            JudgeLineList =
+            [
+                new PeJudgeLine
+                {
+                    MoveEvents =
+                    [
+                        new PeMoveEvent
+                        {
+                            StartBeat = 1f,
+                            EndBeat = 2f,
+                            EndXValue = 1024f,
+                            EndYValue = 700f,
+                        },
+                    ],
+                    RotateEvents =
+                    [
+                        new PeEvent { StartBeat = 1f, EndBeat = 2f, EndValue = 45f },
+                    ],
+                    SpeedFrames = [new PeFrame(0f, 14f)],
+                },
+            ],
+        };
+
+        var converted = new PhiEditConverter().ToKpc(source, new PhiEditToKpcConvertOptions());
+        var layer = converted.JudgeLineList.Should().ContainSingle().Subject.EventLayers.Should().ContainSingle().Subject;
+
+        layer.MoveXEvents.Should().NotBeNullOrEmpty();
+        layer.MoveYEvents.Should().NotBeNullOrEmpty();
+        layer.RotateEvents.Should().NotBeNullOrEmpty();
+        layer.SpeedEvents.Should().ContainSingle();
+        layer.SpeedEvents![0].StartValue.Should().BeApproximately(9f, 1e-6f);
+        ((double)layer.SpeedEvents[0].EndBeat).Should().BeApproximately(1d / 64d, 1e-9d);
+    }
+
     [Fact]
     public void ConvertSpeedFrames_UsesFixedKpcToPeSpeedRatio()
     {
