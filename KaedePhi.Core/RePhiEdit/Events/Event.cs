@@ -100,8 +100,13 @@ namespace KaedePhi.Core.RePhiEdit.Events
         /// <summary>
         /// 获取某个拍在这个事件中的值
         /// </summary>
+        /// <param name="beat">要查询的拍。</param>
+        /// <returns>指定拍对应的事件值。</returns>
         public T GetValueAtBeat(Beat beat)
         {
+            if (EndBeat == StartBeat)
+                return beat < StartBeat ? StartValue : EndValue;
+
             var t = (beat - StartBeat) / (EndBeat - StartBeat);
             return t switch
             {

@@ -11,10 +11,18 @@ namespace KaedePhi.Core.KaedePhi
             double progress = function(start + (end - start) * t);
             double progressStart = function(start);
             double progressEnd = function(end);
-            return (progress - progressStart) / (progressEnd - progressStart);
+            var span = progressEnd - progressStart;
+            return System.Math.Abs(span) <= 1e-12d ? t : (progress - progressStart) / span;
         }
 
-        // 使用 int 指定对应的缓动函数
+        /// <summary>
+        /// 使用指定编号的缓动函数在给定区间计算进度。
+        /// </summary>
+        /// <param name="easingType">缓动函数编号。</param>
+        /// <param name="start">缓动区间左端点。</param>
+        /// <param name="end">缓动区间右端点。</param>
+        /// <param name="t">区间内的线性进度。</param>
+        /// <returns>归一化后的缓动进度。</returns>
         public static double Evaluate(int easingType, double start, double end, double t)
         {
             EasingFunction function = easingType switch

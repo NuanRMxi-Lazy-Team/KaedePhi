@@ -34,28 +34,45 @@ namespace KaedePhi.Core.KaedePhi.Events
         /// <summary>
         /// 获取指定拍在此事件中的插值（返回 double）。
         /// </summary>
+        /// <param name="beat">要查询的拍。</param>
+        /// <returns>指定拍对应的连续双精度事件值。</returns>
         public double GetValueAtBeatAsDouble(Beat beat)
         {
+            if (EndBeat == StartBeat)
+                return beat < StartBeat ? GetStartValueAsDouble() : GetEndValueAsDouble();
+
             var t = (beat - StartBeat) / (EndBeat - StartBeat);
             return t switch
             {
                 <= 0 => GetStartValueAsDouble(),
                 >= 1 => GetEndValueAsDouble(),
-                _ => Easing.Interpolate(
-                    EasingLeft,
-                    EasingRight,
-                    GetStartValueAsDouble(),
-                    GetEndValueAsDouble(),
-                    t
-                ),
+                _ => IsBezier
+                    ? Bezier.Do(
+                        BezierPoints,
+                        (float)t,
+                        GetStartValueAsDouble(),
+                        GetEndValueAsDouble()
+                    )
+                    : Easing.Interpolate(
+                        EasingLeft,
+                        EasingRight,
+                        GetStartValueAsDouble(),
+                        GetEndValueAsDouble(),
+                        t
+                    ),
             };
         }
 
         /// <summary>
         /// 获取某个拍在这个事件中的值
         /// </summary>
+        /// <param name="beat">要查询的拍。</param>
+        /// <returns>指定拍对应的事件值。</returns>
         public T GetValueAtBeat(Beat beat)
         {
+            if (EndBeat == StartBeat)
+                return beat < StartBeat ? StartValue : EndValue;
+
             var t = (beat - StartBeat) / (EndBeat - StartBeat);
             return t switch
             {
@@ -149,9 +166,7 @@ namespace KaedePhi.Core.KaedePhi.Events
                         BezierPoints,
                         ft,
                         startBytes[i],
-                        endBytes[i],
-                        EasingLeft,
-                        EasingRight
+                        endBytes[i]
                     );
                 else
                     result[i] = (byte)
