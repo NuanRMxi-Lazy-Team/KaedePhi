@@ -19,7 +19,8 @@ public static class ChartPipeline
     {
         ct.ThrowIfCancellationRequested();
         var kpc = converter.ToKpc(input, inOptions);
-        return new ChartPipelineSource(kpc, ct);
+        var normalized = ChartProcessingValidator.NormalizeAndValidateNoteEndBeats(kpc);
+        return new ChartPipelineSource(normalized, ct);
     }
 }
 
@@ -46,7 +47,8 @@ public sealed class ChartPipelineSource
     )
     {
         _ct.ThrowIfCancellationRequested();
-        ChartProcessingValidator.ValidateJudgeLineHierarchy(_kpc.JudgeLineList);
-        return toConverter.FromKpc(_kpc, outOptions);
+        var normalized = ChartProcessingValidator.NormalizeAndValidateNoteEndBeats(_kpc);
+        ChartProcessingValidator.ValidateJudgeLineHierarchy(normalized.JudgeLineList);
+        return toConverter.FromKpc(normalized, outOptions);
     }
 }

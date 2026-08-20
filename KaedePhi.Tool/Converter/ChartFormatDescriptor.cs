@@ -105,8 +105,9 @@ public sealed class ChartFormatDescriptor
             throw new NotSupportedException($"{Type} 不支持作为导入源。");
         ArgumentNullException.ThrowIfNull(text);
         var chart = await Importer(text, importOptions, log ?? ChartLogSink.None, ct);
-        ChartProcessingValidator.ValidateJudgeLineHierarchy(chart.JudgeLineList);
-        return chart;
+        var normalized = ChartProcessingValidator.NormalizeAndValidateNoteEndBeats(chart);
+        ChartProcessingValidator.ValidateJudgeLineHierarchy(normalized.JudgeLineList);
+        return normalized;
     }
 
     /// <summary>
@@ -130,8 +131,9 @@ public sealed class ChartFormatDescriptor
 
         ct.ThrowIfCancellationRequested();
         var chart = await StreamImporter(stream, importOptions, log ?? ChartLogSink.None, ct);
-        ChartProcessingValidator.ValidateJudgeLineHierarchy(chart.JudgeLineList);
-        return chart;
+        var normalized = ChartProcessingValidator.NormalizeAndValidateNoteEndBeats(chart);
+        ChartProcessingValidator.ValidateJudgeLineHierarchy(normalized.JudgeLineList);
+        return normalized;
     }
 
     /// <summary>
@@ -156,9 +158,10 @@ public sealed class ChartFormatDescriptor
         if (Exporter is null)
             throw new NotSupportedException($"{Type} 不支持作为导出目标。");
         ArgumentNullException.ThrowIfNull(chart);
-        ChartProcessingValidator.ValidateJudgeLineHierarchy(chart.JudgeLineList);
+        var normalized = ChartProcessingValidator.NormalizeAndValidateNoteEndBeats(chart);
+        ChartProcessingValidator.ValidateJudgeLineHierarchy(normalized.JudgeLineList);
         return Exporter(
-            chart,
+            normalized,
             outputPath,
             writeSettings ?? new ChartWriteSettings(),
             exportOptions,

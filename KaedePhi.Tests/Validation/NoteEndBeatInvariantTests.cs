@@ -1,5 +1,7 @@
+using System.Reflection;
 using KaedePhi.Core.Common;
 using KaedePhi.Tool.Common;
+using KaedePhi.Tool.Converter;
 using KaedePhi.Tool.Converter.KaedePhi;
 using KaedePhi.Tool.Converter.PhiChain;
 using KaedePhi.Tool.Converter.PhiChain.Model;
@@ -497,6 +499,164 @@ public class NoteEndBeatInvariantTests
         ((double)source.JudgeLineList[0].Notes[0].EndBeat).Should().Be(9);
     }
 
+    [Fact]
+    public void ChartPipeline_NormalizesSourceConverterResultBeforeTargetConverter()
+    {
+        var sourceChart = CreateKpcChart(NoteType.Tap, 3, 9);
+        var sourceConverter = new UnvalidatedKpcConverter { ToKpcResult = sourceChart };
+        var targetConverter = new UnvalidatedKpcConverter();
+
+        var pipeline = ChartPipeline.From<Kpc.Chart, Unit?, Unit?>(
+            new Kpc.Chart(),
+            sourceConverter,
+            null,
+            TestContext.Current.CancellationToken
+        );
+        _ = pipeline.To<Kpc.Chart, Unit?, Unit?>(targetConverter, null);
+
+        targetConverter.ReceivedKpc.Should().NotBeNull();
+        ((double)targetConverter.ReceivedKpc!.JudgeLineList[0].Notes[0].EndBeat).Should().Be(3);
+        targetConverter.ReceivedKpc.Should().NotBeSameAs(sourceChart);
+        ((double)sourceChart.JudgeLineList[0].Notes[0].EndBeat).Should().Be(9);
+    }
+
+    [Fact]
+    public void ChartPipeline_RejectsInvalidSourceConverterResultBeforeTargetConverterCanRun()
+    {
+        var sourceConverter = new UnvalidatedKpcConverter
+        {
+            ToKpcResult = CreateKpcChartWithNote(
+                new Kpc.Note { Type = NoteType.Hold, StartBeat = Beat(3) }
+            ),
+        };
+        var targetConverter = new UnvalidatedKpcConverter();
+
+        Action act = () =>
+            ChartPipeline.From<Kpc.Chart, Unit?, Unit?>(
+                new Kpc.Chart(),
+                sourceConverter,
+                null,
+                TestContext.Current.CancellationToken
+            );
+
+        act.Should().Throw<FormatException>();
+        targetConverter.FromKpcCalled.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task ChartFormatDescriptor_ImportAsyncNormalizesIndependentCopy()
+    {
+        var importedChart = CreateKpcChart(NoteType.Tap, 3, 9);
+        var descriptor = CreateDescriptor();
+        SetDescriptorDelegate(
+            descriptor,
+            "Importer",
+            (Func<string, object?, ChartLogSink, CancellationToken, Task<Kpc.Chart>>)(
+                (_, _, _, _) => Task.FromResult(importedChart)
+            )
+        );
+
+        var imported = await descriptor.ImportAsync("ignored", ct: TestContext.Current.CancellationToken);
+
+        ((double)imported.JudgeLineList[0].Notes[0].EndBeat).Should().Be(3);
+        imported.Should().NotBeSameAs(importedChart);
+        ((double)importedChart.JudgeLineList[0].Notes[0].EndBeat).Should().Be(9);
+    }
+
+    [Fact]
+    public async Task ChartFormatDescriptor_ImportStreamAsyncNormalizesIndependentCopy()
+    {
+        var importedChart = CreateKpcChart(NoteType.Drag, 3, 9);
+        var descriptor = CreateDescriptor();
+        SetDescriptorDelegate(
+            descriptor,
+            "StreamImporter",
+            (Func<Stream, object?, ChartLogSink, CancellationToken, Task<Kpc.Chart>>)(
+                (_, _, _, _) => Task.FromResult(importedChart)
+            )
+        );
+        await using var stream = new MemoryStream();
+
+        var imported = await descriptor.ImportStreamAsync(
+            stream,
+            ct: TestContext.Current.CancellationToken
+        );
+
+        ((double)imported.JudgeLineList[0].Notes[0].EndBeat).Should().Be(3);
+        imported.Should().NotBeSameAs(importedChart);
+        ((double)importedChart.JudgeLineList[0].Notes[0].EndBeat).Should().Be(9);
+    }
+
+    [Fact]
+    public async Task ChartFormatDescriptor_ExportAsyncPassesNormalizedIndependentCopyToExporter()
+    {
+        var sourceChart = CreateKpcChart(NoteType.Flick, 3, 9);
+        Kpc.Chart? exportedChart = null;
+        var descriptor = CreateDescriptor();
+        SetDescriptorDelegate(
+            descriptor,
+            "Exporter",
+            (Func<Kpc.Chart, string, ChartWriteSettings, object?, ChartLogSink, CancellationToken, Task>)(
+                (chart, _, _, _, _, _) =>
+                {
+                    exportedChart = chart;
+                    return Task.CompletedTask;
+                }
+            )
+        );
+
+        await descriptor.ExportAsync(sourceChart, "ignored", ct: TestContext.Current.CancellationToken);
+
+        exportedChart.Should().NotBeNull();
+        ((double)exportedChart!.JudgeLineList[0].Notes[0].EndBeat).Should().Be(3);
+        exportedChart.Should().NotBeSameAs(sourceChart);
+        ((double)sourceChart.JudgeLineList[0].Notes[0].EndBeat).Should().Be(9);
+    }
+
+    [Fact]
+    public async Task ChartFormatDescriptor_ExportAsyncRejectsInvalidHoldBeforeExporterStarts()
+    {
+        var exporterStarted = false;
+        var descriptor = CreateDescriptor();
+        SetDescriptorDelegate(
+            descriptor,
+            "Exporter",
+            (Func<Kpc.Chart, string, ChartWriteSettings, object?, ChartLogSink, CancellationToken, Task>)(
+                (_, _, _, _, _, _) =>
+                {
+                    exporterStarted = true;
+                    return Task.CompletedTask;
+                }
+            )
+        );
+        var sourceChart = CreateKpcChartWithNote(
+            new Kpc.Note { Type = NoteType.Hold, StartBeat = Beat(3) }
+        );
+
+        Func<Task> act = () =>
+            descriptor.ExportAsync(sourceChart, "ignored", ct: TestContext.Current.CancellationToken);
+
+        await act.Should().ThrowAsync<FormatException>();
+        exporterStarted.Should().BeFalse();
+    }
+
+    private static ChartFormatDescriptor CreateDescriptor() =>
+        new() { Type = ChartType.PhiEdit, FileExtension = "test" };
+
+    private static void SetDescriptorDelegate(
+        ChartFormatDescriptor descriptor,
+        string propertyName,
+        object value
+    )
+    {
+        var property = typeof(ChartFormatDescriptor).GetProperty(
+            propertyName,
+            BindingFlags.Instance | BindingFlags.NonPublic
+        );
+        property.Should().NotBeNull();
+        property!.SetValue(descriptor, value);
+    }
+
     private static void ConvertFromKpc(string format, Kpc.Chart source)
     {
         switch (format)
@@ -563,4 +723,42 @@ public class NoteEndBeatInvariantTests
         new() { Lines = [new Pc.SerializedLine { Notes = [note] }] };
 
     private static Beat Beat(double value) => new(value);
+
+    private sealed class UnvalidatedKpcConverter : IChartConverter<Kpc.Chart, Unit?, Unit?>
+    {
+        public Kpc.Chart? ToKpcResult { get; init; }
+
+        public Kpc.Chart? ReceivedKpc { get; private set; }
+
+        public bool FromKpcCalled { get; private set; }
+
+        public Action<string>? OnInfo { get; set; }
+
+        public Action<string>? OnWarning { get; set; }
+
+        public Action<string>? OnError { get; set; }
+
+        public Action<string>? OnDebug { get; set; }
+
+        public IDisposable SubscribeLog(
+            Action<string>? info = null,
+            Action<string>? warning = null,
+            Action<string>? error = null,
+            Action<string>? debug = null
+        ) => new TestDisposable();
+
+        public Kpc.Chart ToKpc(Kpc.Chart input, Unit? options) => ToKpcResult ?? input;
+
+        public Kpc.Chart FromKpc(Kpc.Chart input, Unit? options)
+        {
+            FromKpcCalled = true;
+            ReceivedKpc = input;
+            return input;
+        }
+    }
+
+    private sealed class TestDisposable : IDisposable
+    {
+        public void Dispose() { }
+    }
 }
