@@ -168,7 +168,8 @@ public class PhiFansConverter
     private static Line ConvertLine(Kpc.JudgeLine src, KpcToPhiFansConvertOptions options)
     {
         var line = new Line { NoteList = src.Notes.ConvertAll(ConvertNoteFromKpc) };
-        var layers = src.EventLayers.ConvertAll(layer => layer.Clone());
+        var sourceLayers = src.EventLayers.ConvertAll(layer => layer.Clone());
+        var layers = sourceLayers.ConvertAll(layer => layer.Clone());
         var layerProcessor = new LayerProcessor();
         KpcEvents.EventLayer layer;
         if (options.MultiLayerMerge.ClassicMode)
@@ -187,6 +188,13 @@ public class PhiFansConverter
         }
 
         var cutLength = 1d / options.Cutting.UnsupportedEasingPrecision;
+        RestoreUnsupportedComposition(
+            layer,
+            sourceLayers,
+            layerProcessor,
+            options.Cutting.UnsupportedEasingPrecision,
+            cutLength
+        );
         if (layer.AlphaEvents is not null)
             foreach (var e in ExpandUnsupportedEvents(layer.AlphaEvents, cutLength, false))
                 ConvertKpcEventToPhiFans(e, line.Props.Alpha, v => (float)v, MapKpcEasingToPp);
@@ -237,6 +245,115 @@ public class PhiFansConverter
         return line;
     }
 
+    private static void RestoreUnsupportedComposition(
+        KpcEvents.EventLayer mergedLayer,
+        List<KpcEvents.EventLayer> sourceLayers,
+        LayerProcessor layerProcessor,
+        double precision,
+        double cutLength
+    )
+    {
+        var restoreAlpha = HasUnsupportedOverlap(sourceLayers, layer => layer.AlphaEvents, false);
+        var restoreMoveX = HasUnsupportedOverlap(sourceLayers, layer => layer.MoveXEvents, false);
+        var restoreMoveY = HasUnsupportedOverlap(sourceLayers, layer => layer.MoveYEvents, false);
+        var restoreRotate = HasUnsupportedOverlap(sourceLayers, layer => layer.RotateEvents, false);
+        var restoreSpeed = HasUnsupportedOverlap(sourceLayers, layer => layer.SpeedEvents, true);
+        if (!restoreAlpha && !restoreMoveX && !restoreMoveY && !restoreRotate && !restoreSpeed)
+            return;
+
+        var fallbackLayers = sourceLayers.ConvertAll(layer => layer.Clone());
+        foreach (var fallbackLayer in fallbackLayers)
+        {
+            fallbackLayer.AlphaEvents = PrepareEventsForMerge(
+                fallbackLayer.AlphaEvents,
+                cutLength,
+                false
+            );
+            fallbackLayer.MoveXEvents = PrepareEventsForMerge(
+                fallbackLayer.MoveXEvents,
+                cutLength,
+                false
+            );
+            fallbackLayer.MoveYEvents = PrepareEventsForMerge(
+                fallbackLayer.MoveYEvents,
+                cutLength,
+                false
+            );
+            fallbackLayer.RotateEvents = PrepareEventsForMerge(
+                fallbackLayer.RotateEvents,
+                cutLength,
+                false
+            );
+            fallbackLayer.SpeedEvents = PrepareEventsForMerge(
+                fallbackLayer.SpeedEvents,
+                cutLength,
+                true
+            );
+        }
+
+        var fallback = layerProcessor.LayerMerge(fallbackLayers, precision);
+        if (restoreAlpha)
+            mergedLayer.AlphaEvents = fallback.AlphaEvents;
+        if (restoreMoveX)
+            mergedLayer.MoveXEvents = fallback.MoveXEvents;
+        if (restoreMoveY)
+            mergedLayer.MoveYEvents = fallback.MoveYEvents;
+        if (restoreRotate)
+            mergedLayer.RotateEvents = fallback.RotateEvents;
+        if (restoreSpeed)
+            mergedLayer.SpeedEvents = fallback.SpeedEvents;
+    }
+
+    private static bool HasUnsupportedOverlap<T>(
+        IReadOnlyList<KpcEvents.EventLayer> layers,
+        Func<KpcEvents.EventLayer, List<KpcEvents.Event<T>>?> selectEvents,
+        bool linearOnly
+    )
+        where T : notnull
+    {
+        for (var layerIndex = 0; layerIndex < layers.Count; layerIndex++)
+        {
+            var events = selectEvents(layers[layerIndex]);
+            if (events is null)
+                continue;
+
+            foreach (var evt in events)
+            {
+                if (CanMapDirectly(evt, linearOnly))
+                    continue;
+
+                for (var otherLayerIndex = 0; otherLayerIndex < layers.Count; otherLayerIndex++)
+                {
+                    if (otherLayerIndex == layerIndex)
+                        continue;
+                    var otherEvents = selectEvents(layers[otherLayerIndex]);
+                    if (
+                        otherEvents?.Any(other =>
+                            evt.StartBeat < other.EndBeat && other.StartBeat < evt.EndBeat
+                        ) == true
+                    )
+                        return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    private static List<KpcEvents.Event<T>>? PrepareEventsForMerge<T>(
+        List<KpcEvents.Event<T>>? events,
+        double cutLength,
+        bool linearOnly
+    )
+        where T : notnull
+    {
+        return events is null
+            ? null
+            : ExpandUnsupportedEvents(events, cutLength, linearOnly)
+                .Select(evt => evt.Clone())
+                .ToList();
+    }
+
     private static IEnumerable<KpcEvents.Event<T>> ExpandUnsupportedEvents<T>(
         IEnumerable<KpcEvents.Event<T>> events,
         double cutLength,
@@ -253,9 +370,29 @@ public class PhiFansConverter
                 continue;
             }
 
-            foreach (var segment in cutter.CutEventToLinear(evt, cutLength))
-                yield return segment;
+            var segments = cutter.CutEventToLinear(evt, cutLength);
+            if (segments.Count > 0)
+            {
+                foreach (var segment in segments)
+                    yield return segment;
+                continue;
+            }
+
+            if (evt.StartBeat == evt.EndBeat)
+                yield return CreateLinearInstantEvent(evt);
         }
+    }
+
+    private static KpcEvents.Event<T> CreateLinearInstantEvent<T>(KpcEvents.Event<T> evt)
+        where T : notnull
+    {
+        var instant = evt.Clone();
+        instant.StartValue = instant.EndValue;
+        instant.Easing = Kpc.Easing.Linear;
+        instant.IsBezier = false;
+        instant.EasingLeft = 0;
+        instant.EasingRight = 1;
+        return instant;
     }
 
     private static bool CanMapDirectly<T>(KpcEvents.Event<T> evt, bool linearOnly)

@@ -67,7 +67,7 @@ public class PhiFansConverterTests
     {
         var sourceEvent = CreateDoubleEvent(0, 1, 0, 10);
         sourceEvent.IsBezier = true;
-        sourceEvent.BezierPoints = [0, 0, 1, 1];
+        sourceEvent.BezierPoints = [1f / 3f, 0, 2f / 3f, 1];
         var chart = CreateChart(sourceEvent);
 
         var exported = new PhiFansConverter().FromKpc(chart, CreateOptions());
@@ -76,7 +76,34 @@ public class PhiFansConverterTests
         var roundTripEvents = roundTrip.JudgeLineList[0].EventLayers[0].MoveXEvents!;
 
         AssertLinearPhiFansNodes(phiFansEvents);
-        AssertMoveValues(roundTripEvents, 0, 2.5, 5, 7.5, 10);
+        AssertMoveValues(roundTripEvents, 0, 1.5625, 5, 8.4375, 10);
+    }
+
+    [Fact]
+    public void FromKpc_OverlappingUnsupportedCurve_UsesCutterPrecisionAfterComposition()
+    {
+        var curve = CreateDoubleEvent(0, 1, 0, 4);
+        curve.IsBezier = true;
+        curve.BezierPoints = [1f / 3f, 0, 2f / 3f, 1];
+        var chart = CreateChartWithLayers(
+            new KpcEvents.EventLayer { MoveXEvents = [curve] },
+            new KpcEvents.EventLayer
+            {
+                MoveXEvents = [CreateDoubleEvent(0, 1, 0, 4)],
+            }
+        );
+        var options = CreateOptions();
+        options.MultiLayerMerge.Precision = 2;
+        options.MultiLayerMerge.ClassicMode = true;
+        options.MultiLayerMerge.Compress = false;
+
+        var exported = new PhiFansConverter().FromKpc(chart, options);
+        var roundTrip = new PhiFansConverter().ToKpc(exported, null);
+        var phiFansEvents = exported.JudgeLineList[0].Props.PositionX;
+        var roundTripEvents = roundTrip.JudgeLineList[0].EventLayers[0].MoveXEvents!;
+
+        AssertLinearPhiFansNodes(phiFansEvents);
+        AssertMoveValues(roundTripEvents, 0, 1.625, 4, 6.375, 8);
     }
 
     [Fact]
@@ -111,6 +138,25 @@ public class PhiFansConverterTests
     }
 
     [Fact]
+    public void FromKpc_InstantUnknownEasingMove_EmitsLinearNodeWithEndValue()
+    {
+        var chart = CreateChart(CreateDoubleEvent(1, 1, 1, 2, 99));
+
+        var exported = new PhiFansConverter().FromKpc(chart, CreateOptions());
+        var roundTrip = new PhiFansConverter().ToKpc(exported, null);
+        var phiFansEvents = exported.JudgeLineList[0].Props.PositionX;
+        var roundTripEvents = roundTrip.JudgeLineList[0].EventLayers[0].MoveXEvents!;
+
+        phiFansEvents.Should().ContainSingle();
+        ((double)phiFansEvents[0].Beat).Should().Be(1);
+        phiFansEvents[0].Value.Should().BeApproximately(200, 1e-5f);
+        ((int)phiFansEvents[0].Easing).Should().Be(0);
+        KpcEvents.EventLayer.GetValueAtBeat(roundTripEvents, Beat(1))
+            .Should()
+            .BeApproximately(2, 1e-5);
+    }
+
+    [Fact]
     public void FromKpc_RepresentableMove_PreservesCompactMappedEasing()
     {
         var chart = CreateChart(CreateDoubleEvent(0, 1, 0, 10, 5));
@@ -139,6 +185,30 @@ public class PhiFansConverterTests
 
         AssertLinearPhiFansNodes(phiFansEvents);
         AssertSpeedValues(roundTripEvents, 0, 0.25, 1, 2.25, 4);
+    }
+
+    [Fact]
+    public void FromKpc_InstantNonlinearSpeed_EmitsLinearNodeWithEndValue()
+    {
+        var chart = CreateChartWithLayers(
+            new KpcEvents.EventLayer
+            {
+                SpeedEvents = [CreateFloatEvent(1, 1, 1, 2, 5)],
+            }
+        );
+
+        var exported = new PhiFansConverter().FromKpc(chart, CreateOptions());
+        var roundTrip = new PhiFansConverter().ToKpc(exported, null);
+        var phiFansEvents = exported.JudgeLineList[0].Props.Speed;
+        var roundTripEvents = roundTrip.JudgeLineList[0].EventLayers[0].SpeedEvents!;
+
+        phiFansEvents.Should().ContainSingle();
+        ((double)phiFansEvents[0].Beat).Should().Be(1);
+        phiFansEvents[0].Value.Should().BeApproximately(2f / 7.15f, 1e-5f);
+        ((int)phiFansEvents[0].Easing).Should().Be(0);
+        KpcEvents.EventLayer.GetValueAtBeat(roundTripEvents, Beat(1))
+            .Should()
+            .BeApproximately(2, 1e-5f);
     }
 
     [Fact]
