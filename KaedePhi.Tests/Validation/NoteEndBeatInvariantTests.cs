@@ -529,7 +529,6 @@ public class NoteEndBeatInvariantTests
                 new Kpc.Note { Type = NoteType.Hold, StartBeat = Beat(3) }
             ),
         };
-        var targetConverter = new UnvalidatedKpcConverter();
 
         Action act = () =>
             ChartPipeline.From<Kpc.Chart, Unit?, Unit?>(
@@ -540,7 +539,39 @@ public class NoteEndBeatInvariantTests
             );
 
         act.Should().Throw<FormatException>();
-        targetConverter.FromKpcCalled.Should().BeFalse();
+    }
+
+    [Fact]
+    public void ChartPipeline_ReNormalizesEachTargetInputAndIsolatesSourceConverterReference()
+    {
+        var sourceChart = CreateKpcChart(NoteType.Tap, 3, 9);
+        var sourceConverter = new UnvalidatedKpcConverter { ToKpcResult = sourceChart };
+        var firstTargetEndBeat = 0d;
+        var firstTarget = new UnvalidatedKpcConverter
+        {
+            OnFromKpc = chart =>
+            {
+                firstTargetEndBeat = (double)chart.JudgeLineList[0].Notes[0].EndBeat;
+                chart.JudgeLineList[0].Notes[0].EndBeat = Beat(15);
+            },
+        };
+        var secondTarget = new UnvalidatedKpcConverter();
+
+        var pipeline = ChartPipeline.From<Kpc.Chart, Unit?, Unit?>(
+            new Kpc.Chart(),
+            sourceConverter,
+            null,
+            TestContext.Current.CancellationToken
+        );
+        sourceChart.JudgeLineList[0].Notes[0].EndBeat = Beat(11);
+        _ = pipeline.To<Kpc.Chart, Unit?, Unit?>(firstTarget, null);
+        _ = pipeline.To<Kpc.Chart, Unit?, Unit?>(secondTarget, null);
+
+        firstTargetEndBeat.Should().Be(3);
+        secondTarget.ReceivedKpc.Should().NotBeNull();
+        ((double)secondTarget.ReceivedKpc!.JudgeLineList[0].Notes[0].EndBeat).Should().Be(3);
+        firstTarget.ReceivedKpc.Should().NotBeSameAs(secondTarget.ReceivedKpc);
+        ((double)sourceChart.JudgeLineList[0].Notes[0].EndBeat).Should().Be(11);
     }
 
     [Fact]
@@ -730,7 +761,7 @@ public class NoteEndBeatInvariantTests
 
         public Kpc.Chart? ReceivedKpc { get; private set; }
 
-        public bool FromKpcCalled { get; private set; }
+        public Action<Kpc.Chart>? OnFromKpc { get; init; }
 
         public Action<string>? OnInfo { get; set; }
 
@@ -751,8 +782,8 @@ public class NoteEndBeatInvariantTests
 
         public Kpc.Chart FromKpc(Kpc.Chart input, Unit? options)
         {
-            FromKpcCalled = true;
             ReceivedKpc = input;
+            OnFromKpc?.Invoke(input);
             return input;
         }
     }
