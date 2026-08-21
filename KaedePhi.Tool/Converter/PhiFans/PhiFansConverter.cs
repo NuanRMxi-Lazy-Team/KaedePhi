@@ -169,7 +169,11 @@ public class PhiFansConverter
     {
         var line = new Line { NoteList = src.Notes.ConvertAll(ConvertNoteFromKpc) };
         var sourceLayers = src.EventLayers.ConvertAll(layer => layer.Clone());
+        foreach (var sourceLayer in sourceLayers)
+            sourceLayer.Sort();
         var layers = sourceLayers.ConvertAll(layer => layer.Clone());
+        foreach (var mergeLayer in layers)
+            RemoveInstantEvents(mergeLayer);
         var layerProcessor = new LayerProcessor();
         KpcEvents.EventLayer layer;
         if (options.MultiLayerMerge.ClassicMode)
@@ -188,13 +192,47 @@ public class PhiFansConverter
         }
 
         var cutLength = 1d / options.Cutting.UnsupportedEasingPrecision;
-        RestoreUnsupportedComposition(
-            layer,
+        var (alphaEvents, alphaStepBeats) = ResolveChannelComposition(
+            layer.AlphaEvents,
             sourceLayers,
-            layerProcessor,
-            options.Cutting.UnsupportedEasingPrecision,
+            sourceLayer => sourceLayer.AlphaEvents,
+            false,
             cutLength
         );
+        var (moveXEvents, moveXStepBeats) = ResolveChannelComposition(
+            layer.MoveXEvents,
+            sourceLayers,
+            sourceLayer => sourceLayer.MoveXEvents,
+            false,
+            cutLength
+        );
+        var (moveYEvents, moveYStepBeats) = ResolveChannelComposition(
+            layer.MoveYEvents,
+            sourceLayers,
+            sourceLayer => sourceLayer.MoveYEvents,
+            false,
+            cutLength
+        );
+        var (rotateEvents, rotateStepBeats) = ResolveChannelComposition(
+            layer.RotateEvents,
+            sourceLayers,
+            sourceLayer => sourceLayer.RotateEvents,
+            false,
+            cutLength
+        );
+        var (speedEvents, speedStepBeats) = ResolveChannelComposition(
+            layer.SpeedEvents,
+            sourceLayers,
+            sourceLayer => sourceLayer.SpeedEvents,
+            true,
+            cutLength
+        );
+        layer.AlphaEvents = alphaEvents;
+        layer.MoveXEvents = moveXEvents;
+        layer.MoveYEvents = moveYEvents;
+        layer.RotateEvents = rotateEvents;
+        layer.SpeedEvents = speedEvents;
+
         if (layer.AlphaEvents is not null)
             foreach (var e in ExpandUnsupportedEvents(layer.AlphaEvents, cutLength, false))
                 ConvertKpcEventToPhiFans(e, line.Props.Alpha, v => (float)v, MapKpcEasingToPp);
@@ -236,123 +274,532 @@ public class PhiFansConverter
                 ConvertKpcEventToPhiFans(e, line.Props.Speed, v => v / SpeedRatio, _ => 0);
 
         var paddingPrecision = options.DiscontinuityBeatPrecision;
-        FixDiscontinuityGaps(line.Props.Alpha, paddingPrecision);
-        FixDiscontinuityGaps(line.Props.PositionX, paddingPrecision);
-        FixDiscontinuityGaps(line.Props.PositionY, paddingPrecision);
-        FixDiscontinuityGaps(line.Props.Rotate, paddingPrecision);
-        FixDiscontinuityGaps(line.Props.Speed, paddingPrecision);
+        FixDiscontinuityGaps(line.Props.Alpha, paddingPrecision, alphaStepBeats);
+        FixDiscontinuityGaps(line.Props.PositionX, paddingPrecision, moveXStepBeats);
+        FixDiscontinuityGaps(line.Props.PositionY, paddingPrecision, moveYStepBeats);
+        FixDiscontinuityGaps(line.Props.Rotate, paddingPrecision, rotateStepBeats);
+        FixDiscontinuityGaps(line.Props.Speed, paddingPrecision, speedStepBeats);
 
         return line;
     }
 
-    private static void RestoreUnsupportedComposition(
-        KpcEvents.EventLayer mergedLayer,
-        List<KpcEvents.EventLayer> sourceLayers,
-        LayerProcessor layerProcessor,
-        double precision,
+    private static void RemoveInstantEvents(KpcEvents.EventLayer layer)
+    {
+        layer.AlphaEvents?.RemoveAll(evt => evt.StartBeat == evt.EndBeat);
+        layer.MoveXEvents?.RemoveAll(evt => evt.StartBeat == evt.EndBeat);
+        layer.MoveYEvents?.RemoveAll(evt => evt.StartBeat == evt.EndBeat);
+        layer.RotateEvents?.RemoveAll(evt => evt.StartBeat == evt.EndBeat);
+        layer.SpeedEvents?.RemoveAll(evt => evt.StartBeat == evt.EndBeat);
+    }
+
+    private static (
+        List<KpcEvents.Event<T>> Events,
+        HashSet<Beat> ExactStepBeats
+    ) ResolveChannelComposition<T>(
+        List<KpcEvents.Event<T>>? configuredEvents,
+        IReadOnlyList<KpcEvents.EventLayer> sourceLayers,
+        Func<KpcEvents.EventLayer, List<KpcEvents.Event<T>>?> selectEvents,
+        bool linearOnly,
         double cutLength
     )
+        where T : notnull
     {
-        var restoreAlpha = HasUnsupportedOverlap(sourceLayers, layer => layer.AlphaEvents, false);
-        var restoreMoveX = HasUnsupportedOverlap(sourceLayers, layer => layer.MoveXEvents, false);
-        var restoreMoveY = HasUnsupportedOverlap(sourceLayers, layer => layer.MoveYEvents, false);
-        var restoreRotate = HasUnsupportedOverlap(sourceLayers, layer => layer.RotateEvents, false);
-        var restoreSpeed = HasUnsupportedOverlap(sourceLayers, layer => layer.SpeedEvents, true);
-        if (!restoreAlpha && !restoreMoveX && !restoreMoveY && !restoreRotate && !restoreSpeed)
-            return;
-
-        var fallbackLayers = sourceLayers.ConvertAll(layer => layer.Clone());
-        foreach (var fallbackLayer in fallbackLayers)
+        var sourceEventLists = sourceLayers
+            .Select(layer => selectEvents(layer) ?? [])
+            .ToList();
+        var intervals = CollectUnsupportedOverlapIntervals(sourceEventLists, linearOnly);
+        var resolved = configuredEvents?.ConvertAll(evt => evt.Clone()) ?? [];
+        if (intervals.Count > 0)
         {
-            fallbackLayer.AlphaEvents = PrepareEventsForMerge(
-                fallbackLayer.AlphaEvents,
-                cutLength,
-                false
-            );
-            fallbackLayer.MoveXEvents = PrepareEventsForMerge(
-                fallbackLayer.MoveXEvents,
-                cutLength,
-                false
-            );
-            fallbackLayer.MoveYEvents = PrepareEventsForMerge(
-                fallbackLayer.MoveYEvents,
-                cutLength,
-                false
-            );
-            fallbackLayer.RotateEvents = PrepareEventsForMerge(
-                fallbackLayer.RotateEvents,
-                cutLength,
-                false
-            );
-            fallbackLayer.SpeedEvents = PrepareEventsForMerge(
-                fallbackLayer.SpeedEvents,
-                cutLength,
-                true
+            resolved = SpliceComposedIntervals(
+                resolved,
+                sourceEventLists,
+                intervals,
+                linearOnly,
+                cutLength
             );
         }
 
-        var fallback = layerProcessor.LayerMerge(fallbackLayers, precision);
-        if (restoreAlpha)
-            mergedLayer.AlphaEvents = fallback.AlphaEvents;
-        if (restoreMoveX)
-            mergedLayer.MoveXEvents = fallback.MoveXEvents;
-        if (restoreMoveY)
-            mergedLayer.MoveYEvents = fallback.MoveYEvents;
-        if (restoreRotate)
-            mergedLayer.RotateEvents = fallback.RotateEvents;
-        if (restoreSpeed)
-            mergedLayer.SpeedEvents = fallback.SpeedEvents;
+        var stepBeats = CollectStepTransitionBeats(sourceEventLists);
+        if (stepBeats.Count > 0)
+        {
+            resolved = ComposeStepTimeline(
+                resolved,
+                sourceEventLists,
+                stepBeats,
+                linearOnly,
+                cutLength
+            );
+        }
+
+        resolved = resolved.OrderBy(evt => evt.StartBeat).ThenBy(evt => evt.EndBeat).ToList();
+        return (resolved, stepBeats);
     }
 
-    private static bool HasUnsupportedOverlap<T>(
-        IReadOnlyList<KpcEvents.EventLayer> layers,
-        Func<KpcEvents.EventLayer, List<KpcEvents.Event<T>>?> selectEvents,
+    private static List<(Beat Start, Beat End)> CollectUnsupportedOverlapIntervals<T>(
+        IReadOnlyList<List<KpcEvents.Event<T>>> sourceEventLists,
         bool linearOnly
     )
         where T : notnull
     {
-        for (var layerIndex = 0; layerIndex < layers.Count; layerIndex++)
+        var indexedEvents = new List<(int LayerIndex, KpcEvents.Event<T> Event)>();
+        for (var layerIndex = 0; layerIndex < sourceEventLists.Count; layerIndex++)
         {
-            var events = selectEvents(layers[layerIndex]);
-            if (events is null)
+            foreach (var evt in sourceEventLists[layerIndex])
+            {
+                if (evt.StartBeat < evt.EndBeat)
+                    indexedEvents.Add((layerIndex, evt));
+            }
+        }
+
+        var intervals = new List<(Beat Start, Beat End)>();
+        foreach (var root in indexedEvents)
+        {
+            if (
+                CanMapDirectly(root.Event, linearOnly)
+                || !indexedEvents.Any(candidate =>
+                    candidate.LayerIndex != root.LayerIndex
+                    && EventsOverlap(root.Event, candidate.Event)
+                )
+            )
                 continue;
 
+            var start = root.Event.StartBeat;
+            var end = root.Event.EndBeat;
+            var changed = true;
+            while (changed)
+            {
+                changed = false;
+                foreach (var candidate in indexedEvents)
+                {
+                    if (candidate.Event.StartBeat >= end || candidate.Event.EndBeat <= start)
+                        continue;
+                    if (candidate.Event.StartBeat < start)
+                    {
+                        start = candidate.Event.StartBeat;
+                        changed = true;
+                    }
+                    if (candidate.Event.EndBeat > end)
+                    {
+                        end = candidate.Event.EndBeat;
+                        changed = true;
+                    }
+                }
+            }
+
+            intervals.Add((start, end));
+        }
+
+        return MergeIntervals(intervals);
+    }
+
+    private static bool EventsOverlap<T>(
+        KpcEvents.Event<T> left,
+        KpcEvents.Event<T> right
+    )
+        where T : notnull =>
+        left.StartBeat < right.EndBeat && right.StartBeat < left.EndBeat;
+
+    private static List<(Beat Start, Beat End)> MergeIntervals(
+        List<(Beat Start, Beat End)> intervals
+    )
+    {
+        var ordered = intervals.OrderBy(interval => interval.Start).ToList();
+        var merged = new List<(Beat Start, Beat End)>();
+        foreach (var interval in ordered)
+        {
+            if (merged.Count == 0 || interval.Start >= merged[^1].End)
+            {
+                merged.Add(interval);
+                continue;
+            }
+
+            var previous = merged[^1];
+            merged[^1] = (
+                previous.Start,
+                interval.End > previous.End ? interval.End : previous.End
+            );
+        }
+
+        return merged;
+    }
+
+    private static List<KpcEvents.Event<T>> SpliceComposedIntervals<T>(
+        List<KpcEvents.Event<T>> configuredEvents,
+        IReadOnlyList<List<KpcEvents.Event<T>>> sourceEventLists,
+        IReadOnlyList<(Beat Start, Beat End)> intervals,
+        bool linearOnly,
+        double cutLength
+    )
+        where T : notnull
+    {
+        var result = new List<KpcEvents.Event<T>>();
+        foreach (var evt in configuredEvents)
+        {
+            if (evt.StartBeat == evt.EndBeat)
+            {
+                if (!intervals.Any(interval => IsBeatInInterval(evt.StartBeat, interval)))
+                    result.Add(evt.Clone());
+                continue;
+            }
+
+            foreach (var fragment in SubtractIntervals(evt.StartBeat, evt.EndBeat, intervals))
+            {
+                if (fragment.Start == evt.StartBeat && fragment.End == evt.EndBeat)
+                    result.Add(evt.Clone());
+                else
+                    result.AddRange(
+                        ComposeConfiguredFragment(evt, fragment.Start, fragment.End, cutLength)
+                    );
+            }
+        }
+
+        foreach (var interval in intervals)
+        {
+            result.AddRange(
+                ComposeInterval(
+                    sourceEventLists,
+                    interval.Start,
+                    interval.End,
+                    linearOnly,
+                    cutLength
+                )
+            );
+        }
+
+        return result.OrderBy(evt => evt.StartBeat).ThenBy(evt => evt.EndBeat).ToList();
+    }
+
+    private static List<KpcEvents.Event<T>> ComposeConfiguredFragment<T>(
+        KpcEvents.Event<T> evt,
+        Beat start,
+        Beat end,
+        double cutLength
+    )
+        where T : notnull
+    {
+        if (CanMapDirectly(evt, true))
+        {
+            return
+            [
+                CreateLinearEvent(
+                    start,
+                    end,
+                    evt.GetValueAtBeat(start),
+                    evt.GetValueAtBeat(end)
+                ),
+            ];
+        }
+
+        var result = new List<KpcEvents.Event<T>>();
+        var step = new Beat(cutLength);
+        for (var beat = start; beat < end; )
+        {
+            var next = beat + step;
+            if (next > end)
+                next = end;
+            if (next <= beat)
+                throw new InvalidOperationException("切片步长无法推进配置事件位置。");
+            result.Add(
+                CreateLinearEvent(
+                    beat,
+                    next,
+                    evt.GetValueAtBeat(beat),
+                    evt.GetValueAtBeat(next)
+                )
+            );
+            beat = next;
+        }
+
+        return result;
+    }
+
+    private static bool IsBeatInInterval(Beat beat, (Beat Start, Beat End) interval) =>
+        beat >= interval.Start && beat <= interval.End;
+
+    private static List<(Beat Start, Beat End)> SubtractIntervals(
+        Beat start,
+        Beat end,
+        IReadOnlyList<(Beat Start, Beat End)> intervals
+    )
+    {
+        var fragments = new List<(Beat Start, Beat End)>();
+        var cursor = start;
+        foreach (var interval in intervals)
+        {
+            if (interval.End <= cursor || interval.Start >= end)
+                continue;
+            if (interval.Start > cursor)
+                fragments.Add((cursor, interval.Start < end ? interval.Start : end));
+            if (interval.End > cursor)
+                cursor = interval.End;
+            if (cursor >= end)
+                break;
+        }
+
+        if (cursor < end)
+            fragments.Add((cursor, end));
+        return fragments;
+    }
+
+    private static List<KpcEvents.Event<T>> ComposeInterval<T>(
+        IReadOnlyList<List<KpcEvents.Event<T>>> sourceEventLists,
+        Beat start,
+        Beat end,
+        bool linearOnly,
+        double cutLength
+    )
+        where T : notnull
+    {
+        if (start >= end)
+            return [];
+
+        var boundaries = new SortedSet<Beat> { start, end };
+        var step = new Beat(cutLength);
+        for (var beat = start; beat < end; )
+        {
+            var next = beat + step;
+            if (next > end)
+                next = end;
+            if (next <= beat)
+                throw new InvalidOperationException("切片步长无法推进组合事件位置。");
+            boundaries.Add(next);
+            beat = next;
+        }
+
+        var cutter = new EventCutter<T>();
+        foreach (var events in sourceEventLists)
+        {
             foreach (var evt in events)
             {
-                if (CanMapDirectly(evt, linearOnly))
+                AddBoundaryIfInside(boundaries, evt.StartBeat, start, end);
+                AddBoundaryIfInside(boundaries, evt.EndBeat, start, end);
+                if (evt.StartBeat >= evt.EndBeat || CanMapDirectly(evt, linearOnly))
                     continue;
-
-                for (var otherLayerIndex = 0; otherLayerIndex < layers.Count; otherLayerIndex++)
+                foreach (var segment in cutter.CutEventToLinear(evt, cutLength))
                 {
-                    if (otherLayerIndex == layerIndex)
-                        continue;
-                    var otherEvents = selectEvents(layers[otherLayerIndex]);
-                    if (
-                        otherEvents?.Any(other =>
-                            evt.StartBeat < other.EndBeat && other.StartBeat < evt.EndBeat
-                        ) == true
-                    )
-                        return true;
+                    AddBoundaryIfInside(boundaries, segment.StartBeat, start, end);
+                    AddBoundaryIfInside(boundaries, segment.EndBeat, start, end);
                 }
             }
         }
 
-        return false;
+        var ordered = boundaries.ToList();
+        var result = new List<KpcEvents.Event<T>>(ordered.Count - 1);
+        for (var index = 0; index < ordered.Count - 1; index++)
+        {
+            var segmentStart = ordered[index];
+            var segmentEnd = ordered[index + 1];
+            var endValue = HasEventStartingAt(sourceEventLists, segmentEnd)
+                ? SumBeforeBeat(sourceEventLists, segmentEnd)
+                : SumAtBeat(sourceEventLists, segmentEnd);
+            result.Add(
+                CreateLinearEvent(
+                    segmentStart,
+                    segmentEnd,
+                    SumAtBeat(sourceEventLists, segmentStart),
+                    endValue
+                )
+            );
+        }
+
+        return result;
     }
 
-    private static List<KpcEvents.Event<T>>? PrepareEventsForMerge<T>(
-        List<KpcEvents.Event<T>>? events,
-        double cutLength,
-        bool linearOnly
+    private static void AddBoundaryIfInside(
+        SortedSet<Beat> boundaries,
+        Beat beat,
+        Beat start,
+        Beat end
+    )
+    {
+        if (beat > start && beat < end)
+            boundaries.Add(beat);
+    }
+
+    private static HashSet<Beat> CollectStepTransitionBeats<T>(
+        IReadOnlyList<List<KpcEvents.Event<T>>> sourceEventLists
     )
         where T : notnull
     {
-        return events is null
-            ? null
-            : ExpandUnsupportedEvents(events, cutLength, linearOnly)
-                .Select(evt => evt.Clone())
-                .ToList();
+        var transitions = new HashSet<Beat>();
+        foreach (var events in sourceEventLists)
+        {
+            for (var index = 0; index < events.Count; )
+            {
+                var groupEnd = index + 1;
+                while (
+                    groupEnd < events.Count
+                    && events[groupEnd].StartBeat == events[index].StartBeat
+                )
+                {
+                    groupEnd++;
+                }
+
+                var effective = events[groupEnd - 1];
+                if (effective.StartBeat == effective.EndBeat)
+                {
+                    transitions.Add(effective.StartBeat);
+                    if (groupEnd < events.Count)
+                        transitions.Add(events[groupEnd].StartBeat);
+                }
+
+                index = groupEnd;
+            }
+        }
+
+        return transitions;
     }
+
+    private static List<KpcEvents.Event<T>> ComposeStepTimeline<T>(
+        List<KpcEvents.Event<T>> configuredEvents,
+        IReadOnlyList<List<KpcEvents.Event<T>>> sourceEventLists,
+        HashSet<Beat> stepBeats,
+        bool linearOnly,
+        double cutLength
+    )
+        where T : notnull
+    {
+        var orderedSteps = stepBeats.OrderBy(beat => beat).ToList();
+        var result = new List<KpcEvents.Event<T>>();
+        foreach (var evt in configuredEvents.Where(evt => evt.StartBeat < evt.EndBeat))
+        {
+            var interiorSteps = orderedSteps
+                .Where(beat => beat > evt.StartBeat && beat < evt.EndBeat)
+                .ToList();
+            if (interiorSteps.Count == 0)
+            {
+                var clone = evt.Clone();
+                clone.StartValue = SumAtBeat(sourceEventLists, clone.StartBeat);
+                clone.EndValue = stepBeats.Contains(clone.EndBeat)
+                    ? SumBeforeBeat(sourceEventLists, clone.EndBeat)
+                    : SumAtBeat(sourceEventLists, clone.EndBeat);
+                result.Add(clone);
+                continue;
+            }
+
+            var boundaries = new List<Beat> { evt.StartBeat };
+            boundaries.AddRange(interiorSteps);
+            boundaries.Add(evt.EndBeat);
+            for (var index = 0; index < boundaries.Count - 1; index++)
+            {
+                var fragmentStart = boundaries[index];
+                var fragmentEnd = boundaries[index + 1];
+                if (CanMapDirectly(evt, true))
+                {
+                    result.Add(
+                        CreateLinearEvent(
+                            fragmentStart,
+                            fragmentEnd,
+                            SumAtBeat(sourceEventLists, fragmentStart),
+                            stepBeats.Contains(fragmentEnd)
+                                ? SumBeforeBeat(sourceEventLists, fragmentEnd)
+                                : SumAtBeat(sourceEventLists, fragmentEnd)
+                        )
+                    );
+                }
+                else
+                {
+                    result.AddRange(
+                        ComposeInterval(
+                            sourceEventLists,
+                            fragmentStart,
+                            fragmentEnd,
+                            linearOnly,
+                            cutLength
+                        )
+                    );
+                }
+            }
+        }
+
+        foreach (var stepBeat in orderedSteps)
+        {
+            if (result.Any(evt => evt.StartBeat == stepBeat))
+                continue;
+            result.Add(CreateInstantEvent(stepBeat, SumAtBeat(sourceEventLists, stepBeat)));
+        }
+
+        return result.OrderBy(evt => evt.StartBeat).ThenBy(evt => evt.EndBeat).ToList();
+    }
+
+    private static bool HasEventStartingAt<T>(
+        IReadOnlyList<List<KpcEvents.Event<T>>> sourceEventLists,
+        Beat beat
+    )
+        where T : notnull =>
+        sourceEventLists.Any(events => events.Any(evt => evt.StartBeat == beat));
+
+    private static T SumAtBeat<T>(
+        IReadOnlyList<List<KpcEvents.Event<T>>> sourceEventLists,
+        Beat beat
+    )
+        where T : notnull
+    {
+        var sum = default(T)!;
+        foreach (var events in sourceEventLists)
+        {
+            if (events.Count > 0)
+                sum = NumericHelper.Add(sum, KpcEvents.EventLayer.GetValueAtBeat(events, beat));
+        }
+
+        return sum;
+    }
+
+    private static T SumBeforeBeat<T>(
+        IReadOnlyList<List<KpcEvents.Event<T>>> sourceEventLists,
+        Beat beat
+    )
+        where T : notnull
+    {
+        var sum = default(T)!;
+        foreach (var events in sourceEventLists)
+        {
+            KpcEvents.Event<T>? dominant = null;
+            foreach (var evt in events)
+            {
+                if (evt.StartBeat >= beat)
+                    break;
+                dominant = evt;
+            }
+
+            if (dominant is null)
+                continue;
+            var value = beat <= dominant.EndBeat
+                ? dominant.GetValueAtBeat(beat)
+                : dominant.EndValue;
+            sum = NumericHelper.Add(sum, value);
+        }
+
+        return sum;
+    }
+
+    private static KpcEvents.Event<T> CreateLinearEvent<T>(
+        Beat start,
+        Beat end,
+        T startValue,
+        T endValue
+    )
+        where T : notnull =>
+        new()
+        {
+            StartBeat = start,
+            EndBeat = end,
+            StartValue = startValue,
+            EndValue = endValue,
+            Easing = Kpc.Easing.Linear,
+        };
+
+    private static KpcEvents.Event<T> CreateInstantEvent<T>(Beat beat, T value)
+        where T : notnull =>
+        new()
+        {
+            StartBeat = beat,
+            EndBeat = beat,
+            StartValue = value,
+            EndValue = value,
+            Easing = Kpc.Easing.Linear,
+        };
 
     private static IEnumerable<KpcEvents.Event<T>> ExpandUnsupportedEvents<T>(
         IEnumerable<KpcEvents.Event<T>> events,
@@ -746,7 +1193,11 @@ public class PhiFansConverter
     /// <summary>
     /// 修复节点式格式中的相邻事件：连续区间共用结束节点，值不连续时才创建新的断点节点。
     /// </summary>
-    private static void FixDiscontinuityGaps(List<PfEvent> events, int paddingPrecision)
+    private static void FixDiscontinuityGaps(
+        List<PfEvent> events,
+        int paddingPrecision,
+        IReadOnlySet<Beat>? exactStepBeats = null
+    )
     {
         if (events.Count < 2 || paddingPrecision <= 0)
             return;
@@ -772,6 +1223,10 @@ public class PhiFansConverter
                 {
                     // 后事件沿用前事件的结束节点，删除重复的非连续起点，避免重置连续链。
                     events.RemoveAt(i);
+                }
+                else if (exactStepBeats?.Contains(curr.Beat) == true)
+                {
+                    continue;
                 }
                 else
                 {
