@@ -282,7 +282,7 @@ public class EventFit<TPayload> : LoggableBase, IEventFit<KpcEvents.Event<TPaylo
     }
 
     /// <summary>
-    /// 判断事件是否为全范围线性缓动，即可参与拟合的基本条件。
+    /// 判断事件是否使用可参与拟合的线性缓动。
     /// </summary>
     private static bool IsLinear(KpcEvents.Event<TPayload> evt)
     {

@@ -76,6 +76,27 @@ public class EventTransformationSafetyTests
         result[0].EndBeat.Should().Be(new Beat(2));
     }
 
+    [Theory]
+    [InlineData("StartTime")]
+    [InlineData("EndTime")]
+    [InlineData("FloorPosition")]
+    [InlineData("BezierPoints")]
+    public void EventCompressor_LinearEventWithNonBlockingMetadata_CanMerge(
+        string metadataName
+    )
+    {
+        var first = CreateEventWithNonBlockingMetadata(metadataName);
+        var second = CreateEventWithNonBlockingMetadata(metadataName, 1, 2, 50, 100);
+
+        var sqrtResult = _compressor.EventListCompressSqrt([first, second], 100);
+        var slopeResult = _compressor.EventListCompressSlope([first, second], 100);
+
+        sqrtResult.Should().ContainSingle();
+        slopeResult.Should().ContainSingle();
+        sqrtResult[0].EndBeat.Should().Be(new Beat(2));
+        slopeResult[0].EndBeat.Should().Be(new Beat(2));
+    }
+
     [Fact]
     public void FitEvents_BezierFollowedByLinearEvent_PreservesBezierEvent()
     {
@@ -121,6 +142,37 @@ public class EventTransformationSafetyTests
 
         result.Should().ContainSingle();
         result[0].EndBeat.Should().Be(new Beat(2));
+    }
+
+    [Theory]
+    [InlineData("StartTime")]
+    [InlineData("EndTime")]
+    [InlineData("FloorPosition")]
+    [InlineData("BezierPoints")]
+    public void EventFit_LinearEventWithNonBlockingMetadata_CanMerge(string metadataName)
+    {
+        var first = CreateEventWithNonBlockingMetadata(metadataName);
+        var second = CreateEventWithNonBlockingMetadata(metadataName, 1, 2, 50, 100);
+
+        var result = _fit.FitEvents([first, second], 100);
+
+        result.Should().ContainSingle();
+        result[0].EndBeat.Should().Be(new Beat(2));
+    }
+
+    [Fact]
+    public void EventFit_NonLinearEasingEvent_DoesNotFit()
+    {
+        var events = new List<KpcEvents.Event<double>>
+        {
+            CreateEvent(0, 1, 0, 50, easingId: 2),
+            CreateEvent(1, 2, 50, 100),
+        };
+
+        var result = _fit.FitEvents(events, 100);
+
+        result.Should().HaveCount(2);
+        ((int)result[0].Easing).Should().Be(2);
     }
 
     [Fact]
@@ -181,6 +233,59 @@ public class EventTransformationSafetyTests
         layer.MoveYEvents![0].EndValue.Should().Be(50);
     }
 
+    [Theory]
+    [InlineData("StartTime")]
+    [InlineData("EndTime")]
+    [InlineData("FloorPosition")]
+    [InlineData("BezierPoints")]
+    public void LayerEventsCompress_AlignedEventWithNonBlockingMetadata_CanMerge(
+        string metadataName
+    )
+    {
+        var layer = new KpcEvents.EventLayer
+        {
+            MoveXEvents =
+            [
+                CreateEventWithNonBlockingMetadata(metadataName),
+                CreateEventWithNonBlockingMetadata(metadataName, 1, 2, 50, 100),
+            ],
+            MoveYEvents =
+            [
+                CreateEventWithNonBlockingMetadata(metadataName, 0, 1, 0, 25),
+                CreateEventWithNonBlockingMetadata(metadataName, 1, 2, 25, 50),
+            ],
+        };
+
+        new LayerProcessor().LayerEventsCompress(layer, 100);
+
+        layer.MoveXEvents.Should().ContainSingle();
+        layer.MoveYEvents.Should().ContainSingle();
+    }
+
+    [Fact]
+    public void LayerEventsCompress_AlignedNonLinearEasingEvent_PreservesBothAxes()
+    {
+        var layer = new KpcEvents.EventLayer
+        {
+            MoveXEvents =
+            [
+                CreateEvent(0, 1, 0, 50, easingId: 2),
+                CreateEvent(1, 2, 50, 100),
+            ],
+            MoveYEvents =
+            [
+                CreateEvent(0, 1, 0, 25),
+                CreateEvent(1, 2, 25, 50),
+            ],
+        };
+
+        new LayerProcessor().LayerEventsCompress(layer, 100);
+
+        layer.MoveXEvents.Should().HaveCount(2);
+        layer.MoveYEvents.Should().HaveCount(2);
+        ((int)layer.MoveXEvents![0].Easing).Should().Be(2);
+    }
+
     [Fact]
     public void CompressSqrt_LinearEvents_MergesWithoutMutatingInputOrSharingInstances()
     {
@@ -235,7 +340,8 @@ public class EventTransformationSafetyTests
         float endTime = 0,
         float floorPosition = 0,
         float easingLeft = 0,
-        float easingRight = 1
+        float easingRight = 1,
+        int easingId = 1
     )
     {
         return new KpcEvents.Event<double>
@@ -244,7 +350,7 @@ public class EventTransformationSafetyTests
             EndBeat = new Beat(endBeat),
             StartValue = startValue,
             EndValue = endValue,
-            Easing = new Easing(1),
+            Easing = new Easing(easingId),
             EasingLeft = easingLeft,
             EasingRight = easingRight,
             IsBezier = isBezier,
@@ -254,6 +360,36 @@ public class EventTransformationSafetyTests
             EndTime = endTime,
             FloorPosition = floorPosition,
         };
+    }
+
+    private static KpcEvents.Event<double> CreateEventWithNonBlockingMetadata(
+        string metadataName,
+        double startBeat = 0,
+        double endBeat = 1,
+        double startValue = 0,
+        double endValue = 50
+    )
+    {
+        var evt = CreateEvent(startBeat, endBeat, startValue, endValue);
+        switch (metadataName)
+        {
+            case "StartTime":
+                evt.StartTime = 1;
+                break;
+            case "EndTime":
+                evt.EndTime = 2;
+                break;
+            case "FloorPosition":
+                evt.FloorPosition = 3;
+                break;
+            case "BezierPoints":
+                evt.BezierPoints = [0.1f, 0, 0, 0];
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(metadataName));
+        }
+
+        return evt;
     }
 
     private static void AssertFields(
