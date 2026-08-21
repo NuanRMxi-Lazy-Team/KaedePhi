@@ -180,6 +180,39 @@ public class PhiFansConverterTests
     }
 
     [Fact]
+    public void FromKpc_UnsupportedOverlap_UsesTransitiveSpanClosure()
+    {
+        var unsupported = CreateDoubleEvent(0, 1, 0, 1);
+        unsupported.IsBezier = true;
+        unsupported.BezierPoints = [1f / 3f, 0, 2f / 3f, 1];
+        var chart = CreateChartWithLayers(
+            new KpcEvents.EventLayer { MoveXEvents = [unsupported] },
+            new KpcEvents.EventLayer
+            {
+                MoveXEvents = [CreateDoubleEvent(0.5, 1.5, 0, 1)],
+            },
+            new KpcEvents.EventLayer
+            {
+                MoveXEvents = [CreateDoubleEvent(1.25, 2, 0, 1)],
+            }
+        );
+        var options = CreateOptions();
+        options.MultiLayerMerge.Precision = 1;
+        options.MultiLayerMerge.ClassicMode = true;
+        options.MultiLayerMerge.Compress = false;
+
+        var exported = new PhiFansConverter().FromKpc(chart, options);
+        var roundTrip = new PhiFansConverter().ToKpc(exported, null);
+        var phiFansEvents = exported.JudgeLineList[0].Props.PositionX;
+        var roundTripEvents = roundTrip.JudgeLineList[0].EventLayers[0].MoveXEvents!;
+
+        phiFansEvents.Should().Contain(e => Math.Abs((double)e.Beat - 1.75) < 1e-9);
+        KpcEvents.EventLayer.GetValueAtBeat(roundTripEvents, Beat(1.75))
+            .Should()
+            .BeApproximately(8d / 3d, 1e-5);
+    }
+
+    [Fact]
     public void FromKpc_CroppedEasingMove_CutsIntoLinearNodesAndPreservesBoundaryValues()
     {
         var sourceEvent = CreateDoubleEvent(0, 1, 0, 10, 5);
@@ -320,6 +353,38 @@ public class PhiFansConverterTests
         KpcEvents.EventLayer.GetValueAtBeat(roundTripEvents, Beat(1.5))
             .Should()
             .BeApproximately(6.5f, 1e-5f);
+    }
+
+    [Fact]
+    public void FromKpc_SubEpsilonExactStep_PreservesRepresentableValueChange()
+    {
+        var chart = CreateChartWithLayers(
+            new KpcEvents.EventLayer
+            {
+                MoveXEvents = [CreateDoubleEvent(0, 2, 0, 0.000002)],
+            },
+            new KpcEvents.EventLayer
+            {
+                MoveXEvents = [CreateDoubleEvent(1, 1, 0, 0.00000005)],
+            }
+        );
+
+        var exported = new PhiFansConverter().FromKpc(chart, CreateOptions());
+        var roundTrip = new PhiFansConverter().ToKpc(exported, null);
+        var nodesAtStep = exported
+            .JudgeLineList[0]
+            .Props.PositionX.Where(e => (double)e.Beat == 1)
+            .ToList();
+        var roundTripEvents = roundTrip.JudgeLineList[0].EventLayers[0].MoveXEvents!;
+
+        nodesAtStep.Should().HaveCount(2);
+        nodesAtStep.Select(e => e.Continuous).Should().Equal(true, false);
+        KpcEvents.EventLayer.GetValueAtBeat(roundTripEvents, Beat(1))
+            .Should()
+            .BeApproximately(0.00000105, 1e-10);
+        KpcEvents.EventLayer.GetValueAtBeat(roundTripEvents, Beat(1.5))
+            .Should()
+            .BeApproximately(0.00000155, 1e-10);
     }
 
     [Fact]

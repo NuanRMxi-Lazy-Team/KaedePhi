@@ -307,6 +307,10 @@ public class PhiFansConverter
         var sourceEventLists = sourceLayers
             .Select(layer => selectEvents(layer) ?? [])
             .ToList();
+        var sourceStartBeats = sourceEventLists
+            .SelectMany(events => events)
+            .Select(evt => evt.StartBeat)
+            .ToHashSet();
         var intervals = CollectUnsupportedOverlapIntervals(sourceEventLists, linearOnly);
         var resolved = configuredEvents?.ConvertAll(evt => evt.Clone()) ?? [];
         if (intervals.Count > 0)
@@ -314,6 +318,7 @@ public class PhiFansConverter
             resolved = SpliceComposedIntervals(
                 resolved,
                 sourceEventLists,
+                sourceStartBeats,
                 intervals,
                 linearOnly,
                 cutLength
@@ -326,6 +331,7 @@ public class PhiFansConverter
             resolved = ComposeStepTimeline(
                 resolved,
                 sourceEventLists,
+                sourceStartBeats,
                 stepBeats,
                 linearOnly,
                 cutLength
@@ -352,81 +358,102 @@ public class PhiFansConverter
             }
         }
 
+        indexedEvents = indexedEvents
+            .OrderBy(item => item.Event.StartBeat)
+            .ThenBy(item => item.Event.EndBeat)
+            .ToList();
         var intervals = new List<(Beat Start, Beat End)>();
-        foreach (var root in indexedEvents)
+        for (var componentStart = 0; componentStart < indexedEvents.Count; )
         {
+            var componentEndBeat = indexedEvents[componentStart].Event.EndBeat;
+            var componentEnd = componentStart + 1;
+            while (
+                componentEnd < indexedEvents.Count
+                && indexedEvents[componentEnd].Event.StartBeat < componentEndBeat
+            )
+            {
+                if (indexedEvents[componentEnd].Event.EndBeat > componentEndBeat)
+                    componentEndBeat = indexedEvents[componentEnd].Event.EndBeat;
+                componentEnd++;
+            }
+
             if (
-                CanMapDirectly(root.Event, linearOnly)
-                || !indexedEvents.Any(candidate =>
-                    candidate.LayerIndex != root.LayerIndex
-                    && EventsOverlap(root.Event, candidate.Event)
+                ComponentHasUnsupportedCrossLayerOverlap(
+                    indexedEvents,
+                    componentStart,
+                    componentEnd,
+                    linearOnly
                 )
             )
-                continue;
-
-            var start = root.Event.StartBeat;
-            var end = root.Event.EndBeat;
-            var changed = true;
-            while (changed)
             {
-                changed = false;
-                foreach (var candidate in indexedEvents)
+                intervals.Add(
+                    (indexedEvents[componentStart].Event.StartBeat, componentEndBeat)
+                );
+            }
+
+            componentStart = componentEnd;
+        }
+
+        return intervals;
+    }
+
+    private static bool ComponentHasUnsupportedCrossLayerOverlap<T>(
+        IReadOnlyList<(int LayerIndex, KpcEvents.Event<T> Event)> events,
+        int startIndex,
+        int endIndex,
+        bool linearOnly
+    )
+        where T : notnull
+    {
+        var active = new PriorityQueue<(int LayerIndex, bool Unsupported), Beat>();
+        var activeByLayer = new Dictionary<int, int>();
+        var unsupportedByLayer = new Dictionary<int, int>();
+        var activeCount = 0;
+        var unsupportedCount = 0;
+        for (var index = startIndex; index < endIndex; index++)
+        {
+            var current = events[index];
+            while (
+                active.TryPeek(out var expired, out var expiredEnd)
+                && expiredEnd <= current.Event.StartBeat
+            )
+            {
+                active.Dequeue();
+                activeByLayer[expired.LayerIndex]--;
+                activeCount--;
+                if (expired.Unsupported)
                 {
-                    if (candidate.Event.StartBeat >= end || candidate.Event.EndBeat <= start)
-                        continue;
-                    if (candidate.Event.StartBeat < start)
-                    {
-                        start = candidate.Event.StartBeat;
-                        changed = true;
-                    }
-                    if (candidate.Event.EndBeat > end)
-                    {
-                        end = candidate.Event.EndBeat;
-                        changed = true;
-                    }
+                    unsupportedByLayer[expired.LayerIndex]--;
+                    unsupportedCount--;
                 }
             }
 
-            intervals.Add((start, end));
-        }
+            var unsupported = !CanMapDirectly(current.Event, linearOnly);
+            var sameLayerActive = activeByLayer.GetValueOrDefault(current.LayerIndex);
+            var sameLayerUnsupported = unsupportedByLayer.GetValueOrDefault(current.LayerIndex);
+            if (
+                (unsupported && activeCount > sameLayerActive)
+                || unsupportedCount > sameLayerUnsupported
+            )
+                return true;
 
-        return MergeIntervals(intervals);
-    }
-
-    private static bool EventsOverlap<T>(
-        KpcEvents.Event<T> left,
-        KpcEvents.Event<T> right
-    )
-        where T : notnull =>
-        left.StartBeat < right.EndBeat && right.StartBeat < left.EndBeat;
-
-    private static List<(Beat Start, Beat End)> MergeIntervals(
-        List<(Beat Start, Beat End)> intervals
-    )
-    {
-        var ordered = intervals.OrderBy(interval => interval.Start).ToList();
-        var merged = new List<(Beat Start, Beat End)>();
-        foreach (var interval in ordered)
-        {
-            if (merged.Count == 0 || interval.Start >= merged[^1].End)
+            active.Enqueue((current.LayerIndex, unsupported), current.Event.EndBeat);
+            activeByLayer[current.LayerIndex] = sameLayerActive + 1;
+            activeCount++;
+            if (unsupported)
             {
-                merged.Add(interval);
-                continue;
+                unsupportedByLayer[current.LayerIndex] = sameLayerUnsupported + 1;
+                unsupportedCount++;
             }
-
-            var previous = merged[^1];
-            merged[^1] = (
-                previous.Start,
-                interval.End > previous.End ? interval.End : previous.End
-            );
         }
 
-        return merged;
+        return false;
     }
 
     private static List<KpcEvents.Event<T>> SpliceComposedIntervals<T>(
         List<KpcEvents.Event<T>> configuredEvents,
         IReadOnlyList<List<KpcEvents.Event<T>>> sourceEventLists,
+        IReadOnlySet<Beat> sourceStartBeats,
         IReadOnlyList<(Beat Start, Beat End)> intervals,
         bool linearOnly,
         double cutLength
@@ -459,6 +486,7 @@ public class PhiFansConverter
             result.AddRange(
                 ComposeInterval(
                     sourceEventLists,
+                    sourceStartBeats,
                     interval.Start,
                     interval.End,
                     linearOnly,
@@ -544,6 +572,7 @@ public class PhiFansConverter
 
     private static List<KpcEvents.Event<T>> ComposeInterval<T>(
         IReadOnlyList<List<KpcEvents.Event<T>>> sourceEventLists,
+        IReadOnlySet<Beat> sourceStartBeats,
         Beat start,
         Beat end,
         bool linearOnly,
@@ -590,7 +619,7 @@ public class PhiFansConverter
         {
             var segmentStart = ordered[index];
             var segmentEnd = ordered[index + 1];
-            var endValue = HasEventStartingAt(sourceEventLists, segmentEnd)
+            var endValue = sourceStartBeats.Contains(segmentEnd)
                 ? SumBeforeBeat(sourceEventLists, segmentEnd)
                 : SumAtBeat(sourceEventLists, segmentEnd);
             result.Add(
@@ -654,6 +683,7 @@ public class PhiFansConverter
     private static List<KpcEvents.Event<T>> ComposeStepTimeline<T>(
         List<KpcEvents.Event<T>> configuredEvents,
         IReadOnlyList<List<KpcEvents.Event<T>>> sourceEventLists,
+        IReadOnlySet<Beat> sourceStartBeats,
         HashSet<Beat> stepBeats,
         bool linearOnly,
         double cutLength
@@ -703,6 +733,7 @@ public class PhiFansConverter
                     result.AddRange(
                         ComposeInterval(
                             sourceEventLists,
+                            sourceStartBeats,
                             fragmentStart,
                             fragmentEnd,
                             linearOnly,
@@ -722,13 +753,6 @@ public class PhiFansConverter
 
         return result.OrderBy(evt => evt.StartBeat).ThenBy(evt => evt.EndBeat).ToList();
     }
-
-    private static bool HasEventStartingAt<T>(
-        IReadOnlyList<List<KpcEvents.Event<T>>> sourceEventLists,
-        Beat beat
-    )
-        where T : notnull =>
-        sourceEventLists.Any(events => events.Any(evt => evt.StartBeat == beat));
 
     private static T SumAtBeat<T>(
         IReadOnlyList<List<KpcEvents.Event<T>>> sourceEventLists,
@@ -755,14 +779,7 @@ public class PhiFansConverter
         var sum = default(T)!;
         foreach (var events in sourceEventLists)
         {
-            KpcEvents.Event<T>? dominant = null;
-            foreach (var evt in events)
-            {
-                if (evt.StartBeat >= beat)
-                    break;
-                dominant = evt;
-            }
-
+            var dominant = FindLastEventBeforeBeat(events, beat);
             if (dominant is null)
                 continue;
             var value = beat <= dominant.EndBeat
@@ -772,6 +789,32 @@ public class PhiFansConverter
         }
 
         return sum;
+    }
+
+    private static KpcEvents.Event<T>? FindLastEventBeforeBeat<T>(
+        List<KpcEvents.Event<T>> events,
+        Beat beat
+    )
+        where T : notnull
+    {
+        var low = 0;
+        var high = events.Count - 1;
+        var candidate = -1;
+        while (low <= high)
+        {
+            var middle = low + ((high - low) >> 1);
+            if (events[middle].StartBeat < beat)
+            {
+                candidate = middle;
+                low = middle + 1;
+            }
+            else
+            {
+                high = middle - 1;
+            }
+        }
+
+        return candidate >= 0 ? events[candidate] : null;
     }
 
     private static KpcEvents.Event<T> CreateLinearEvent<T>(
@@ -1219,14 +1262,16 @@ public class PhiFansConverter
                 if (Math.Abs((double)prev.Beat - (double)curr.Beat) > BeatEpsilon)
                     continue;
 
-                if (Math.Abs(prev.Value - curr.Value) <= ValueEpsilon)
+                if (exactStepBeats?.Contains(curr.Beat) == true)
+                {
+                    if (!prev.Value.Equals(curr.Value))
+                        continue;
+                    events.RemoveAt(i);
+                }
+                else if (Math.Abs(prev.Value - curr.Value) <= ValueEpsilon)
                 {
                     // 后事件沿用前事件的结束节点，删除重复的非连续起点，避免重置连续链。
                     events.RemoveAt(i);
-                }
-                else if (exactStepBeats?.Contains(curr.Beat) == true)
-                {
-                    continue;
                 }
                 else
                 {
