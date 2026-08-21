@@ -213,6 +213,62 @@ public class PhiFansConverterTests
     }
 
     [Fact]
+    public void FromKpc_IsolatedUnsupportedIntervals_PreserveFarCurveAndSourceOwnership()
+    {
+        var firstCurve = CreateDoubleEvent(0, 1, 0, 1);
+        firstCurve.IsBezier = true;
+        firstCurve.BezierPoints = [1f / 3f, 0, 2f / 3f, 1];
+        var secondCurve = CreateDoubleEvent(10, 11, 1, 2);
+        secondCurve.IsBezier = true;
+        secondCurve.BezierPoints = [1f / 3f, 0, 2f / 3f, 1];
+        var chart = CreateChartWithLayers(
+            new KpcEvents.EventLayer
+            {
+                MoveXEvents =
+                [
+                    firstCurve,
+                    secondCurve,
+                    CreateDoubleEvent(20, 21, 2, 3, 5),
+                ],
+            },
+            new KpcEvents.EventLayer
+            {
+                MoveXEvents =
+                [
+                    CreateDoubleEvent(0, 1, 0, 1),
+                    CreateDoubleEvent(10, 11, 0, 1),
+                ],
+            }
+        );
+        var options = CreateOptions();
+        options.MultiLayerMerge.Precision = 2;
+        options.MultiLayerMerge.ClassicMode = true;
+        options.MultiLayerMerge.Compress = false;
+
+        var exported = new PhiFansConverter().FromKpc(chart, options);
+        var roundTrip = new PhiFansConverter().ToKpc(exported, null);
+        var phiFansEvents = exported.JudgeLineList[0].Props.PositionX;
+        var firstNodes = phiFansEvents.Where(e => (double)e.Beat is >= 0 and <= 1).ToList();
+        var secondNodes = phiFansEvents.Where(e => (double)e.Beat is >= 10 and <= 11).ToList();
+        var farNodes = phiFansEvents.Where(e => (double)e.Beat is >= 20 and <= 21).ToList();
+        var roundTripEvents = roundTrip.JudgeLineList[0].EventLayers[0].MoveXEvents!;
+
+        firstNodes.Should().HaveCount(5);
+        secondNodes.Should().HaveCount(5);
+        farNodes.Should().HaveCount(2);
+        farNodes.Select(e => (int)e.Easing).Should().Equal(4, 4);
+        KpcEvents.EventLayer.GetValueAtBeat(roundTripEvents, Beat(10.5))
+            .Should()
+            .BeApproximately(2, 1e-5);
+        KpcEvents.EventLayer.GetValueAtBeat(roundTripEvents, Beat(20.5))
+            .Should()
+            .BeApproximately(3.25, 1e-5);
+        chart.JudgeLineList[0].EventLayers.Should().HaveCount(2);
+        firstCurve.BezierPoints.Should().Equal(1f / 3f, 0, 2f / 3f, 1);
+        secondCurve.BezierPoints.Should().Equal(1f / 3f, 0, 2f / 3f, 1);
+    }
+
+    [Fact]
     public void FromKpc_CroppedEasingMove_CutsIntoLinearNodesAndPreservesBoundaryValues()
     {
         var sourceEvent = CreateDoubleEvent(0, 1, 0, 10, 5);

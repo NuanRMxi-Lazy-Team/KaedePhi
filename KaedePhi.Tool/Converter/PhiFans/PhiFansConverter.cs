@@ -599,11 +599,16 @@ public class PhiFansConverter
         var cutter = new EventCutter<T>();
         foreach (var events in sourceEventLists)
         {
-            foreach (var evt in events)
+            foreach (var evt in EnumerateEventsForInterval(events, start, end))
             {
                 AddBoundaryIfInside(boundaries, evt.StartBeat, start, end);
                 AddBoundaryIfInside(boundaries, evt.EndBeat, start, end);
-                if (evt.StartBeat >= evt.EndBeat || CanMapDirectly(evt, linearOnly))
+                if (
+                    evt.StartBeat >= evt.EndBeat
+                    || evt.StartBeat >= end
+                    || evt.EndBeat <= start
+                    || CanMapDirectly(evt, linearOnly)
+                )
                     continue;
                 foreach (var segment in cutter.CutEventToLinear(evt, cutLength))
                 {
@@ -633,6 +638,31 @@ public class PhiFansConverter
         }
 
         return result;
+    }
+
+    private static IEnumerable<KpcEvents.Event<T>> EnumerateEventsForInterval<T>(
+        List<KpcEvents.Event<T>> events,
+        Beat start,
+        Beat end
+    )
+        where T : notnull
+    {
+        var firstIndex = FindFirstEventAtOrAfterBeat(events, start);
+        if (firstIndex > 0)
+        {
+            var previous = events[firstIndex - 1];
+            if (previous.StartBeat < end && previous.EndBeat > start)
+                yield return previous;
+        }
+
+        for (
+            var index = firstIndex;
+            index < events.Count && events[index].StartBeat < end;
+            index++
+        )
+        {
+            yield return events[index];
+        }
     }
 
     private static void AddBoundaryIfInside(
@@ -797,24 +827,32 @@ public class PhiFansConverter
     )
         where T : notnull
     {
+        var candidate = FindFirstEventAtOrAfterBeat(events, beat) - 1;
+        return candidate >= 0 ? events[candidate] : null;
+    }
+
+    private static int FindFirstEventAtOrAfterBeat<T>(
+        List<KpcEvents.Event<T>> events,
+        Beat beat
+    )
+        where T : notnull
+    {
         var low = 0;
-        var high = events.Count - 1;
-        var candidate = -1;
-        while (low <= high)
+        var high = events.Count;
+        while (low < high)
         {
             var middle = low + ((high - low) >> 1);
             if (events[middle].StartBeat < beat)
             {
-                candidate = middle;
                 low = middle + 1;
             }
             else
             {
-                high = middle - 1;
+                high = middle;
             }
         }
 
-        return candidate >= 0 ? events[candidate] : null;
+        return low;
     }
 
     private static KpcEvents.Event<T> CreateLinearEvent<T>(
