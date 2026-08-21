@@ -18,6 +18,15 @@ public static class PhigrosV3NoteBuilder
         List<KpcSpeedEvent>? speedEvents,
         Action<string>? warnLogger,
         bool filterFakeNotes = false
+    ) => ConvertNotes(notes, speedEvents, warnLogger, filterFakeNotes, null, 1f);
+
+    internal static (List<PhigrosNote> above, List<PhigrosNote> below) ConvertNotes(
+        List<KpcNote>? notes,
+        List<KpcSpeedEvent>? speedEvents,
+        Action<string>? warnLogger,
+        bool filterFakeNotes,
+        PhigrosV3TimeMapper? timeMapper,
+        float bpmFactor
     )
     {
         if (notes is not { Count: > 0 })
@@ -31,7 +40,7 @@ public static class PhigrosV3NoteBuilder
             if (filterFakeNotes && note.IsFake)
                 continue;
 
-            var converted = ConvertNote(note, speedEvents, warnLogger);
+            var converted = ConvertNote(note, speedEvents, warnLogger, timeMapper, bpmFactor);
             if (note.Above)
                 above.Add(converted);
             else
@@ -45,12 +54,22 @@ public static class PhigrosV3NoteBuilder
         KpcNote src,
         List<KpcSpeedEvent>? speedEvents,
         Action<string>? warnLogger
+    ) => ConvertNote(src, speedEvents, warnLogger, null, 1f);
+
+    internal static PhigrosNote ConvertNote(
+        KpcNote src,
+        List<KpcSpeedEvent>? speedEvents,
+        Action<string>? warnLogger,
+        PhigrosV3TimeMapper? timeMapper,
+        float bpmFactor
     )
     {
         WarnIfUnsupportedNoteFields(src, warnLogger);
 
         var startBeat = (double)src.StartBeat;
-        var time = (int)Math.Round(startBeat * 32);
+        var time = timeMapper is null
+            ? (int)Math.Round(startBeat * 32)
+            : timeMapper.ToNoteTime(src.StartBeat, bpmFactor);
 
         var phigrosType = ConvertNoteType(src.Type);
 
@@ -60,7 +79,9 @@ public static class PhigrosV3NoteBuilder
         if (phigrosType == PhigrosNoteType.Hold)
         {
             var endBeat = (double)src.EndBeat;
-            holdTime = (float)((endBeat - startBeat) * 32);
+            holdTime = timeMapper is null
+                ? (float)((endBeat - startBeat) * 32)
+                : timeMapper.ToHoldTime(src.StartBeat, src.EndBeat, bpmFactor);
             speed = GetSpeedAtBeat(speedEvents, endBeat);
         }
 

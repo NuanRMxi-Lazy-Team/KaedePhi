@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using KaedePhi.Core.Common;
 
@@ -5,6 +6,8 @@ namespace KaedePhi.Core.KaedePhi
 {
     public class JudgeLine
     {
+        private float _bpmFactor = 1f;
+
         /// <summary>
         /// 判定线名称
         /// </summary>
@@ -63,7 +66,19 @@ namespace KaedePhi.Core.KaedePhi
         /// <summary>
         /// 当前判定线相对于当前BPM的因子。判定线BPM = 谱面BPM / BpmFactor
         /// </summary>
-        public float BpmFactor { get; set; } = 1.0f;
+        public float BpmFactor
+        {
+            get => _bpmFactor;
+            set
+            {
+                if (!float.IsFinite(value) || value <= 0)
+                    throw new ArgumentOutOfRangeException(
+                        nameof(BpmFactor),
+                        "BPM 因子必须是有限正数。"
+                    );
+                _bpmFactor = value;
+            }
+        }
 
         /// <summary>
         /// 是否跟随父线旋转

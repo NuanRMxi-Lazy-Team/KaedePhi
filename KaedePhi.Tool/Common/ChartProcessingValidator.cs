@@ -44,6 +44,7 @@ public static class ChartProcessingValidator
     public static Chart NormalizeAndValidateNoteEndBeats(Chart chart)
     {
         ArgumentNullException.ThrowIfNull(chart);
+        ValidateBpmAndBpmFactors(chart);
         var normalized = chart.Clone();
 
         for (var lineIndex = 0; lineIndex < normalized.JudgeLineList.Count; lineIndex++)
@@ -66,6 +67,34 @@ public static class ChartProcessingValidator
         }
 
         return normalized;
+    }
+
+    /// <summary>
+    /// 校验 KPC 谱面的 BPM 节点和判定线 BPM 因子。
+    /// </summary>
+    /// <param name="chart">待校验的 KPC 谱面。</param>
+    /// <returns>无返回值。</returns>
+    public static void ValidateBpmAndBpmFactors(Chart chart)
+    {
+        ArgumentNullException.ThrowIfNull(chart);
+        if (chart.BpmList is null)
+            throw new FormatException("谱面 BPM 列表不能为 null。");
+        if (chart.JudgeLineList is null)
+            throw new FormatException("谱面判定线列表不能为 null。");
+
+        for (var index = 0; index < chart.BpmList.Count; index++)
+        {
+            var bpm = chart.BpmList[index];
+            if (bpm is null || !float.IsFinite(bpm.Bpm) || bpm.Bpm <= 0)
+                throw new FormatException($"谱面 BPM 节点 {index} 必须是有限正数。");
+        }
+
+        for (var index = 0; index < chart.JudgeLineList.Count; index++)
+        {
+            var line = chart.JudgeLineList[index];
+            if (line is null || !float.IsFinite(line.BpmFactor) || line.BpmFactor <= 0)
+                throw new FormatException($"判定线 {index} 的 BPM 因子必须是有限正数。");
+        }
     }
 
     /// <summary>
@@ -194,6 +223,7 @@ public static class ChartProcessingValidator
     )
     {
         ArgumentNullException.ThrowIfNull(chart);
+        ValidateBpmAndBpmFactors(chart);
         ValidateJudgeLineHierarchy(chart.JudgeLineList);
         ValidateRenderOptions(options);
 

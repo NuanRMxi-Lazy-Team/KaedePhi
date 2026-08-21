@@ -24,16 +24,25 @@ public class PhigrosV3EventBuilder
     private readonly EventCutter<int> _eventCutterInt = new();
     private readonly EventCutter<float> _eventCutterFloat = new();
     private readonly LayerProcessor _layerProcessor = new();
+    private readonly PhigrosV3TimeMapper? _timeMapper;
 
     public PhigrosV3EventBuilder(KpcToPhigrosV3ConvertOptions options, Action<string>? warnLogger)
+        : this(options, warnLogger, null) { }
+
+    internal PhigrosV3EventBuilder(
+        KpcToPhigrosV3ConvertOptions options,
+        Action<string>? warnLogger,
+        PhigrosV3TimeMapper? timeMapper
+    )
     {
         _options = options;
         _warnLogger = warnLogger;
+        _timeMapper = timeMapper;
     }
 
     public void ConvertLineEvents(Core.Phigros.v3.JudgeLine target, List<KpcEventLayer> layers)
     {
-        ConvertLineEvents(target, ResolvePrimaryLayer(layers));
+        ConvertLineEvents(target, ResolvePrimaryLayer(layers), 1f);
     }
 
     internal KpcEventLayer ResolvePrimaryLayer(List<KpcEventLayer> layers)
@@ -63,21 +72,30 @@ public class PhigrosV3EventBuilder
         return primaryLayer;
     }
 
-    internal void ConvertLineEvents(Core.Phigros.v3.JudgeLine target, KpcEventLayer primaryLayer)
+    internal void ConvertLineEvents(
+        Core.Phigros.v3.JudgeLine target,
+        KpcEventLayer primaryLayer,
+        float bpmFactor
+    )
     {
-        ConvertMoveEvents(target, primaryLayer);
+        ConvertMoveEvents(target, primaryLayer, bpmFactor);
         ConvertScalarEvents(
             target.JudgeLineRotateEvents,
             primaryLayer.RotateEvents,
-            Transform.ToPhigrosV3Angle
+            Transform.ToPhigrosV3Angle,
+            bpmFactor
         );
-        ConvertAlphaEvents(target, primaryLayer.AlphaEvents);
-        ConvertSpeedEvents(target, primaryLayer.SpeedEvents);
+        ConvertAlphaEvents(target, primaryLayer.AlphaEvents, bpmFactor);
+        ConvertSpeedEvents(target, primaryLayer.SpeedEvents, bpmFactor);
     }
 
     #region 移动事件
 
-    private void ConvertMoveEvents(Core.Phigros.v3.JudgeLine target, KpcEventLayer layer)
+    private void ConvertMoveEvents(
+        Core.Phigros.v3.JudgeLine target,
+        KpcEventLayer layer,
+        float bpmFactor
+    )
     {
         var xEvents = layer.MoveXEvents ?? [];
         var yEvents = layer.MoveYEvents ?? [];
@@ -85,11 +103,13 @@ public class PhigrosV3EventBuilder
             return;
 
         var cutLength = 1d / _options.Cutting.MisalignedXyEventPrecision;
-        var cutX = xEvents
-            .SelectMany(e => _eventCutterDouble.CutEventToLinear(e, cutLength))
+        var cutX = SplitAtTempoChanges(
+                xEvents.SelectMany(e => _eventCutterDouble.CutEventToLinear(e, cutLength))
+            )
             .ToList();
-        var cutY = yEvents
-            .SelectMany(e => _eventCutterDouble.CutEventToLinear(e, cutLength))
+        var cutY = SplitAtTempoChanges(
+                yEvents.SelectMany(e => _eventCutterDouble.CutEventToLinear(e, cutLength))
+            )
             .ToList();
 
         var allEvents = MergeAndFill(cutX, cutY, 0d);
@@ -98,8 +118,8 @@ public class PhigrosV3EventBuilder
             target.JudgeLineMoveEvents.Add(
                 new PhigrosEvent
                 {
-                    StartTime = start * BeatToPhigrosTime,
-                    EndTime = end * BeatToPhigrosTime,
+                    StartTime = ToPhigrosTime(start, bpmFactor),
+                    EndTime = ToPhigrosTime(end, bpmFactor),
                     Start = Transform.ToPhigrosV3X(xStart),
                     End = Transform.ToPhigrosV3X(xEnd),
                     Start2 = Transform.ToPhigrosV3Y(yStart),
@@ -125,8 +145,8 @@ public class PhigrosV3EventBuilder
     }
 
     private static List<(
-        float start,
-        float end,
+        Beat start,
+        Beat end,
         double xStart,
         double xEnd,
         double yStart,
@@ -137,19 +157,19 @@ public class PhigrosV3EventBuilder
         double defaultValue
     )
     {
-        var boundaries = new SortedSet<float> { 0f };
+        var boundaries = new SortedSet<Beat> { new(0) };
         foreach (var ev in xEvents)
         {
-            boundaries.Add((float)(double)ev.StartBeat);
-            boundaries.Add((float)(double)ev.EndBeat);
+            boundaries.Add(ev.StartBeat);
+            boundaries.Add(ev.EndBeat);
         }
         foreach (var ev in yEvents)
         {
-            boundaries.Add((float)(double)ev.StartBeat);
-            boundaries.Add((float)(double)ev.EndBeat);
+            boundaries.Add(ev.StartBeat);
+            boundaries.Add(ev.EndBeat);
         }
 
-        var result = new List<(float, float, double, double, double, double)>();
+        var result = new List<(Beat, Beat, double, double, double, double)>();
         var boundaryList = boundaries.ToList();
         var lastX = defaultValue;
         var lastY = defaultValue;
@@ -158,17 +178,17 @@ public class PhigrosV3EventBuilder
         {
             var start = boundaryList[i];
             var end = boundaryList[i + 1];
-            if (end - start <= Constants.FloatEpsilon)
+            if (end <= start)
                 continue;
 
             // 二分查找：找到 StartBeat <= start 的最靠右事件，再验证是否覆盖该区间
             var xEv = BinaryFindEventCovering(xEvents, start, end);
             var yEv = BinaryFindEventCovering(yEvents, start, end);
 
-            var xStart = xEv?.GetValueAtBeat(new Beat(start)) ?? lastX;
-            var xEnd = xEv?.GetValueAtBeat(new Beat(end)) ?? lastX;
-            var yStart = yEv?.GetValueAtBeat(new Beat(start)) ?? lastY;
-            var yEnd = yEv?.GetValueAtBeat(new Beat(end)) ?? lastY;
+            var xStart = xEv?.GetValueAtBeat(start) ?? lastX;
+            var xEnd = xEv?.GetValueAtBeat(end) ?? lastX;
+            var yStart = yEv?.GetValueAtBeat(start) ?? lastY;
+            var yEnd = yEv?.GetValueAtBeat(end) ?? lastY;
 
             result.Add((start, end, xStart, xEnd, yStart, yEnd));
 
@@ -188,19 +208,19 @@ public class PhigrosV3EventBuilder
     /// </summary>
     private static KpcEvents.Event<T>? BinaryFindEventCovering<T>(
         List<KpcEvents.Event<T>> sortedEvents,
-        float start,
-        float end
+        Beat start,
+        Beat end
     )
         where T : notnull
     {
-        // 找到 StartBeat <= start + epsilon 的最靠右的候选项
+        // 找到 StartBeat 不晚于 start 的最靠右候选项
         int lo = 0,
             hi = sortedEvents.Count - 1,
             candidate = -1;
         while (lo <= hi)
         {
             var mid = (lo + hi) >> 1;
-            if ((float)(double)sortedEvents[mid].StartBeat <= start + Constants.FloatEpsilon)
+            if (sortedEvents[mid].StartBeat <= start)
             {
                 candidate = mid;
                 lo = mid + 1;
@@ -213,7 +233,7 @@ public class PhigrosV3EventBuilder
         if (candidate == -1)
             return null;
         var ev = sortedEvents[candidate];
-        return (float)(double)ev.EndBeat >= end - Constants.FloatEpsilon ? ev : null;
+        return ev.EndBeat >= end ? ev : null;
     }
 
     #endregion
@@ -223,27 +243,29 @@ public class PhigrosV3EventBuilder
     private void ConvertScalarEvents(
         List<PhigrosEvent> target,
         List<KpcEvents.Event<double>>? sourceEvents,
-        Func<double, float> valueTransform
+        Func<double, float> valueTransform,
+        float bpmFactor
     )
     {
         if (sourceEvents is not { Count: > 0 })
             return;
 
         var cutLength = 1d / _options.Cutting.EasingPrecision;
-        var cutEvents = sourceEvents
-            .SelectMany(e => _eventCutterDouble.CutEventToLinear(e, cutLength))
+        var cutEvents = SplitAtTempoChanges(
+                sourceEvents.SelectMany(e => _eventCutterDouble.CutEventToLinear(e, cutLength))
+            )
             .ToList();
         var filled = FillGaps(cutEvents, 0d);
 
         target.AddRange(
             from ev in filled
-            let startBeat = (float)(double)ev.StartBeat
-            let endBeat = (float)(double)ev.EndBeat
+            let startBeat = ev.StartBeat
+            let endBeat = ev.EndBeat
             where endBeat > startBeat
             select new PhigrosEvent
             {
-                StartTime = startBeat * BeatToPhigrosTime,
-                EndTime = endBeat * BeatToPhigrosTime,
+                StartTime = ToPhigrosTime(startBeat, bpmFactor),
+                EndTime = ToPhigrosTime(endBeat, bpmFactor),
                 Start = valueTransform(ev.StartValue),
                 End = valueTransform(ev.EndValue),
             }
@@ -269,18 +291,20 @@ public class PhigrosV3EventBuilder
 
     private void ConvertAlphaEvents(
         Core.Phigros.v3.JudgeLine target,
-        List<KpcEvents.Event<int>>? sourceEvents
+        List<KpcEvents.Event<int>>? sourceEvents,
+        float bpmFactor
     )
     {
         if (sourceEvents is not { Count: > 0 })
             return;
 
         var cutLength = 1d / _options.Alpha.CutPrecision;
-        var cutEvents = sourceEvents
-            .SelectMany(e => _eventCutterInt.CutEventToLinear(e, cutLength))
+        var cutEvents = SplitAtTempoChanges(
+                sourceEvents.SelectMany(e => _eventCutterInt.CutEventToLinear(e, cutLength))
+            )
             .ToList();
         var filled = FillGaps(cutEvents, 0);
-        if (filled.Count > 0 && (double)filled[0].StartBeat > Constants.FloatEpsilon)
+        if (filled.Count > 0 && filled[0].StartBeat > new Beat(Constants.FloatEpsilon))
         {
             filled.Insert(
                 0,
@@ -296,16 +320,16 @@ public class PhigrosV3EventBuilder
 
         foreach (var ev in filled)
         {
-            var startBeat = (float)(double)ev.StartBeat;
-            var endBeat = (float)(double)ev.EndBeat;
+            var startBeat = ev.StartBeat;
+            var endBeat = ev.EndBeat;
             if (endBeat <= startBeat)
                 continue;
 
             target.JudgeLineDisappearEvents.Add(
                 new PhigrosEvent
                 {
-                    StartTime = startBeat * BeatToPhigrosTime,
-                    EndTime = endBeat * BeatToPhigrosTime,
+                    StartTime = ToPhigrosTime(startBeat, bpmFactor),
+                    EndTime = ToPhigrosTime(endBeat, bpmFactor),
                     Start = ClampAlpha(ev.StartValue),
                     End = ClampAlpha(ev.EndValue),
                 }
@@ -334,15 +358,17 @@ public class PhigrosV3EventBuilder
 
     private void ConvertSpeedEvents(
         Core.Phigros.v3.JudgeLine target,
-        List<KpcEvents.Event<float>>? sourceEvents
+        List<KpcEvents.Event<float>>? sourceEvents,
+        float bpmFactor
     )
     {
         if (sourceEvents is not { Count: > 0 })
             return;
 
         var cutLength = 1d / _options.Speed.CutPrecision;
-        var cutEvents = sourceEvents
-            .SelectMany(e => _eventCutterFloat.CutEventToLinear(e, cutLength))
+        var cutEvents = SplitAtTempoChanges(
+                sourceEvents.SelectMany(e => _eventCutterFloat.CutEventToLinear(e, cutLength))
+            )
             .ToList();
         var filled = FillGaps(cutEvents, 1f);
         var hasConvertedEvent = false;
@@ -350,16 +376,16 @@ public class PhigrosV3EventBuilder
 
         foreach (var ev in filled)
         {
-            var startBeat = (float)(double)ev.StartBeat;
-            var endBeat = (float)(double)ev.EndBeat;
+            var startBeat = ev.StartBeat;
+            var endBeat = ev.EndBeat;
             if (endBeat <= startBeat)
                 continue;
 
             target.SpeedEvents.Add(
                 new PhigrosSpeedEvent
                 {
-                    StartTime = startBeat * BeatToPhigrosTime,
-                    EndTime = endBeat * BeatToPhigrosTime,
+                    StartTime = ToPhigrosTime(startBeat, bpmFactor),
+                    EndTime = ToPhigrosTime(endBeat, bpmFactor),
                     Value = ev.StartValue / (float)Constants.SpeedValueRatio,
                 }
             );
@@ -400,20 +426,20 @@ public class PhigrosV3EventBuilder
 
         var result = new List<KpcEvents.Event<T>>(sorted.Count * 2);
         var lastEndValue = defaultValue;
-        var lastEndBeat = 0f;
+        var lastEndBeat = new Beat(0d);
 
         foreach (var ev in sorted)
         {
-            var startBeat = (float)(double)ev.StartBeat;
-            var endBeat = (float)(double)ev.EndBeat;
+            var startBeat = ev.StartBeat;
+            var endBeat = ev.EndBeat;
 
-            if (startBeat > lastEndBeat + Constants.FloatEpsilon && result.Count > 0)
+            if (startBeat > lastEndBeat && result.Count > 0)
             {
                 result.Add(
                     new KpcEvents.Event<T>
                     {
-                        StartBeat = new Beat(lastEndBeat),
-                        EndBeat = new Beat(startBeat),
+                        StartBeat = lastEndBeat,
+                        EndBeat = startBeat,
                         StartValue = lastEndValue,
                         EndValue = lastEndValue,
                     }
@@ -437,11 +463,54 @@ public class PhigrosV3EventBuilder
     {
         for (var i = 1; i < events.Count; i++)
         {
-            if (events[i].StartBeat < (double)events[i - 1].StartBeat - Constants.FloatEpsilon)
+            if (events[i].StartBeat < events[i - 1].StartBeat)
                 return false;
         }
         return true;
     }
+
+    private IEnumerable<KpcEvents.Event<T>> SplitAtTempoChanges<T>(
+        IEnumerable<KpcEvents.Event<T>> events
+    )
+        where T : notnull
+    {
+        foreach (var ev in events)
+        {
+            if (_timeMapper is null)
+            {
+                yield return ev;
+                continue;
+            }
+
+            var startBeat = ev.StartBeat;
+            foreach (var changeBeat in _timeMapper.GetTempoChangeBeats(startBeat, ev.EndBeat))
+            {
+                yield return CreateLinearSegment(ev, startBeat, changeBeat);
+                startBeat = changeBeat;
+            }
+
+            yield return CreateLinearSegment(ev, startBeat, ev.EndBeat);
+        }
+    }
+
+    private static KpcEvents.Event<T> CreateLinearSegment<T>(
+        KpcEvents.Event<T> source,
+        Beat startBeat,
+        Beat endBeat
+    )
+        where T : notnull =>
+        new()
+        {
+            StartBeat = startBeat,
+            EndBeat = endBeat,
+            StartValue = source.GetValueAtBeat(startBeat),
+            EndValue = source.GetValueAtBeat(endBeat),
+        };
+
+    private float ToPhigrosTime(Beat beat, float bpmFactor) =>
+        _timeMapper is null
+            ? (float)((double)beat * BeatToPhigrosTime)
+            : _timeMapper.ToEventTime(beat, bpmFactor);
 
     private static bool HasAnyEventData(KpcEventLayer layer) =>
         (layer.MoveXEvents?.Count ?? 0) > 0

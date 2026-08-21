@@ -1,3 +1,4 @@
+using KaedePhi.Core.Common;
 using KaedePhi.Tool.Common;
 using KaedePhi.Tool.Converter.Phigros.v3.Model;
 using KaedePhi.Tool.Converter.Phigros.v3.Utils;
@@ -77,18 +78,26 @@ public class PhigrosV3Converter
 
         WarnIfUnsupportedMeta(normalized.Meta);
 
-        var globalBpm =
-            normalized.BpmList is { Count: > 0 }
-                ? normalized.BpmList[0].Bpm
-                : options.DefaultBpm;
-        var chartEndTime = CalculateChartEndTime(normalized);
-
-        var judgeLineConverter = new PhigrosV3JudgeLineBuilder(
-            options,
-            globalBpm,
-            chartEndTime,
-            OnWarning
-        );
+        var hasBpmList = normalized.BpmList is { Count: > 0 };
+        PhigrosV3JudgeLineBuilder judgeLineConverter;
+        if (hasBpmList)
+        {
+            judgeLineConverter = new PhigrosV3JudgeLineBuilder(
+                options,
+                new PhigrosV3TimeMapper(normalized.BpmList),
+                CalculateChartEndBeat(normalized),
+                OnWarning
+            );
+        }
+        else
+        {
+            judgeLineConverter = new PhigrosV3JudgeLineBuilder(
+                options,
+                options.DefaultBpm,
+                CalculateChartEndTime(normalized),
+                OnWarning
+            );
+        }
 
         var judgeLines = new List<PhigrosJudgeLine>(normalized.JudgeLineList.Count);
         foreach (var line in normalized.JudgeLineList)
@@ -108,10 +117,20 @@ public class PhigrosV3Converter
 
     private static float CalculateChartEndTime(Kpc.Chart input)
     {
+        return (float)(GetMaximumChartBeat(input) * 32d) + 1f;
+    }
+
+    private static Beat CalculateChartEndBeat(Kpc.Chart input)
+    {
+        return new Beat(GetMaximumChartBeat(input) + 1d / 32d);
+    }
+
+    private static double GetMaximumChartBeat(Kpc.Chart input)
+    {
         var maxBeat = 0d;
 
         if (input.JudgeLineList is not { Count: > 0 })
-            return (float)(maxBeat * 32) + 1f;
+            return maxBeat;
         foreach (var line in input.JudgeLineList)
         {
             if (line.Notes is { Count: > 0 })
@@ -129,7 +148,7 @@ public class PhigrosV3Converter
             }
         }
 
-        return (float)(maxBeat * 32) + 1f;
+        return maxBeat;
     }
 
     private static double GetMaxEventEndBeat<T>(List<KpcEvents.Event<T>>? events)

@@ -12,18 +12,18 @@ namespace KaedePhi.Core.KaedePhi
         private float _bpm = 120f;
 
         /// <summary>
-        /// BPM 值，必须大于 0。
+        /// BPM 值，必须是有限正数。
         /// </summary>
         public float Bpm
         {
             get => _bpm;
             set
             {
-                if (value <= 0)
+                if (!float.IsFinite(value) || value <= 0)
                 {
                     throw new ArgumentOutOfRangeException(
                         nameof(Bpm),
-                        "BPM must be greater than 0."
+                        "BPM 必须是有限正数。"
                     );
                 }
                 _bpm = value;

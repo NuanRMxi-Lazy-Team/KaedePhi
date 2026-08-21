@@ -23,6 +23,7 @@ public class PhigrosV3JudgeLineBuilder
     private readonly float _globalBpm;
     private readonly Beat _chartEndBeat;
     private readonly float _chartEndTime;
+    private readonly PhigrosV3TimeMapper? _timeMapper;
     private readonly Action<string>? _warnLogger;
 
     public PhigrosV3JudgeLineBuilder(
@@ -31,12 +32,38 @@ public class PhigrosV3JudgeLineBuilder
         float chartEndTime,
         Action<string>? warnLogger
     )
+        : this(
+            options,
+            globalBpm,
+            new Beat(chartEndTime / PhigrosTimePerBeat),
+            chartEndTime,
+            null,
+            warnLogger
+        ) { }
+
+    internal PhigrosV3JudgeLineBuilder(
+        KpcToPhigrosV3ConvertOptions options,
+        PhigrosV3TimeMapper timeMapper,
+        Beat chartEndBeat,
+        Action<string>? warnLogger
+    )
+        : this(options, PhigrosV3TimeMapper.TargetBpm, chartEndBeat, 0f, timeMapper, warnLogger) { }
+
+    private PhigrosV3JudgeLineBuilder(
+        KpcToPhigrosV3ConvertOptions options,
+        float globalBpm,
+        Beat chartEndBeat,
+        float chartEndTime,
+        PhigrosV3TimeMapper? timeMapper,
+        Action<string>? warnLogger
+    )
     {
         _options = options;
-        _phigrosV3EventBuilder = new PhigrosV3EventBuilder(options, warnLogger);
+        _phigrosV3EventBuilder = new PhigrosV3EventBuilder(options, warnLogger, timeMapper);
         _globalBpm = globalBpm;
-        _chartEndBeat = new Beat(chartEndTime / PhigrosTimePerBeat);
+        _chartEndBeat = chartEndBeat;
         _chartEndTime = chartEndTime;
+        _timeMapper = timeMapper;
         _warnLogger = warnLogger;
     }
 
@@ -92,10 +119,17 @@ public class PhigrosV3JudgeLineBuilder
             }
         }
 
-        var lineBpm = _globalBpm / preprocessedSrc.BpmFactor;
+        var lineBpm = _timeMapper is null
+            ? _globalBpm / preprocessedSrc.BpmFactor
+            : PhigrosV3TimeMapper.TargetBpm;
+        var chartEndTime = _timeMapper is null
+            ? _chartEndTime
+            : _timeMapper.ToEventTime(_chartEndBeat, preprocessedSrc.BpmFactor) + 1f;
 
         if (_options.NegativeAlpha.Enabled)
             ApplyNegativeAlphaElevation(preprocessedSrc);
+
+        WarnIfUnsupportedFloorPosition(preprocessedSrc);
 
         var primaryLayer = _phigrosV3EventBuilder.ResolvePrimaryLayer(preprocessedSrc.EventLayers);
         var speedEvents = primaryLayer.SpeedEvents;
@@ -104,7 +138,9 @@ public class PhigrosV3JudgeLineBuilder
             preprocessedSrc.Notes,
             speedEvents,
             _warnLogger,
-            _options.NoteFilter.FilterFakeNotes
+            _options.NoteFilter.FilterFakeNotes,
+            _timeMapper,
+            preprocessedSrc.BpmFactor
         );
 
         var phigrosLine = new PhigrosJudgeLine
@@ -114,7 +150,11 @@ public class PhigrosV3JudgeLineBuilder
             NotesBelow = notesBelow,
         };
 
-        _phigrosV3EventBuilder.ConvertLineEvents(phigrosLine, primaryLayer);
+        _phigrosV3EventBuilder.ConvertLineEvents(
+            phigrosLine,
+            primaryLayer,
+            preprocessedSrc.BpmFactor
+        );
 
         if (phigrosLine.JudgeLineDisappearEvents.Count == 0)
         {
@@ -122,7 +162,7 @@ public class PhigrosV3JudgeLineBuilder
                 new PhigrosEvent
                 {
                     StartTime = 0,
-                    EndTime = _chartEndTime,
+                    EndTime = chartEndTime,
                     Start = 0f,
                     End = 0f,
                 }
@@ -131,6 +171,26 @@ public class PhigrosV3JudgeLineBuilder
 
         return phigrosLine;
     }
+
+    private void WarnIfUnsupportedFloorPosition(KpcJudgeLine line)
+    {
+        if (line.Notes.Any(note => note.FloorPosition != 0f || note.EndFloorPosition != 0f))
+            Warn("PhigrosV3 不支持 Note.FloorPosition 和 Note.EndFloorPosition，将输出 0。");
+
+        if (
+            line.EventLayers.Any(layer =>
+                HasFloorPosition(layer.MoveXEvents)
+                || HasFloorPosition(layer.MoveYEvents)
+                || HasFloorPosition(layer.RotateEvents)
+                || HasFloorPosition(layer.AlphaEvents)
+                || HasFloorPosition(layer.SpeedEvents)
+            )
+        )
+            Warn("PhigrosV3 不支持 Event.FloorPosition，将输出 0。");
+    }
+
+    private static bool HasFloorPosition<T>(List<KpcEvents.Event<T>>? events)
+        where T : notnull => events?.Any(evt => evt.FloorPosition != 0f) == true;
 
     #region 负不透明度段判定线抬高
 

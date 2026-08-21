@@ -290,6 +290,185 @@ public class PhigrosV3JudgeLineBuilderTests
     }
 
     [Fact]
+    public void FromKpc_WithBpmList_ReparameterizesNotesAndAllEventChannels()
+    {
+        var firstLine = new JudgeLine
+        {
+            Notes =
+            [
+                new Note { Type = NoteType.Tap, StartBeat = Beat(2), EndBeat = Beat(2) },
+                new Note { Type = NoteType.Hold, StartBeat = Beat(3), EndBeat = Beat(5) },
+            ],
+            EventLayers =
+            [
+                new EventLayer
+                {
+                    MoveXEvents = [DoubleEvent(3, 5, 0, 1)],
+                    MoveYEvents = [DoubleEvent(3, 5, 0, 1)],
+                    RotateEvents = [DoubleEvent(3, 5, 0, 100)],
+                    AlphaEvents = [IntEvent(3, 5, 0, 255)],
+                    SpeedEvents = [SpeedEvent(3, 5, 4.5f, 9f)],
+                },
+            ],
+        };
+        var secondLine = new JudgeLine
+        {
+            BpmFactor = 2f,
+            Notes =
+            [
+                new Note { Type = NoteType.Tap, StartBeat = Beat(2), EndBeat = Beat(2) },
+                new Note { Type = NoteType.Hold, StartBeat = Beat(3), EndBeat = Beat(5) },
+            ],
+        };
+        var chart = new Chart
+        {
+            BpmList =
+            [
+                new BpmItem { StartBeat = Beat(3.5), Bpm = 180f },
+                new BpmItem { StartBeat = Beat(2), Bpm = 120f },
+                new BpmItem { StartBeat = Beat(3.5), Bpm = 240f },
+            ],
+            JudgeLineList = [firstLine, secondLine],
+        };
+        var options = new KpcToPhigrosV3ConvertOptions();
+        options.Cutting.EasingPrecision = 1d;
+        options.Cutting.MisalignedXyEventPrecision = 1d;
+        options.Alpha.CutPrecision = 1d;
+        options.Speed.CutPrecision = 1d;
+
+        var converted = new global::KaedePhi.Tool.Converter.Phigros.v3.PhigrosV3Converter()
+            .FromKpc(chart, options);
+
+        converted.JudgeLineList.Select(line => line.Bpm).Should().Equal(1000f, 1000f);
+
+        var first = converted.JudgeLineList[0];
+        first.NotesAbove[0].Time.Should().Be(533);
+        first.NotesAbove[1].Time.Should().Be(800);
+        first.NotesAbove[1].HoldTime.Should().Be(333f);
+        AssertTimeError(first.NotesAbove[0].Time, 1d);
+        AssertTimeError(first.NotesAbove[1].Time, 1.5d);
+        AssertTimeError(first.NotesAbove[1].Time + first.NotesAbove[1].HoldTime, 2.125d);
+
+        var second = converted.JudgeLineList[1];
+        second.NotesAbove[0].Time.Should().Be(1067);
+        second.NotesAbove[1].Time.Should().Be(1600);
+        second.NotesAbove[1].HoldTime.Should().Be(667f);
+        AssertTimeError(second.NotesAbove[0].Time, 2d);
+        AssertTimeError(second.NotesAbove[1].Time, 3d);
+        AssertTimeError(second.NotesAbove[1].Time + second.NotesAbove[1].HoldTime, 4.25d);
+
+        AssertSplitAtTempoBoundary(first.JudgeLineMoveEvents.Select(e => (e.StartTime, e.EndTime)));
+        AssertSplitAtTempoBoundary(first.JudgeLineRotateEvents.Select(e => (e.StartTime, e.EndTime)));
+        AssertSplitAtTempoBoundary(first.JudgeLineDisappearEvents.Select(e => (e.StartTime, e.EndTime)));
+        AssertSplitAtTempoBoundary(first.SpeedEvents.Select(e => (e.StartTime, e.EndTime)));
+        first
+            .SpeedEvents.Should()
+            .Contain(eventItem =>
+                eventItem.StartTime == 933f && eventItem.EndTime == 1000f && eventItem.Value == 1.25f
+            );
+
+        chart.BpmList.Select(item => item.Bpm).Should().Equal(180f, 120f, 240f);
+        firstLine.BpmFactor.Should().Be(1f);
+        ((double)firstLine.EventLayers[0].RotateEvents![0].StartBeat).Should().Be(3d);
+        ((double)firstLine.EventLayers[0].RotateEvents![0].EndBeat).Should().Be(5d);
+    }
+
+    [Fact]
+    public void FromKpc_WithFloorPosition_LogsLossAndKeepsPhigrosDefault()
+    {
+        var source = new JudgeLine
+        {
+            Notes =
+            [
+                new Note
+                {
+                    Type = NoteType.Tap,
+                    StartBeat = Beat(1),
+                    EndBeat = Beat(1),
+                    FloorPosition = 1f,
+                    EndFloorPosition = 2f,
+                },
+            ],
+            EventLayers =
+            [
+                new EventLayer
+                {
+                    RotateEvents =
+                    [
+                        new KpcEvents.Event<double>
+                        {
+                            StartBeat = Beat(0),
+                            EndBeat = Beat(1),
+                            StartValue = 0d,
+                            EndValue = 1d,
+                            FloorPosition = 3f,
+                        },
+                    ],
+                },
+            ],
+        };
+        var warnings = new List<string>();
+        var converter = new global::KaedePhi.Tool.Converter.Phigros.v3.PhigrosV3Converter();
+        converter.OnWarning = warnings.Add;
+
+        var converted = converter.FromKpc(
+            new Chart
+            {
+                BpmList = [new BpmItem { StartBeat = Beat(0), Bpm = 120f }],
+                JudgeLineList = [source],
+            },
+            new KpcToPhigrosV3ConvertOptions()
+        );
+
+        warnings.Should().Contain(message => message.Contains("Note.FloorPosition") && message.Contains("0"));
+        warnings.Should().Contain(message => message.Contains("Event.FloorPosition") && message.Contains("0"));
+        converted.JudgeLineList.Single().NotesAbove.Single().FloorPosition.Should().Be(0f);
+    }
+
+    [Fact]
+    public void FromKpc_WithoutBpmList_PreservesDefaultBpmAndBeatTime()
+    {
+        var source = new JudgeLine
+        {
+            BpmFactor = 2f,
+            Notes = [new Note { Type = NoteType.Tap, StartBeat = Beat(1), EndBeat = Beat(1) }],
+        };
+
+        var converted = new global::KaedePhi.Tool.Converter.Phigros.v3.PhigrosV3Converter()
+            .FromKpc(new Chart { JudgeLineList = [source] }, new KpcToPhigrosV3ConvertOptions())
+            .JudgeLineList.Single();
+
+        converted.Bpm.Should().Be(60f);
+        converted.NotesAbove.Single().Time.Should().Be(32);
+    }
+
+    [Fact]
+    public void FromKpc_WithBpmList_DerivesHoldTimeFromQuantizedEndpoints()
+    {
+        var source = new JudgeLine
+        {
+            Notes = [new Note { Type = NoteType.Hold, StartBeat = Beat(1), EndBeat = Beat(2) }],
+        };
+
+        var converted = new global::KaedePhi.Tool.Converter.Phigros.v3.PhigrosV3Converter()
+            .FromKpc(
+                new Chart
+                {
+                    BpmList = [new BpmItem { StartBeat = Beat(0), Bpm = 120f }],
+                    JudgeLineList = [source],
+                },
+                new KpcToPhigrosV3ConvertOptions()
+            )
+            .JudgeLineList.Single()
+            .NotesAbove.Single();
+
+        converted.Time.Should().Be(267);
+        converted.HoldTime.Should().Be(266f);
+        AssertTimeError(converted.Time, 0.5d);
+        AssertTimeError(converted.Time + converted.HoldTime, 1d);
+    }
+
+    [Fact]
     public void FatherLineLookup_UsesSourceObjectIdentity()
     {
         var father = new CollidingJudgeLine();
@@ -333,6 +512,44 @@ public class PhigrosV3JudgeLineBuilderTests
             StartValue = startValue,
             EndValue = endValue,
         };
+
+    private static KpcEvents.Event<double> DoubleEvent(
+        double startBeat,
+        double endBeat,
+        double startValue,
+        double endValue
+    ) =>
+        new()
+        {
+            StartBeat = Beat(startBeat),
+            EndBeat = Beat(endBeat),
+            StartValue = startValue,
+            EndValue = endValue,
+        };
+
+    private static KpcEvents.Event<int> IntEvent(
+        double startBeat,
+        double endBeat,
+        int startValue,
+        int endValue
+    ) =>
+        new()
+        {
+            StartBeat = Beat(startBeat),
+            EndBeat = Beat(endBeat),
+            StartValue = startValue,
+            EndValue = endValue,
+        };
+
+    private static void AssertSplitAtTempoBoundary(IEnumerable<(float Start, float End)> events)
+    {
+        events.Should().Contain((800f, 933f));
+        events.Should().Contain((933f, 1000f));
+        events.Should().Contain((1000f, 1133f));
+    }
+
+    private static void AssertTimeError(double time, double expectedSeconds) =>
+        Math.Abs(time * 0.001875d - expectedSeconds).Should().BeLessThanOrEqualTo(0.001d);
 
     private static float PhigrosTime(double beat) => (float)(beat * 32d);
 

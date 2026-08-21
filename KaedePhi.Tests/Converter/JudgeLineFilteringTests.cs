@@ -82,7 +82,6 @@ public class JudgeLineFilteringTests
     {
         return new Kpc.Chart
         {
-            BpmList = [new Kpc.BpmItem { Bpm = 120f }],
             JudgeLineList =
             [
                 CreateLine(1),
