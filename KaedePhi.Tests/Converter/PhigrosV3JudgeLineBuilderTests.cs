@@ -469,6 +469,140 @@ public class PhigrosV3JudgeLineBuilderTests
     }
 
     [Fact]
+    public void FromKpc_WithBpmListAndAncestorFactorMismatch_RejectsParentUnbind()
+    {
+        var chart = new Chart
+        {
+            BpmList = [new BpmItem { StartBeat = Beat(0), Bpm = 120f }],
+            JudgeLineList =
+            [
+                new JudgeLine(),
+                new JudgeLine { Father = 0 },
+                new JudgeLine
+                {
+                    Father = 1,
+                    BpmFactor = 2f,
+                    Notes = [new Note { Type = NoteType.Tap, StartBeat = Beat(1), EndBeat = Beat(1) }],
+                },
+            ],
+        };
+
+        Action act = () =>
+            new global::KaedePhi.Tool.Converter.Phigros.v3.PhigrosV3Converter().FromKpc(
+                chart,
+                new KpcToPhigrosV3ConvertOptions()
+            );
+
+        act.Should().Throw<FormatException>().WithMessage("*判定线 2*父线 1*BPM 因子*");
+    }
+
+    [Fact]
+    public void FromKpc_WithBpmList_RejectsTimeAtTailEventSentinel()
+    {
+        var chart = new Chart
+        {
+            BpmList = [new BpmItem { StartBeat = Beat(0), Bpm = 120f }],
+            JudgeLineList =
+            [
+                new JudgeLine
+                {
+                    Notes =
+                    [
+                        new Note
+                        {
+                            Type = NoteType.Tap,
+                            StartBeat = Beat(3_750_000),
+                            EndBeat = Beat(3_750_000),
+                        },
+                    ],
+                },
+            ],
+        };
+
+        Action act = () =>
+            new global::KaedePhi.Tool.Converter.Phigros.v3.PhigrosV3Converter().FromKpc(
+                chart,
+                new KpcToPhigrosV3ConvertOptions()
+            );
+
+        act.Should().Throw<FormatException>().WithMessage("*尾事件*哨兵*");
+    }
+
+    [Fact]
+    public void FromKpc_WithFloorPositionOnFilteredLine_LogsDiscardBeforeFiltering()
+    {
+        var source = new JudgeLine
+        {
+            Texture = "filtered.png",
+            Notes =
+            [
+                new Note
+                {
+                    Type = NoteType.Tap,
+                    StartBeat = Beat(1),
+                    EndBeat = Beat(1),
+                    FloorPosition = 1f,
+                },
+            ],
+        };
+        var warnings = new List<string>();
+        var converter = new global::KaedePhi.Tool.Converter.Phigros.v3.PhigrosV3Converter
+        {
+            OnWarning = warnings.Add,
+        };
+        var options = new KpcToPhigrosV3ConvertOptions();
+        options.LineFilter.RemoveTextureLine = true;
+
+        var converted = converter.FromKpc(new Chart { JudgeLineList = [source] }, options);
+
+        converted.JudgeLineList.Should().BeEmpty();
+        warnings.Should().Contain(message => message.Contains("Note.FloorPosition") && message.Contains("丢弃"));
+    }
+
+    [Fact]
+    public void FromKpc_WithFloorPositionOnFilteredFather_LogsDiscardBeforeUnbinding()
+    {
+        var parent = new JudgeLine
+        {
+            Texture = "filtered.png",
+            EventLayers =
+            [
+                new EventLayer
+                {
+                    RotateEvents =
+                    [
+                        new KpcEvents.Event<double>
+                        {
+                            StartBeat = Beat(0),
+                            EndBeat = Beat(1),
+                            StartValue = 0d,
+                            EndValue = 1d,
+                            FloorPosition = 1f,
+                        },
+                    ],
+                },
+            ],
+        };
+        var child = new JudgeLine
+        {
+            Father = 0,
+            Notes = [new Note { Type = NoteType.Tap, StartBeat = Beat(1), EndBeat = Beat(1) }],
+        };
+        var warnings = new List<string>();
+        var converter = new global::KaedePhi.Tool.Converter.Phigros.v3.PhigrosV3Converter
+        {
+            OnWarning = warnings.Add,
+        };
+        var options = new KpcToPhigrosV3ConvertOptions();
+        options.LineFilter.RemoveTextureLine = true;
+
+        var converted = converter.FromKpc(new Chart { JudgeLineList = [parent, child] }, options);
+
+        converted.JudgeLineList.Should().ContainSingle();
+        warnings.Should().Contain(message => message.Contains("Event.FloorPosition") && message.Contains("丢弃"));
+    }
+
+    [Fact]
     public void FatherLineLookup_UsesSourceObjectIdentity()
     {
         var father = new CollidingJudgeLine();

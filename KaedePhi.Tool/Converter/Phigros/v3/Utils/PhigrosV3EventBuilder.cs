@@ -16,7 +16,7 @@ public class PhigrosV3EventBuilder
 {
     private const double AlphaMax = 255d;
     private const float BeatToPhigrosTime = 32f;
-    private const float TailEventEndTime = 1_000_000_000f;
+    private const float TailEventEndTime = PhigrosV3TimeMapper.TailEventEndTime;
 
     private readonly KpcToPhigrosV3ConvertOptions _options;
     private readonly Action<string>? _warnLogger;

@@ -1,4 +1,5 @@
 using System.Reflection;
+using KaedePhi.Core.Common;
 using KaedePhi.Core.KaedePhi;
 using KaedePhi.Tool.Common;
 using KaedePhi.Tool.Render.KaedePhi;
@@ -60,6 +61,19 @@ public class ChartProcessingValidatorTests
         Action act = () => ChartProcessingValidator.NormalizeAndValidateNoteEndBeats(chart);
 
         act.Should().Throw<FormatException>().WithMessage("*BPM*0*");
+    }
+
+    [Fact]
+    public void NormalizeAndValidateNoteEndBeats_RejectsNegativeBpmStartBeat()
+    {
+        var chart = new Chart
+        {
+            BpmList = [new BpmItem { StartBeat = new Beat(-1), Bpm = 120f }],
+        };
+
+        Action act = () => ChartProcessingValidator.NormalizeAndValidateNoteEndBeats(chart);
+
+        act.Should().Throw<FormatException>().WithMessage("*BPM*0*起始拍*");
     }
 
     [Theory]

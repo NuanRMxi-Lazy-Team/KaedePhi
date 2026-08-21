@@ -87,6 +87,8 @@ public static class ChartProcessingValidator
             var bpm = chart.BpmList[index];
             if (bpm is null || !float.IsFinite(bpm.Bpm) || bpm.Bpm <= 0)
                 throw new FormatException($"谱面 BPM 节点 {index} 必须是有限正数。");
+            if (bpm.StartBeat < new Beat(0))
+                throw new FormatException($"谱面 BPM 节点 {index} 的起始拍不能小于 0。");
         }
 
         for (var index = 0; index < chart.JudgeLineList.Count; index++)

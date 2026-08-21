@@ -6,7 +6,9 @@ namespace KaedePhi.Tool.Converter.Phigros.v3.Utils;
 internal sealed class PhigrosV3TimeMapper
 {
     internal const float TargetBpm = 1000f;
+    internal const float TailEventEndTime = 1_000_000_000f;
 
+    private const long TailEventTime = 1_000_000_000L;
     private const double SecondsPerTimeUnit = 1.875d / TargetBpm;
     private const double MaximumTimeErrorSeconds = 0.001d;
     private readonly List<TempoSegment> _segments;
@@ -70,6 +72,7 @@ internal sealed class PhigrosV3TimeMapper
     public int ToNoteTime(Beat beat, float bpmFactor)
     {
         var (time, seconds) = Quantize(beat, bpmFactor);
+        ValidateTailEventBoundary(time);
         if (time is < int.MinValue or > int.MaxValue)
             throw new FormatException("Phigros 音符时间超出可编码范围。");
 
@@ -80,7 +83,10 @@ internal sealed class PhigrosV3TimeMapper
     public float ToEventTime(Beat beat, float bpmFactor)
     {
         var (time, seconds) = Quantize(beat, bpmFactor);
+        ValidateTailEventBoundary(time);
         var encoded = (float)time;
+        if (encoded >= TailEventEndTime)
+            throw new FormatException("Phigros 映射时间与尾事件哨兵冲突。");
         ValidateEncodedTime(encoded, seconds);
         return encoded;
     }
@@ -151,6 +157,12 @@ internal sealed class PhigrosV3TimeMapper
             throw new FormatException("Phigros 时间超出可编码范围。");
         if (Math.Abs(encodedTime * SecondsPerTimeUnit - expectedSeconds) > MaximumTimeErrorSeconds)
             throw new FormatException("Phigros 时间量化误差超过 1 毫秒。");
+    }
+
+    private static void ValidateTailEventBoundary(long time)
+    {
+        if (time >= TailEventTime)
+            throw new FormatException("Phigros 映射时间与尾事件哨兵冲突。");
     }
 
     private readonly record struct TempoEntry(KpcBpmItem Item, int Index);
