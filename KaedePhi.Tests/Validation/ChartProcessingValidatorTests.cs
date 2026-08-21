@@ -2,6 +2,7 @@ using System.Reflection;
 using KaedePhi.Core.Common;
 using KaedePhi.Core.KaedePhi;
 using KaedePhi.Tool.Common;
+using KaedePhi.Tool.Converter.KaedePhi;
 using KaedePhi.Tool.Render.KaedePhi;
 
 namespace KaedePhi.Tests.Validation;
@@ -95,6 +96,32 @@ public class ChartProcessingValidatorTests
     }
 
     [Theory]
+    [InlineData("Notes", "*空的判定线或事件集合*")]
+    [InlineData("EventLayers", "*空的判定线或事件集合*")]
+    [InlineData("Layer", "*空的事件层*")]
+    public void NormalizeAndValidateNoteEndBeats_RejectsMalformedStructureWithFormatException(
+        string malformedMember,
+        string expectedMessage
+    )
+    {
+        var chart = CreateChartWithMalformedStructure(malformedMember);
+
+        Action act = () => ChartProcessingValidator.NormalizeAndValidateNoteEndBeats(chart);
+
+        act.Should().Throw<FormatException>().WithMessage(expectedMessage);
+    }
+
+    [Fact]
+    public void KaedePhiConverter_FromKpcRejectsMalformedStructureWithFormatException()
+    {
+        var chart = CreateChartWithMalformedStructure("Notes");
+
+        Action act = () => new KaedePhiConverter().FromKpc(chart, null);
+
+        act.Should().Throw<FormatException>().WithMessage("*空的判定线或事件集合*");
+    }
+
+    [Theory]
     [InlineData(float.NaN)]
     [InlineData(float.PositiveInfinity)]
     [InlineData(float.NegativeInfinity)]
@@ -146,6 +173,27 @@ public class ChartProcessingValidatorTests
             .GetField("_bpm", BindingFlags.Instance | BindingFlags.NonPublic)!
             .SetValue(item, bpm);
         return item;
+    }
+
+    private static Chart CreateChartWithMalformedStructure(string malformedMember)
+    {
+        var line = new JudgeLine();
+        switch (malformedMember)
+        {
+            case "Notes":
+                line.Notes = null!;
+                break;
+            case "EventLayers":
+                line.EventLayers = null!;
+                break;
+            case "Layer":
+                line.EventLayers = [null!];
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(malformedMember));
+        }
+
+        return new Chart { JudgeLineList = [line] };
     }
 
     private static void SetBpmFactorBypassingValidation(JudgeLine line, float bpmFactor)

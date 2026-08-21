@@ -288,8 +288,6 @@ public class EventFit<TPayload> : LoggableBase, IEventFit<KpcEvents.Event<TPaylo
     {
         return !evt.IsBezier
                && (int)evt.Easing == 1
-               && evt.EasingLeft == 0f
-               && Math.Abs(evt.EasingRight - 1f) < Constants.FloatEpsilon
                && evt.Font is null;
     }
 

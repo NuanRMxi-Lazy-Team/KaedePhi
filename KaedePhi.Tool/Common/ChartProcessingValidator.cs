@@ -45,6 +45,7 @@ public static class ChartProcessingValidator
     {
         ArgumentNullException.ThrowIfNull(chart);
         ValidateBpmAndBpmFactors(chart);
+        ValidateCloneableJudgeLineStructure(chart.JudgeLineList);
         var normalized = chart.Clone();
 
         for (var lineIndex = 0; lineIndex < normalized.JudgeLineList.Count; lineIndex++)
@@ -158,17 +159,14 @@ public static class ChartProcessingValidator
         ArgumentNullException.ThrowIfNull(judgeLines);
         if (judgeLines.Count > MaximumJudgeLines)
             throw new FormatException("谱面判定线数量超过安全上限。");
+        ValidateCloneableJudgeLineStructure(judgeLines);
 
         long itemCount = 0;
         foreach (var line in judgeLines)
         {
-            if ((object?)line is null || line.EventLayers is null || line.Notes is null)
-                throw new FormatException("谱面包含空的判定线或事件集合。");
             itemCount += line.Notes.Count;
             foreach (var layer in line.EventLayers)
             {
-                if ((object?)layer is null)
-                    throw new FormatException("谱面包含空的事件层。");
                 itemCount +=
                     (layer.MoveXEvents?.Count ?? 0)
                     + (layer.MoveYEvents?.Count ?? 0)
@@ -206,6 +204,19 @@ public static class ChartProcessingValidator
                 state[current] = 2;
                 current = judgeLines[current].Father;
             }
+        }
+    }
+
+    private static void ValidateCloneableJudgeLineStructure(
+        IReadOnlyList<JudgeLine> judgeLines
+    )
+    {
+        foreach (var line in judgeLines)
+        {
+            if ((object?)line is null || line.EventLayers is null || line.Notes is null)
+                throw new FormatException("谱面包含空的判定线或事件集合。");
+            if (line.EventLayers.Any(layer => (object?)layer is null))
+                throw new FormatException("谱面包含空的事件层。");
         }
     }
 

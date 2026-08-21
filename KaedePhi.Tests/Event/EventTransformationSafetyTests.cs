@@ -1,6 +1,7 @@
 using KaedePhi.Core.Common;
 using KaedePhi.Core.KaedePhi;
 using KaedePhi.Tool.Event.KaedePhi;
+using KaedePhi.Tool.Layer.KaedePhi;
 using KpcEvents = KaedePhi.Core.KaedePhi.Events;
 
 namespace KaedePhi.Tests.Event;
@@ -61,7 +62,7 @@ public class EventTransformationSafetyTests
     }
 
     [Fact]
-    public void CompressSlope_CroppedEasingEvents_PreservesBothEvents()
+    public void CompressSlope_CroppedLinearEasingEvents_CanMerge()
     {
         var events = new List<KpcEvents.Event<double>>
         {
@@ -71,9 +72,8 @@ public class EventTransformationSafetyTests
 
         var result = _compressor.EventListCompressSlope(events, 100);
 
-        result.Should().HaveCount(2);
-        result[0].EasingLeft.Should().Be(0.1f);
-        result[1].EasingRight.Should().Be(0.9f);
+        result.Should().ContainSingle();
+        result[0].EndBeat.Should().Be(new Beat(2));
     }
 
     [Fact]
@@ -109,7 +109,7 @@ public class EventTransformationSafetyTests
     }
 
     [Fact]
-    public void FitEvents_CroppedEasingEvents_PreservesBothEvents()
+    public void FitEvents_CroppedLinearEasingEvents_CanMerge()
     {
         var events = new List<KpcEvents.Event<double>>
         {
@@ -119,9 +119,66 @@ public class EventTransformationSafetyTests
 
         var result = _fit.FitEvents(events, 100);
 
-        result.Should().HaveCount(2);
-        result[0].EasingLeft.Should().Be(0.1f);
-        result[1].EasingRight.Should().Be(0.9f);
+        result.Should().ContainSingle();
+        result[0].EndBeat.Should().Be(new Beat(2));
+    }
+
+    [Fact]
+    public void LayerEventsCompress_AlignedBezierPositionEvents_PreservesBothAxes()
+    {
+        var firstX = CreateEvent(
+            0,
+            1,
+            0,
+            50,
+            isBezier: true,
+            bezierPoints: [0.1f, 0.2f, 0.3f, 0.4f]
+        );
+        var layer = new KpcEvents.EventLayer
+        {
+            MoveXEvents = [firstX, CreateEvent(1, 2, 50, 100)],
+            MoveYEvents = [CreateEvent(0, 1, 0, 50), CreateEvent(1, 2, 50, 100)],
+        };
+
+        new LayerProcessor().LayerEventsCompress(layer, 100);
+
+        layer.MoveXEvents.Should().HaveCount(2);
+        layer.MoveYEvents.Should().HaveCount(2);
+        layer.MoveXEvents![0].IsBezier.Should().BeTrue();
+        layer.MoveXEvents[0].BezierPoints.Should().Equal(0.1f, 0.2f, 0.3f, 0.4f);
+    }
+
+    [Fact]
+    public void LayerEventsCompress_AlignedFontPositionEvents_PreservesBothAxes()
+    {
+        var layer = new KpcEvents.EventLayer
+        {
+            MoveXEvents = [CreateEvent(0, 1, 0, 50, font: "line.ttf"), CreateEvent(1, 2, 50, 100)],
+            MoveYEvents = [CreateEvent(0, 1, 0, 50), CreateEvent(1, 2, 50, 100)],
+        };
+
+        new LayerProcessor().LayerEventsCompress(layer, 100);
+
+        layer.MoveXEvents.Should().HaveCount(2);
+        layer.MoveYEvents.Should().HaveCount(2);
+        layer.MoveXEvents![0].Font.Should().Be("line.ttf");
+    }
+
+    [Fact]
+    public void LayerEventsCompress_AlignedCleanLinearPositionEvents_CompressesBothAxes()
+    {
+        var layer = new KpcEvents.EventLayer
+        {
+            MoveXEvents = [CreateEvent(0, 1, 0, 50), CreateEvent(1, 2, 50, 100)],
+            MoveYEvents = [CreateEvent(0, 1, 0, 25), CreateEvent(1, 2, 25, 50)],
+        };
+
+        new LayerProcessor().LayerEventsCompress(layer, 100);
+
+        layer.MoveXEvents.Should().ContainSingle();
+        layer.MoveYEvents.Should().ContainSingle();
+        layer.MoveXEvents![0].EndValue.Should().Be(100);
+        layer.MoveYEvents![0].EndValue.Should().Be(50);
     }
 
     [Fact]

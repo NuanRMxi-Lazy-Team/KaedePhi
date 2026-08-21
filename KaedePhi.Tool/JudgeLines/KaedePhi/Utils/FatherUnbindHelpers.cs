@@ -423,10 +423,10 @@ public static class FatherUnbindHelpers
     )
     {
         if (
-            lastX.Easing != 1
-            || lastY.Easing != 1
-            || currentX.Easing != 1
-            || currentY.Easing != 1
+            !IsPositionEventMergeable(lastX)
+            || !IsPositionEventMergeable(lastY)
+            || !IsPositionEventMergeable(currentX)
+            || !IsPositionEventMergeable(currentY)
             || lastX.EndBeat != currentX.StartBeat
             || lastY.EndBeat != currentY.StartBeat
         )
@@ -463,6 +463,11 @@ public static class FatherUnbindHelpers
         );
         return (GetNormalizedKpcDistance(actualJunction, predictedJunction) / originalMovementRange)
             <= relativeTolerance;
+    }
+
+    private static bool IsPositionEventMergeable(KpcEvents.Event<double> evt)
+    {
+        return !evt.IsBezier && evt.Easing == 1 && evt.Font is null;
     }
 
     #region 共享数据结构
