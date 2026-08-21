@@ -86,8 +86,7 @@ public class PhigrosV3JudgeLineBuilder
                     CoreConstants.DefaultTexture,
                     StringComparison.Ordinal
                 )
-            )
-            || (_options.LineFilter.RemoveAttachUiLine && src.AttachUi.HasValue)
+            ) || (_options.LineFilter.RemoveAttachUiLine && src.AttachUi.HasValue)
         )
             return null;
 
@@ -176,7 +175,9 @@ public class PhigrosV3JudgeLineBuilder
     private void WarnIfUnsupportedFloorPosition(KpcJudgeLine line)
     {
         if (line.Notes.Any(note => note.FloorPosition != 0f || note.EndFloorPosition != 0f))
-            Warn("PhigrosV3 不支持 Note.FloorPosition 和 Note.EndFloorPosition，将丢弃该字段并输出 0。");
+            Warn(
+                "PhigrosV3 不支持 Note.FloorPosition 和 Note.EndFloorPosition，将丢弃该字段并输出 0。"
+            );
 
         if (
             line.EventLayers.Any(layer =>
@@ -190,16 +191,17 @@ public class PhigrosV3JudgeLineBuilder
             Warn("PhigrosV3 不支持 Event.FloorPosition，将丢弃该字段并输出 0。");
     }
 
-    private static void ValidateFatherBpmFactors(
-        KpcJudgeLine src,
-        List<KpcJudgeLine> allLines
-    )
+    private static void ValidateFatherBpmFactors(KpcJudgeLine src, List<KpcJudgeLine> allLines)
     {
         var lineIndex = allLines.FindIndex(line => ReferenceEquals(line, src));
         if (lineIndex < 0)
             throw new FormatException("待转换的判定线不属于当前谱面。");
 
-        for (var fatherIndex = src.Father; fatherIndex >= 0; fatherIndex = allLines[fatherIndex].Father)
+        for (
+            var fatherIndex = src.Father;
+            fatherIndex >= 0;
+            fatherIndex = allLines[fatherIndex].Father
+        )
         {
             if (allLines[fatherIndex].BpmFactor != src.BpmFactor)
                 throw new FormatException(

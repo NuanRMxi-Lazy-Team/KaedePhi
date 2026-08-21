@@ -105,8 +105,8 @@ public sealed class ChartFormatDescriptor
             throw new NotSupportedException($"{Type} 不支持作为导入源。");
         ArgumentNullException.ThrowIfNull(text);
         var chart = await Importer(text, importOptions, log ?? ChartLogSink.None, ct);
-        var normalized = ChartProcessingValidator.NormalizeAndValidateNoteEndBeats(chart);
-        ChartProcessingValidator.ValidateJudgeLineHierarchy(normalized.JudgeLineList);
+        var normalized = KpcChartNormalizer.NormalizeAndValidateNoteEndBeats(chart);
+        KpcChartValidator.ValidateJudgeLineHierarchy(normalized.JudgeLineList);
         return normalized;
     }
 
@@ -131,8 +131,8 @@ public sealed class ChartFormatDescriptor
 
         ct.ThrowIfCancellationRequested();
         var chart = await StreamImporter(stream, importOptions, log ?? ChartLogSink.None, ct);
-        var normalized = ChartProcessingValidator.NormalizeAndValidateNoteEndBeats(chart);
-        ChartProcessingValidator.ValidateJudgeLineHierarchy(normalized.JudgeLineList);
+        var normalized = KpcChartNormalizer.NormalizeAndValidateNoteEndBeats(chart);
+        KpcChartValidator.ValidateJudgeLineHierarchy(normalized.JudgeLineList);
         return normalized;
     }
 
@@ -158,8 +158,8 @@ public sealed class ChartFormatDescriptor
         if (Exporter is null)
             throw new NotSupportedException($"{Type} 不支持作为导出目标。");
         ArgumentNullException.ThrowIfNull(chart);
-        var normalized = ChartProcessingValidator.NormalizeAndValidateNoteEndBeats(chart);
-        ChartProcessingValidator.ValidateJudgeLineHierarchy(normalized.JudgeLineList);
+        var normalized = KpcChartNormalizer.NormalizeAndValidateNoteEndBeats(chart);
+        KpcChartValidator.ValidateJudgeLineHierarchy(normalized.JudgeLineList);
         return Exporter(
             normalized,
             outputPath,

@@ -268,12 +268,12 @@ public class JudgeLineUnbinder : LoggableBase, IJudgeLineUnbinder<JudgeLine>
         ArgumentNullException.ThrowIfNull(allJudgeLines);
         if (targetJudgeLineIndex < 0 || targetJudgeLineIndex >= allJudgeLines.Count)
             throw new ArgumentOutOfRangeException(nameof(targetJudgeLineIndex));
-        ChartProcessingValidator.ValidatePrecision(precision);
+        NumericParameterValidator.ValidatePrecision(precision);
         if (tolerance is not null)
-            ChartProcessingValidator.ValidateTolerance(tolerance.Value);
+            NumericParameterValidator.ValidateTolerance(tolerance.Value);
         if (mergeTolerance is not null)
-            ChartProcessingValidator.ValidateTolerance(mergeTolerance.Value);
-        ChartProcessingValidator.ValidateJudgeLineHierarchy(allJudgeLines);
+            NumericParameterValidator.ValidateTolerance(mergeTolerance.Value);
+        KpcChartValidator.ValidateJudgeLineHierarchy(allJudgeLines);
         return this;
     }
 }

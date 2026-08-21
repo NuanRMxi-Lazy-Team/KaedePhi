@@ -57,7 +57,7 @@ public class PhiChainConverter
             );
         }
 
-        return ChartProcessingValidator.NormalizeAndValidateNoteEndBeats(kpcChart);
+        return KpcChartNormalizer.NormalizeAndValidateNoteEndBeats(kpcChart);
     }
 
     /// <summary>
@@ -71,8 +71,8 @@ public class PhiChainConverter
         ArgumentNullException.ThrowIfNull(input);
         ArgumentNullException.ThrowIfNull(options);
         ConversionOptionsValidator.Validate(options);
-        var normalized = ChartProcessingValidator.NormalizeAndValidateNoteEndBeats(input);
-        ChartProcessingValidator.ValidateJudgeLineHierarchy(normalized.JudgeLineList);
+        var normalized = KpcChartNormalizer.NormalizeAndValidateNoteEndBeats(input);
+        KpcChartValidator.ValidateJudgeLineHierarchy(normalized.JudgeLineList);
         _ct.ThrowIfCancellationRequested();
         WarnIfUnsupportedMeta(normalized.Meta);
 

@@ -35,7 +35,7 @@ public class PhiFansConverter
             Meta = MetaBuilder.ConvertToKpc(source.Info, source.Offset),
             JudgeLineList = ConvertLinesWithCancellation(source.JudgeLineList),
         };
-        return ChartProcessingValidator.NormalizeAndValidateNoteEndBeats(converted);
+        return KpcChartNormalizer.NormalizeAndValidateNoteEndBeats(converted);
     }
 
     private List<Kpc.JudgeLine> ConvertLinesWithCancellation(List<Line> lines)
@@ -60,8 +60,8 @@ public class PhiFansConverter
         ArgumentNullException.ThrowIfNull(input);
         ArgumentNullException.ThrowIfNull(options);
         ConversionOptionsValidator.Validate(options);
-        var normalized = ChartProcessingValidator.NormalizeAndValidateNoteEndBeats(input);
-        ChartProcessingValidator.ValidateJudgeLineHierarchy(normalized.JudgeLineList);
+        var normalized = KpcChartNormalizer.NormalizeAndValidateNoteEndBeats(input);
+        KpcChartValidator.ValidateJudgeLineHierarchy(normalized.JudgeLineList);
         _ct.ThrowIfCancellationRequested();
 
         var lines = new List<Line>(normalized.JudgeLineList.Count);

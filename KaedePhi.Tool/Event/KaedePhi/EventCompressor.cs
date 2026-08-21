@@ -103,9 +103,7 @@ public class EventCompressor<TPayload> : LoggableBase, IEventCompressor<KpcEvent
     /// </summary>
     private static bool IsEligibleForTransform(KpcEvents.Event<TPayload> evt)
     {
-        return !evt.IsBezier
-            && (int)evt.Easing == 1
-            && evt.Font is null;
+        return !evt.IsBezier && (int)evt.Easing == 1 && evt.Font is null;
     }
 
     /// <inheritdoc/>

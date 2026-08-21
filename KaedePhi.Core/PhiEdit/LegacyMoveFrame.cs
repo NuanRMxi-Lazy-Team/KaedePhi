@@ -55,6 +55,12 @@ namespace KaedePhi.Core.PhiEdit
         /// 深拷贝旧版移动帧。
         /// </summary>
         /// <returns>移动帧副本</returns>
-        public LegacyMoveFrame Clone() => new() { Beat = Beat, XValue = XValue, YValue = YValue };
+        public LegacyMoveFrame Clone() =>
+            new()
+            {
+                Beat = Beat,
+                XValue = XValue,
+                YValue = YValue,
+            };
     }
 }

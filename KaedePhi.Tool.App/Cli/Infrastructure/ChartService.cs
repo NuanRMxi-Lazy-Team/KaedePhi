@@ -64,7 +64,7 @@ public sealed class ChartService
     )
     {
         var path = ResolveInputPath(input, workspace);
-        ChartProcessingValidator.ValidateInputFile(path);
+        InputFileValidator.Validate(path);
         return await File.ReadAllTextAsync(path, ct);
     }
 
@@ -76,7 +76,7 @@ public sealed class ChartService
     )
     {
         var path = ResolveInputPath(input, workspace);
-        ChartProcessingValidator.ValidateInputFile(path);
+        InputFileValidator.Validate(path);
 
         ChartType detectedType;
         await using (

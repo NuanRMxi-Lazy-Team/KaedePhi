@@ -168,23 +168,23 @@ public sealed class SettingsViewModel : INotifyPropertyChanged
         {
             if (MaxLogFiles is < 1 or > 100)
                 throw new ArgumentOutOfRangeException(nameof(MaxLogFiles));
-            ChartProcessingValidator.ValidatePrecision(UnbindPrecision);
-            ChartProcessingValidator.ValidatePrecision(LayerMergePrecision);
-            ChartProcessingValidator.ValidatePrecision(CutPrecision);
-            ChartProcessingValidator.ValidateTolerance(UnbindTolerance);
-            ChartProcessingValidator.ValidateTolerance(LayerMergeTolerance);
-            ChartProcessingValidator.ValidateTolerance(CutTolerance);
-            ChartProcessingValidator.ValidateTolerance(FitTolerance);
-            ChartProcessingValidator.ValidatePrecision(ConvertPeUnsupportedEasingPrecision);
-            ChartProcessingValidator.ValidatePrecision(ConvertPeMisalignedXyEventPrecision);
-            ChartProcessingValidator.ValidatePrecision(ConvertPeAlphaCutPrecision);
-            ChartProcessingValidator.ValidatePrecision(ConvertPeSpeedCutPrecision);
-            ChartProcessingValidator.ValidatePrecision(ConvertPhigrosEasingPrecision);
-            ChartProcessingValidator.ValidatePrecision(ConvertPhigrosMisalignedXyEventPrecision);
-            ChartProcessingValidator.ValidatePrecision(ConvertPhigrosAlphaCutPrecision);
-            ChartProcessingValidator.ValidatePrecision(ConvertPhigrosSpeedCutPrecision);
-            ChartProcessingValidator.ValidatePrecision(ConvertUnbindPrecision);
-            ChartProcessingValidator.ValidatePrecision(ConvertMultiLayerMergePrecision);
+            NumericParameterValidator.ValidatePrecision(UnbindPrecision);
+            NumericParameterValidator.ValidatePrecision(LayerMergePrecision);
+            NumericParameterValidator.ValidatePrecision(CutPrecision);
+            NumericParameterValidator.ValidateTolerance(UnbindTolerance);
+            NumericParameterValidator.ValidateTolerance(LayerMergeTolerance);
+            NumericParameterValidator.ValidateTolerance(CutTolerance);
+            NumericParameterValidator.ValidateTolerance(FitTolerance);
+            NumericParameterValidator.ValidatePrecision(ConvertPeUnsupportedEasingPrecision);
+            NumericParameterValidator.ValidatePrecision(ConvertPeMisalignedXyEventPrecision);
+            NumericParameterValidator.ValidatePrecision(ConvertPeAlphaCutPrecision);
+            NumericParameterValidator.ValidatePrecision(ConvertPeSpeedCutPrecision);
+            NumericParameterValidator.ValidatePrecision(ConvertPhigrosEasingPrecision);
+            NumericParameterValidator.ValidatePrecision(ConvertPhigrosMisalignedXyEventPrecision);
+            NumericParameterValidator.ValidatePrecision(ConvertPhigrosAlphaCutPrecision);
+            NumericParameterValidator.ValidatePrecision(ConvertPhigrosSpeedCutPrecision);
+            NumericParameterValidator.ValidatePrecision(ConvertUnbindPrecision);
+            NumericParameterValidator.ValidatePrecision(ConvertMultiLayerMergePrecision);
         }
         catch (ArgumentOutOfRangeException)
         {

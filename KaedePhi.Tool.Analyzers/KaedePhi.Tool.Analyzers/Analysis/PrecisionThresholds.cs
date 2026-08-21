@@ -6,7 +6,7 @@ namespace KaedePhi.Tool.Analyzers.Analysis;
 internal static class PrecisionThresholds
 {
     /// <summary>
-    /// 运行时允许的最大采样精度，需与 ChartProcessingValidator.MaximumPrecision 保持一致。
+    /// 运行时允许的最大采样精度，需与 NumericParameterValidator.MaximumPrecision 保持一致。
     /// </summary>
     public const double MaximumPrecision = 1024d;
 

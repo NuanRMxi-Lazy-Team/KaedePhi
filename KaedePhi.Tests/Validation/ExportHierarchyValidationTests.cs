@@ -31,7 +31,10 @@ public class ExportHierarchyValidationTests
     public void PhiEditConverter_FromKpcRejectsSelfReferencingJudgeLine()
     {
         Action act = () =>
-            new PhiEditConverter().FromKpc(CreateSelfReferencingChart(), new KpcToPhiEditConvertOptions());
+            new PhiEditConverter().FromKpc(
+                CreateSelfReferencingChart(),
+                new KpcToPhiEditConvertOptions()
+            );
 
         act.Should().Throw<FormatException>();
     }
@@ -40,7 +43,10 @@ public class ExportHierarchyValidationTests
     public void PhiFansConverter_FromKpcRejectsSelfReferencingJudgeLine()
     {
         Action act = () =>
-            new PhiFansConverter().FromKpc(CreateSelfReferencingChart(), new KpcToPhiFansConvertOptions());
+            new PhiFansConverter().FromKpc(
+                CreateSelfReferencingChart(),
+                new KpcToPhiFansConvertOptions()
+            );
 
         act.Should().Throw<FormatException>();
     }
@@ -49,7 +55,10 @@ public class ExportHierarchyValidationTests
     public void PhiChainConverter_FromKpcRejectsSelfReferencingJudgeLine()
     {
         Action act = () =>
-            new PhiChainConverter().FromKpc(CreateSelfReferencingChart(), new KpcToPhiChainConvertOptions());
+            new PhiChainConverter().FromKpc(
+                CreateSelfReferencingChart(),
+                new KpcToPhiChainConvertOptions()
+            );
 
         act.Should().Throw<FormatException>();
     }
@@ -94,7 +103,11 @@ public class ExportHierarchyValidationTests
     public async Task ChartFormatDescriptor_ExportAsyncRejectsSelfReferencingJudgeLineBeforeExporter()
     {
         var exporterStarted = false;
-        var descriptor = new ChartFormatDescriptor { Type = ChartType.PhiEdit, FileExtension = "test" };
+        var descriptor = new ChartFormatDescriptor
+        {
+            Type = ChartType.PhiEdit,
+            FileExtension = "test",
+        };
         SetExporter(
             descriptor,
             (_, _, _, _, _, _) =>
@@ -141,10 +154,14 @@ public class ExportHierarchyValidationTests
     public void KpcChartRenderExporter_ExportChartAllowsValidJudgeLineTree()
     {
         var outputDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
-        var chart = new Kpc.Chart { JudgeLineList = [new Kpc.JudgeLine(), new Kpc.JudgeLine { Father = 0 }] };
+        var chart = new Kpc.Chart
+        {
+            JudgeLineList = [new Kpc.JudgeLine(), new Kpc.JudgeLine { Father = 0 }],
+        };
         try
         {
-            Action act = () => new KpcChartRenderExporter().ExportChart(chart, outputDir, new KpcRenderOptions());
+            Action act = () =>
+                new KpcChartRenderExporter().ExportChart(chart, outputDir, new KpcRenderOptions());
 
             act.Should().NotThrow();
         }
@@ -159,7 +176,9 @@ public class ExportHierarchyValidationTests
     public void ValidateJudgeLineHierarchy_RejectsSelfReferencingJudgeLine()
     {
         Action act = () =>
-            ChartProcessingValidator.ValidateJudgeLineHierarchy(CreateSelfReferencingChart().JudgeLineList);
+            KpcChartValidator.ValidateJudgeLineHierarchy(
+                CreateSelfReferencingChart().JudgeLineList
+            );
 
         act.Should().Throw<FormatException>();
     }
@@ -169,7 +188,15 @@ public class ExportHierarchyValidationTests
 
     private static void SetExporter(
         ChartFormatDescriptor descriptor,
-        Func<Kpc.Chart, string, ChartWriteSettings, object?, ChartLogSink, CancellationToken, Task> exporter
+        Func<
+            Kpc.Chart,
+            string,
+            ChartWriteSettings,
+            object?,
+            ChartLogSink,
+            CancellationToken,
+            Task
+        > exporter
     )
     {
         var property = typeof(ChartFormatDescriptor).GetProperty(

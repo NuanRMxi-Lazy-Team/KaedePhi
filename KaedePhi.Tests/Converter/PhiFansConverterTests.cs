@@ -13,40 +13,24 @@ public class PhiFansConverterTests
     public void FromKpc_MultipleLayers_ComposesMoveValuesBeforeEncoding()
     {
         var chart = CreateChartWithLayers(
-            new KpcEvents.EventLayer
-            {
-                MoveXEvents = [CreateDoubleEvent(0, 1, 0, 1)],
-            },
-            new KpcEvents.EventLayer
-            {
-                MoveXEvents = [CreateDoubleEvent(0, 1, 1, 2)],
-            }
+            new KpcEvents.EventLayer { MoveXEvents = [CreateDoubleEvent(0, 1, 0, 1)] },
+            new KpcEvents.EventLayer { MoveXEvents = [CreateDoubleEvent(0, 1, 1, 2)] }
         );
 
         var exported = new PhiFansConverter().FromKpc(chart, CreateOptions());
         var roundTrip = new PhiFansConverter().ToKpc(exported, null);
         var events = roundTrip.JudgeLineList[0].EventLayers[0].MoveXEvents!;
 
-        KpcEvents.EventLayer.GetValueAtBeat(events, Beat(0.5))
-            .Should()
-            .BeApproximately(2d, 1e-6);
-        KpcEvents.EventLayer.GetValueAtBeat(events, Beat(1))
-            .Should()
-            .BeApproximately(3d, 1e-6);
+        KpcEvents.EventLayer.GetValueAtBeat(events, Beat(0.5)).Should().BeApproximately(2d, 1e-6);
+        KpcEvents.EventLayer.GetValueAtBeat(events, Beat(1)).Should().BeApproximately(3d, 1e-6);
     }
 
     [Fact]
     public void FromKpc_ClassicAndAdaptiveMerge_UseConfiguredStrategies()
     {
         var chart = CreateChartWithLayers(
-            new KpcEvents.EventLayer
-            {
-                MoveXEvents = [CreateDoubleEvent(0, 1, 0, 1, 5)],
-            },
-            new KpcEvents.EventLayer
-            {
-                MoveXEvents = [CreateDoubleEvent(0, 1, 0, 1)],
-            }
+            new KpcEvents.EventLayer { MoveXEvents = [CreateDoubleEvent(0, 1, 0, 1, 5)] },
+            new KpcEvents.EventLayer { MoveXEvents = [CreateDoubleEvent(0, 1, 0, 1)] }
         );
         var classicOptions = CreateOptions();
         classicOptions.MultiLayerMerge.ClassicMode = true;
@@ -66,14 +50,8 @@ public class PhiFansConverterTests
     public void FromKpc_MultiLayerMergeOptions_ChangeEncodedNodeDensity()
     {
         var chart = CreateChartWithLayers(
-            new KpcEvents.EventLayer
-            {
-                MoveXEvents = [CreateDoubleEvent(0, 1, 0, 1)],
-            },
-            new KpcEvents.EventLayer
-            {
-                MoveXEvents = [CreateDoubleEvent(0, 1, 0, 1)],
-            }
+            new KpcEvents.EventLayer { MoveXEvents = [CreateDoubleEvent(0, 1, 0, 1)] },
+            new KpcEvents.EventLayer { MoveXEvents = [CreateDoubleEvent(0, 1, 0, 1)] }
         );
         var classicOptions = CreateOptions();
         classicOptions.MultiLayerMerge.Precision = 2;
@@ -115,10 +93,7 @@ public class PhiFansConverterTests
         curve.BezierPoints = [1f / 3f, 0, 2f / 3f, 1];
         var chart = CreateChartWithLayers(
             new KpcEvents.EventLayer { MoveXEvents = [curve] },
-            new KpcEvents.EventLayer
-            {
-                MoveXEvents = [CreateDoubleEvent(0, 1, 0, 4)],
-            }
+            new KpcEvents.EventLayer { MoveXEvents = [CreateDoubleEvent(0, 1, 0, 4)] }
         );
         var options = CreateOptions();
         options.MultiLayerMerge.Precision = 2;
@@ -143,19 +118,11 @@ public class PhiFansConverterTests
         var chart = CreateChartWithLayers(
             new KpcEvents.EventLayer
             {
-                MoveXEvents =
-                [
-                    unsupported,
-                    CreateDoubleEvent(4, 5, 0, 4, 5),
-                ],
+                MoveXEvents = [unsupported, CreateDoubleEvent(4, 5, 0, 4, 5)],
             },
             new KpcEvents.EventLayer
             {
-                MoveXEvents =
-                [
-                    CreateDoubleEvent(0, 1, 0, 4),
-                    CreateDoubleEvent(4, 5, 0, 4),
-                ],
+                MoveXEvents = [CreateDoubleEvent(0, 1, 0, 4), CreateDoubleEvent(4, 5, 0, 4)],
             }
         );
         var options = CreateOptions();
@@ -171,10 +138,12 @@ public class PhiFansConverterTests
 
         distantNodes.Should().HaveCount(3);
         distantNodes.Select(e => (double)e.Beat).Should().Equal(4, 4.5, 5);
-        KpcEvents.EventLayer.GetValueAtBeat(roundTripEvents, Beat(4.5))
+        KpcEvents
+            .EventLayer.GetValueAtBeat(roundTripEvents, Beat(4.5))
             .Should()
             .BeApproximately(3, 1e-5);
-        KpcEvents.EventLayer.GetValueAtBeat(roundTripEvents, Beat(5))
+        KpcEvents
+            .EventLayer.GetValueAtBeat(roundTripEvents, Beat(5))
             .Should()
             .BeApproximately(8, 1e-5);
     }
@@ -187,14 +156,8 @@ public class PhiFansConverterTests
         unsupported.BezierPoints = [1f / 3f, 0, 2f / 3f, 1];
         var chart = CreateChartWithLayers(
             new KpcEvents.EventLayer { MoveXEvents = [unsupported] },
-            new KpcEvents.EventLayer
-            {
-                MoveXEvents = [CreateDoubleEvent(0.5, 1.5, 0, 1)],
-            },
-            new KpcEvents.EventLayer
-            {
-                MoveXEvents = [CreateDoubleEvent(1.25, 2, 0, 1)],
-            }
+            new KpcEvents.EventLayer { MoveXEvents = [CreateDoubleEvent(0.5, 1.5, 0, 1)] },
+            new KpcEvents.EventLayer { MoveXEvents = [CreateDoubleEvent(1.25, 2, 0, 1)] }
         );
         var options = CreateOptions();
         options.MultiLayerMerge.Precision = 1;
@@ -207,7 +170,8 @@ public class PhiFansConverterTests
         var roundTripEvents = roundTrip.JudgeLineList[0].EventLayers[0].MoveXEvents!;
 
         phiFansEvents.Should().Contain(e => Math.Abs((double)e.Beat - 1.75) < 1e-9);
-        KpcEvents.EventLayer.GetValueAtBeat(roundTripEvents, Beat(1.75))
+        KpcEvents
+            .EventLayer.GetValueAtBeat(roundTripEvents, Beat(1.75))
             .Should()
             .BeApproximately(8d / 3d, 1e-5);
     }
@@ -224,20 +188,11 @@ public class PhiFansConverterTests
         var chart = CreateChartWithLayers(
             new KpcEvents.EventLayer
             {
-                MoveXEvents =
-                [
-                    firstCurve,
-                    secondCurve,
-                    CreateDoubleEvent(20, 21, 2, 3, 5),
-                ],
+                MoveXEvents = [firstCurve, secondCurve, CreateDoubleEvent(20, 21, 2, 3, 5)],
             },
             new KpcEvents.EventLayer
             {
-                MoveXEvents =
-                [
-                    CreateDoubleEvent(0, 1, 0, 1),
-                    CreateDoubleEvent(10, 11, 0, 1),
-                ],
+                MoveXEvents = [CreateDoubleEvent(0, 1, 0, 1), CreateDoubleEvent(10, 11, 0, 1)],
             }
         );
         var options = CreateOptions();
@@ -257,10 +212,12 @@ public class PhiFansConverterTests
         secondNodes.Should().HaveCount(5);
         farNodes.Should().HaveCount(2);
         farNodes.Select(e => (int)e.Easing).Should().Equal(4, 4);
-        KpcEvents.EventLayer.GetValueAtBeat(roundTripEvents, Beat(10.5))
+        KpcEvents
+            .EventLayer.GetValueAtBeat(roundTripEvents, Beat(10.5))
             .Should()
             .BeApproximately(2, 1e-5);
-        KpcEvents.EventLayer.GetValueAtBeat(roundTripEvents, Beat(20.5))
+        KpcEvents
+            .EventLayer.GetValueAtBeat(roundTripEvents, Beat(20.5))
             .Should()
             .BeApproximately(3.25, 1e-5);
         chart.JudgeLineList[0].EventLayers.Should().HaveCount(2);
@@ -313,7 +270,8 @@ public class PhiFansConverterTests
         ((double)phiFansEvents[0].Beat).Should().Be(1);
         phiFansEvents[0].Value.Should().BeApproximately(200, 1e-5f);
         ((int)phiFansEvents[0].Easing).Should().Be(0);
-        KpcEvents.EventLayer.GetValueAtBeat(roundTripEvents, Beat(1))
+        KpcEvents
+            .EventLayer.GetValueAtBeat(roundTripEvents, Beat(1))
             .Should()
             .BeApproximately(2, 1e-5);
     }
@@ -334,10 +292,7 @@ public class PhiFansConverterTests
     public void FromKpc_NonlinearSpeed_CutsIntoLinearNodesAndPreservesBoundaryValues()
     {
         var chart = CreateChartWithLayers(
-            new KpcEvents.EventLayer
-            {
-                SpeedEvents = [CreateFloatEvent(0, 1, 0, 4, 5)],
-            }
+            new KpcEvents.EventLayer { SpeedEvents = [CreateFloatEvent(0, 1, 0, 4, 5)] }
         );
 
         var exported = new PhiFansConverter().FromKpc(chart, CreateOptions());
@@ -353,10 +308,7 @@ public class PhiFansConverterTests
     public void FromKpc_InstantNonlinearSpeed_EmitsLinearNodeWithEndValue()
     {
         var chart = CreateChartWithLayers(
-            new KpcEvents.EventLayer
-            {
-                SpeedEvents = [CreateFloatEvent(1, 1, 1, 2, 5)],
-            }
+            new KpcEvents.EventLayer { SpeedEvents = [CreateFloatEvent(1, 1, 1, 2, 5)] }
         );
 
         var exported = new PhiFansConverter().FromKpc(chart, CreateOptions());
@@ -368,7 +320,8 @@ public class PhiFansConverterTests
         ((double)phiFansEvents[0].Beat).Should().Be(1);
         phiFansEvents[0].Value.Should().BeApproximately(2f / 7.15f, 1e-5f);
         ((int)phiFansEvents[0].Easing).Should().Be(0);
-        KpcEvents.EventLayer.GetValueAtBeat(roundTripEvents, Beat(1))
+        KpcEvents
+            .EventLayer.GetValueAtBeat(roundTripEvents, Beat(1))
             .Should()
             .BeApproximately(2, 1e-5f);
     }
@@ -377,14 +330,8 @@ public class PhiFansConverterTests
     public void FromKpc_InstantUnknownSpeedOverContinuousLayer_ComposesExactStepTimeline()
     {
         var chart = CreateChartWithLayers(
-            new KpcEvents.EventLayer
-            {
-                SpeedEvents = [CreateFloatEvent(0, 2, 1, 3)],
-            },
-            new KpcEvents.EventLayer
-            {
-                SpeedEvents = [CreateFloatEvent(1, 1, 0, 4, 99)],
-            }
+            new KpcEvents.EventLayer { SpeedEvents = [CreateFloatEvent(0, 2, 1, 3)] },
+            new KpcEvents.EventLayer { SpeedEvents = [CreateFloatEvent(1, 1, 0, 4, 99)] }
         );
 
         var exported = new PhiFansConverter().FromKpc(chart, CreateOptions());
@@ -400,13 +347,16 @@ public class PhiFansConverterTests
         phiFansEvents[1].Value.Should().BeApproximately(2f / 7.15f, 1e-5f);
         phiFansEvents[2].Value.Should().BeApproximately(6f / 7.15f, 1e-5f);
         phiFansEvents[3].Value.Should().BeApproximately(7f / 7.15f, 1e-5f);
-        KpcEvents.EventLayer.GetValueAtBeat(roundTripEvents, Beat(0.5))
+        KpcEvents
+            .EventLayer.GetValueAtBeat(roundTripEvents, Beat(0.5))
             .Should()
             .BeApproximately(1.5f, 1e-5f);
-        KpcEvents.EventLayer.GetValueAtBeat(roundTripEvents, Beat(1))
+        KpcEvents
+            .EventLayer.GetValueAtBeat(roundTripEvents, Beat(1))
             .Should()
             .BeApproximately(6, 1e-5f);
-        KpcEvents.EventLayer.GetValueAtBeat(roundTripEvents, Beat(1.5))
+        KpcEvents
+            .EventLayer.GetValueAtBeat(roundTripEvents, Beat(1.5))
             .Should()
             .BeApproximately(6.5f, 1e-5f);
     }
@@ -415,14 +365,8 @@ public class PhiFansConverterTests
     public void FromKpc_SubEpsilonExactStep_PreservesRepresentableValueChange()
     {
         var chart = CreateChartWithLayers(
-            new KpcEvents.EventLayer
-            {
-                MoveXEvents = [CreateDoubleEvent(0, 2, 0, 0.000002)],
-            },
-            new KpcEvents.EventLayer
-            {
-                MoveXEvents = [CreateDoubleEvent(1, 1, 0, 0.00000005)],
-            }
+            new KpcEvents.EventLayer { MoveXEvents = [CreateDoubleEvent(0, 2, 0, 0.000002)] },
+            new KpcEvents.EventLayer { MoveXEvents = [CreateDoubleEvent(1, 1, 0, 0.00000005)] }
         );
 
         var exported = new PhiFansConverter().FromKpc(chart, CreateOptions());
@@ -435,10 +379,12 @@ public class PhiFansConverterTests
 
         nodesAtStep.Should().HaveCount(2);
         nodesAtStep.Select(e => e.Continuous).Should().Equal(true, false);
-        KpcEvents.EventLayer.GetValueAtBeat(roundTripEvents, Beat(1))
+        KpcEvents
+            .EventLayer.GetValueAtBeat(roundTripEvents, Beat(1))
             .Should()
             .BeApproximately(0.00000105, 1e-10);
-        KpcEvents.EventLayer.GetValueAtBeat(roundTripEvents, Beat(1.5))
+        KpcEvents
+            .EventLayer.GetValueAtBeat(roundTripEvents, Beat(1.5))
             .Should()
             .BeApproximately(0.00000155, 1e-10);
     }
@@ -447,14 +393,8 @@ public class PhiFansConverterTests
     public void FromKpc_SameBeatInstantsAcrossLayers_ComposeSingleSummedNode()
     {
         var chart = CreateChartWithLayers(
-            new KpcEvents.EventLayer
-            {
-                MoveXEvents = [CreateDoubleEvent(1, 1, 0, 2)],
-            },
-            new KpcEvents.EventLayer
-            {
-                MoveXEvents = [CreateDoubleEvent(1, 1, 0, 3)],
-            }
+            new KpcEvents.EventLayer { MoveXEvents = [CreateDoubleEvent(1, 1, 0, 2)] },
+            new KpcEvents.EventLayer { MoveXEvents = [CreateDoubleEvent(1, 1, 0, 3)] }
         );
 
         var exported = new PhiFansConverter().FromKpc(chart, CreateOptions());
@@ -466,7 +406,8 @@ public class PhiFansConverterTests
         ((double)phiFansEvents[0].Beat).Should().Be(1);
         phiFansEvents[0].Value.Should().BeApproximately(500, 1e-5f);
         ((int)phiFansEvents[0].Easing).Should().Be(0);
-        KpcEvents.EventLayer.GetValueAtBeat(roundTripEvents, Beat(1))
+        KpcEvents
+            .EventLayer.GetValueAtBeat(roundTripEvents, Beat(1))
             .Should()
             .BeApproximately(5, 1e-5);
     }
@@ -475,17 +416,10 @@ public class PhiFansConverterTests
     public void FromKpc_InstantStep_IsReplacedByNextEventInSameLayer()
     {
         var chart = CreateChartWithLayers(
+            new KpcEvents.EventLayer { SpeedEvents = [CreateFloatEvent(0, 3, 1, 4)] },
             new KpcEvents.EventLayer
             {
-                SpeedEvents = [CreateFloatEvent(0, 3, 1, 4)],
-            },
-            new KpcEvents.EventLayer
-            {
-                SpeedEvents =
-                [
-                    CreateFloatEvent(1, 1, 0, 4, 99),
-                    CreateFloatEvent(2, 3, 10, 12),
-                ],
+                SpeedEvents = [CreateFloatEvent(1, 1, 0, 4, 99), CreateFloatEvent(2, 3, 10, 12)],
             }
         );
 
@@ -493,19 +427,24 @@ public class PhiFansConverterTests
         var roundTrip = new PhiFansConverter().ToKpc(exported, null);
         var roundTripEvents = roundTrip.JudgeLineList[0].EventLayers[0].SpeedEvents!;
 
-        KpcEvents.EventLayer.GetValueAtBeat(roundTripEvents, Beat(1))
+        KpcEvents
+            .EventLayer.GetValueAtBeat(roundTripEvents, Beat(1))
             .Should()
             .BeApproximately(6, 1e-5f);
-        KpcEvents.EventLayer.GetValueAtBeat(roundTripEvents, Beat(1.5))
+        KpcEvents
+            .EventLayer.GetValueAtBeat(roundTripEvents, Beat(1.5))
             .Should()
             .BeApproximately(6.5f, 1e-5f);
-        KpcEvents.EventLayer.GetValueAtBeat(roundTripEvents, Beat(2))
+        KpcEvents
+            .EventLayer.GetValueAtBeat(roundTripEvents, Beat(2))
             .Should()
             .BeApproximately(13, 1e-5f);
-        KpcEvents.EventLayer.GetValueAtBeat(roundTripEvents, Beat(2.5))
+        KpcEvents
+            .EventLayer.GetValueAtBeat(roundTripEvents, Beat(2.5))
             .Should()
             .BeApproximately(14.5f, 1e-5f);
-        KpcEvents.EventLayer.GetValueAtBeat(roundTripEvents, Beat(3))
+        KpcEvents
+            .EventLayer.GetValueAtBeat(roundTripEvents, Beat(3))
             .Should()
             .BeApproximately(16, 1e-5f);
     }
@@ -514,20 +453,13 @@ public class PhiFansConverterTests
     public void FromKpc_LinearSpeed_PreservesCompactNodes()
     {
         var chart = CreateChartWithLayers(
-            new KpcEvents.EventLayer
-            {
-                SpeedEvents = [CreateFloatEvent(0, 1, 1, 2)],
-            }
+            new KpcEvents.EventLayer { SpeedEvents = [CreateFloatEvent(0, 1, 1, 2)] }
         );
 
         var exported = new PhiFansConverter().FromKpc(chart, CreateOptions());
 
         exported.JudgeLineList[0].Props.Speed.Should().HaveCount(2);
-        exported
-            .JudgeLineList[0]
-            .Props.Speed.Select(e => (int)e.Easing)
-            .Should()
-            .Equal(0, 0);
+        exported.JudgeLineList[0].Props.Speed.Select(e => (int)e.Easing).Should().Equal(0, 0);
     }
 
     [Theory]
@@ -538,10 +470,7 @@ public class PhiFansConverterTests
     [InlineData(4d, 100.1d)]
     [InlineData(4d, double.NaN)]
     [InlineData(4d, double.PositiveInfinity)]
-    public void FromKpc_InvalidMultiLayerMergeOptions_Throws(
-        double precision,
-        double tolerance
-    )
+    public void FromKpc_InvalidMultiLayerMergeOptions_Throws(double precision, double tolerance)
     {
         var options = CreateOptions();
         options.MultiLayerMerge.Precision = precision;
@@ -719,16 +648,7 @@ public class PhiFansConverterTests
         CreateChartWithLayers(new KpcEvents.EventLayer { MoveXEvents = events.ToList() });
 
     private static Kpc.Chart CreateChartWithLayers(params KpcEvents.EventLayer[] layers) =>
-        new()
-        {
-            JudgeLineList =
-            [
-                new Kpc.JudgeLine
-                {
-                    EventLayers = layers.ToList(),
-                },
-            ],
-        };
+        new() { JudgeLineList = [new Kpc.JudgeLine { EventLayers = layers.ToList() }] };
 
     private static KpcEvents.Event<double> CreateDoubleEvent(
         double startBeat,
@@ -790,7 +710,8 @@ public class PhiFansConverterTests
     {
         for (var i = 0; i < expected.Length; i++)
         {
-            KpcEvents.EventLayer.GetValueAtBeat(events, Beat(i / 4d))
+            KpcEvents
+                .EventLayer.GetValueAtBeat(events, Beat(i / 4d))
                 .Should()
                 .BeApproximately(expected[i], 1e-5);
         }
@@ -803,7 +724,8 @@ public class PhiFansConverterTests
     {
         for (var i = 0; i < expected.Length; i++)
         {
-            KpcEvents.EventLayer.GetValueAtBeat(events, Beat(i / 4d))
+            KpcEvents
+                .EventLayer.GetValueAtBeat(events, Beat(i / 4d))
                 .Should()
                 .BeApproximately((float)expected[i], 1e-5f);
         }

@@ -363,7 +363,7 @@ public static class FatherUnbindHelpers
         double tolerance
     )
     {
-        ChartProcessingValidator.ValidateTolerance(tolerance);
+        NumericParameterValidator.ValidateTolerance(tolerance);
         if (xEvents.Count == 0 || yEvents.Count == 0 || !ArePositionEventsAligned(xEvents, yEvents))
             return (xEvents, yEvents);
 

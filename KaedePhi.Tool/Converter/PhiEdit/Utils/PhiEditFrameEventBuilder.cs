@@ -192,7 +192,11 @@ public class PhiEditFrameEventBuilder
             if (frameAtBoundary is not null && !IsScalarEventStartBeat(orderedEvents, startBeat))
             {
                 result.Add(
-                    CreateConstantEvent(startBeat, endBeat, valueTransformer(frameAtBoundary.Value.Value))
+                    CreateConstantEvent(
+                        startBeat,
+                        endBeat,
+                        valueTransformer(frameAtBoundary.Value.Value)
+                    )
                 );
                 continue;
             }

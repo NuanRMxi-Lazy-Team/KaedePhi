@@ -100,7 +100,9 @@ public class EventEvaluationContractTests
         {
             positive.GetValueAtBeat(positive.StartBeat),
             reverse.GetValueAtBeat(reverse.StartBeat),
-        }.Should().Equal(10, 10);
+        }
+            .Should()
+            .Equal(10, 10);
     }
 
     [Fact]
@@ -113,7 +115,9 @@ public class EventEvaluationContractTests
         {
             positive.GetValueAtBeatAsDouble(positive.StartBeat),
             reverse.GetValueAtBeatAsDouble(reverse.StartBeat),
-        }.Should().Equal(10, 10);
+        }
+            .Should()
+            .Equal(10, 10);
     }
 
     private static KpcEvents.Event<double> CreateKpcEvent(

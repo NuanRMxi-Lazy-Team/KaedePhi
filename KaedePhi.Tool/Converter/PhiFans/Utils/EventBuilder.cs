@@ -33,9 +33,7 @@ internal static class EventBuilder
     )
         where T : notnull
     {
-        var sourceEventLists = sourceLayers
-            .Select(layer => selectEvents(layer) ?? [])
-            .ToList();
+        var sourceEventLists = sourceLayers.Select(layer => selectEvents(layer) ?? []).ToList();
         var sourceStartBeats = sourceEventLists
             .SelectMany(events => events)
             .Select(evt => evt.StartBeat)
@@ -92,7 +90,7 @@ internal static class EventBuilder
             .ThenBy(item => item.Event.EndBeat)
             .ToList();
         var intervals = new List<(Beat Start, Beat End)>();
-        for (var componentStart = 0; componentStart < indexedEvents.Count;)
+        for (var componentStart = 0; componentStart < indexedEvents.Count; )
         {
             var componentEndBeat = indexedEvents[componentStart].Event.EndBeat;
             var componentEnd = componentStart + 1;
@@ -115,9 +113,7 @@ internal static class EventBuilder
                 )
             )
             {
-                intervals.Add(
-                    (indexedEvents[componentStart].Event.StartBeat, componentEndBeat)
-                );
+                intervals.Add((indexedEvents[componentStart].Event.StartBeat, componentEndBeat));
             }
 
             componentStart = componentEnd;
@@ -239,18 +235,13 @@ internal static class EventBuilder
         {
             return
             [
-                CreateLinearEvent(
-                    start,
-                    end,
-                    evt.GetValueAtBeat(start),
-                    evt.GetValueAtBeat(end)
-                ),
+                CreateLinearEvent(start, end, evt.GetValueAtBeat(start), evt.GetValueAtBeat(end)),
             ];
         }
 
         var result = new List<KpcEvents.Event<T>>();
         var step = new Beat(cutLength);
-        for (var beat = start; beat < end;)
+        for (var beat = start; beat < end; )
         {
             var next = beat + step;
             if (next > end)
@@ -258,12 +249,7 @@ internal static class EventBuilder
             if (next <= beat)
                 throw new InvalidOperationException("切片步长无法推进配置事件位置。");
             result.Add(
-                CreateLinearEvent(
-                    beat,
-                    next,
-                    evt.GetValueAtBeat(beat),
-                    evt.GetValueAtBeat(next)
-                )
+                CreateLinearEvent(beat, next, evt.GetValueAtBeat(beat), evt.GetValueAtBeat(next))
             );
             beat = next;
         }
@@ -314,7 +300,7 @@ internal static class EventBuilder
 
         var boundaries = new SortedSet<Beat> { start, end };
         var step = new Beat(cutLength);
-        for (var beat = start; beat < end;)
+        for (var beat = start; beat < end; )
         {
             var next = beat + step;
             if (next > end)
@@ -384,11 +370,7 @@ internal static class EventBuilder
                 yield return previous;
         }
 
-        for (
-            var index = firstIndex;
-            index < events.Count && events[index].StartBeat < end;
-            index++
-        )
+        for (var index = firstIndex; index < events.Count && events[index].StartBeat < end; index++)
         {
             yield return events[index];
         }
@@ -413,12 +395,11 @@ internal static class EventBuilder
         var transitions = new HashSet<Beat>();
         foreach (var events in sourceEventLists)
         {
-            for (var index = 0; index < events.Count;)
+            for (var index = 0; index < events.Count; )
             {
                 var groupEnd = index + 1;
                 while (
-                    groupEnd < events.Count
-                    && events[groupEnd].StartBeat == events[index].StartBeat
+                    groupEnd < events.Count && events[groupEnd].StartBeat == events[index].StartBeat
                 )
                 {
                     groupEnd++;
@@ -541,9 +522,8 @@ internal static class EventBuilder
             var dominant = FindLastEventBeforeBeat(events, beat);
             if (dominant is null)
                 continue;
-            var value = beat <= dominant.EndBeat
-                ? dominant.GetValueAtBeat(beat)
-                : dominant.EndValue;
+            var value =
+                beat <= dominant.EndBeat ? dominant.GetValueAtBeat(beat) : dominant.EndValue;
             sum = NumericHelper.Add(sum, value);
         }
 
@@ -560,10 +540,7 @@ internal static class EventBuilder
         return candidate >= 0 ? events[candidate] : null;
     }
 
-    private static int FindFirstEventAtOrAfterBeat<T>(
-        List<KpcEvents.Event<T>> events,
-        Beat beat
-    )
+    private static int FindFirstEventAtOrAfterBeat<T>(List<KpcEvents.Event<T>> events, Beat beat)
         where T : notnull
     {
         var low = 0;

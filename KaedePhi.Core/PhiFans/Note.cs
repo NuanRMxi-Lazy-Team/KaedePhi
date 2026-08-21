@@ -39,16 +39,12 @@ namespace KaedePhi.Core.PhiFans
         internal bool HasExplicitHoldEndBeat => _hasExplicitHoldEndBeat;
 
         [OnDeserializing]
-        private void OnDeserializing(StreamingContext context) =>
-            _hasExplicitHoldEndBeat = false;
+        private void OnDeserializing(StreamingContext context) => _hasExplicitHoldEndBeat = false;
 
         [OnDeserialized]
         private void OnDeserialized(StreamingContext context)
         {
-            if (
-                Type == NoteType.Hold
-                && (!_hasExplicitHoldEndBeat || HoldEndBeat <= Beat)
-            )
+            if (Type == NoteType.Hold && (!_hasExplicitHoldEndBeat || HoldEndBeat <= Beat))
                 throw new JsonSerializationException("Hold 音符缺少有效的结束拍。");
         }
     }

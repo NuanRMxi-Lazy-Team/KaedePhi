@@ -176,10 +176,7 @@ public class PhigrosV3JudgeLineBuilderTests
                 },
             ],
         };
-        var chart = new Chart
-        {
-            JudgeLineList = [negativeAlphaLine, new JudgeLine()],
-        };
+        var chart = new Chart { JudgeLineList = [negativeAlphaLine, new JudgeLine()] };
         var options = new KpcToPhigrosV3ConvertOptions();
         options.NegativeAlpha.Enabled = true;
         options.Cutting.MisalignedXyEventPrecision = 1d;
@@ -190,11 +187,10 @@ public class PhigrosV3JudgeLineBuilderTests
             options
         );
 
-        var chartEndTime = converted.JudgeLineList[1]
-            .JudgeLineDisappearEvents.Single()
-            .EndTime;
+        var chartEndTime = converted.JudgeLineList[1].JudgeLineDisappearEvents.Single().EndTime;
         chartEndTime.Should().Be(33f);
-        var elevatedEndTime = converted.JudgeLineList[0]
+        var elevatedEndTime = converted
+            .JudgeLineList[0]
             .JudgeLineMoveEvents.Where(e => e.Start2 > 1f || e.End2 > 1f)
             .Max(e => e.EndTime);
         elevatedEndTime.Should().Be(chartEndTime);
@@ -230,10 +226,7 @@ public class PhigrosV3JudgeLineBuilderTests
     {
         var line = new JudgeLine
         {
-            EventLayers =
-            [
-                new EventLayer { SpeedEvents = [SpeedEvent(0, 2, 4.5f, 13.5f)] },
-            ],
+            EventLayers = [new EventLayer { SpeedEvents = [SpeedEvent(0, 2, 4.5f, 13.5f)] }],
         };
         var options = new KpcToPhigrosV3ConvertOptions();
         options.Speed.CutPrecision = 1d;
@@ -245,8 +238,26 @@ public class PhigrosV3JudgeLineBuilderTests
         converted
             .SpeedEvents.Should()
             .SatisfyRespectively(
-                e => e.Should().BeEquivalentTo(new { StartTime = 0f, EndTime = 32f, Value = 1f }),
-                e => e.Should().BeEquivalentTo(new { StartTime = 32f, EndTime = 64f, Value = 2f }),
+                e =>
+                    e.Should()
+                        .BeEquivalentTo(
+                            new
+                            {
+                                StartTime = 0f,
+                                EndTime = 32f,
+                                Value = 1f,
+                            }
+                        ),
+                e =>
+                    e.Should()
+                        .BeEquivalentTo(
+                            new
+                            {
+                                StartTime = 32f,
+                                EndTime = 64f,
+                                Value = 2f,
+                            }
+                        ),
                 e =>
                     e.Should()
                         .BeEquivalentTo(
@@ -270,11 +281,7 @@ public class PhigrosV3JudgeLineBuilderTests
             [
                 new EventLayer
                 {
-                    SpeedEvents =
-                    [
-                        SpeedEvent(1, 2, 4.5f, 9f),
-                        SpeedEvent(4, 5, 13.5f, 13.5f),
-                    ],
+                    SpeedEvents = [SpeedEvent(1, 2, 4.5f, 9f), SpeedEvent(4, 5, 13.5f, 13.5f)],
                 },
             ],
         };
@@ -296,8 +303,18 @@ public class PhigrosV3JudgeLineBuilderTests
         {
             Notes =
             [
-                new Note { Type = NoteType.Tap, StartBeat = Beat(2), EndBeat = Beat(2) },
-                new Note { Type = NoteType.Hold, StartBeat = Beat(3), EndBeat = Beat(5) },
+                new Note
+                {
+                    Type = NoteType.Tap,
+                    StartBeat = Beat(2),
+                    EndBeat = Beat(2),
+                },
+                new Note
+                {
+                    Type = NoteType.Hold,
+                    StartBeat = Beat(3),
+                    EndBeat = Beat(5),
+                },
             ],
             EventLayers =
             [
@@ -316,8 +333,18 @@ public class PhigrosV3JudgeLineBuilderTests
             BpmFactor = 2f,
             Notes =
             [
-                new Note { Type = NoteType.Tap, StartBeat = Beat(2), EndBeat = Beat(2) },
-                new Note { Type = NoteType.Hold, StartBeat = Beat(3), EndBeat = Beat(5) },
+                new Note
+                {
+                    Type = NoteType.Tap,
+                    StartBeat = Beat(2),
+                    EndBeat = Beat(2),
+                },
+                new Note
+                {
+                    Type = NoteType.Hold,
+                    StartBeat = Beat(3),
+                    EndBeat = Beat(5),
+                },
             ],
         };
         var chart = new Chart
@@ -336,8 +363,10 @@ public class PhigrosV3JudgeLineBuilderTests
         options.Alpha.CutPrecision = 1d;
         options.Speed.CutPrecision = 1d;
 
-        var converted = new global::KaedePhi.Tool.Converter.Phigros.v3.PhigrosV3Converter()
-            .FromKpc(chart, options);
+        var converted = new global::KaedePhi.Tool.Converter.Phigros.v3.PhigrosV3Converter().FromKpc(
+            chart,
+            options
+        );
 
         converted.JudgeLineList.Select(line => line.Bpm).Should().Equal(1000f, 1000f);
 
@@ -358,13 +387,19 @@ public class PhigrosV3JudgeLineBuilderTests
         AssertTimeError(second.NotesAbove[1].Time + second.NotesAbove[1].HoldTime, 4.25d);
 
         AssertSplitAtTempoBoundary(first.JudgeLineMoveEvents.Select(e => (e.StartTime, e.EndTime)));
-        AssertSplitAtTempoBoundary(first.JudgeLineRotateEvents.Select(e => (e.StartTime, e.EndTime)));
-        AssertSplitAtTempoBoundary(first.JudgeLineDisappearEvents.Select(e => (e.StartTime, e.EndTime)));
+        AssertSplitAtTempoBoundary(
+            first.JudgeLineRotateEvents.Select(e => (e.StartTime, e.EndTime))
+        );
+        AssertSplitAtTempoBoundary(
+            first.JudgeLineDisappearEvents.Select(e => (e.StartTime, e.EndTime))
+        );
         AssertSplitAtTempoBoundary(first.SpeedEvents.Select(e => (e.StartTime, e.EndTime)));
         first
             .SpeedEvents.Should()
             .Contain(eventItem =>
-                eventItem.StartTime == 933f && eventItem.EndTime == 1000f && eventItem.Value == 1.25f
+                eventItem.StartTime == 933f
+                && eventItem.EndTime == 1000f
+                && eventItem.Value == 1.25f
             );
 
         chart.BpmList.Select(item => item.Bpm).Should().Equal(180f, 120f, 240f);
@@ -420,8 +455,12 @@ public class PhigrosV3JudgeLineBuilderTests
             new KpcToPhigrosV3ConvertOptions()
         );
 
-        warnings.Should().Contain(message => message.Contains("Note.FloorPosition") && message.Contains("0"));
-        warnings.Should().Contain(message => message.Contains("Event.FloorPosition") && message.Contains("0"));
+        warnings
+            .Should()
+            .Contain(message => message.Contains("Note.FloorPosition") && message.Contains("0"));
+        warnings
+            .Should()
+            .Contain(message => message.Contains("Event.FloorPosition") && message.Contains("0"));
         converted.JudgeLineList.Single().NotesAbove.Single().FloorPosition.Should().Be(0f);
     }
 
@@ -431,7 +470,15 @@ public class PhigrosV3JudgeLineBuilderTests
         var source = new JudgeLine
         {
             BpmFactor = 2f,
-            Notes = [new Note { Type = NoteType.Tap, StartBeat = Beat(1), EndBeat = Beat(1) }],
+            Notes =
+            [
+                new Note
+                {
+                    Type = NoteType.Tap,
+                    StartBeat = Beat(1),
+                    EndBeat = Beat(1),
+                },
+            ],
         };
 
         var converted = new global::KaedePhi.Tool.Converter.Phigros.v3.PhigrosV3Converter()
@@ -447,7 +494,15 @@ public class PhigrosV3JudgeLineBuilderTests
     {
         var source = new JudgeLine
         {
-            Notes = [new Note { Type = NoteType.Hold, StartBeat = Beat(1), EndBeat = Beat(2) }],
+            Notes =
+            [
+                new Note
+                {
+                    Type = NoteType.Hold,
+                    StartBeat = Beat(1),
+                    EndBeat = Beat(2),
+                },
+            ],
         };
 
         var converted = new global::KaedePhi.Tool.Converter.Phigros.v3.PhigrosV3Converter()
@@ -482,7 +537,15 @@ public class PhigrosV3JudgeLineBuilderTests
                 {
                     Father = 1,
                     BpmFactor = 2f,
-                    Notes = [new Note { Type = NoteType.Tap, StartBeat = Beat(1), EndBeat = Beat(1) }],
+                    Notes =
+                    [
+                        new Note
+                        {
+                            Type = NoteType.Tap,
+                            StartBeat = Beat(1),
+                            EndBeat = Beat(1),
+                        },
+                    ],
                 },
             ],
         };
@@ -556,7 +619,9 @@ public class PhigrosV3JudgeLineBuilderTests
         var converted = converter.FromKpc(new Chart { JudgeLineList = [source] }, options);
 
         converted.JudgeLineList.Should().BeEmpty();
-        warnings.Should().Contain(message => message.Contains("Note.FloorPosition") && message.Contains("丢弃"));
+        warnings
+            .Should()
+            .Contain(message => message.Contains("Note.FloorPosition") && message.Contains("丢弃"));
     }
 
     [Fact]
@@ -586,7 +651,15 @@ public class PhigrosV3JudgeLineBuilderTests
         var child = new JudgeLine
         {
             Father = 0,
-            Notes = [new Note { Type = NoteType.Tap, StartBeat = Beat(1), EndBeat = Beat(1) }],
+            Notes =
+            [
+                new Note
+                {
+                    Type = NoteType.Tap,
+                    StartBeat = Beat(1),
+                    EndBeat = Beat(1),
+                },
+            ],
         };
         var warnings = new List<string>();
         var converter = new global::KaedePhi.Tool.Converter.Phigros.v3.PhigrosV3Converter
@@ -599,7 +672,11 @@ public class PhigrosV3JudgeLineBuilderTests
         var converted = converter.FromKpc(new Chart { JudgeLineList = [parent, child] }, options);
 
         converted.JudgeLineList.Should().ContainSingle();
-        warnings.Should().Contain(message => message.Contains("Event.FloorPosition") && message.Contains("丢弃"));
+        warnings
+            .Should()
+            .Contain(message =>
+                message.Contains("Event.FloorPosition") && message.Contains("丢弃")
+            );
     }
 
     [Fact]

@@ -33,8 +33,8 @@ public class EventListMergerPlus<TPayload> : EventListMerger<TPayload>
         double tolerance
     )
     {
-        ChartProcessingValidator.ValidatePrecision(precision);
-        ChartProcessingValidator.ValidateTolerance(tolerance);
+        NumericParameterValidator.ValidatePrecision(precision);
+        NumericParameterValidator.ValidateTolerance(tolerance);
         if (TryGetMergeEarlyReturn(toEvents, fromEvents, out var earlyReturn))
             return earlyReturn;
         if (toEvents == null || fromEvents == null)

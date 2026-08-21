@@ -19,7 +19,10 @@ internal static class JudgeLineBuilder
         var props = src.Props;
 
         if (props.Speed.Count > 0)
-            layer.SpeedEvents = EventBuilder.ConvertPhiFansEventsToFloat(props.Speed, v => v * SpeedRatio);
+            layer.SpeedEvents = EventBuilder.ConvertPhiFansEventsToFloat(
+                props.Speed,
+                v => v * SpeedRatio
+            );
 
         if (props.PositionX.Count > 0)
             layer.MoveXEvents = EventBuilder.ConvertPhiFansEventsToDouble(
@@ -115,11 +118,20 @@ internal static class JudgeLineBuilder
         layer.SpeedEvents = speedEvents;
 
         if (layer.AlphaEvents is not null)
-            foreach (var e in EventBuilder.ExpandUnsupportedEvents(layer.AlphaEvents, cutLength, false))
-                EventBuilder.ConvertKpcEventToPhiFans(e, line.Props.Alpha, v => (float)v, EasingConverter.FromKpc);
+            foreach (
+                var e in EventBuilder.ExpandUnsupportedEvents(layer.AlphaEvents, cutLength, false)
+            )
+                EventBuilder.ConvertKpcEventToPhiFans(
+                    e,
+                    line.Props.Alpha,
+                    v => (float)v,
+                    EasingConverter.FromKpc
+                );
 
         if (layer.MoveXEvents is not null)
-            foreach (var e in EventBuilder.ExpandUnsupportedEvents(layer.MoveXEvents, cutLength, false))
+            foreach (
+                var e in EventBuilder.ExpandUnsupportedEvents(layer.MoveXEvents, cutLength, false)
+            )
                 EventBuilder.ConvertKpcEventToPhiFans(
                     e,
                     line.Props.PositionX,
@@ -128,7 +140,9 @@ internal static class JudgeLineBuilder
                 );
 
         if (layer.MoveYEvents is not null)
-            foreach (var e in EventBuilder.ExpandUnsupportedEvents(layer.MoveYEvents, cutLength, false))
+            foreach (
+                var e in EventBuilder.ExpandUnsupportedEvents(layer.MoveYEvents, cutLength, false)
+            )
                 EventBuilder.ConvertKpcEventToPhiFans(
                     e,
                     line.Props.PositionY,
@@ -137,22 +151,28 @@ internal static class JudgeLineBuilder
                 );
 
         if (layer.RotateEvents is not null)
-            foreach (var e in EventBuilder.ExpandUnsupportedEvents(layer.RotateEvents, cutLength, false))
+            foreach (
+                var e in EventBuilder.ExpandUnsupportedEvents(layer.RotateEvents, cutLength, false)
+            )
                 EventBuilder.ConvertKpcEventToPhiFans(
                     e,
                     line.Props.Rotate,
                     v =>
                         (float)
-                            CoordinateGeometry.ToTargetAngle(
-                                v,
-                                CoordinateProfile.PhiFansProfile
-                            ),
+                            CoordinateGeometry.ToTargetAngle(v, CoordinateProfile.PhiFansProfile),
                     EasingConverter.FromKpc
                 );
 
         if (layer.SpeedEvents is not null)
-            foreach (var e in EventBuilder.ExpandUnsupportedEvents(layer.SpeedEvents, cutLength, true))
-                EventBuilder.ConvertKpcEventToPhiFans(e, line.Props.Speed, v => v / SpeedRatio, _ => 0);
+            foreach (
+                var e in EventBuilder.ExpandUnsupportedEvents(layer.SpeedEvents, cutLength, true)
+            )
+                EventBuilder.ConvertKpcEventToPhiFans(
+                    e,
+                    line.Props.Speed,
+                    v => v / SpeedRatio,
+                    _ => 0
+                );
 
         var paddingPrecision = options.DiscontinuityBeatPrecision;
         EventBuilder.FixDiscontinuityGaps(line.Props.Alpha, paddingPrecision, alphaStepBeats);

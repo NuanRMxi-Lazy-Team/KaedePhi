@@ -270,7 +270,7 @@ public class EventFit<TPayload> : LoggableBase, IEventFit<KpcEvents.Event<TPaylo
     )
     {
         return first.EndBeat == second.StartBeat
-               && Math.Abs(first.GetEndValueAsDouble() - second.GetStartValueAsDouble()) < 1e-9;
+            && Math.Abs(first.GetEndValueAsDouble() - second.GetStartValueAsDouble()) < 1e-9;
     }
 
     /// <summary>
@@ -286,9 +286,7 @@ public class EventFit<TPayload> : LoggableBase, IEventFit<KpcEvents.Event<TPaylo
     /// </summary>
     private static bool IsLinear(KpcEvents.Event<TPayload> evt)
     {
-        return !evt.IsBezier
-               && (int)evt.Easing == 1
-               && evt.Font is null;
+        return !evt.IsBezier && (int)evt.Easing == 1 && evt.Font is null;
     }
 
     /// <summary>

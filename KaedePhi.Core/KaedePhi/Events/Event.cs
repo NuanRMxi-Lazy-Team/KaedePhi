@@ -48,12 +48,7 @@ namespace KaedePhi.Core.KaedePhi.Events
                 <= 0 => GetStartValueAsDouble(),
                 >= 1 => GetEndValueAsDouble(),
                 _ => IsBezier
-                    ? Bezier.Do(
-                        BezierPoints,
-                        t,
-                        GetStartValueAsDouble(),
-                        GetEndValueAsDouble()
-                    )
+                    ? Bezier.Do(BezierPoints, t, GetStartValueAsDouble(), GetEndValueAsDouble())
                     : Easing.Interpolate(
                         EasingLeft,
                         EasingRight,
@@ -164,12 +159,7 @@ namespace KaedePhi.Core.KaedePhi.Events
             var result = new byte[startBytes.Length];
             for (var i = 0; i < startBytes.Length; i++)
                 if (useBezier)
-                    result[i] = Bezier.Do(
-                        BezierPoints,
-                        ft,
-                        startBytes[i],
-                        endBytes[i]
-                    );
+                    result[i] = Bezier.Do(BezierPoints, ft, startBytes[i], endBytes[i]);
                 else
                     result[i] = (byte)
                         Easing.Interpolate(EasingLeft, EasingRight, startBytes[i], endBytes[i], t);

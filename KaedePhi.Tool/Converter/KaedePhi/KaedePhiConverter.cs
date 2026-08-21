@@ -15,7 +15,7 @@ public class KaedePhiConverter : LoggableBase, IChartConverter<Kpc.Chart, Unit?,
     /// <returns>规范后的独立谱面副本</returns>
     public Kpc.Chart ToKpc(Kpc.Chart input, Unit? options)
     {
-        return ChartProcessingValidator.NormalizeAndValidateNoteEndBeats(input);
+        return KpcChartNormalizer.NormalizeAndValidateNoteEndBeats(input);
     }
 
     /// <summary>
@@ -26,8 +26,8 @@ public class KaedePhiConverter : LoggableBase, IChartConverter<Kpc.Chart, Unit?,
     /// <returns>规范后的独立谱面副本</returns>
     public Kpc.Chart FromKpc(Kpc.Chart input, Unit? options)
     {
-        var normalized = ChartProcessingValidator.NormalizeAndValidateNoteEndBeats(input);
-        ChartProcessingValidator.ValidateJudgeLineHierarchy(normalized.JudgeLineList);
+        var normalized = KpcChartNormalizer.NormalizeAndValidateNoteEndBeats(input);
+        KpcChartValidator.ValidateJudgeLineHierarchy(normalized.JudgeLineList);
         return normalized;
     }
 }

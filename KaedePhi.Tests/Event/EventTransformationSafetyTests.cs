@@ -50,8 +50,27 @@ public class EventTransformationSafetyTests
     {
         var events = new List<KpcEvents.Event<double>>
         {
-            CreateEvent(0, 1, 0, 50, font: "first.ttf", startTime: 1, endTime: 2, floorPosition: 3, bezierPoints: [0.1f, 0, 0, 0]),
-            CreateEvent(1, 2, 50, 100, font: "second.ttf", startTime: 4, endTime: 5, floorPosition: 6),
+            CreateEvent(
+                0,
+                1,
+                0,
+                50,
+                font: "first.ttf",
+                startTime: 1,
+                endTime: 2,
+                floorPosition: 3,
+                bezierPoints: [0.1f, 0, 0, 0]
+            ),
+            CreateEvent(
+                1,
+                2,
+                50,
+                100,
+                font: "second.ttf",
+                startTime: 4,
+                endTime: 5,
+                floorPosition: 6
+            ),
         };
 
         var result = _compressor.EventListCompressSqrt(events, 100);
@@ -81,9 +100,7 @@ public class EventTransformationSafetyTests
     [InlineData("EndTime")]
     [InlineData("FloorPosition")]
     [InlineData("BezierPoints")]
-    public void EventCompressor_LinearEventWithNonBlockingMetadata_CanMerge(
-        string metadataName
-    )
+    public void EventCompressor_LinearEventWithNonBlockingMetadata_CanMerge(string metadataName)
     {
         var first = CreateEventWithNonBlockingMetadata(metadataName);
         var second = CreateEventWithNonBlockingMetadata(metadataName, 1, 2, 50, 100);
@@ -118,8 +135,27 @@ public class EventTransformationSafetyTests
     {
         var events = new List<KpcEvents.Event<double>>
         {
-            CreateEvent(0, 1, 0, 50, font: "first.ttf", startTime: 1, endTime: 2, floorPosition: 3, bezierPoints: [0.1f, 0, 0, 0]),
-            CreateEvent(1, 2, 50, 100, font: "second.ttf", startTime: 4, endTime: 5, floorPosition: 6),
+            CreateEvent(
+                0,
+                1,
+                0,
+                50,
+                font: "first.ttf",
+                startTime: 1,
+                endTime: 2,
+                floorPosition: 3,
+                bezierPoints: [0.1f, 0, 0, 0]
+            ),
+            CreateEvent(
+                1,
+                2,
+                50,
+                100,
+                font: "second.ttf",
+                startTime: 4,
+                endTime: 5,
+                floorPosition: 6
+            ),
         };
 
         var result = _fit.FitEvents(events, 100);
@@ -267,16 +303,8 @@ public class EventTransformationSafetyTests
     {
         var layer = new KpcEvents.EventLayer
         {
-            MoveXEvents =
-            [
-                CreateEvent(0, 1, 0, 50, easingId: 2),
-                CreateEvent(1, 2, 50, 100),
-            ],
-            MoveYEvents =
-            [
-                CreateEvent(0, 1, 0, 25),
-                CreateEvent(1, 2, 25, 50),
-            ],
+            MoveXEvents = [CreateEvent(0, 1, 0, 50, easingId: 2), CreateEvent(1, 2, 50, 100)],
+            MoveYEvents = [CreateEvent(0, 1, 0, 25), CreateEvent(1, 2, 25, 50)],
         };
 
         new LayerProcessor().LayerEventsCompress(layer, 100);

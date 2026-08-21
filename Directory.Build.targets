@@ -22,7 +22,9 @@
     </Exec>
     <PropertyGroup Condition="'$(_GitCommitHash)' != ''">
       <InformationalVersion>$(Version)+$(_GitCommitHash)</InformationalVersion>
-      <InformationalVersion Condition="'$(_GitStatus)' != ''">$(InformationalVersion)+maybe-dirty</InformationalVersion>
+      <InformationalVersion Condition="'$(_GitStatus)' != ''"
+        >$(InformationalVersion)+maybe-dirty</InformationalVersion
+      >
     </PropertyGroup>
   </Target>
 </Project>

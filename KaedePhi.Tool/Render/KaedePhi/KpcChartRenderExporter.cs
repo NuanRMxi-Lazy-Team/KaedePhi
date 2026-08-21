@@ -20,7 +20,7 @@ public class KpcChartRenderExporter : LoggableBase, IChartRenderExporter<Chart, 
         CancellationToken ct = default
     )
     {
-        ChartProcessingValidator.ValidateRender(chart, opts, lineIndex, layerIndex);
+        KpcRenderValidator.Validate(chart, opts, lineIndex, layerIndex);
         Directory.CreateDirectory(outputDir);
         var written = new List<string>();
 

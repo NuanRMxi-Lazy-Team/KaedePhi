@@ -22,9 +22,7 @@ internal static class NoteBuilder
             PositionX = src.PositionX / 100.0,
             SpeedMultiplier = src.Speed,
             Above = src.IsAbove,
-            EndBeat = new Beat(
-                (int[])(src.Type == PfNoteType.Hold ? src.HoldEndBeat : src.Beat)
-            ),
+            EndBeat = new Beat((int[])(src.Type == PfNoteType.Hold ? src.HoldEndBeat : src.Beat)),
         };
     }
 

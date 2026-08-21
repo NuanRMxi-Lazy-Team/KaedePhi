@@ -34,7 +34,12 @@ public class PhiEditSpeedConversionTests
                     ],
                     RotateEvents =
                     [
-                        new PeEvent { StartBeat = 1f, EndBeat = 2f, EndValue = 45f },
+                        new PeEvent
+                        {
+                            StartBeat = 1f,
+                            EndBeat = 2f,
+                            EndValue = 45f,
+                        },
                     ],
                     SpeedFrames = [new PeFrame(0f, 14f)],
                 },
@@ -42,7 +47,12 @@ public class PhiEditSpeedConversionTests
         };
 
         var converted = new PhiEditConverter().ToKpc(source, new PhiEditToKpcConvertOptions());
-        var layer = converted.JudgeLineList.Should().ContainSingle().Subject.EventLayers.Should().ContainSingle().Subject;
+        var layer = converted
+            .JudgeLineList.Should()
+            .ContainSingle()
+            .Subject.EventLayers.Should()
+            .ContainSingle()
+            .Subject;
 
         layer.MoveXEvents.Should().NotBeNullOrEmpty();
         layer.MoveYEvents.Should().NotBeNullOrEmpty();

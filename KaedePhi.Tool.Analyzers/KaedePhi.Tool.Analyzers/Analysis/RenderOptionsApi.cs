@@ -37,7 +37,7 @@ internal static class RenderOptionsApi
         public string Display { get; }
     }
 
-    // 各数值属性的合法区间，与 ChartProcessingValidator.ValidateRender 保持一致
+    // 各数值属性的合法区间，与 KpcRenderValidator.Validate 保持一致
     private static readonly ImmutableDictionary<string, Bound> Bounds =
         ImmutableDictionary.CreateRange([
             // 每拍像素高：大于 0 且不超过 10000

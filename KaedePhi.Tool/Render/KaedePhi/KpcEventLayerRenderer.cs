@@ -47,7 +47,7 @@ public static class KpcEventLayerRenderer
     public static SKBitmap RenderEventLayer(EventLayer layer, KpcRenderOptions opts)
     {
         ArgumentNullException.ThrowIfNull(layer);
-        ChartProcessingValidator.ValidateRenderOptions(opts);
+        KpcRenderValidator.ValidateOptions(opts);
         var channels = BuildChannels(layer, opts);
         var totalBeats = ComputeTotalBeats(layer);
         if (totalBeats <= 0)

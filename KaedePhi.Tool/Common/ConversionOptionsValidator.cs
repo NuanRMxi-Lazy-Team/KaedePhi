@@ -108,7 +108,7 @@ internal static class ConversionOptionsValidator
 
     private static void ValidatePositive(double value, string name)
     {
-        ChartProcessingValidator.ValidatePrecision(value, name);
+        NumericParameterValidator.ValidatePrecision(value, name);
     }
 
     private static void ValidatePositive(float value, string name)
@@ -125,6 +125,6 @@ internal static class ConversionOptionsValidator
 
     private static void ValidateTolerance(double value, string name)
     {
-        ChartProcessingValidator.ValidateTolerance(value, name);
+        NumericParameterValidator.ValidateTolerance(value, name);
     }
 }

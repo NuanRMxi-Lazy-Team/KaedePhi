@@ -58,7 +58,9 @@ public class RpeEventTests
         {
             positive.GetValueAtBeat(positive.StartBeat),
             reverse.GetValueAtBeat(reverse.StartBeat),
-        }.Should().Equal(10, 10);
+        }
+            .Should()
+            .Equal(10, 10);
     }
 
     private static RpeEvents.Event<double> CreateRpeEvent(

@@ -25,10 +25,10 @@ public static class ChartProcessor
         CancellationToken ct = default
     )
     {
-        ChartProcessingValidator.ValidatePrecision(precision);
-        ChartProcessingValidator.ValidateTolerance(tolerance);
-        ChartProcessingValidator.ValidateTolerance(mergeTolerance);
-        ChartProcessingValidator.ValidateJudgeLineHierarchy(chart.JudgeLineList);
+        NumericParameterValidator.ValidatePrecision(precision);
+        NumericParameterValidator.ValidateTolerance(tolerance);
+        NumericParameterValidator.ValidateTolerance(mergeTolerance);
+        KpcChartValidator.ValidateJudgeLineHierarchy(chart.JudgeLineList);
 
         var unbinder = new JudgeLineUnbinder();
         if (info != null || warning != null || error != null || debug != null)
@@ -93,8 +93,8 @@ public static class ChartProcessor
         CancellationToken ct = default
     )
     {
-        ChartProcessingValidator.ValidatePrecision(precision);
-        ChartProcessingValidator.ValidateTolerance(tolerance);
+        NumericParameterValidator.ValidatePrecision(precision);
+        NumericParameterValidator.ValidateTolerance(tolerance);
 
         var processor = new LayerProcessor();
         if (info != null || warning != null || error != null || debug != null)
@@ -144,8 +144,8 @@ public static class ChartProcessor
         CancellationToken ct = default
     )
     {
-        ChartProcessingValidator.ValidatePrecision(precision);
-        ChartProcessingValidator.ValidateTolerance(tolerance);
+        NumericParameterValidator.ValidatePrecision(precision);
+        NumericParameterValidator.ValidateTolerance(tolerance);
 
         var processor = new LayerProcessor();
         if (info != null || warning != null || error != null || debug != null)
@@ -191,7 +191,7 @@ public static class ChartProcessor
         CancellationToken ct = default
     )
     {
-        ChartProcessingValidator.ValidateTolerance(tolerance);
+        NumericParameterValidator.ValidateTolerance(tolerance);
 
         var doubleFit = new EventFit<double>();
         var intFit = new EventFit<int>();
@@ -277,7 +277,7 @@ public static class ChartProcessor
         CancellationToken ct = default
     )
     {
-        ChartProcessingValidator.ValidateRender(chart, options, lineIndex, layerIndex);
+        KpcRenderValidator.Validate(chart, options, lineIndex, layerIndex);
         var exporter = new KpcChartRenderExporter();
         if (info != null || warning != null || error != null || debug != null)
             exporter.SubscribeLog(info, warning, error, debug);

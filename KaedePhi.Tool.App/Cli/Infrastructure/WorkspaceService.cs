@@ -65,7 +65,7 @@ public sealed class WorkspaceService
         var dir = ValidateAndResolveId(id);
         Directory.CreateDirectory(dir);
         var dest = Path.Combine(dir, ChartFileName);
-        ChartProcessingValidator.ValidateInputFile(chartPath);
+        InputFileValidator.Validate(chartPath);
         await CopyFileAtomicAsync(chartPath, dest, ct);
     }
 

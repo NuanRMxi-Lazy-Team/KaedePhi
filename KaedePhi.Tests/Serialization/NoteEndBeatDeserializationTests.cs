@@ -90,7 +90,9 @@ public class NoteEndBeatDeserializationTests
         note.EndBeat = new Beat([2, 0, 1]);
 
         ReadExplicitEndBeatMarker(note).Should().BeTrue();
-        JObject.Parse(JsonConvert.SerializeObject(note)).Property("HasExplicitEndBeat")
+        JObject
+            .Parse(JsonConvert.SerializeObject(note))
+            .Property("HasExplicitEndBeat")
             .Should()
             .BeNull();
     }
@@ -162,8 +164,10 @@ public class NoteEndBeatDeserializationTests
             ? () => Pc.Chart.LoadFromJsonStream(stream)
             : () => Pc.Chart.LoadFromJson(json);
 
-        act.Should().Throw<InvalidOperationException>().Which.InnerException
-            .Should().BeOfType<JsonSerializationException>();
+        act.Should()
+            .Throw<InvalidOperationException>()
+            .Which.InnerException.Should()
+            .BeOfType<JsonSerializationException>();
     }
 
     [Theory]
@@ -181,22 +185,21 @@ public class NoteEndBeatDeserializationTests
     [Fact]
     public void JsonNonHold_WithoutEndField_Deserializes()
     {
-        JsonConvert.DeserializeObject<Pf.Note>("{\"type\":1,\"beat\":[1,0,1]}")
+        JsonConvert
+            .DeserializeObject<Pf.Note>("{\"type\":1,\"beat\":[1,0,1]}")
             .Should()
             .NotBeNull();
-        JsonConvert.DeserializeObject<Ph.Note>("{\"type\":1,\"time\":32}")
-            .Should()
-            .NotBeNull();
-        JsonConvert.DeserializeObject<Rpe.Note>("{\"type\":1,\"startTime\":[1,0,1]}")
-            .Should()
-            .NotBeNull();
-        JsonConvert.DeserializeObject<Pc.Note>("{\"kind\":\"tap\",\"beat\":[1,0,1]}")
+        JsonConvert.DeserializeObject<Ph.Note>("{\"type\":1,\"time\":32}").Should().NotBeNull();
+        JsonConvert
+            .DeserializeObject<Rpe.Note>("{\"type\":1,\"startTime\":[1,0,1]}")
             .Should()
             .NotBeNull();
         JsonConvert
-            .DeserializeObject<Pc.CurveNoteTrack>(
-                "{\"from\":0,\"to\":1,\"kind\":\"drag\"}"
-            )
+            .DeserializeObject<Pc.Note>("{\"kind\":\"tap\",\"beat\":[1,0,1]}")
+            .Should()
+            .NotBeNull();
+        JsonConvert
+            .DeserializeObject<Pc.CurveNoteTrack>("{\"from\":0,\"to\":1,\"kind\":\"drag\"}")
             .Should()
             .NotBeNull();
     }
@@ -215,18 +218,15 @@ public class NoteEndBeatDeserializationTests
     public void ValidHolds_DeserializeWithTheirEndValues()
     {
         JsonConvert
-            .DeserializeObject<Pf.Note>(
-                "{\"type\":3,\"beat\":[1,0,1],\"holdEndBeat\":[2,0,1]}"
-            )!
+            .DeserializeObject<Pf.Note>("{\"type\":3,\"beat\":[1,0,1],\"holdEndBeat\":[2,0,1]}")!
             .HoldEndBeat.Should()
             .Be(new Beat([2, 0, 1]));
-        JsonConvert.DeserializeObject<Ph.Note>("{\"type\":3,\"time\":32,\"holdTime\":32}")!
+        JsonConvert
+            .DeserializeObject<Ph.Note>("{\"type\":3,\"time\":32,\"holdTime\":32}")!
             .HoldTime.Should()
             .Be(32f);
         JsonConvert
-            .DeserializeObject<Rpe.Note>(
-                "{\"type\":2,\"startTime\":[1,0,1],\"endTime\":[2,0,1]}"
-            )!
+            .DeserializeObject<Rpe.Note>("{\"type\":2,\"startTime\":[1,0,1],\"endTime\":[2,0,1]}")!
             .EndBeat.Should()
             .Be(new Beat([2, 0, 1]));
         JsonConvert
@@ -242,8 +242,8 @@ public class NoteEndBeatDeserializationTests
             .HoldBeat.Should()
             .Be(new Beat([1, 0, 1]));
 
-        var phiEditNote = Pe.Chart
-            .Load("0\nn2 0 1 2 0 1 0\n# 1\n& 1")
+        var phiEditNote = Pe
+            .Chart.Load("0\nn2 0 1 2 0 1 0\n# 1\n& 1")
             .JudgeLineList.Single()
             .NoteList.Single();
         phiEditNote.EndBeat.Should().Be(2f);
@@ -297,8 +297,7 @@ public class NoteEndBeatDeserializationTests
         curveTrack.Property("hold_beat").Should().NotBeNull();
     }
 
-    private static MemoryStream CreateStream(string value) =>
-        new(Encoding.UTF8.GetBytes(value));
+    private static MemoryStream CreateStream(string value) => new(Encoding.UTF8.GetBytes(value));
 
     private static bool ReadExplicitEndBeatMarker(Kpc.Note note)
     {

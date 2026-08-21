@@ -44,7 +44,7 @@ public sealed class GuiChartService
     /// </summary>
     public ChartType DetectChartType(string filePath, bool stream)
     {
-        ChartProcessingValidator.ValidateInputFile(filePath);
+        InputFileValidator.Validate(filePath);
         using var inputStream = File.OpenRead(filePath);
         var detectedType = ChartGetType.GetType(inputStream);
         _detectedFilePath = filePath;
@@ -66,7 +66,7 @@ public sealed class GuiChartService
         CancellationToken ct = default
     )
     {
-        ChartProcessingValidator.ValidateInputFile(filePath);
+        InputFileValidator.Validate(filePath);
         await using var inputStream = new FileStream(
             filePath,
             FileMode.Open,
@@ -94,7 +94,7 @@ public sealed class GuiChartService
     {
         _log.Information(log_file_selected, filePath, stream);
 
-        ChartProcessingValidator.ValidateInputFile(filePath);
+        InputFileValidator.Validate(filePath);
         var hasDetectedType = _detectedFilePath == filePath && _detectedType is not null;
         ChartType detectedType;
         if (hasDetectedType)

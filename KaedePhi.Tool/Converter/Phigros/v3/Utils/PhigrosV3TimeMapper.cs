@@ -31,7 +31,7 @@ internal sealed class PhigrosV3TimeMapper
         var changes = new List<(Beat Beat, float Bpm)>();
         var currentBpm = initialBpm;
 
-        for (var start = 0; start < ordered.Count;)
+        for (var start = 0; start < ordered.Count; )
         {
             var beat = ordered[start].Item.StartBeat;
             var end = start + 1;

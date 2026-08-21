@@ -34,7 +34,7 @@ public class RePhiEditConverter
             Meta = MetaBuilder.ConvertMeta(source.Meta),
             JudgeLineList = ConvertJudgeLinesWithCancellation(source.JudgeLineList),
         };
-        return ChartProcessingValidator.NormalizeAndValidateNoteEndBeats(converted);
+        return KpcChartNormalizer.NormalizeAndValidateNoteEndBeats(converted);
     }
 
     private List<Kpc.JudgeLine> ConvertJudgeLinesWithCancellation(List<Rpe.JudgeLine> judgeLines)
@@ -59,8 +59,8 @@ public class RePhiEditConverter
         ArgumentNullException.ThrowIfNull(input);
         ArgumentNullException.ThrowIfNull(options);
         ConversionOptionsValidator.Validate(options);
-        var normalized = ChartProcessingValidator.NormalizeAndValidateNoteEndBeats(input);
-        ChartProcessingValidator.ValidateJudgeLineHierarchy(normalized.JudgeLineList);
+        var normalized = KpcChartNormalizer.NormalizeAndValidateNoteEndBeats(input);
+        KpcChartValidator.ValidateJudgeLineHierarchy(normalized.JudgeLineList);
         _ct.ThrowIfCancellationRequested();
 
         var lines = new List<Rpe.JudgeLine>(normalized.JudgeLineList.Count);

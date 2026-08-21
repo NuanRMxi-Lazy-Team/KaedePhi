@@ -9,10 +9,7 @@ public static class NoteBuilder
 {
     public static Kpc.Note ConvertNote(Rpe.Note src)
     {
-        if (
-            src.Type == NoteType.Hold
-            && (!src.HasExplicitEndBeat || src.EndBeat <= src.StartBeat)
-        )
+        if (src.Type == NoteType.Hold && (!src.HasExplicitEndBeat || src.EndBeat <= src.StartBeat))
             throw new FormatException("RePhiEdit Hold 音符缺少有效的结束拍。");
 
         return new Kpc.Note
@@ -20,9 +17,7 @@ public static class NoteBuilder
             Above = src.Above,
             Alpha = src.Alpha,
             StartBeat = new Beat((int[])src.StartBeat),
-            EndBeat = new Beat(
-                (int[])(src.Type == NoteType.Hold ? src.EndBeat : src.StartBeat)
-            ),
+            EndBeat = new Beat((int[])(src.Type == NoteType.Hold ? src.EndBeat : src.StartBeat)),
             IsFake = src.IsFake,
             PositionX = Transform.TransformToKpcX(src.PositionX),
             WidthRatio = src.Size,

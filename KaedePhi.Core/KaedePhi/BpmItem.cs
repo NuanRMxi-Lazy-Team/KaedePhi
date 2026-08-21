@@ -21,10 +21,7 @@ namespace KaedePhi.Core.KaedePhi
             {
                 if (!float.IsFinite(value) || value <= 0)
                 {
-                    throw new ArgumentOutOfRangeException(
-                        nameof(Bpm),
-                        "BPM 必须是有限正数。"
-                    );
+                    throw new ArgumentOutOfRangeException(nameof(Bpm), "BPM 必须是有限正数。");
                 }
                 _bpm = value;
             }

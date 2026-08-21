@@ -38,7 +38,12 @@ public class StructMigrationCompatibilityTests
     [Fact]
     public void LegacyMoveFrame_ImplicitlyConvertsToMoveFrame()
     {
-        var legacy = new LegacyMoveFrame { Beat = 2.5f, XValue = 0.5f, YValue = -1.5f };
+        var legacy = new LegacyMoveFrame
+        {
+            Beat = 2.5f,
+            XValue = 0.5f,
+            YValue = -1.5f,
+        };
 
         MoveFrame frame = legacy;
 
@@ -49,7 +54,12 @@ public class StructMigrationCompatibilityTests
     [Fact]
     public void LegacySpeedEvent_ImplicitlyConvertsToSpeedEvent()
     {
-        var legacy = new LegacySpeedEvent { StartTime = 1f, EndTime = 2f, Value = 3f };
+        var legacy = new LegacySpeedEvent
+        {
+            StartTime = 1f,
+            EndTime = 2f,
+            Value = 3f,
+        };
 
         SpeedEvent speedEvent = legacy;
 

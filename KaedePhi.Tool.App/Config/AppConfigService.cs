@@ -130,8 +130,8 @@ public sealed class AppConfigService
         ValidateTool(config.Cut);
         if (config.Fit is null || config.Render is null || config.Convert is null)
             throw new FormatException("配置文件缺少必要的配置段。");
-        ChartProcessingValidator.ValidateTolerance(config.Fit.Tolerance);
-        ChartProcessingValidator.ValidatePrecision(config.Render.SamplesPerEvent);
+        NumericParameterValidator.ValidateTolerance(config.Fit.Tolerance);
+        NumericParameterValidator.ValidatePrecision(config.Render.SamplesPerEvent);
         if (
             config.Render.PixelsPerBeat <= 0
             || config.Render.ChannelWidth <= 0
@@ -154,28 +154,28 @@ public sealed class AppConfigService
     {
         if (config is null)
             throw new FormatException("配置文件缺少工具配置段。");
-        ChartProcessingValidator.ValidatePrecision(config.Precision);
-        ChartProcessingValidator.ValidateTolerance(config.Tolerance);
-        ChartProcessingValidator.ValidateTolerance(config.MergeTolerance);
+        NumericParameterValidator.ValidatePrecision(config.Precision);
+        NumericParameterValidator.ValidateTolerance(config.Tolerance);
+        NumericParameterValidator.ValidateTolerance(config.MergeTolerance);
     }
 
     private static void ValidateConvert(ConvertDefaultsConfig config)
     {
-        ChartProcessingValidator.ValidatePrecision(config.PeUnsupportedEasingPrecision);
-        ChartProcessingValidator.ValidatePrecision(config.PeMisalignedXyEventPrecision);
-        ChartProcessingValidator.ValidatePrecision(config.PeAlphaCutPrecision);
-        ChartProcessingValidator.ValidatePrecision(config.PeSpeedCutPrecision);
-        ChartProcessingValidator.ValidatePrecision(config.PhigrosEasingPrecision);
-        ChartProcessingValidator.ValidatePrecision(config.PhigrosMisalignedXyEventPrecision);
-        ChartProcessingValidator.ValidatePrecision(config.PhigrosAlphaCutPrecision);
-        ChartProcessingValidator.ValidatePrecision(config.PhigrosSpeedCutPrecision);
-        ChartProcessingValidator.ValidatePrecision(config.UnbindPrecision);
-        ChartProcessingValidator.ValidatePrecision(config.MultiLayerMergePrecision);
-        ChartProcessingValidator.ValidateTolerance(config.PeAlphaCutTolerance);
-        ChartProcessingValidator.ValidateTolerance(config.UnbindTolerance);
-        ChartProcessingValidator.ValidateTolerance(config.UnbindMergeTolerance);
-        ChartProcessingValidator.ValidateTolerance(config.MultiLayerMergeTolerance);
-        ChartProcessingValidator.ValidateTolerance(config.PhigrosAlphaCutTolerance);
+        NumericParameterValidator.ValidatePrecision(config.PeUnsupportedEasingPrecision);
+        NumericParameterValidator.ValidatePrecision(config.PeMisalignedXyEventPrecision);
+        NumericParameterValidator.ValidatePrecision(config.PeAlphaCutPrecision);
+        NumericParameterValidator.ValidatePrecision(config.PeSpeedCutPrecision);
+        NumericParameterValidator.ValidatePrecision(config.PhigrosEasingPrecision);
+        NumericParameterValidator.ValidatePrecision(config.PhigrosMisalignedXyEventPrecision);
+        NumericParameterValidator.ValidatePrecision(config.PhigrosAlphaCutPrecision);
+        NumericParameterValidator.ValidatePrecision(config.PhigrosSpeedCutPrecision);
+        NumericParameterValidator.ValidatePrecision(config.UnbindPrecision);
+        NumericParameterValidator.ValidatePrecision(config.MultiLayerMergePrecision);
+        NumericParameterValidator.ValidateTolerance(config.PeAlphaCutTolerance);
+        NumericParameterValidator.ValidateTolerance(config.UnbindTolerance);
+        NumericParameterValidator.ValidateTolerance(config.UnbindMergeTolerance);
+        NumericParameterValidator.ValidateTolerance(config.MultiLayerMergeTolerance);
+        NumericParameterValidator.ValidateTolerance(config.PhigrosAlphaCutTolerance);
         if (
             !double.IsFinite(config.PeTrailingBeatPadding)
             || config.PeTrailingBeatPadding < 0
@@ -194,9 +194,9 @@ public sealed class AppConfigService
         if (yamlStream.Documents.FirstOrDefault()?.RootNode is not YamlMappingNode root)
             return yaml;
 
-        var convertNode = root.Children.FirstOrDefault(pair =>
-            pair.Key is YamlScalarNode { Value: "convert" }
-        ).Value;
+        var convertNode = root
+            .Children.FirstOrDefault(pair => pair.Key is YamlScalarNode { Value: "convert" })
+            .Value;
         if (convertNode is not YamlMappingNode convert)
             return yaml;
 

@@ -267,7 +267,11 @@ namespace KaedePhi.Core.RePhiEdit
                 JudgeLineGroup = JudgeLineGroup.ToArray(),
                 MultiLineString = MultiLineString,
                 MultiScale = MultiScale,
-                BeatTags = BeatTags.ConvertAll(tag => new BeatTag { Name = tag.Name, Time = tag.Time }),
+                BeatTags = BeatTags.ConvertAll(tag => new BeatTag
+                {
+                    Name = tag.Name,
+                    Time = tag.Time,
+                }),
                 XyBind = XyBind,
             };
         }

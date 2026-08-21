@@ -45,7 +45,10 @@ public sealed class TotalNumberOfNotesAnalyzer : DiagnosticAnalyzer
             return;
 
         context.ReportDiagnostic(
-            Diagnostic.Create(TotalNumberOfNotesDiagnostic.Rule, context.Operation.Syntax.GetLocation())
+            Diagnostic.Create(
+                TotalNumberOfNotesDiagnostic.Rule,
+                context.Operation.Syntax.GetLocation()
+            )
         );
     }
 

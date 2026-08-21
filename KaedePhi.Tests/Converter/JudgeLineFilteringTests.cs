@@ -103,19 +103,12 @@ public class JudgeLineFilteringTests
             AttachUi = attachUi,
             Notes =
             [
-                new Kpc.Note
-                {
-                    StartBeat = new Beat(markerBeat),
-                    EndBeat = new Beat(markerBeat),
-                },
+                new Kpc.Note { StartBeat = new Beat(markerBeat), EndBeat = new Beat(markerBeat) },
             ],
         };
     }
 
-    private static List<int> GetExpectedMarkerBeats(
-        bool removeTextureLine,
-        bool removeAttachUiLine
-    )
+    private static List<int> GetExpectedMarkerBeats(bool removeTextureLine, bool removeAttachUiLine)
     {
         var beats = new List<int> { 1 };
         if (!removeTextureLine)

@@ -39,7 +39,7 @@ public class PhiEditConverter
                 source.JudgeLineList
             ),
         };
-        return ChartProcessingValidator.NormalizeAndValidateNoteEndBeats(converted);
+        return KpcChartNormalizer.NormalizeAndValidateNoteEndBeats(converted);
     }
 
     /// <summary>
@@ -53,8 +53,8 @@ public class PhiEditConverter
         ArgumentNullException.ThrowIfNull(input);
         ArgumentNullException.ThrowIfNull(options);
         ConversionOptionsValidator.Validate(options);
-        var normalized = ChartProcessingValidator.NormalizeAndValidateNoteEndBeats(input);
-        ChartProcessingValidator.ValidateJudgeLineHierarchy(normalized.JudgeLineList);
+        var normalized = KpcChartNormalizer.NormalizeAndValidateNoteEndBeats(input);
+        KpcChartValidator.ValidateJudgeLineHierarchy(normalized.JudgeLineList);
         _ct.ThrowIfCancellationRequested();
 
         WarnIfUnsupportedMeta(normalized.Meta);

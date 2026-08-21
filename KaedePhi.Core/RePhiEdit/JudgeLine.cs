@@ -239,9 +239,7 @@ namespace KaedePhi.Core.RePhiEdit
                 SkewControls = SkewControls.ConvertAll(control =>
                     (Controls.SkewControl)control.Clone()
                 ),
-                YControls = YControls.ConvertAll(control =>
-                    (Controls.YControl)control.Clone()
-                ),
+                YControls = YControls.ConvertAll(control => (Controls.YControl)control.Clone()),
             };
         }
     }

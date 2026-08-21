@@ -58,7 +58,7 @@ public class PhigrosV3Converter
             Meta = MetaBuilder.ConvertMeta(input),
             JudgeLineList = judgeLines,
         };
-        return ChartProcessingValidator.NormalizeAndValidateNoteEndBeats(converted);
+        return KpcChartNormalizer.NormalizeAndValidateNoteEndBeats(converted);
     }
 
     /// <summary>
@@ -72,8 +72,8 @@ public class PhigrosV3Converter
         ArgumentNullException.ThrowIfNull(input);
         ArgumentNullException.ThrowIfNull(options);
         ConversionOptionsValidator.Validate(options);
-        var normalized = ChartProcessingValidator.NormalizeAndValidateNoteEndBeats(input);
-        ChartProcessingValidator.ValidateJudgeLineHierarchy(normalized.JudgeLineList);
+        var normalized = KpcChartNormalizer.NormalizeAndValidateNoteEndBeats(input);
+        KpcChartValidator.ValidateJudgeLineHierarchy(normalized.JudgeLineList);
         _ct.ThrowIfCancellationRequested();
 
         WarnIfUnsupportedMeta(normalized.Meta);

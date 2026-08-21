@@ -7,14 +7,15 @@ using KaedePhi.Tool.Render.KaedePhi;
 
 namespace KaedePhi.Tests.Validation;
 
-public class ChartProcessingValidatorTests
+public class ValidationComponentTests
 {
     [Fact]
     public void ValidatePrecision_RejectsNonPositiveAndNonFiniteValues()
     {
-        Action zero = () => ChartProcessingValidator.ValidatePrecision(0);
-        Action negative = () => ChartProcessingValidator.ValidatePrecision(-1);
-        Action infinite = () => ChartProcessingValidator.ValidatePrecision(double.PositiveInfinity);
+        Action zero = () => NumericParameterValidator.ValidatePrecision(0);
+        Action negative = () => NumericParameterValidator.ValidatePrecision(-1);
+        Action infinite = () =>
+            NumericParameterValidator.ValidatePrecision(double.PositiveInfinity);
 
         zero.Should().Throw<ArgumentOutOfRangeException>();
         negative.Should().Throw<ArgumentOutOfRangeException>();
@@ -31,8 +32,8 @@ public class ChartProcessingValidatorTests
         };
         var invalid = new List<JudgeLine> { new() { Father = 2 } };
 
-        Action cycleCheck = () => ChartProcessingValidator.ValidateJudgeLineHierarchy(cyclic);
-        Action invalidCheck = () => ChartProcessingValidator.ValidateJudgeLineHierarchy(invalid);
+        Action cycleCheck = () => KpcChartValidator.ValidateJudgeLineHierarchy(cyclic);
+        Action invalidCheck = () => KpcChartValidator.ValidateJudgeLineHierarchy(invalid);
 
         cycleCheck.Should().Throw<FormatException>();
         invalidCheck.Should().Throw<FormatException>();
@@ -44,7 +45,7 @@ public class ChartProcessingValidatorTests
         var chart = new Chart { JudgeLineList = [new JudgeLine()] };
         var options = new KpcRenderOptions();
 
-        Action act = () => ChartProcessingValidator.ValidateRender(chart, options, layerIndex: 0);
+        Action act = () => KpcRenderValidator.Validate(chart, options, layerIndex: 0);
 
         act.Should().Throw<ArgumentException>();
     }
@@ -59,7 +60,7 @@ public class ChartProcessingValidatorTests
     {
         var chart = new Chart { BpmList = [CreateBpmItemBypassingValidation(bpm)] };
 
-        Action act = () => ChartProcessingValidator.NormalizeAndValidateNoteEndBeats(chart);
+        Action act = () => KpcChartNormalizer.NormalizeAndValidateNoteEndBeats(chart);
 
         act.Should().Throw<FormatException>().WithMessage("*BPM*0*");
     }
@@ -67,12 +68,9 @@ public class ChartProcessingValidatorTests
     [Fact]
     public void NormalizeAndValidateNoteEndBeats_RejectsNegativeBpmStartBeat()
     {
-        var chart = new Chart
-        {
-            BpmList = [new BpmItem { StartBeat = new Beat(-1), Bpm = 120f }],
-        };
+        var chart = new Chart { BpmList = [new BpmItem { StartBeat = new Beat(-1), Bpm = 120f }] };
 
-        Action act = () => ChartProcessingValidator.NormalizeAndValidateNoteEndBeats(chart);
+        Action act = () => KpcChartNormalizer.NormalizeAndValidateNoteEndBeats(chart);
 
         act.Should().Throw<FormatException>().WithMessage("*BPM*0*起始拍*");
     }
@@ -90,7 +88,7 @@ public class ChartProcessingValidatorTests
         SetBpmFactorBypassingValidation(line, bpmFactor);
         var chart = new Chart { JudgeLineList = [line] };
 
-        Action act = () => ChartProcessingValidator.NormalizeAndValidateNoteEndBeats(chart);
+        Action act = () => KpcChartNormalizer.NormalizeAndValidateNoteEndBeats(chart);
 
         act.Should().Throw<FormatException>().WithMessage("*判定线 0*BPM*");
     }
@@ -106,7 +104,7 @@ public class ChartProcessingValidatorTests
     {
         var chart = CreateChartWithMalformedStructure(malformedMember);
 
-        Action act = () => ChartProcessingValidator.NormalizeAndValidateNoteEndBeats(chart);
+        Action act = () => KpcChartNormalizer.NormalizeAndValidateNoteEndBeats(chart);
 
         act.Should().Throw<FormatException>().WithMessage(expectedMessage);
     }
@@ -131,7 +129,7 @@ public class ChartProcessingValidatorTests
         SetBpmFactorBypassingValidation(line, bpmFactor);
         var chart = new Chart { JudgeLineList = [line] };
 
-        Action act = () => ChartProcessingValidator.ValidateRender(chart, new KpcRenderOptions());
+        Action act = () => KpcRenderValidator.Validate(chart, new KpcRenderOptions());
 
         act.Should().Throw<FormatException>().WithMessage("*判定线 0*BPM*");
     }

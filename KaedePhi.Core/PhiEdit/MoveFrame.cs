@@ -80,7 +80,12 @@ namespace KaedePhi.Core.PhiEdit
         /// <param name="frame">结构体移动帧</param>
         /// <returns>旧版移动帧实例</returns>
         public static implicit operator LegacyMoveFrame(MoveFrame frame) =>
-            new() { Beat = frame.Beat, XValue = frame.XValue, YValue = frame.YValue };
+            new()
+            {
+                Beat = frame.Beat,
+                XValue = frame.XValue,
+                YValue = frame.YValue,
+            };
 #pragma warning restore CS0618
     }
 }

@@ -43,8 +43,7 @@ public class PhiEditJudgeLineBuilder
                     CoreConstants.DefaultTexture,
                     StringComparison.Ordinal
                 )
-            )
-            || (_options.LineFilter.RemoveAttachUiLine && src.AttachUi.HasValue)
+            ) || (_options.LineFilter.RemoveAttachUiLine && src.AttachUi.HasValue)
         )
             return null;
 

@@ -17,7 +17,7 @@ public class EventListMerger<TPayload> : LoggableBase, IEventListMerger<KpcEvent
         double precision
     )
     {
-        ChartProcessingValidator.ValidatePrecision(precision);
+        NumericParameterValidator.ValidatePrecision(precision);
         if (TryGetMergeEarlyReturn(toEvents, fromEvents, out var earlyReturn))
             return earlyReturn;
         if (toEvents is null || fromEvents is null)

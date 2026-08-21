@@ -55,9 +55,9 @@ public class FatherUnbindPlusProcessor : FatherUnbindProcessorBase
         CancellationToken ct = default
     )
     {
-        ChartProcessingValidator.ValidatePrecision(precision);
-        ChartProcessingValidator.ValidateTolerance(_tolerance);
-        ChartProcessingValidator.ValidateTolerance(_mergeTolerance);
+        NumericParameterValidator.ValidatePrecision(precision);
+        NumericParameterValidator.ValidateTolerance(_tolerance);
+        NumericParameterValidator.ValidateTolerance(_mergeTolerance);
         ct.ThrowIfCancellationRequested();
         JudgeLine judgeLineCopy;
         try
