@@ -25,16 +25,6 @@ NuanR_Star Ciallo Team（以下简称“我们”）KaedePhi（以下简称“�
 > [!CAUTION]
 > <span style="color:red">**本项目自0.4.1版本进行了大量架构重写，请自行检查对旧项目的兼容性，部分API被直接破坏，部分API改名并标记为了废弃。**</span>
 
-
-## 支持格式
-当前稳定支持导入和导出的格式如下：
-- RePhiEdit JSON（`.json`）
-- PhiEdit 谱面（`.pec`）
-- Phigros v3 JSON（`.json`）
-- PhiChain JSON（`.json`）
-
-JSON 格式会根据内容自动检测，不能仅凭扩展名区分。PhiFans 和 Phigros v1 当前没有完整的导入导出实现，不属于稳定支持范围。
-
 ## CLI 使用
 发布包中的 `KaedePhi.Tool.App` 同时提供 CLI 和 GUI。传入命令或 `--cli` 时使用 CLI，传入 `--gui` 时启动 GUI；交互式终端中直接运行也会进入 CLI。
 
@@ -79,7 +69,7 @@ dotnet run --project KaedePhi.Tool.App -- --help
 配置文件由 CLI 和 GUI 共享。工作区只保存名为 `chart.json` 的原始谱面文件，工作区 ID 只允许字母、数字、下划线和连字符。
 
 ## 构建与测试
-仓库固定使用稳定的 .NET SDK `10.0.302`，版本由根目录 `global.json` 约束。
+仓库固定使用的 .NET SDK 版本由根目录 `global.json` 约束。
 
 ```bash
 dotnet restore KaedePhi.sln
@@ -100,7 +90,7 @@ dotnet publish KaedePhi.Tool.App/KaedePhi.Tool.App.csproj \
 - FDD 便携版和安装版都要求先安装对应的 .NET 10 运行时，不能脱离运行时单独执行。
 - 目前只提供 Windows x64 和 Linux x64 应用产物，其他系统和架构需要自行编译验证。
 - 部分目标格式不支持源格式的全部事件或缓动类型，转换时可能进行采样、拟合或压缩；大型谱面可尝试 `--stream` 降低内存占用。
-- 0.4.x 仍处于早期阶段，字段、默认配置和转换行为可能变化；升级前请备份谱面和配置。
+- 项目仍处于早期阶段，字段、默认配置和转换行为可能变化；升级前请备份谱面和配置。
 
 ## 发布流程
 GitHub Actions 是唯一权威发布入口，负责 Core、Tool 和 App 的标签、GitHub Release 及正式附件。GitLab CI 仅保留夜间 App 构建，不再创建发布和标签，避免两个平台并发发布导致版本、附件和标签不一致。正式 App 发布固定为 `net10.0` FDD；GitLab 夜间构建也使用同一目标框架。
@@ -110,8 +100,6 @@ GitHub Actions 是唯一权威发布入口，负责 Core、Tool 和 App 的标�
 也欢迎加入我的小群！QQ群号: 390530513
 
 ## TODO
-已知缺陷与维护工作统一记录在 [TODO.md](TODO.md)，按优先级逐项补充测试并修复。
-
 - [x] RePhiEdit反序列化功能
 - [x] RePhiEdit序列化功能
 - [x] RePhiEdit基础父子线解绑
@@ -125,11 +113,7 @@ GitHub Actions 是唯一权威发布入口，负责 Core、Tool 和 App 的标�
 - [x] PhiChain序列化
 - [x] 本家谱面反序列化
 - [x] 本家谱面序列化
-- [ ] ~~CLI工具~~（已合并为App工具）
-- [ ] ~~GUI工具~~（已合并为App工具）
 - [x] App工具
-
-
 
 ## 开源许可证
 [GNU LESSER GENERAL PUBLIC LICENSE 3.0](https://www.gnu.org/licenses/lgpl-3.0.html)
