@@ -99,14 +99,6 @@ public static partial class ConvertCommand
         Arity = ArgumentArity.ExactlyOne,
     };
 
-    private static readonly Option<double> PhigrosAlphaToleranceOpt = new(
-        "--phigros-alpha-tolerance"
-    )
-    {
-        Description = CliLocalizationString.convert_opt_phigros_alpha_tolerance,
-        Arity = ArgumentArity.ExactlyOne,
-    };
-
     private static readonly Option<double> PhigrosSpeedPrecisionOpt = new(
         "--phigros-speed-precision"
     )
@@ -332,10 +324,6 @@ public static partial class ConvertCommand
                 CutPrecision =
                     SharedOptions.GetIfSpecified(result, PhigrosAlphaPrecisionOpt)
                     ?? c.PhigrosAlphaCutPrecision,
-                CutCompress = c.PhigrosAlphaCutCompress,
-                CutTolerance =
-                    SharedOptions.GetIfSpecified(result, PhigrosAlphaToleranceOpt)
-                    ?? c.PhigrosAlphaCutTolerance,
             },
             Speed = new KpcToPhigrosV3ConvertOptions.SpeedOptions
             {

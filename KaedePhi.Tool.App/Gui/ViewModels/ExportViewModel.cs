@@ -259,16 +259,6 @@ public sealed class ExportViewModel : INotifyPropertyChanged
         }
     } = 64d;
 
-    public double PhigrosAlphaCutTolerance
-    {
-        get;
-        set
-        {
-            field = value;
-            OnPropertyChanged();
-        }
-    } = 0.1d;
-
     public double PhigrosSpeedCutPrecision
     {
         get;
@@ -561,32 +551,6 @@ public sealed class ExportViewModel : INotifyPropertyChanged
         }
     } = 64d;
 
-    /// <summary>
-    /// PhiChain 缓动截取切割后是否压缩
-    /// </summary>
-    public bool PhiChainEasingCutCompress
-    {
-        get;
-        set
-        {
-            field = value;
-            OnPropertyChanged();
-        }
-    } = true;
-
-    /// <summary>
-    /// PhiChain 缓动截取切割后压缩容差百分比
-    /// </summary>
-    public double PhiChainEasingCutTolerance
-    {
-        get;
-        set
-        {
-            field = value;
-            OnPropertyChanged();
-        }
-    } = 0.1d;
-
     #endregion
 
     #region PhiFans 转换选项
@@ -644,7 +608,6 @@ public sealed class ExportViewModel : INotifyPropertyChanged
         PhigrosEasingPrecision = config.PhigrosEasingPrecision;
         PhigrosMisalignedXyEventPrecision = config.PhigrosMisalignedXyEventPrecision;
         PhigrosAlphaCutPrecision = config.PhigrosAlphaCutPrecision;
-        PhigrosAlphaCutTolerance = config.PhigrosAlphaCutTolerance;
         PhigrosSpeedCutPrecision = config.PhigrosSpeedCutPrecision;
         UnbindPrecision = config.UnbindPrecision;
         UnbindTolerance = config.UnbindTolerance;

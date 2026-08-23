@@ -187,7 +187,6 @@ public sealed class AppConfigService
         NumericParameterValidator.ValidateTolerance(config.UnbindTolerance);
         NumericParameterValidator.ValidateTolerance(config.UnbindMergeTolerance);
         NumericParameterValidator.ValidateTolerance(config.MultiLayerMergeTolerance);
-        NumericParameterValidator.ValidateTolerance(config.PhigrosAlphaCutTolerance);
         if (
             !double.IsFinite(config.PeTrailingBeatPadding)
             || config.PeTrailingBeatPadding < 0

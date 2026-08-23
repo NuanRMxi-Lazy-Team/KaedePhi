@@ -72,16 +72,6 @@ public class KpcToPhigrosV3ConvertOptions
         /// 带有缓动效果的 Alpha 事件切割精度
         /// </summary>
         public double CutPrecision { get; set; } = DefaultPrecision;
-
-        /// <summary>
-        /// 带有缓动效果的 Alpha 事件切割后是否压缩
-        /// </summary>
-        public bool CutCompress { get; set; } = true;
-
-        /// <summary>
-        /// 带有缓动效果的 Alpha 事件切割后压缩容差百分比
-        /// </summary>
-        public double CutTolerance { get; set; } = DefaultTolerancePercent;
     }
 
     public class SpeedOptions

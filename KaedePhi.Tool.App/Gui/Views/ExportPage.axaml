@@ -140,11 +140,6 @@
                                             <TextBlock Text="{x:Static loc:GuiLocalizationString.convert_easing_cut_precision}" FontSize="12" Opacity="0.7"/>
                                             <TextBox Text="{Binding PhiChainEasingCutPrecision}" Width="200" HorizontalAlignment="Left"/>
                                         </StackPanel>
-                                        <CheckBox Content="{x:Static loc:GuiLocalizationString.convert_easing_cut_compress}" IsChecked="{Binding PhiChainEasingCutCompress}"/>
-                                        <StackPanel Spacing="4">
-                                            <TextBlock Text="{x:Static loc:GuiLocalizationString.convert_easing_cut_tolerance}" FontSize="12" Opacity="0.7"/>
-                                            <NumericUpDown Value="{Binding PhiChainEasingCutTolerance}" Increment="0.01" FormatString="F3" Width="200" HorizontalAlignment="Left"/>
-                                        </StackPanel>
                                     </StackPanel>
                                 </StackPanel>
                             </StackPanel>

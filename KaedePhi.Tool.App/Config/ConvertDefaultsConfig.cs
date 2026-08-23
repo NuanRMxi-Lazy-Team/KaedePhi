@@ -33,8 +33,6 @@ public sealed class ConvertDefaultsConfig
     public double PhigrosEasingPrecision { get; set; } = 64d;
     public double PhigrosMisalignedXyEventPrecision { get; set; } = 64d;
     public double PhigrosAlphaCutPrecision { get; set; } = 64d;
-    public bool PhigrosAlphaCutCompress { get; set; } = true;
-    public double PhigrosAlphaCutTolerance { get; set; } = 0.1d;
     public double PhigrosSpeedCutPrecision { get; set; } = 64d;
     public bool PhigrosFilterFakeNotes { get; set; }
     public bool PhigrosNegativeAlphaElevation { get; set; }

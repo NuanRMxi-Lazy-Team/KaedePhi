@@ -71,7 +71,6 @@ internal static class ConversionOptionsValidator
         ValidatePositive(options.Speed.CutPrecision, "Speed.CutPrecision");
         ValidatePositive(options.FatherLineUnbind.Precision, "FatherLineUnbind.Precision");
         ValidatePositive(options.MultiLayerMerge.Precision, "MultiLayerMerge.Precision");
-        ValidateTolerance(options.Alpha.CutTolerance, "Alpha.CutTolerance");
         ValidateTolerance(options.FatherLineUnbind.Tolerance, "FatherLineUnbind.Tolerance");
         ValidateTolerance(
             options.FatherLineUnbind.MergeTolerance,
@@ -96,7 +95,6 @@ internal static class ConversionOptionsValidator
             options.MultiLayerMergeTolerance,
             nameof(options.MultiLayerMergeTolerance)
         );
-        ValidateTolerance(options.EasingCutTolerance, nameof(options.EasingCutTolerance));
     }
 
     public static void Validate(PhiChainToKpcConvertOptions options)

@@ -11,13 +11,13 @@ namespace KaedePhi.Core.PhiEdit
     public partial class Chart
     {
         /// <summary>
-        /// 将 PhiEditChart 格式的文本字符串异步反序列化为 <see cref="Chart"/> 对象。
-        /// <para>内部在线程池上调用同步的 <see cref="Load"/>，适合在 UI 线程等不宜阻塞的上下文中使用。</para>
+        /// 将 PhiEditChart 格式的文本字符串反序列化为 <see cref="Chart"/> 对象。
+        /// <para>反序列化为 CPU 密集的同步操作，直接返回已完成任务，不做线程池假异步。</para>
         /// </summary>
         /// <param name="pec">符合 PhiEditChart 规范的文本字符串。</param>
         /// <returns>已完整反序列化并排序的 <see cref="Chart"/> 实例。</returns>
         /// <exception cref="FormatException">首行不是合法整数偏移量，或任意指令字段数不足。</exception>
-        public static async Task<Chart> LoadAsync(string pec) => await Task.Run(() => Load(pec));
+        public static Task<Chart> LoadAsync(string pec) => Task.FromResult(Load(pec));
 
         /// <summary>
         /// 以惰性迭代方式枚举单条判定线 <paramref name="judgeLine"/> 的所有 PhiEditChart 导出行。
@@ -75,11 +75,11 @@ namespace KaedePhi.Core.PhiEdit
         public string Export() => string.Join(Environment.NewLine, GetExportLines());
 
         /// <summary>
-        /// 将谱面异步序列化为 PhiEditChart 格式的文本字符串。
-        /// <para>内部在线程池上调用同步的 <see cref="Export"/>，适合在 UI 线程等不宜阻塞的上下文中使用。</para>
+        /// 将谱面序列化为 PhiEditChart 格式的文本字符串。
+        /// <para>序列化为 CPU 密集的同步操作，直接返回已完成任务，不做线程池假异步。</para>
         /// </summary>
         /// <returns>完整的 PhiEditChart 文本。</returns>
-        public async Task<string> ExportAsync() => await Task.Run(Export);
+        public Task<string> ExportAsync() => Task.FromResult(Export());
 
         /// <summary>
         /// 将谱面以 PhiEditChart 格式流式写入 <paramref name="stream"/>，每行结尾使用系统换行符。

@@ -12,7 +12,7 @@ namespace KaedePhi.Tool.App;
 internal static partial class Program
 {
     [STAThread]
-    public static async Task<int> Main(string[] args)
+    public static int Main(string[] args)
     {
         if (args.Contains("--gui"))
             return RunGui(args);
@@ -23,7 +23,7 @@ internal static partial class Program
             || effectiveArgs.Length > 0
             || TerminalDetector.Instance.IsInteractiveTerminal()
         )
-            return await RunCli(args);
+            return RunCli(args).GetAwaiter().GetResult();
 
         return RunGui(args);
     }

@@ -44,11 +44,11 @@ namespace KaedePhi.Core.PhiChain.v6
         }
 
         /// <summary>
-        /// 从 JSON 流异步反序列化为 Chart 对象（真正的流式读取，不会将整个流加载到内存）
+        /// 从 JSON 流反序列化为 Chart 对象（流式读取，不将整个流加载到内存）。
         /// </summary>
         /// <param name="stream">JSON 流</param>
         /// <returns>Chart 对象</returns>
-        public static async Task<Chart> LoadFromJsonStreamAsync(Stream stream)
+        public static Task<Chart> LoadFromJsonStreamAsync(Stream stream)
         {
             using var reader = new StreamReader(
                 stream,
@@ -58,7 +58,7 @@ namespace KaedePhi.Core.PhiChain.v6
                 leaveOpen: true
             );
             using var jsonReader = new JsonTextReader(reader);
-            return await Task.Run(() => DeserializeFromJsonReader(jsonReader));
+            return Task.FromResult(DeserializeFromJsonReader(jsonReader));
         }
 
         /// <summary>
@@ -122,7 +122,7 @@ namespace KaedePhi.Core.PhiChain.v6
         /// <returns>JSON 字符串</returns>
         [PublicAPI]
         public Task<string> ExportToJsonAsync(bool format = false) =>
-            Task.Run(() => ExportToJson(format));
+            Task.FromResult(ExportToJson(format));
 
         /// <summary>
         /// 序列化 Chart 为 JSON 并写入流
@@ -163,14 +163,9 @@ namespace KaedePhi.Core.PhiChain.v6
             var serializer = JsonDefaults.CreateSerializer(
                 format ? Formatting.Indented : Formatting.None
             );
-
-            await Task.Run(() =>
-            {
-                using var jsonWriter = new JsonTextWriter(streamWriter) { CloseOutput = false };
-                serializer.Serialize(jsonWriter, this);
-                jsonWriter.Flush();
-            });
-
+            using var jsonWriter = new JsonTextWriter(streamWriter) { CloseOutput = false };
+            serializer.Serialize(jsonWriter, this);
+            jsonWriter.Flush();
             await streamWriter.FlushAsync();
         }
 
@@ -181,7 +176,7 @@ namespace KaedePhi.Core.PhiChain.v6
         /// <returns>Chart 对象</returns>
         [PublicAPI]
         public static Task<Chart> LoadFromJsonAsync(string json) =>
-            Task.Run(() => LoadFromJson(json));
+            Task.FromResult(LoadFromJson(json));
 
         /// <summary>
         /// 从文件路径加载 Chart

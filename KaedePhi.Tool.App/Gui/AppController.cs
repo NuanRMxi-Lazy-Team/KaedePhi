@@ -635,7 +635,6 @@ internal sealed class AppController
             Alpha = new KpcToPhigrosV3ConvertOptions.AlphaOptions
             {
                 CutPrecision = vm.PhigrosAlphaCutPrecision,
-                CutTolerance = vm.PhigrosAlphaCutTolerance,
             },
             Speed = new KpcToPhigrosV3ConvertOptions.SpeedOptions
             {
@@ -728,8 +727,6 @@ internal sealed class AppController
             MultiLayerMergeTolerance = vm.PhiChainMultiLayerMergeTolerance,
             MultiLayerMergeClassicMode = vm.PhiChainMultiLayerMergeClassicMode,
             EasingCutPrecision = vm.PhiChainEasingCutPrecision,
-            EasingCutCompress = vm.PhiChainEasingCutCompress,
-            EasingCutTolerance = vm.PhiChainEasingCutTolerance,
         };
     }
 

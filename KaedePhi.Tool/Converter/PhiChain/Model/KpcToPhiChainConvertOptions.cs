@@ -52,15 +52,5 @@ public class KpcToPhiChainConvertOptions
     /// </summary>
     public double EasingCutPrecision { get; set; } = 64d;
 
-    /// <summary>
-    /// 缓动截取切割后是否压缩，默认 true。
-    /// </summary>
-    public bool EasingCutCompress { get; set; } = true;
-
-    /// <summary>
-    /// 缓动截取切割后压缩容差百分比，默认 0.1。
-    /// </summary>
-    public double EasingCutTolerance { get; set; } = 0.1d;
-
     #endregion
 }
