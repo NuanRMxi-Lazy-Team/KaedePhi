@@ -177,7 +177,7 @@ namespace KaedePhi.Core.Common
 
         public static Beat operator +(Beat a, Beat b)
         {
-            var wholePart = a._whole + b._whole;
+            var wholePart = checked(a._whole + b._whole);
 
             var numerator =
                 (long)a._numerator * b.EffectiveDenominator
@@ -187,14 +187,14 @@ namespace KaedePhi.Core.Common
             if (numerator >= denominator)
             {
                 var carry = numerator / denominator;
-                wholePart += (int)carry;
+                wholePart = checked(wholePart + (int)carry);
                 numerator %= denominator;
             }
 
             if (numerator < 0)
             {
                 var borrowCount = (-numerator + denominator - 1) / denominator;
-                wholePart -= (int)borrowCount;
+                wholePart = checked(wholePart - (int)borrowCount);
                 numerator += borrowCount * denominator;
             }
 
@@ -215,7 +215,7 @@ namespace KaedePhi.Core.Common
 
         public static Beat operator -(Beat a, Beat b)
         {
-            var wholePart = a._whole - b._whole;
+            var wholePart = checked(a._whole - b._whole);
 
             var numerator =
                 (long)a._numerator * b.EffectiveDenominator
@@ -225,7 +225,7 @@ namespace KaedePhi.Core.Common
             if (numerator < 0)
             {
                 var borrowCount = (-numerator + denominator - 1) / denominator;
-                wholePart -= (int)borrowCount;
+                wholePart = checked(wholePart - (int)borrowCount);
                 numerator += borrowCount * denominator;
             }
 

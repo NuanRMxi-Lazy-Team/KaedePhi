@@ -306,7 +306,7 @@ public static class ChartFormatRegistry
         {
             if (write.DryRun)
             {
-                await using var stream = new MemoryStream();
+                await using var stream = Stream.Null;
                 await serializeStream(stream);
             }
             else

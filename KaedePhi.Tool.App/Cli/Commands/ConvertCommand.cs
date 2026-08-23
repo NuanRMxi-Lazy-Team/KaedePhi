@@ -21,7 +21,6 @@ public static partial class ConvertCommand
     private static readonly Option<double> PrecisionOpt = SharedOptions.PrecisionOption;
     private static readonly Option<double> ToleranceOpt = SharedOptions.ToleranceOption;
     private static readonly Option<bool> ClassicOpt = SharedOptions.ClassicOption;
-    private static readonly Option<bool> NoCompressOpt = SharedOptions.NoCompressOption;
     private static readonly Option<bool> DryRunOpt = SharedOptions.DryRunOption;
     private static readonly Option<bool> StreamOpt = SharedOptions.StreamOutputOption;
     private static readonly Option<bool> FormatOpt = SharedOptions.FormatOutputOption;

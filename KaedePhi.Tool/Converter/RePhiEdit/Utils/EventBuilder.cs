@@ -161,7 +161,7 @@ public static class EventBuilder
         catch (PhiEdit.Utils.EasingConverter.EasingNotSupportedException)
         {
             return DoubleCutter
-                .CutEventToLinear(src, new Beat(1d))
+                .CutEventToLinear(src, 1d / options.UnsupportedEasingPrecision)
                 .ConvertAll(e => new RpeEvents.Event<float>
                 {
                     StartBeat = new Beat((int[])e.StartBeat),

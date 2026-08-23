@@ -696,6 +696,7 @@ internal sealed class AppController
             {
                 Precision = vm.UnbindPrecision,
                 Tolerance = vm.UnbindTolerance,
+                MergeTolerance = vm.UnbindMergeTolerance,
                 ClassicMode = vm.UnbindClassicMode,
                 Compress = vm.UnbindCompress,
             },

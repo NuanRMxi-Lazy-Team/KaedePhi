@@ -35,9 +35,23 @@ public sealed class ChartLogSink
     /// 将当前回调集合订阅到多个可记录日志对象。
     /// </summary>
     /// <param name="loggables">目标对象集合</param>
-    public void AttachToAll(params ILoggable[] loggables)
+    /// <returns>聚合订阅句柄，释放时统一取消订阅</returns>
+    public IDisposable AttachToAll(params ILoggable[] loggables)
     {
-        foreach (var loggable in loggables)
-            AttachTo(loggable);
+        var subscriptions = loggables.Select(AttachTo).ToArray();
+        return new CompositeSubscription(subscriptions);
+    }
+
+    private sealed class CompositeSubscription : IDisposable
+    {
+        private readonly IDisposable[] _subscriptions;
+
+        public CompositeSubscription(IDisposable[] subscriptions) => _subscriptions = subscriptions;
+
+        public void Dispose()
+        {
+            foreach (var subscription in _subscriptions)
+                subscription.Dispose();
+        }
     }
 }
