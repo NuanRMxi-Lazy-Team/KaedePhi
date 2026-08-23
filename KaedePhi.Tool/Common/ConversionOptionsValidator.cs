@@ -102,8 +102,14 @@ internal static class ConversionOptionsValidator
     public static void Validate(PhiChainToKpcConvertOptions options)
     {
         ArgumentNullException.ThrowIfNull(options);
-        if (options.UnsupportedEasingPrecision <= 0)
-            throw new ArgumentOutOfRangeException(nameof(options.UnsupportedEasingPrecision));
+        if (
+            options.UnsupportedEasingPrecision <= 0
+            || options.UnsupportedEasingPrecision > NumericParameterValidator.MaximumPrecision
+        )
+            throw new ArgumentOutOfRangeException(
+                nameof(options.UnsupportedEasingPrecision),
+                $"不支持的缓动切段精度必须是 1 到 {(int)NumericParameterValidator.MaximumPrecision} 之间的正整数。"
+            );
     }
 
     private static void ValidatePositive(double value, string name)

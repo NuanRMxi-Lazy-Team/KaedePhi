@@ -160,7 +160,7 @@ public static partial class RenderCommand
                     string.Format(CliLocalizationString.render_msg_done, files.Count, outputDir)
                 );
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             ConsoleWriter.Error(
                 string.Format(CliLocalizationString.render_err_render_failed, ex.Message)

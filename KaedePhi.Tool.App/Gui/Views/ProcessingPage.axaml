@@ -52,6 +52,11 @@
                     <TextBlock Text="{Binding StatusMessage}" FontSize="12" Opacity="0.6"
                                HorizontalAlignment="Center"/>
                 </StackPanel>
+
+                <!-- 取消当前处理 -->
+                <Button Content="{x:Static loc:GuiLocalizationString.btn_cancel}"
+                        Click="OnCancelClick" Padding="24,8" FontSize="14"
+                        HorizontalAlignment="Center"/>
             </StackPanel>
         </Border>
     </Grid>

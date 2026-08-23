@@ -104,12 +104,15 @@ public sealed class ProcessingViewModel : INotifyPropertyChanged
     public event Action? RequestReturnToTools;
     public event Action? RequestReturnToImport;
     public event Action? RequestGoToExport;
+    public event Action? RequestCancel;
 
     public void OnReturnToToolsClicked() => RequestReturnToTools?.Invoke();
 
     public void OnReturnToImportClicked() => RequestReturnToImport?.Invoke();
 
     public void OnGoToExportClicked() => RequestGoToExport?.Invoke();
+
+    public void OnCancelClicked() => RequestCancel?.Invoke();
 
     public void SetStep(int index, string detail = "")
     {

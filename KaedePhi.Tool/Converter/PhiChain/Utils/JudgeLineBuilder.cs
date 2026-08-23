@@ -11,6 +11,8 @@ namespace KaedePhi.Tool.Converter.PhiChain.Utils;
 /// </summary>
 public static class JudgeLineBuilder
 {
+    private const int MaximumDepth = 256;
+
     /// <summary>
     /// 将 PhiChain 树形线结构展开为 KPC 扁平判定线列表。
     /// </summary>
@@ -26,10 +28,16 @@ public static class JudgeLineBuilder
         List<Kpc.JudgeLine> result,
         ref int currentIndex,
         PhiChainToKpcConvertOptions options,
-        Action<string>? warn = null
+        Action<string>? warn = null,
+        CancellationToken ct = default,
+        int depth = 0
     )
     {
-        var kpcLine = ConvertLine(line, fatherIndex, currentIndex, options, warn);
+        ct.ThrowIfCancellationRequested();
+        if (depth > MaximumDepth)
+            throw new FormatException($"PhiChain 判定线嵌套深度超过安全上限 {MaximumDepth}。");
+
+        var kpcLine = ConvertLine(line, fatherIndex, currentIndex, options, warn, ct);
         result.Add(kpcLine);
 
         var currentIdx = currentIndex;
@@ -38,7 +46,7 @@ public static class JudgeLineBuilder
         // 递归处理子线
         foreach (var child in line.Children)
         {
-            FlattenLine(child, currentIdx, result, ref currentIndex, options, warn);
+            FlattenLine(child, currentIdx, result, ref currentIndex, options, warn, ct, depth + 1);
         }
     }
 
@@ -56,7 +64,8 @@ public static class JudgeLineBuilder
         int fatherIndex,
         int lineIndex,
         PhiChainToKpcConvertOptions options,
-        Action<string>? warn = null
+        Action<string>? warn = null,
+        CancellationToken ct = default
     )
     {
         var kpcLine = new Kpc.JudgeLine
@@ -70,13 +79,14 @@ public static class JudgeLineBuilder
         var allEvents = new List<LineEvent>();
         foreach (var evt in src.Events)
         {
+            ct.ThrowIfCancellationRequested();
             if (EasingConverter.NeedsLinearSlicing(evt.Value.Easing))
             {
                 warn?.Invoke(
                     $"PhiChain 的 {evt.Value.Easing.EasingType} 缓动在 KPC 中不支持，已切段为线性近似"
                 );
                 allEvents.AddRange(
-                    EventBuilder.SliceUnsupportedEasing(evt, options.UnsupportedEasingPrecision)
+                    EventBuilder.SliceUnsupportedEasing(evt, options.UnsupportedEasingPrecision, ct)
                 );
             }
             else
@@ -95,7 +105,7 @@ public static class JudgeLineBuilder
         if (src.CurveNoteTracks.Count > 0)
         {
             warn?.Invoke("PhiChain 的 CurveNoteTrack 将被展开为普通音符，曲线精度可能有损");
-            var expandedNotes = ExpandCurveNoteTracks(src);
+            var expandedNotes = ExpandCurveNoteTracks(src, ct);
             notes.AddRange(expandedNotes);
         }
 
@@ -108,8 +118,9 @@ public static class JudgeLineBuilder
     /// 展开所有 CurveNoteTrack 为普通音符。
     /// </summary>
     /// <param name="src">PhiChain 序列化线</param>
+    /// <param name="ct">取消令牌</param>
     /// <returns>展开后的音符列表</returns>
-    private static List<Kpc.Note> ExpandCurveNoteTracks(SerializedLine src)
+    private static List<Kpc.Note> ExpandCurveNoteTracks(SerializedLine src, CancellationToken ct)
     {
         var notes = new List<Kpc.Note>();
 
@@ -122,7 +133,7 @@ public static class JudgeLineBuilder
                 && track.To < src.Notes.Count
             let fromNote = src.Notes[track.From]
             let toNote = src.Notes[track.To]
-            select NoteBuilder.ExpandCurveNoteTrack(track, fromNote, toNote)
+            select NoteBuilder.ExpandCurveNoteTrack(track, fromNote, toNote, ct)
         )
             notes.AddRange(expanded);
         return notes;
@@ -138,11 +149,12 @@ public static class JudgeLineBuilder
     public static List<SerializedLine> BuildLineTree(
         List<Kpc.JudgeLine> kpcLines,
         KpcToPhiChainConvertOptions options,
-        Action<string>? warn = null
+        Action<string>? warn = null,
+        CancellationToken ct = default
     )
     {
         // 预处理：解绑 rotateWithFather 为 false 的子线
-        var processedLines = PreprocessLines(kpcLines, options);
+        var processedLines = PreprocessLines(kpcLines, options, ct);
 
         var result = new List<SerializedLine>();
         var childMap = new Dictionary<int, List<int>>();
@@ -163,7 +175,7 @@ public static class JudgeLineBuilder
         {
             if (processedLines[i].Father < 0)
             {
-                result.Add(BuildLineSubtree(processedLines, i, childMap, options, warn));
+                result.Add(BuildLineSubtree(processedLines, i, childMap, options, warn, ct));
             }
         }
 
@@ -175,7 +187,8 @@ public static class JudgeLineBuilder
     /// </summary>
     private static List<Kpc.JudgeLine> PreprocessLines(
         List<Kpc.JudgeLine> kpcLines,
-        KpcToPhiChainConvertOptions options
+        KpcToPhiChainConvertOptions options,
+        CancellationToken ct
     )
     {
         if (!options.UnbindNonRotatingChildren)
@@ -198,6 +211,7 @@ public static class JudgeLineBuilder
         var compressor = options.UnbindClassicMode ? new LayerProcessor() : null;
         foreach (var lineIndex in linesToUnbind)
         {
+            ct.ThrowIfCancellationRequested();
             Kpc.JudgeLine unboundLine;
             if (options.UnbindClassicMode)
             {
@@ -234,11 +248,17 @@ public static class JudgeLineBuilder
         int lineIndex,
         Dictionary<int, List<int>> childMap,
         KpcToPhiChainConvertOptions options,
-        Action<string>? warn = null
+        Action<string>? warn = null,
+        CancellationToken ct = default,
+        int depth = 0
     )
     {
+        ct.ThrowIfCancellationRequested();
+        if (depth > MaximumDepth)
+            throw new FormatException($"PhiChain 判定线嵌套深度超过安全上限 {MaximumDepth}。");
+
         var kpcLine = kpcLines[lineIndex];
-        var serializedLine = ConvertLineToPhiChain(kpcLine, options, warn);
+        var serializedLine = ConvertLineToPhiChain(kpcLine, options, warn, ct);
 
         // 递归处理子线
         if (!childMap.TryGetValue(lineIndex, out var children))
@@ -246,7 +266,7 @@ public static class JudgeLineBuilder
         foreach (var childIndex in children)
         {
             serializedLine.Children.Add(
-                BuildLineSubtree(kpcLines, childIndex, childMap, options, warn)
+                BuildLineSubtree(kpcLines, childIndex, childMap, options, warn, ct, depth + 1)
             );
         }
 
@@ -263,7 +283,8 @@ public static class JudgeLineBuilder
     private static SerializedLine ConvertLineToPhiChain(
         Kpc.JudgeLine src,
         KpcToPhiChainConvertOptions options,
-        Action<string>? warn = null
+        Action<string>? warn = null,
+        CancellationToken ct = default
     )
     {
         WarnIfUnsupportedLineFields(src, warn);
@@ -312,6 +333,7 @@ public static class JudgeLineBuilder
         // 警告音符字段丢失
         foreach (var note in src.Notes)
         {
+            ct.ThrowIfCancellationRequested();
             NoteBuilder.WarnIfUnsupportedNoteFields(note, warn);
         }
 

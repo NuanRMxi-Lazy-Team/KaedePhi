@@ -191,6 +191,16 @@ public sealed class GuiChartService
     }
 
     /// <summary>
+    /// 将处理并校验通过的谱面副本提交为当前谱面。
+    /// </summary>
+    /// <param name="chart">已处理且校验通过的谱面副本。</param>
+    public void CommitChart(Chart chart)
+    {
+        ArgumentNullException.ThrowIfNull(chart);
+        CurrentChart = chart;
+    }
+
+    /// <summary>
     /// 将 Serilog 日志接入工具层日志回调。
     /// </summary>
     private ChartLogSink CreateLogSink() =>

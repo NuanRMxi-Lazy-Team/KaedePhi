@@ -12,6 +12,8 @@ namespace KaedePhi.Tool.Converter.PhiChain.Utils;
 /// </summary>
 public static class EventBuilder
 {
+    private const int MaximumEasingSegments = 1_000_000;
+
     private static readonly EventCutter<double> DoubleCutter = new();
     private static readonly EventCutter<int> IntCutter = new();
     private static readonly EventCutter<float> FloatCutter = new();
@@ -485,7 +487,11 @@ public static class EventBuilder
     /// <param name="src">源事件</param>
     /// <param name="precision">每拍细分数量</param>
     /// <returns>切段后的事件列表</returns>
-    public static List<LineEvent> SliceUnsupportedEasing(LineEvent src, int precision)
+    public static List<LineEvent> SliceUnsupportedEasing(
+        LineEvent src,
+        int precision,
+        CancellationToken ct = default
+    )
     {
         if (src.Value.Type != PhichainEventValueType.Transition)
             return [src];
@@ -500,8 +506,13 @@ public static class EventBuilder
         if (totalBeats <= 0)
             return [src];
 
-        // 根据精度计算切段数量：事件长度（拍） * 每拍细分数量
-        var segments = (int)(totalBeats * precision);
+        // 用 long 计算切段数，避免 int 溢出；超过上限时显式失败
+        var segmentCount = (long)Math.Ceiling(totalBeats * precision);
+        if (segmentCount > MaximumEasingSegments)
+            throw new FormatException(
+                $"PhiChain 缓动切段数量 {segmentCount} 超过安全上限 {MaximumEasingSegments}。"
+            );
+        var segments = (int)segmentCount;
         if (segments <= 0)
             segments = 1;
 
@@ -512,6 +523,7 @@ public static class EventBuilder
 
         for (var i = 0; i < segments; i++)
         {
+            ct.ThrowIfCancellationRequested();
             var t1 = (double)i / segments;
             var t2 = (double)(i + 1) / segments;
 

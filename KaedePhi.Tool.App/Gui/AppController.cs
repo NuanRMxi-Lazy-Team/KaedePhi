@@ -61,6 +61,7 @@ internal sealed class AppController
         _settingsVm = new SettingsViewModel(config);
 
         WireEvents();
+        _window.Closing += (_, _) => _cts?.Cancel();
     }
 
     public void Initialize()
@@ -86,6 +87,7 @@ internal sealed class AppController
         _processingVm.RequestReturnToTools += NavigateToTool;
         _processingVm.RequestReturnToImport += OnReturnToImport;
         _processingVm.RequestGoToExport += NavigateToExport;
+        _processingVm.RequestCancel += OnCancelProcessing;
         _settingsVm.RequestReturnToTools += OnReturnFromSettings;
     }
 
@@ -270,6 +272,15 @@ internal sealed class AppController
         }
     }
 
+    private void OnCancelProcessing()
+    {
+        if (_cts is { IsCancellationRequested: false })
+        {
+            _cts.Cancel();
+            _log.Information(status_export_cancelled);
+        }
+    }
+
     private async Task LoadChartWithOptions(
         string filePath,
         bool useStream,
@@ -331,8 +342,11 @@ internal sealed class AppController
             var toolId = _toolVm.SelectedTool.ToolId;
             NavigateToProcessing();
 
-            // 直接使用内存中的 KPC 图表，无需加载和转换
-            var kpcChart = _chart.CurrentChart;
+            // 渲染为只读操作直接读取当前谱面；其余变更型工具在克隆副本上处理，
+            // 保证取消或异常时当前谱面不会被半处理污染
+            var currentChart = _chart.CurrentChart!;
+            var isRender = toolId == "render";
+            var kpcChart = isRender ? currentChart : currentChart.Clone();
 
             // 运行工具
             _processingVm.SetStep(0, string.Format(log_running_tool, toolId));
@@ -417,6 +431,13 @@ internal sealed class AppController
                 },
                 ct
             );
+
+            // 校验并提交：变更型工具完成后校验副本，通过后才替换当前谱面
+            if (!isRender)
+            {
+                KpcChartValidator.ValidateJudgeLineHierarchy(kpcChart.JudgeLineList);
+                _chart.CommitChart(kpcChart);
+            }
 
             _log.Information(log_tool_completed, toolId);
 

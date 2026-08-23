@@ -11,6 +11,9 @@ namespace KaedePhi.Tool.Converter.PhiChain.Utils;
 /// </summary>
 public static class NoteBuilder
 {
+    private const uint MaximumCurveDensity = 4096;
+    private const int MaximumExpandedNotes = 1_000_000;
+
     /// <summary>
     /// 将 PhiChain 音符转换为 KPC 音符。
     /// </summary>
@@ -110,13 +113,18 @@ public static class NoteBuilder
     public static List<Kpc.Note> ExpandCurveNoteTrack(
         CurveNoteTrack track,
         Note fromNote,
-        Note toNote
+        Note toNote,
+        CancellationToken ct = default
     )
     {
         var notes = new List<Kpc.Note>();
         var density = track.Density;
         if (density == 0)
             density = 16;
+        if (density > MaximumCurveDensity)
+            throw new FormatException(
+                $"PhiChain 曲线音符密度 {density} 超过安全上限 {MaximumCurveDensity}。"
+            );
 
         var startBeat = new Beat((int[])fromNote.Beat);
         var endBeat = new Beat((int[])toNote.Beat);
@@ -140,6 +148,12 @@ public static class NoteBuilder
         var i = 1;
         while (beat < endBeatVal)
         {
+            ct.ThrowIfCancellationRequested();
+            if (notes.Count >= MaximumExpandedNotes)
+                throw new FormatException(
+                    $"PhiChain 曲线音符展开数量超过安全上限 {MaximumExpandedNotes}。"
+                );
+
             var t = (beat - startBeatVal) / totalBeats;
             var easedT = ApplyCurve(t, track.Curve);
 

@@ -274,10 +274,20 @@ public static class ChartFormatRegistry
     }
 
     /// <summary>
-    /// 将弱类型选项转换为目标类型，类型不匹配或为空时回退到默认值。
+    /// 将弱类型选项转换为目标类型，为空时回退到默认值，类型不匹配时显式失败。
     /// </summary>
     private static TOptions Coerce<TOptions>(object? options, Func<TOptions> fallback)
-        where TOptions : class => options as TOptions ?? fallback();
+        where TOptions : class
+    {
+        if (options is null)
+            return fallback();
+        if (options is not TOptions typed)
+            throw new ArgumentException(
+                $"选项类型不匹配：期望 {typeof(TOptions).Name}，实际为 {options.GetType().Name}。",
+                nameof(options)
+            );
+        return typed;
+    }
 
     /// <summary>
     /// 按写入设置选择整体写入或流式写入。
