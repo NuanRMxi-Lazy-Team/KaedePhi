@@ -120,7 +120,7 @@ public sealed class ProcessingViewModel : INotifyPropertyChanged
             return;
         CurrentStep = Steps[index];
         StatusMessage = string.IsNullOrEmpty(detail) ? Steps[index] : detail;
-        Progress = (double)(index + 1) / Steps.Count * 100;
+        Progress = (double)index / Steps.Count * 100;
         if (index != 0)
             ToolProgressValue = 0;
     }
@@ -133,7 +133,10 @@ public sealed class ProcessingViewModel : INotifyPropertyChanged
             const int toolStepIndex = 0;
             var stepStart = (double)toolStepIndex / Steps.Count * 100;
             var stepEnd = (double)(toolStepIndex + 1) / Steps.Count * 100;
-            Progress = stepStart + Math.Clamp(overallProgress, 0, 1) * (stepEnd - stepStart);
+            var next = stepStart + Math.Clamp(overallProgress, 0, 1) * (stepEnd - stepStart);
+            // 单调递增，避免异步回调乱序导致进度回退
+            if (next > Progress)
+                Progress = next;
         }
         if (!string.IsNullOrEmpty(detail))
             StatusMessage = detail;

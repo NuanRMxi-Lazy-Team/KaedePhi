@@ -63,6 +63,34 @@ public static class KpcRenderValidator
         ValidateRangeOptions(options);
     }
 
+    /// <summary>
+    /// 校验单个事件层与渲染配置，并验证渲染位图尺寸的安全边界。
+    /// </summary>
+    /// <param name="layer">待渲染的事件层。</param>
+    /// <param name="options">渲染配置。</param>
+    /// <returns>无返回值。</returns>
+    public static void ValidateEventLayer(KpcEvents.EventLayer layer, KpcRenderOptions options)
+    {
+        ArgumentNullException.ThrowIfNull(layer);
+        ValidateOptions(options);
+
+        var totalBeats = GetLayerTotalBeats(layer);
+        ValidateTotalBeats(totalBeats);
+        var (width, height) = CalculateBitmapSize(options, totalBeats);
+        ValidateBitmapSize(width, height);
+    }
+
+    private static double GetLayerTotalBeats(KpcEvents.EventLayer layer)
+    {
+        var totalBeats = DefaultMinimumChartBeats;
+        totalBeats = UpdateMaximumEndBeat(totalBeats, layer.MoveXEvents);
+        totalBeats = UpdateMaximumEndBeat(totalBeats, layer.MoveYEvents);
+        totalBeats = UpdateMaximumEndBeat(totalBeats, layer.RotateEvents);
+        totalBeats = UpdateMaximumEndBeat(totalBeats, layer.AlphaEvents);
+        totalBeats = UpdateMaximumEndBeat(totalBeats, layer.SpeedEvents);
+        return totalBeats;
+    }
+
     private static void ValidateSamplingOptions(KpcRenderOptions options)
     {
         ValidateFinitePositiveAtMost(

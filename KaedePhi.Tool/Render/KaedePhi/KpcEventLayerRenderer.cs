@@ -47,7 +47,7 @@ public static class KpcEventLayerRenderer
     public static SKBitmap RenderEventLayer(EventLayer layer, KpcRenderOptions opts)
     {
         ArgumentNullException.ThrowIfNull(layer);
-        KpcRenderValidator.ValidateOptions(opts);
+        KpcRenderValidator.ValidateEventLayer(layer, opts);
         var channels = BuildChannels(layer, opts);
         var totalBeats = ComputeTotalBeats(layer);
         if (totalBeats <= 0)
@@ -498,19 +498,17 @@ public static class KpcEventLayerRenderer
 
                 canvas.Save();
                 canvas.ClipRect(SKRect.Create(channelX, yTop, opts.ChannelWidth, blockH));
-                canvas.DrawPath(
-                    BuildCurvePath(
-                        start,
-                        end,
-                        getValue,
-                        channelX,
-                        seg.RenderMin,
-                        seg.RenderMax,
-                        opts,
-                        totalHeight
-                    ),
-                    curvePaint
+                using var path = BuildCurvePath(
+                    start,
+                    end,
+                    getValue,
+                    channelX,
+                    seg.RenderMin,
+                    seg.RenderMax,
+                    opts,
+                    totalHeight
                 );
+                canvas.DrawPath(path, curvePaint);
                 canvas.Restore();
             }
         }

@@ -192,7 +192,7 @@ public sealed class SettingsViewModel : INotifyPropertyChanged
             return;
         }
 
-        var c = _config.Config;
+        var c = new AppConfig();
         c.MaxLogFiles = MaxLogFiles;
 
         c.Unbind.Precision = UnbindPrecision;
@@ -242,7 +242,7 @@ public sealed class SettingsViewModel : INotifyPropertyChanged
         c.Convert.MultiLayerMergeTolerance = ConvertMultiLayerMergeTolerance;
         c.Convert.MultiLayerMergeClassicMode = ConvertMultiLayerMergeClassicMode;
 
-        StatusText = _config.Save() ? settings_saved : settings_save_failed;
+        StatusText = _config.Commit(c) ? settings_saved : settings_save_failed;
     }
 
     public void OnResetClicked()

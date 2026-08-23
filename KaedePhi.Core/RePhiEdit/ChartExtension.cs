@@ -79,9 +79,10 @@ namespace KaedePhi.Core.RePhiEdit
         [PublicAPI]
         public string ExportToJson(bool format)
         {
-            Anticipation();
+            var clone = Clone();
+            clone.Anticipation();
             return JsonConvert.SerializeObject(
-                this,
+                clone,
                 format ? Formatting.Indented : Formatting.None
             );
         }
@@ -93,7 +94,8 @@ namespace KaedePhi.Core.RePhiEdit
         /// <param name="format">是否需要格式化</param>
         public void ExportToJsonStream(Stream stream, bool format)
         {
-            Anticipation();
+            var clone = Clone();
+            clone.Anticipation();
             using var streamWriter = new StreamWriter(
                 stream,
                 JsonDefaults.NoBomUtf8,
@@ -105,7 +107,7 @@ namespace KaedePhi.Core.RePhiEdit
             );
 
             using var jsonWriter = new JsonTextWriter(streamWriter) { CloseOutput = false };
-            serializer.Serialize(jsonWriter, this);
+            serializer.Serialize(jsonWriter, clone);
             jsonWriter.Flush();
             streamWriter.Flush();
         }
@@ -117,7 +119,8 @@ namespace KaedePhi.Core.RePhiEdit
         /// <param name="format">是否需要格式化</param>
         public async Task ExportToJsonStreamAsync(Stream stream, bool format)
         {
-            Anticipation();
+            var clone = Clone();
+            clone.Anticipation();
             await using var streamWriter = new StreamWriter(
                 stream,
                 JsonDefaults.NoBomUtf8,
@@ -131,7 +134,7 @@ namespace KaedePhi.Core.RePhiEdit
             await Task.Run(() =>
             {
                 using var jsonWriter = new JsonTextWriter(streamWriter) { CloseOutput = false };
-                serializer.Serialize(jsonWriter, this);
+                serializer.Serialize(jsonWriter, clone);
                 jsonWriter.Flush();
             });
 

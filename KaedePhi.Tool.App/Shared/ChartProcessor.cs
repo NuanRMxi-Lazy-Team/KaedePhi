@@ -54,7 +54,7 @@ public static class ChartProcessor
                 ? null
                 : new Progress<ToolProgress>(p =>
                 {
-                    var overall = (double)capturedIdx / totalLines;
+                    var overall = (capturedIdx + p.Percentage) / totalLines;
                     progress.Report(new ToolProgress(p.Percentage, overall, p.Detail));
                 });
             var unboundLine = classic
@@ -116,7 +116,7 @@ public static class ChartProcessor
                 ? null
                 : new Progress<ToolProgress>(p =>
                 {
-                    var overall = (double)capturedLi / totalLines;
+                    var overall = (capturedLi + p.Percentage) / totalLines;
                     progress.Report(new ToolProgress(p.Percentage, overall, p.Detail));
                 });
             var merged = classic
@@ -167,7 +167,7 @@ public static class ChartProcessor
                 ? null
                 : new Progress<ToolProgress>(p =>
                 {
-                    var overall = (double)capturedLi / totalLines;
+                    var overall = (capturedLi + p.Percentage) / totalLines;
                     progress.Report(new ToolProgress(p.Percentage, overall, p.Detail));
                 });
             line.EventLayers = processor.CutLayerEvents(line.EventLayers, precision, lineProgress);

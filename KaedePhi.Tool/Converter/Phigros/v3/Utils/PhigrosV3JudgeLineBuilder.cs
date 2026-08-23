@@ -90,24 +90,26 @@ public class PhigrosV3JudgeLineBuilder
         )
             return null;
 
-        var preprocessedSrc = src;
+        // 在克隆上预处理，避免原地修改调用方传入的判定线
+        var preprocessedSrc = src.Clone();
         if (preprocessedSrc.Father != -1)
         {
             if (_timeMapper is not null)
                 ValidateFatherBpmFactors(src, allLine);
             Warn($"PhigrosV3 不支持 JudgeLine.Father（值={src.Father}），将自动解除父子绑定");
+            var srcIndex = allLine.FindIndex(l => ReferenceEquals(l, src));
             var unbinder = new JudgeLineUnbinder();
             if (_options.FatherLineUnbind.ClassicMode)
             {
                 preprocessedSrc = unbinder.FatherUnbind(
-                    allLine.FindIndex(l => ReferenceEquals(l, src)),
+                    srcIndex,
                     allLine,
                     _options.FatherLineUnbind.Precision
                 );
             }
             else
                 preprocessedSrc = unbinder.FatherUnbindDynamic(
-                    allLine.FindIndex(l => ReferenceEquals(l, src)),
+                    srcIndex,
                     allLine,
                     _options.FatherLineUnbind.Precision,
                     _options.FatherLineUnbind.Tolerance,

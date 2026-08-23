@@ -33,9 +33,9 @@ public class LayerProcessor : LoggableBase, ILayerProcessor<EventLayer>
         IProgress<ToolProgress>? progress = null
     )
     {
-        layers.RemoveAll(layer => (object?)layer is null);
+        layers = [.. layers.Where(layer => (object?)layer is not null)];
         if (layers.Count <= 1)
-            return layers.FirstOrDefault() ?? new EventLayer();
+            return layers.FirstOrDefault()?.Clone() ?? new EventLayer();
         layers = RemoveUnlessLayer(layers) ?? layers;
 
         var mergedLayer = new EventLayer();
@@ -89,9 +89,9 @@ public class LayerProcessor : LoggableBase, ILayerProcessor<EventLayer>
         IProgress<ToolProgress>? progress = null
     )
     {
-        layers.RemoveAll(layer => (object?)layer is null);
+        layers = [.. layers.Where(layer => (object?)layer is not null)];
         if (layers.Count <= 1)
-            return layers.FirstOrDefault() ?? new EventLayer();
+            return layers.FirstOrDefault()?.Clone() ?? new EventLayer();
         layers = RemoveUnlessLayer(layers) ?? layers;
 
         var mergedLayer = new EventLayer();
@@ -212,7 +212,7 @@ public class LayerProcessor : LoggableBase, ILayerProcessor<EventLayer>
         IProgress<ToolProgress>? progress = null
     )
     {
-        layers.RemoveAll(layer => (object?)layer is null);
+        layers = [.. layers.Where(layer => (object?)layer is not null)];
         layers = RemoveUnlessLayer(layers) ?? layers;
         var result = new List<EventLayer>(layers.Count);
         for (var i = 0; i < layers.Count; i++)

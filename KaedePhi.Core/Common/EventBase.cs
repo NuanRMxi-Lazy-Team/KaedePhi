@@ -38,16 +38,14 @@ namespace KaedePhi.Core.Common
         /// </summary>
         [DisallowNull]
         [NotNull]
-        // ReSharper disable once NullableWarningSuppressionIsUsed
-        public T StartValue { get; set; } = default!;
+        public T StartValue { get; set; } = CreateDefaultValue();
 
         /// <summary>
         /// 事件结束数值
         /// </summary>
         [DisallowNull]
         [NotNull]
-        // ReSharper disable once NullableWarningSuppressionIsUsed
-        public T EndValue { get; set; } = default!;
+        public T EndValue { get; set; } = CreateDefaultValue();
 
         /// <summary>
         /// 事件开始拍
@@ -66,6 +64,14 @@ namespace KaedePhi.Core.Common
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected static TTo Cast<TFrom, TTo>(TFrom value) => Unsafe.As<TFrom, TTo>(ref value);
+
+        /// <summary>
+        /// 为引用类型 T（byte[]）提供非空默认值，避免非空契约暴露运行时 null。
+        /// </summary>
+        private static T CreateDefaultValue() =>
+            typeof(T) == typeof(byte[])
+                ? (T)(object)Array.Empty<byte>()
+                : default!;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private float GetValueAsSingle(T value)

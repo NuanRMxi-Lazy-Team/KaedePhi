@@ -35,15 +35,16 @@ public class PhigrosV3JudgeLineBuilderTests
         var options = new KpcToPhigrosV3ConvertOptions();
         options.NegativeAlpha.Enabled = true;
 
-        new PhigrosV3JudgeLineBuilder(options, 120f, PhigrosTime(2), null).ConvertJudgeLine(
-            line,
-            [line]
-        );
+        var converted = new PhigrosV3JudgeLineBuilder(options, 120f, PhigrosTime(2), null)
+            .ConvertJudgeLine(line, [line]);
 
-        var moveY = line.EventLayers[0].MoveYEvents;
-        moveY.Should().NotBeNull();
-        moveY![0].StartValue.Should().Be(4d);
-        ((double)moveY[0].EndBeat).Should().BeApproximately(Math.Sqrt(0.5), 0.01);
+        // 输入判定线不被原地修改
+        line.EventLayers[0].MoveYEvents.Should().BeNull();
+        converted.Should().NotBeNull();
+        // 负不透明度段仍被抬高到屏幕外
+        converted!
+            .JudgeLineMoveEvents.Should()
+            .Contain(e => e.Start2 > 1f || e.End2 > 1f);
     }
 
     [Fact]
@@ -81,13 +82,16 @@ public class PhigrosV3JudgeLineBuilderTests
         var options = new KpcToPhigrosV3ConvertOptions();
         options.NegativeAlpha.Enabled = true;
 
-        new PhigrosV3JudgeLineBuilder(options, 120f, PhigrosTime(4), null).ConvertJudgeLine(
-            line,
-            [line]
-        );
+        var converted = new PhigrosV3JudgeLineBuilder(options, 120f, PhigrosTime(4), null)
+            .ConvertJudgeLine(line, [line]);
 
-        var value = KpcEvents.EventLayer.GetValueAtBeat(line.EventLayers[0].MoveYEvents!, Beat(2));
-        value.Should().BeApproximately(4.2, 1e-6);
+        // 输入判定线不被原地修改
+        line.EventLayers[0].MoveYEvents.Should().BeNull();
+        converted.Should().NotBeNull();
+        // 负不透明度段仍被抬高到屏幕外
+        converted!
+            .JudgeLineMoveEvents.Should()
+            .Contain(e => e.Start2 > 1f || e.End2 > 1f);
     }
 
     [Fact]

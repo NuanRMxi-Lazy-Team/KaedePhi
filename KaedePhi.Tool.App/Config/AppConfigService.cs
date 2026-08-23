@@ -87,8 +87,20 @@ public sealed class AppConfigService
     /// </summary>
     public bool ResetToDefaults()
     {
-        Config = new AppConfig();
-        return Save();
+        return Commit(new AppConfig());
+    }
+
+    /// <summary>
+    /// 校验并写入候选配置，仅在成功后将其提交为当前内存配置。
+    /// </summary>
+    /// <param name="candidate">待校验并提交的候选配置。</param>
+    public bool Commit(AppConfig candidate)
+    {
+        ArgumentNullException.ThrowIfNull(candidate);
+        if (!Save(candidate))
+            return false;
+        Config = candidate;
+        return true;
     }
 
     private bool Save(AppConfig config)

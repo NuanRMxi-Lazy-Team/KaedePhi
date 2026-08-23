@@ -11,6 +11,7 @@ namespace KaedePhi.Tool.App;
 
 internal static partial class Program
 {
+    [STAThread]
     public static async Task<int> Main(string[] args)
     {
         if (args.Contains("--gui"))
@@ -34,15 +35,8 @@ internal static partial class Program
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             FreeConsole();
 #endif
-        var guiThread = new Thread(() =>
-        {
-            BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
-        });
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            guiThread.SetApartmentState(ApartmentState.STA);
-        guiThread.Start();
-        guiThread.Join();
-        return 0;
+        // 在主线程启动 Avalonia，满足 Windows STA 与 macOS 主线程亲和性，并保留生命周期退出码
+        return BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
     }
 
     [LibraryImport("kernel32.dll")]
