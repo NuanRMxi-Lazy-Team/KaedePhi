@@ -48,7 +48,6 @@ public sealed class ChartPipelineSource
     {
         _ct.ThrowIfCancellationRequested();
         var normalized = KpcChartNormalizer.NormalizeAndValidateNoteEndBeats(_kpc);
-        KpcChartValidator.ValidateJudgeLineHierarchy(normalized.JudgeLineList);
         return toConverter.FromKpc(normalized, outOptions);
     }
 }

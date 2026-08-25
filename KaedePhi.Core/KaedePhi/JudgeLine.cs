@@ -193,11 +193,27 @@ namespace KaedePhi.Core.KaedePhi
                 YControls = new List<Controls.YControl>(),
             };
 
-            // 深拷贝列表
-            foreach (var eventLayer in EventLayers)
-                clone.EventLayers.Add(eventLayer.Clone());
-            foreach (var note in Notes)
-                clone.Notes.Add(note.Clone());
+            // 深拷贝列表；空集合视为正常谱面，跳过空元素
+            if (EventLayers is not null)
+            {
+                foreach (var eventLayer in EventLayers)
+                {
+                    if (eventLayer is null)
+                        continue;
+                    clone.EventLayers.Add(eventLayer.Clone());
+                }
+            }
+
+            if (Notes is not null)
+            {
+                foreach (var note in Notes)
+                {
+                    if (note is null)
+                        continue;
+                    clone.Notes.Add(note.Clone());
+                }
+            }
+
             foreach (var control in PositionControls)
                 clone.PositionControls.Add((Controls.XControl)control.Clone());
             foreach (var control in AlphaControls)

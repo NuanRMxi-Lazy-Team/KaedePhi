@@ -4,7 +4,7 @@ using KaedePhi.Tool.Render.KaedePhi;
 namespace KaedePhi.Tool.Common;
 
 /// <summary>
-/// 校验 KPC 谱面渲染输入和位图安全边界。
+/// 校验渲染配置、目标索引和位图安全边界。
 /// </summary>
 public static class KpcRenderValidator
 {
@@ -24,7 +24,7 @@ public static class KpcRenderValidator
     public const long MaximumRenderPixels = 200_000_000L;
 
     /// <summary>
-    /// 校验谱面、渲染配置、索引和最终位图尺寸。
+    /// 校验渲染配置、索引和最终位图尺寸。
     /// </summary>
     /// <param name="chart">待渲染谱面。</param>
     /// <param name="options">渲染配置。</param>
@@ -39,8 +39,6 @@ public static class KpcRenderValidator
     )
     {
         ArgumentNullException.ThrowIfNull(chart);
-        KpcChartValidator.ValidateBpmAndBpmFactors(chart);
-        KpcChartValidator.ValidateJudgeLineHierarchy(chart.JudgeLineList);
         ValidateOptions(options);
         ValidateSelectedIndexes(chart, lineIndex, layerIndex);
 
@@ -148,7 +146,8 @@ public static class KpcRenderValidator
 
     private static void ValidateSelectedIndexes(Chart chart, int? lineIndex, int? layerIndex)
     {
-        if (lineIndex is < 0 || lineIndex >= chart.JudgeLineList.Count)
+        var judgeLines = chart.JudgeLineList ?? [];
+        if (lineIndex is < 0 || lineIndex >= judgeLines.Count)
             throw new ArgumentOutOfRangeException(nameof(lineIndex));
         if (layerIndex is not null && lineIndex is null)
             throw new ArgumentException(
@@ -156,7 +155,7 @@ public static class KpcRenderValidator
                 nameof(layerIndex)
             );
         if (lineIndex is not null && layerIndex is not null)
-            ValidateLayerIndex(chart.JudgeLineList[lineIndex.Value], layerIndex.Value);
+            ValidateLayerIndex(judgeLines[lineIndex.Value], layerIndex.Value);
     }
 
     private static void ValidateLayerIndex(JudgeLine line, int layerIndex)
@@ -168,13 +167,20 @@ public static class KpcRenderValidator
     private static double GetTotalBeats(Chart chart)
     {
         var totalBeats = DefaultMinimumChartBeats;
-        foreach (var layer in chart.JudgeLineList.SelectMany(line => line.EventLayers))
+        foreach (var line in chart.JudgeLineList)
         {
-            totalBeats = UpdateMaximumEndBeat(totalBeats, layer.MoveXEvents);
-            totalBeats = UpdateMaximumEndBeat(totalBeats, layer.MoveYEvents);
-            totalBeats = UpdateMaximumEndBeat(totalBeats, layer.RotateEvents);
-            totalBeats = UpdateMaximumEndBeat(totalBeats, layer.AlphaEvents);
-            totalBeats = UpdateMaximumEndBeat(totalBeats, layer.SpeedEvents);
+            if (line is null || line.EventLayers is null)
+                continue;
+            foreach (var layer in line.EventLayers)
+            {
+                if (layer is null)
+                    continue;
+                totalBeats = UpdateMaximumEndBeat(totalBeats, layer.MoveXEvents);
+                totalBeats = UpdateMaximumEndBeat(totalBeats, layer.MoveYEvents);
+                totalBeats = UpdateMaximumEndBeat(totalBeats, layer.RotateEvents);
+                totalBeats = UpdateMaximumEndBeat(totalBeats, layer.AlphaEvents);
+                totalBeats = UpdateMaximumEndBeat(totalBeats, layer.SpeedEvents);
+            }
         }
 
         return totalBeats;

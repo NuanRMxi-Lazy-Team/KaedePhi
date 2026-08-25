@@ -58,9 +58,6 @@ public class PhiChainConverter
             );
         }
 
-        // 校验展开后的谱面规模，防止曲线展开与缓动切段产出超量事件/音符
-        KpcChartValidator.ValidateJudgeLineHierarchy(kpcChart.JudgeLineList);
-
         return KpcChartNormalizer.NormalizeAndValidateNoteEndBeats(kpcChart);
     }
 
@@ -85,7 +82,12 @@ public class PhiChainConverter
             Offset = normalized.Meta.Offset, // PhiChain 和 KPC 的 offset 单位均为毫秒
             BpmList = new BpmList(normalized.BpmList.ConvertAll(BpmBuilder.ConvertBpmItem)),
             // 构建父子关系树
-            Lines = JudgeLineBuilder.BuildLineTree(normalized.JudgeLineList, options, OnWarning, _ct),
+            Lines = JudgeLineBuilder.BuildLineTree(
+                normalized.JudgeLineList,
+                options,
+                OnWarning,
+                _ct
+            ),
         };
 
         return chart;

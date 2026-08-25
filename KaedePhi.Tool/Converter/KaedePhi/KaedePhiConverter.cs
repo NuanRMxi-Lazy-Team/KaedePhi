@@ -27,7 +27,6 @@ public class KaedePhiConverter : LoggableBase, IChartConverter<Kpc.Chart, Unit?,
     public Kpc.Chart FromKpc(Kpc.Chart input, Unit? options)
     {
         var normalized = KpcChartNormalizer.NormalizeAndValidateNoteEndBeats(input);
-        KpcChartValidator.ValidateJudgeLineHierarchy(normalized.JudgeLineList);
         return normalized;
     }
 }

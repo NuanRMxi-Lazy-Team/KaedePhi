@@ -35,7 +35,13 @@ public class KpcChartRenderExporter : LoggableBase, IChartRenderExporter<Chart, 
             if (li >= chart.JudgeLineList.Count)
                 break;
             var line = chart.JudgeLineList[li];
-            var layers = line.EventLayers;
+            if (line is null)
+            {
+                completedLines++;
+                continue;
+            }
+
+            var layers = line.EventLayers ?? [];
             if (layers.Count == 0)
             {
                 completedLines++;
@@ -45,16 +51,16 @@ public class KpcChartRenderExporter : LoggableBase, IChartRenderExporter<Chart, 
             var safeName = SanitizeFileName(line.Name);
 
             var layerStart = layerIndex ?? 0;
-            var layerEnd = layerIndex.HasValue ? layerIndex.Value + 1 : line.EventLayers.Count;
+            var layerEnd = layerIndex.HasValue ? layerIndex.Value + 1 : layers.Count;
             var totalLayers = layerEnd - layerStart;
             var completedLayers = 0;
 
             for (var ei = layerStart; ei < layerEnd; ei++)
             {
                 ct.ThrowIfCancellationRequested();
-                if (ei >= line.EventLayers.Count)
+                if (ei >= layers.Count)
                     break;
-                var eventLayer = line.EventLayers[ei];
+                var eventLayer = layers[ei];
                 if ((object?)eventLayer is null)
                 {
                     completedLayers++;
@@ -108,6 +114,7 @@ public class KpcChartRenderExporter : LoggableBase, IChartRenderExporter<Chart, 
                 data.SaveTo(stream);
                 stream.Flush(true);
             }
+
             ct.ThrowIfCancellationRequested();
             File.Move(temporaryPath, filePath, true);
         }

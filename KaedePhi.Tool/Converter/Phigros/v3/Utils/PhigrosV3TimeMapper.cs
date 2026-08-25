@@ -15,9 +15,6 @@ internal sealed class PhigrosV3TimeMapper
 
     public PhigrosV3TimeMapper(IReadOnlyList<KpcBpmItem> bpmList)
     {
-        if (bpmList is not { Count: > 0 })
-            throw new ArgumentException("BPM 列表不能为空。", nameof(bpmList));
-
         if (bpmList.Any(item => item is null))
             throw new FormatException("谱面 BPM 列表包含空节点。");
 

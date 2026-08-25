@@ -66,13 +66,13 @@ public class ValidationComponentTests
     }
 
     [Fact]
-    public void NormalizeAndValidateNoteEndBeats_RejectsNegativeBpmStartBeat()
+    public void NormalizeAndValidateNoteEndBeats_AllowsNegativeBpmStartBeat()
     {
         var chart = new Chart { BpmList = [new BpmItem { StartBeat = new Beat(-1), Bpm = 120f }] };
 
         Action act = () => KpcChartNormalizer.NormalizeAndValidateNoteEndBeats(chart);
 
-        act.Should().Throw<FormatException>().WithMessage("*BPM*0*起始拍*");
+        act.Should().NotThrow();
     }
 
     [Theory]
@@ -94,44 +94,26 @@ public class ValidationComponentTests
     }
 
     [Theory]
-    [InlineData("Notes", "*空的判定线或事件集合*")]
-    [InlineData("EventLayers", "*空的判定线或事件集合*")]
-    [InlineData("Layer", "*空的事件层*")]
-    public void NormalizeAndValidateNoteEndBeats_RejectsMalformedStructureWithFormatException(
-        string malformedMember,
-        string expectedMessage
-    )
+    [InlineData("Notes")]
+    [InlineData("EventLayers")]
+    [InlineData("Layer")]
+    public void NormalizeAndValidateNoteEndBeats_AllowsNullCollections(string malformedMember)
     {
         var chart = CreateChartWithMalformedStructure(malformedMember);
 
         Action act = () => KpcChartNormalizer.NormalizeAndValidateNoteEndBeats(chart);
 
-        act.Should().Throw<FormatException>().WithMessage(expectedMessage);
+        act.Should().NotThrow();
     }
 
     [Fact]
-    public void KaedePhiConverter_FromKpcRejectsMalformedStructureWithFormatException()
+    public void KaedePhiConverter_FromKpcAllowsNullCollections()
     {
         var chart = CreateChartWithMalformedStructure("Notes");
 
         Action act = () => new KaedePhiConverter().FromKpc(chart, null);
 
-        act.Should().Throw<FormatException>().WithMessage("*空的判定线或事件集合*");
-    }
-
-    [Theory]
-    [InlineData(float.NaN)]
-    [InlineData(float.PositiveInfinity)]
-    [InlineData(float.NegativeInfinity)]
-    public void ValidateRender_RejectsNonFiniteBpmFactorAtProcessingBoundary(float bpmFactor)
-    {
-        var line = new JudgeLine();
-        SetBpmFactorBypassingValidation(line, bpmFactor);
-        var chart = new Chart { JudgeLineList = [line] };
-
-        Action act = () => KpcRenderValidator.Validate(chart, new KpcRenderOptions());
-
-        act.Should().Throw<FormatException>().WithMessage("*判定线 0*BPM*");
+        act.Should().NotThrow();
     }
 
     [Theory]

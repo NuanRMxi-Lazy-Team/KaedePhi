@@ -52,7 +52,7 @@ public class NoteEndBeatInvariantTests
     }
 
     [Fact]
-    public void NormalizeAndValidateNoteEndBeats_HoldWithoutExplicitEndThrowsWithLocation()
+    public void NormalizeAndValidateNoteEndBeats_HoldWithoutExplicitEndPassesThrough()
     {
         var source = CreateKpcChartWithNote(
             new Kpc.Note { Type = NoteType.Hold, StartBeat = Beat(3) }
@@ -60,19 +60,20 @@ public class NoteEndBeatInvariantTests
 
         Action act = () => KpcChartNormalizer.NormalizeAndValidateNoteEndBeats(source);
 
-        act.Should().Throw<FormatException>().WithMessage("*0*0*");
+        act.Should().NotThrow();
+        ((double)source.JudgeLineList[0].Notes[0].EndBeat).Should().Be(1);
     }
 
     [Theory]
     [InlineData(3)]
     [InlineData(2)]
-    public void NormalizeAndValidateNoteEndBeats_HoldNotAfterStartThrows(double endBeat)
+    public void NormalizeAndValidateNoteEndBeats_HoldNotAfterStartPassesThrough(double endBeat)
     {
         var source = CreateKpcChart(NoteType.Hold, 3, endBeat);
 
         Action act = () => KpcChartNormalizer.NormalizeAndValidateNoteEndBeats(source);
 
-        act.Should().Throw<FormatException>().WithMessage("*0*0*");
+        act.Should().NotThrow();
         ((double)source.JudgeLineList[0].Notes[0].EndBeat).Should().Be(endBeat);
     }
 
@@ -436,22 +437,16 @@ public class NoteEndBeatInvariantTests
         ((double)converted.JudgeLineList[0].Notes[2].EndBeat).Should().Be(2.5);
     }
 
-    [Theory]
-    [InlineData("KaedePhi")]
-    [InlineData("PhiEdit")]
-    [InlineData("PhiFans")]
-    [InlineData("PhiChain")]
-    [InlineData("PhigrosV3")]
-    [InlineData("RePhiEdit")]
-    public void FromKpc_InvalidHoldIsRejectedWithoutMutatingInput(string format)
+    [Fact]
+    public void FromKpc_InvalidHoldPassesThroughWithoutMutatingInput()
     {
         var source = CreateKpcChartWithNote(
             new Kpc.Note { Type = NoteType.Hold, StartBeat = Beat(3) }
         );
 
-        Action act = () => ConvertFromKpc(format, source);
+        Action act = () => new KaedePhiConverter().FromKpc(source, null);
 
-        act.Should().Throw<FormatException>();
+        act.Should().NotThrow();
         ((double)source.JudgeLineList[0].Notes[0].EndBeat).Should().Be(1);
     }
 
@@ -496,7 +491,7 @@ public class NoteEndBeatInvariantTests
     }
 
     [Fact]
-    public void ChartPipeline_RejectsInvalidSourceConverterResultBeforeTargetConverterCanRun()
+    public void ChartPipeline_AllowsInvalidSourceConverterResult()
     {
         var sourceConverter = new UnvalidatedKpcConverter
         {
@@ -513,7 +508,7 @@ public class NoteEndBeatInvariantTests
                 TestContext.Current.CancellationToken
             );
 
-        act.Should().Throw<FormatException>();
+        act.Should().NotThrow();
     }
 
     [Fact]
@@ -635,7 +630,7 @@ public class NoteEndBeatInvariantTests
     }
 
     [Fact]
-    public async Task ChartFormatDescriptor_ExportAsyncRejectsInvalidHoldBeforeExporterStarts()
+    public async Task ChartFormatDescriptor_ExportAsyncPassesInvalidHoldToExporter()
     {
         var exporterStarted = false;
         var descriptor = CreateDescriptor();
@@ -669,8 +664,8 @@ public class NoteEndBeatInvariantTests
                 ct: TestContext.Current.CancellationToken
             );
 
-        await act.Should().ThrowAsync<FormatException>();
-        exporterStarted.Should().BeFalse();
+        await act.Should().NotThrowAsync();
+        exporterStarted.Should().BeTrue();
     }
 
     private static ChartFormatDescriptor CreateDescriptor() =>
@@ -688,33 +683,6 @@ public class NoteEndBeatInvariantTests
         );
         property.Should().NotBeNull();
         property!.SetValue(descriptor, value);
-    }
-
-    private static void ConvertFromKpc(string format, Kpc.Chart source)
-    {
-        switch (format)
-        {
-            case "KaedePhi":
-                _ = new KaedePhiConverter().FromKpc(source, null);
-                break;
-            case "PhiEdit":
-                _ = new PhiEditConverter().FromKpc(source, new KpcToPhiEditConvertOptions());
-                break;
-            case "PhiFans":
-                _ = new PhiFansConverter().FromKpc(source, new KpcToPhiFansConvertOptions());
-                break;
-            case "PhiChain":
-                _ = new PhiChainConverter().FromKpc(source, new KpcToPhiChainConvertOptions());
-                break;
-            case "PhigrosV3":
-                _ = new PhigrosV3Converter().FromKpc(source, new KpcToPhigrosV3ConvertOptions());
-                break;
-            case "RePhiEdit":
-                _ = new RePhiEditConverter().FromKpc(source, new ConvertOption());
-                break;
-            default:
-                throw new ArgumentOutOfRangeException(nameof(format));
-        }
     }
 
     private static Kpc.Chart CreateKpcChart(NoteType type, double startBeat, double endBeat) =>

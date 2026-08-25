@@ -20,11 +20,11 @@ namespace KaedePhi.Tests.Validation;
 public class ExportHierarchyValidationTests
 {
     [Fact]
-    public void KaedePhiConverter_FromKpcRejectsSelfReferencingJudgeLine()
+    public void KaedePhiConverter_FromKpcAllowsSelfReferencingJudgeLine()
     {
         Action act = () => new KaedePhiConverter().FromKpc(CreateSelfReferencingChart(), null);
 
-        act.Should().Throw<FormatException>();
+        act.Should().NotThrow();
     }
 
     [Fact]
@@ -85,7 +85,7 @@ public class ExportHierarchyValidationTests
     }
 
     [Fact]
-    public void ChartPipelineSource_ToRejectsSelfReferencingJudgeLineBeforeCallingConverter()
+    public void ChartPipelineSource_ToAllowsSelfReferencingJudgeLine()
     {
         var source = ChartPipeline.From<Kpc.Chart, Unit?, Unit?>(
             CreateSelfReferencingChart(),
@@ -96,11 +96,11 @@ public class ExportHierarchyValidationTests
 
         Action act = () => source.To<Kpc.Chart, Unit?, Unit?>(new UnvalidatedConverter(), null);
 
-        act.Should().Throw<FormatException>();
+        act.Should().NotThrow();
     }
 
     [Fact]
-    public async Task ChartFormatDescriptor_ExportAsyncRejectsSelfReferencingJudgeLineBeforeExporter()
+    public async Task ChartFormatDescriptor_ExportAsyncAllowsSelfReferencingJudgeLine()
     {
         var exporterStarted = false;
         var descriptor = new ChartFormatDescriptor
@@ -124,12 +124,12 @@ public class ExportHierarchyValidationTests
                 ct: TestContext.Current.CancellationToken
             );
 
-        await act.Should().ThrowAsync<FormatException>();
-        exporterStarted.Should().BeFalse();
+        await act.Should().NotThrowAsync();
+        exporterStarted.Should().BeTrue();
     }
 
     [Fact]
-    public void KpcChartRenderExporter_ExportChartRejectsSelfReferencingJudgeLine()
+    public void KpcChartRenderExporter_ExportChartAllowsSelfReferencingJudgeLine()
     {
         var outputDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
         try
@@ -141,7 +141,7 @@ public class ExportHierarchyValidationTests
                     new KpcRenderOptions()
                 );
 
-            act.Should().Throw<FormatException>();
+            act.Should().NotThrow();
         }
         finally
         {

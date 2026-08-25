@@ -94,8 +94,6 @@ public class PhigrosV3JudgeLineBuilder
         var preprocessedSrc = src.Clone();
         if (preprocessedSrc.Father != -1)
         {
-            if (_timeMapper is not null)
-                ValidateFatherBpmFactors(src, allLine);
             Warn($"PhigrosV3 不支持 JudgeLine.Father（值={src.Father}），将自动解除父子绑定");
             var srcIndex = allLine.FindIndex(l => ReferenceEquals(l, src));
             var unbinder = new JudgeLineUnbinder();
@@ -191,25 +189,6 @@ public class PhigrosV3JudgeLineBuilder
             )
         )
             Warn("PhigrosV3 不支持 Event.FloorPosition，将丢弃该字段并输出 0。");
-    }
-
-    private static void ValidateFatherBpmFactors(KpcJudgeLine src, List<KpcJudgeLine> allLines)
-    {
-        var lineIndex = allLines.FindIndex(line => ReferenceEquals(line, src));
-        if (lineIndex < 0)
-            throw new FormatException("待转换的判定线不属于当前谱面。");
-
-        for (
-            var fatherIndex = src.Father;
-            fatherIndex >= 0;
-            fatherIndex = allLines[fatherIndex].Father
-        )
-        {
-            if (allLines[fatherIndex].BpmFactor != src.BpmFactor)
-                throw new FormatException(
-                    $"PhigrosV3 无法解除判定线 {lineIndex} 与父线 {fatherIndex} 的绑定：BPM 因子不一致。"
-                );
-        }
     }
 
     private static bool HasFloorPosition<T>(List<KpcEvents.Event<T>>? events)

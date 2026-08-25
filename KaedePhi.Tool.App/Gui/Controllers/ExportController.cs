@@ -127,14 +127,15 @@ internal sealed class ExportController
                 var indented = exportVm.IndentedOutput;
 
                 await Task.Run(
-                    () => _chart.ExportChartAsync(
-                        targetFormat,
-                        outputPath,
-                        useStream,
-                        indented,
-                        exportOptions,
-                        ct
-                    ),
+                    () =>
+                        _chart.ExportChartAsync(
+                            targetFormat,
+                            outputPath,
+                            useStream,
+                            indented,
+                            exportOptions,
+                            ct
+                        ),
                     ct
                 );
 

@@ -35,16 +35,18 @@ public class PhigrosV3JudgeLineBuilderTests
         var options = new KpcToPhigrosV3ConvertOptions();
         options.NegativeAlpha.Enabled = true;
 
-        var converted = new PhigrosV3JudgeLineBuilder(options, 120f, PhigrosTime(2), null)
-            .ConvertJudgeLine(line, [line]);
+        var converted = new PhigrosV3JudgeLineBuilder(
+            options,
+            120f,
+            PhigrosTime(2),
+            null
+        ).ConvertJudgeLine(line, [line]);
 
         // 输入判定线不被原地修改
         line.EventLayers[0].MoveYEvents.Should().BeNull();
         converted.Should().NotBeNull();
         // 负不透明度段仍被抬高到屏幕外
-        converted!
-            .JudgeLineMoveEvents.Should()
-            .Contain(e => e.Start2 > 1f || e.End2 > 1f);
+        converted!.JudgeLineMoveEvents.Should().Contain(e => e.Start2 > 1f || e.End2 > 1f);
     }
 
     [Fact]
@@ -82,8 +84,12 @@ public class PhigrosV3JudgeLineBuilderTests
         var options = new KpcToPhigrosV3ConvertOptions();
         options.NegativeAlpha.Enabled = true;
 
-        var converted = new PhigrosV3JudgeLineBuilder(options, 120f, PhigrosTime(4), null)
-            .ConvertJudgeLine(line, [line]);
+        var converted = new PhigrosV3JudgeLineBuilder(
+            options,
+            120f,
+            PhigrosTime(4),
+            null
+        ).ConvertJudgeLine(line, [line]);
 
         // 输入判定线不被原地修改
         line.EventLayers[0].MoveYEvents.Should().ContainSingle();
@@ -91,9 +97,7 @@ public class PhigrosV3JudgeLineBuilderTests
         line.EventLayers[0].MoveYEvents![0].EndValue.Should().Be(0.2d);
         converted.Should().NotBeNull();
         // 负不透明度段仍被抬高到屏幕外
-        converted!
-            .JudgeLineMoveEvents.Should()
-            .Contain(e => e.Start2 > 1f || e.End2 > 1f);
+        converted!.JudgeLineMoveEvents.Should().Contain(e => e.Start2 > 1f || e.End2 > 1f);
     }
 
     [Fact]
@@ -530,7 +534,7 @@ public class PhigrosV3JudgeLineBuilderTests
     }
 
     [Fact]
-    public void FromKpc_WithBpmListAndAncestorFactorMismatch_RejectsParentUnbind()
+    public void FromKpc_WithBpmListAndAncestorFactorMismatch_AllowsParentUnbind()
     {
         var chart = new Chart
         {
@@ -562,7 +566,7 @@ public class PhigrosV3JudgeLineBuilderTests
                 new KpcToPhigrosV3ConvertOptions()
             );
 
-        act.Should().Throw<FormatException>().WithMessage("*判定线 2*父线 1*BPM 因子*");
+        act.Should().NotThrow();
     }
 
     [Fact]

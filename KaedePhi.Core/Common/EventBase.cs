@@ -69,9 +69,7 @@ namespace KaedePhi.Core.Common
         /// 为引用类型 T（byte[]）提供非空默认值，避免非空契约暴露运行时 null。
         /// </summary>
         private static T CreateDefaultValue() =>
-            typeof(T) == typeof(byte[])
-                ? (T)(object)Array.Empty<byte>()
-                : default!;
+            typeof(T) == typeof(byte[]) ? (T)(object)Array.Empty<byte>() : default!;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private float GetValueAsSingle(T value)

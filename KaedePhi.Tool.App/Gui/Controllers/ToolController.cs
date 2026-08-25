@@ -95,10 +95,7 @@ internal sealed class ToolController
                 var overall = p.OverallPercentage >= 0 ? p.OverallPercentage : p.Percentage;
                 processingVm.SetToolProgress(p.Percentage, overall, p.Detail);
             });
-            await Task.Run(
-                () => RunTool(toolId, kpcChart, toolProgress, ct),
-                ct
-            );
+            await Task.Run(() => RunTool(toolId, kpcChart, toolProgress, ct), ct);
 
             // 校验并提交：变更型工具完成后校验副本，通过后才替换当前谱面
             if (!isRender)
