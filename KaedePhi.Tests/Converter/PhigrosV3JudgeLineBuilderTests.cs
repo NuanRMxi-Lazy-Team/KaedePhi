@@ -86,7 +86,9 @@ public class PhigrosV3JudgeLineBuilderTests
             .ConvertJudgeLine(line, [line]);
 
         // 输入判定线不被原地修改
-        line.EventLayers[0].MoveYEvents.Should().BeNull();
+        line.EventLayers[0].MoveYEvents.Should().ContainSingle();
+        line.EventLayers[0].MoveYEvents![0].StartValue.Should().Be(0.2d);
+        line.EventLayers[0].MoveYEvents![0].EndValue.Should().Be(0.2d);
         converted.Should().NotBeNull();
         // 负不透明度段仍被抬高到屏幕外
         converted!
