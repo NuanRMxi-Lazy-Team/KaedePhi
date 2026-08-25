@@ -4,6 +4,17 @@ on:
   push:
     branches:
       - main
+    # 纯文本类变更（文档、许可证、IDE 设置等）不影响产物，跳过夜间构建
+    paths-ignore:
+      - '**/*.md'
+      - '**/*.txt'
+      - 'LICENSE'
+      - '**/LICENSE'
+      - '**/*.DotSettings'
+      - '**/*.DotSettings.user'
+      - '.gitignore'
+      - '.gitattributes'
+      - '.editorconfig'
   workflow_dispatch:
 
 permissions:

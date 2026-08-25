@@ -6,7 +6,20 @@ nightly-app-build:
   stage: build
   image: mcr.microsoft.com/dotnet/sdk:10.0.400
   rules:
+    # 纯文本类变更（文档、许可证、IDE 设置等）不影响产物，跳过夜间构建
     - if: $CI_COMMIT_BRANCH == "main" && $CI_PIPELINE_SOURCE == "push"
+      changes:
+        paths:
+          - '**/*'
+          - '!**/*.md'
+          - '!**/*.txt'
+          - '!LICENSE'
+          - '!**/LICENSE'
+          - '!**/*.DotSettings'
+          - '!**/*.DotSettings.user'
+          - '!.gitignore'
+          - '!.gitattributes'
+          - '!.editorconfig'
     - if: $CI_PIPELINE_SOURCE == "web"
       when: manual
   before_script:
@@ -53,7 +66,20 @@ nightly-app-installer:
     - job: nightly-app-build
       artifacts: true
   rules:
+    # 纯文本类变更（文档、许可证、IDE 设置等）不影响产物，跳过夜间构建
     - if: $CI_COMMIT_BRANCH == "main" && $CI_PIPELINE_SOURCE == "push"
+      changes:
+        paths:
+          - '**/*'
+          - '!**/*.md'
+          - '!**/*.txt'
+          - '!LICENSE'
+          - '!**/LICENSE'
+          - '!**/*.DotSettings'
+          - '!**/*.DotSettings.user'
+          - '!.gitignore'
+          - '!.gitattributes'
+          - '!.editorconfig'
     - if: $CI_PIPELINE_SOURCE == "web"
       when: manual
   script:

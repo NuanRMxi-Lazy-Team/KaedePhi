@@ -6,7 +6,7 @@
     <LangVersion>latest</LangVersion>
 
     <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
-    <NoWarn>RS1038;RS2008</NoWarn>
+    <NoWarn>RS1038;RS2008;RS1033</NoWarn>
     <IsRoslynComponent>true</IsRoslynComponent>
 
     <RootNamespace>KaedePhi.Core.Analyzers</RootNamespace>
