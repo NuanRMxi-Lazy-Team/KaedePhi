@@ -22,10 +22,10 @@
                                 <Style.Animations>
                                     <Animation Duration="0:0:1" IterationCount="Infinite">
                                         <KeyFrame Cue="0%">
-                                            <Setter Property="RotateTransform.Angle" Value="0"/>
+                                            <Setter Property="RotateTransform.Angle" Value="0" />
                                         </KeyFrame>
                                         <KeyFrame Cue="100%">
-                                            <Setter Property="RotateTransform.Angle" Value="360"/>
+                                            <Setter Property="RotateTransform.Angle" Value="360" />
                                         </KeyFrame>
                                     </Animation>
                                 </Style.Animations>
@@ -34,29 +34,29 @@
                     </TextBlock>
                     <TextBlock Text="{x:Static loc:GuiLocalizationString.processing_title}"
                                FontSize="20" FontWeight="SemiBold"
-                               VerticalAlignment="Center"/>
+                               VerticalAlignment="Center" />
                 </StackPanel>
 
                 <!-- 进度条 -->
                 <ProgressBar Value="{Binding Progress}" Maximum="100" Height="6"
-                             CornerRadius="3"/>
+                             CornerRadius="3" />
 
                 <!-- 工具子进度条 -->
                 <ProgressBar Value="{Binding ToolProgressValue}" Maximum="100" Height="3"
-                             CornerRadius="1" Opacity="0.7"/>
+                             CornerRadius="1" Opacity="0.7" />
 
                 <!-- 当前步骤 -->
                 <StackPanel Spacing="4" HorizontalAlignment="Center">
                     <TextBlock Text="{Binding CurrentStep}" FontWeight="SemiBold" FontSize="14"
-                               HorizontalAlignment="Center"/>
+                               HorizontalAlignment="Center" />
                     <TextBlock Text="{Binding StatusMessage}" FontSize="12" Opacity="0.6"
-                               HorizontalAlignment="Center"/>
+                               HorizontalAlignment="Center" />
                 </StackPanel>
 
                 <!-- 取消当前处理 -->
                 <Button Content="{x:Static loc:GuiLocalizationString.btn_cancel}"
                         Click="OnCancelClick" Padding="24,8" FontSize="14"
-                        HorizontalAlignment="Center"/>
+                        HorizontalAlignment="Center" />
             </StackPanel>
         </Border>
     </Grid>

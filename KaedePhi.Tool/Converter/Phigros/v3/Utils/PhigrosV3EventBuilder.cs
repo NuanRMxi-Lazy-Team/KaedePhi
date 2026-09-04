@@ -163,6 +163,7 @@ public class PhigrosV3EventBuilder
             boundaries.Add(ev.StartBeat);
             boundaries.Add(ev.EndBeat);
         }
+
         foreach (var ev in yEvents)
         {
             boundaries.Add(ev.StartBeat);
@@ -230,6 +231,7 @@ public class PhigrosV3EventBuilder
                 hi = mid - 1;
             }
         }
+
         if (candidate == -1)
             return null;
         var ev = sortedEvents[candidate];
@@ -466,6 +468,7 @@ public class PhigrosV3EventBuilder
             if (events[i].StartBeat < events[i - 1].StartBeat)
                 return false;
         }
+
         return true;
     }
 

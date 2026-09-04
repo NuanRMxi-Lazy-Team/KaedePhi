@@ -45,6 +45,7 @@ public class RePhiEditConverter
             _ct.ThrowIfCancellationRequested();
             result.Add(JudgeLineBuilder.ConvertJudgeLine(judgeLines[i]));
         }
+
         return result;
     }
 

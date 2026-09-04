@@ -10,7 +10,7 @@
         Icon="/Assets/KaedePhiIcon.png">
 
     <Grid>
-        <ContentControl Content="{Binding CurrentPage}"/>
+        <ContentControl Content="{Binding CurrentPage}" />
         <TextBlock x:Name="VersionLabel"
                    Foreground="{DynamicResource VersionLabelForeground}"
                    HorizontalAlignment="Right"
@@ -18,6 +18,6 @@
                    Margin="0,0,8,4"
                    FontSize="11"
                    Opacity="0.45"
-                   IsHitTestVisible="False"/>
+                   IsHitTestVisible="False" />
     </Grid>
 </Window>

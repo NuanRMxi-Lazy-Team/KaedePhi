@@ -255,6 +255,7 @@ public class LayerProcessor : LoggableBase, ILayerProcessor<EventLayer>
                 layer.MoveXEvents,
                 tolerance
             );
+
         progress?.Report(new ToolProgress((double)++completedChannels / totalChannels));
 
         if (!canCompressPositionTogether && layer.MoveYEvents is { Count: > 0 })

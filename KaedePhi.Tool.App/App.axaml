@@ -10,10 +10,10 @@
 
         <Style Selector="TextBlock.fa-icon">
             <Setter Property="FontFamily"
-                    Value="avares://KaedePhi.Tool.App/Assets/Fonts/fa-solid-900.ttf#Font Awesome 6 Free"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="FontSize" Value="16"/>
-            <Setter Property="VerticalAlignment" Value="Center"/>
+                    Value="avares://KaedePhi.Tool.App/Assets/Fonts/fa-solid-900.ttf#Font Awesome 6 Free" />
+            <Setter Property="FontWeight" Value="Bold" />
+            <Setter Property="FontSize" Value="16" />
+            <Setter Property="VerticalAlignment" Value="Center" />
         </Style>
     </Application.Styles>
 
@@ -21,10 +21,10 @@
         <ResourceDictionary>
             <ResourceDictionary.ThemeDictionaries>
                 <ResourceDictionary x:Key="Light">
-                    <SolidColorBrush x:Key="VersionLabelForeground" Color="#B34700"/>
+                    <SolidColorBrush x:Key="VersionLabelForeground" Color="#B34700" />
                 </ResourceDictionary>
                 <ResourceDictionary x:Key="Dark">
-                    <SolidColorBrush x:Key="VersionLabelForeground" Color="Yellow"/>
+                    <SolidColorBrush x:Key="VersionLabelForeground" Color="Yellow" />
                 </ResourceDictionary>
             </ResourceDictionary.ThemeDictionaries>
         </ResourceDictionary>
@@ -32,22 +32,22 @@
 
     <Application.DataTemplates>
         <DataTemplate DataType="vm:ImportViewModel">
-            <views:ImportPage/>
+            <views:ImportPage />
         </DataTemplate>
         <DataTemplate DataType="vm:ImportOptionsViewModel">
-            <views:ImportOptionsPage/>
+            <views:ImportOptionsPage />
         </DataTemplate>
         <DataTemplate DataType="vm:ToolViewModel">
-            <views:ToolPage/>
+            <views:ToolPage />
         </DataTemplate>
         <DataTemplate DataType="vm:ExportViewModel">
-            <views:ExportPage/>
+            <views:ExportPage />
         </DataTemplate>
         <DataTemplate DataType="vm:ProcessingViewModel">
-            <views:ProcessingPage/>
+            <views:ProcessingPage />
         </DataTemplate>
         <DataTemplate DataType="vm:SettingsViewModel">
-            <views:SettingsPage/>
+            <views:SettingsPage />
         </DataTemplate>
     </Application.DataTemplates>
 </Application>

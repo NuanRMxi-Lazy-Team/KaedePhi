@@ -19,6 +19,7 @@ public static partial class ConfigResetCommand
             );
             return 1;
         }
+
         ConsoleWriter.Info(
             string.Format(CliLocalizationString.msg_config_reset_done, service.ConfigPath)
         );

@@ -35,6 +35,7 @@ public class KaedePhiJudgeLineBuilder
             _ct.ThrowIfCancellationRequested();
             result.Add(ConvertJudgeLine(judgeLines[i], i));
         }
+
         return result;
     }
 

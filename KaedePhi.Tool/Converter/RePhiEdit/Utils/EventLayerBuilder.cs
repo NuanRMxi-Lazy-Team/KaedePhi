@@ -144,12 +144,14 @@ public static class EventLayerBuilder
             foreach (var e in src.ScaleXEvents)
                 rpe.ScaleXEvents.AddRange(EventBuilder.ConvertFloatEventExpanding(e, options));
         }
+
         if (src.ScaleYEvents is not null)
         {
             rpe.ScaleYEvents = [];
             foreach (var e in src.ScaleYEvents)
                 rpe.ScaleYEvents.AddRange(EventBuilder.ConvertFloatEventExpanding(e, options));
         }
+
         if (src.TextEvents is not null)
             rpe.TextEvents = src.TextEvents.ConvertAll(EventBuilder.ConvertStringEvent);
         if (src.PaintEvents is not null)
@@ -158,18 +160,21 @@ public static class EventLayerBuilder
             foreach (var e in src.PaintEvents)
                 rpe.PaintEvents.AddRange(EventBuilder.ConvertFloatEventExpanding(e, options));
         }
+
         if (src.GifEvents is not null)
         {
             rpe.GifEvents = [];
             foreach (var e in src.GifEvents)
                 rpe.GifEvents.AddRange(EventBuilder.ConvertFloatEventExpanding(e, options));
         }
+
         if (src.InclineEvents is not null)
         {
             rpe.InclineEvents = [];
             foreach (var e in src.InclineEvents)
                 rpe.InclineEvents.AddRange(EventBuilder.ConvertFloatEventExpanding(e, options));
         }
+
         return rpe;
     }
 }

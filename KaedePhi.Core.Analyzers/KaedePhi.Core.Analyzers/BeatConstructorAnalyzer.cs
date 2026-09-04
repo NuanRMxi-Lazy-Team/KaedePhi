@@ -16,8 +16,10 @@ public sealed class BeatConstructorAnalyzer : DiagnosticAnalyzer
 {
     public const string LengthDiagnosticId = BeatConstructorDiagnostic.LengthId;
     public const string DenominatorZeroDiagnosticId = BeatConstructorDiagnostic.DenominatorZeroId;
+
     public const string DenominatorNegativeDiagnosticId =
         BeatConstructorDiagnostic.DenominatorNegativeId;
+
     public const string NonFiniteDiagnosticId = BeatConstructorDiagnostic.NonFiniteId;
 
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } =

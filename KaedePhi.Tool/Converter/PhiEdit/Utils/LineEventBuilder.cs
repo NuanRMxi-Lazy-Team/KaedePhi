@@ -612,6 +612,7 @@ public class LineEventBuilder
                 hi = mid - 1;
             }
         }
+
         if (candidate < 0)
             return null;
         var ev = events[candidate];

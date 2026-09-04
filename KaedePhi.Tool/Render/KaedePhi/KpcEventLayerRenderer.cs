@@ -18,6 +18,7 @@ public static class KpcEventLayerRenderer
         public SKColor Color { get; init; }
         public double MinVal { get; init; }
         public double MaxVal { get; init; }
+
         public List<(
             double Start,
             double End,
@@ -33,6 +34,7 @@ public static class KpcEventLayerRenderer
         public double MaxValue { get; init; }
         public double RenderMin { get; init; }
         public double RenderMax { get; init; }
+
         public IReadOnlyList<(
             double Start,
             double End,

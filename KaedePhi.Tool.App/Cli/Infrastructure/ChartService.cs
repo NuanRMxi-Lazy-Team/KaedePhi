@@ -156,6 +156,7 @@ public sealed class ChartService
                 throw new InvalidOperationException(CliLocalizationString.err_output_input_same);
             return output;
         }
+
         if (!string.IsNullOrWhiteSpace(workspace))
             return Path.Combine(_workspace.Root, workspace, "chart" + extension);
         if (string.IsNullOrEmpty(input))

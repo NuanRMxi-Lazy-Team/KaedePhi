@@ -8,6 +8,7 @@ public class ConvertOption
     /// 默认缓动切割精度
     /// </summary>
     public const int DefaultPrecision = Constants.DefaultPrecision;
+
     public CuttingOptions Cutting { get; set; } = new();
 
     public class CuttingOptions

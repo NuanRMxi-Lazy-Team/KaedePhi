@@ -37,6 +37,7 @@ public class JudgeLineFilteringTests
             line.NoteList.Should().ContainSingle();
             line.AlphaFrames.Should().ContainSingle();
         }
+
         result
             .JudgeLineList.Select(line => line.NoteList[0].StartBeat)
             .Should()
@@ -72,6 +73,7 @@ public class JudgeLineFilteringTests
             line.NotesBelow.Should().BeEmpty();
             line.JudgeLineDisappearEvents.Should().ContainSingle();
         }
+
         result
             .JudgeLineList.Select(line => line.NotesAbove[0].Time)
             .Should()

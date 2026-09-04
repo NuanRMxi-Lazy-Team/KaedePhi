@@ -23,6 +23,7 @@ namespace KaedePhi.Core.KaedePhi
                 {
                     throw new ArgumentOutOfRangeException(nameof(Bpm), "BPM 必须是有限正数。");
                 }
+
                 _bpm = value;
             }
         }

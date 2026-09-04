@@ -655,6 +655,7 @@ internal static class EventBuilder
                 i++;
                 continue;
             }
+
             if (i + 1 < src.Count && src[i + 1].Continuous)
             {
                 var endItem = src[i + 1];
@@ -676,6 +677,7 @@ internal static class EventBuilder
                 i++;
             }
         }
+
         return result;
     }
 
@@ -695,6 +697,7 @@ internal static class EventBuilder
                 i++;
                 continue;
             }
+
             if (i + 1 < src.Count && src[i + 1].Continuous)
             {
                 var endItem = src[i + 1];
@@ -716,6 +719,7 @@ internal static class EventBuilder
                 i++;
             }
         }
+
         return result;
     }
 
@@ -735,6 +739,7 @@ internal static class EventBuilder
                 i++;
                 continue;
             }
+
             if (i + 1 < src.Count && src[i + 1].Continuous)
             {
                 var endItem = src[i + 1];
@@ -756,6 +761,7 @@ internal static class EventBuilder
                 i++;
             }
         }
+
         return result;
     }
 

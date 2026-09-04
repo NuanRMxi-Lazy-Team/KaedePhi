@@ -14,11 +14,13 @@ public static partial class UnbindFatherCommand
     public static readonly Option<string?> WorkspaceOpt = SharedOptions.CreateWorkspaceRpeOption();
     public static readonly Option<double> PrecisionOpt = SharedOptions.PrecisionOption;
     public static readonly Option<double> ToleranceOpt = SharedOptions.ToleranceOption;
+
     public static readonly Option<double> MergeToleranceOpt = new("--merge-tolerance")
     {
         Description = CliLocalizationString.cli_opt_unbind_merge_tolerance_desc,
         Arity = ArgumentArity.ExactlyOne,
     };
+
     public static readonly Option<bool> ClassicOpt = SharedOptions.ClassicOption;
     public static readonly Option<bool> NoCompressOpt = SharedOptions.NoCompressOption;
     public static readonly Option<bool> DryRunOpt = SharedOptions.DryRunOption;

@@ -432,6 +432,7 @@ public static partial class ConvertCommand
             ConsoleWriter.Error(CliLocalizationString.err_unimplemented);
             return 2;
         }
+
         ConsoleWriter.Info(string.Format(CliLocalizationString.msg_written, saveResult));
         return 0;
     }

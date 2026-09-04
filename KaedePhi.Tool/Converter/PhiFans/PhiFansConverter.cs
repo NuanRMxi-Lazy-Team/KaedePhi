@@ -46,6 +46,7 @@ public class PhiFansConverter
             _ct.ThrowIfCancellationRequested();
             result.Add(JudgeLineBuilder.ConvertToKpc(line));
         }
+
         return result;
     }
 

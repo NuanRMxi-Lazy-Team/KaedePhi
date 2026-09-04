@@ -120,6 +120,7 @@ public sealed class AppConfigService
                 if (File.Exists(temporaryPath))
                     File.Delete(temporaryPath);
             }
+
             return true;
         }
         catch (Exception ex)

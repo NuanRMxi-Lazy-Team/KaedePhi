@@ -73,6 +73,7 @@ public static class ChartProcessor
                 foreach (var layer in unboundLine.EventLayers)
                     compressor.LayerEventsCompress(layer, tolerance, lineProgress);
             }
+
             chart.JudgeLineList[i] = unboundLine;
         }
 

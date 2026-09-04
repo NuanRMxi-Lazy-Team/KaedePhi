@@ -24,6 +24,7 @@ namespace KaedePhi.Tool.Common;
 internal static class CoordinateGeometry
 {
     private static readonly CoordinateProfile KpcProfile = CoordinateProfile.KpcProfile;
+
     private static readonly CoordinateProfile RenderProfileDefault =
         CoordinateProfile.DefaultRenderProfile;
 

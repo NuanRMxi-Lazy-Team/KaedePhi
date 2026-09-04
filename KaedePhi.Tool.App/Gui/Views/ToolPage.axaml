@@ -11,17 +11,19 @@
         <Border Grid.Row="0" Background="{DynamicResource SystemAccentColor}" Padding="16,10">
             <StackPanel Orientation="Horizontal" Spacing="16">
                 <TextBlock Text="&#xf07c;" Classes="fa-icon" FontSize="18"
-                           VerticalAlignment="Center" Foreground="White"/>
+                           VerticalAlignment="Center" Foreground="White" />
                 <StackPanel Orientation="Horizontal" Spacing="6">
-                    <TextBlock Text="{x:Static loc:GuiLocalizationString.header_file}" Foreground="White" Opacity="0.8" VerticalAlignment="Center"/>
+                    <TextBlock Text="{x:Static loc:GuiLocalizationString.header_file}" Foreground="White" Opacity="0.8"
+                               VerticalAlignment="Center" />
                     <TextBlock Text="{Binding CurrentFileName}" FontWeight="SemiBold"
-                               Foreground="White" VerticalAlignment="Center"/>
+                               Foreground="White" VerticalAlignment="Center" />
                 </StackPanel>
-                <Border Background="White" Opacity="0.2" Width="1" Margin="4,2"/>
+                <Border Background="White" Opacity="0.2" Width="1" Margin="4,2" />
                 <StackPanel Orientation="Horizontal" Spacing="6">
-                    <TextBlock Text="{x:Static loc:GuiLocalizationString.header_format}" Foreground="White" Opacity="0.8" VerticalAlignment="Center"/>
+                    <TextBlock Text="{x:Static loc:GuiLocalizationString.header_format}" Foreground="White"
+                               Opacity="0.8" VerticalAlignment="Center" />
                     <TextBlock Text="{Binding DetectedFormat}" FontWeight="SemiBold"
-                               Foreground="White" VerticalAlignment="Center"/>
+                               Foreground="White" VerticalAlignment="Center" />
                 </StackPanel>
             </StackPanel>
         </Border>
@@ -29,31 +31,32 @@
         <!-- 工具卡片 -->
         <Border Grid.Row="1" Padding="16,12,16,0">
             <StackPanel Spacing="8">
-                <TextBlock Text="{x:Static loc:GuiLocalizationString.tool_select_title}" FontSize="18" FontWeight="SemiBold"/>
+                <TextBlock Text="{x:Static loc:GuiLocalizationString.tool_select_title}" FontSize="18"
+                           FontWeight="SemiBold" />
 
                 <ListBox ItemsSource="{Binding Tools}" SelectedItem="{Binding SelectedTool}"
                          SelectionMode="Single" Background="Transparent" BorderThickness="0" Padding="0">
                     <ListBox.Styles>
                         <Style Selector="ListBoxItem">
-                            <Setter Property="Background" Value="{DynamicResource CardBackgroundFillColorDefaultBrush}"/>
-                            <Setter Property="BorderBrush" Value="{DynamicResource CardStrokeColorDefaultBrush}"/>
-                            <Setter Property="BorderThickness" Value="2"/>
-                            <Setter Property="CornerRadius" Value="8"/>
-                            <Setter Property="Padding" Value="16,12"/>
-                            <Setter Property="Margin" Value="4"/>
-                            <Setter Property="MinWidth" Value="220"/>
-                            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                            <Setter Property="Background" Value="{DynamicResource CardBackgroundFillColorDefaultBrush}" />
+                            <Setter Property="BorderBrush" Value="{DynamicResource CardStrokeColorDefaultBrush}" />
+                            <Setter Property="BorderThickness" Value="2" />
+                            <Setter Property="CornerRadius" Value="8" />
+                            <Setter Property="Padding" Value="16,12" />
+                            <Setter Property="Margin" Value="4" />
+                            <Setter Property="MinWidth" Value="220" />
+                            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
                         </Style>
                         <Style Selector="ListBoxItem:selected">
-                            <Setter Property="BorderBrush" Value="{DynamicResource SystemAccentColor}"/>
+                            <Setter Property="BorderBrush" Value="{DynamicResource SystemAccentColor}" />
                         </Style>
                         <Style Selector="ListBoxItem:pointerover">
-                            <Setter Property="BorderBrush" Value="{DynamicResource SystemAccentColor}"/>
+                            <Setter Property="BorderBrush" Value="{DynamicResource SystemAccentColor}" />
                         </Style>
                     </ListBox.Styles>
                     <ListBox.ItemsPanel>
                         <ItemsPanelTemplate>
-                            <WrapPanel Orientation="Horizontal"/>
+                            <WrapPanel Orientation="Horizontal" />
                         </ItemsPanelTemplate>
                     </ListBox.ItemsPanel>
                     <ListBox.ItemTemplate>
@@ -63,12 +66,12 @@
                                     <TextBlock Text="{Binding IconGlyph}"
                                                FontFamily="avares://KaedePhi.Tool.App/Assets/Fonts/fa-solid-900.ttf#Font Awesome 6 Free"
                                                FontWeight="Bold"
-                                               FontSize="20" VerticalAlignment="Center"/>
+                                               FontSize="20" VerticalAlignment="Center" />
                                     <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="14"
-                                               VerticalAlignment="Center"/>
+                                               VerticalAlignment="Center" />
                                 </StackPanel>
                                 <TextBlock Text="{Binding Description}" FontSize="12" Opacity="0.6"
-                                           TextWrapping="Wrap" MaxWidth="220"/>
+                                           TextWrapping="Wrap" MaxWidth="220" />
                             </StackPanel>
                         </DataTemplate>
                     </ListBox.ItemTemplate>
@@ -86,80 +89,89 @@
                     <StackPanel Spacing="8">
                         <StackPanel Orientation="Horizontal" Spacing="8">
                             <TextBlock Text="&#xf1de;" Classes="fa-icon"
-                                       FontSize="16" VerticalAlignment="Center"/>
-                            <TextBlock Text="{x:Static loc:GuiLocalizationString.tool_options_title}" FontWeight="SemiBold" FontSize="14"/>
+                                       FontSize="16" VerticalAlignment="Center" />
+                            <TextBlock Text="{x:Static loc:GuiLocalizationString.tool_options_title}"
+                                       FontWeight="SemiBold" FontSize="14" />
                         </StackPanel>
 
                         <!-- 精度 -->
                         <StackPanel IsVisible="{Binding ShowPrecision}" Spacing="4">
-                            <TextBlock Text="{x:Static loc:GuiLocalizationString.option_precision}" FontSize="12" Opacity="0.7"/>
+                            <TextBlock Text="{x:Static loc:GuiLocalizationString.option_precision}" FontSize="12"
+                                       Opacity="0.7" />
                             <NumericUpDown Value="{Binding Precision}" Minimum="1" Maximum="4096"
                                            Increment="1" FormatString="F0" Width="200"
-                                           HorizontalAlignment="Left"/>
+                                           HorizontalAlignment="Left" />
                         </StackPanel>
 
                         <!-- 容差 -->
                         <StackPanel IsVisible="{Binding ShowTolerance}" Spacing="4">
-                            <TextBlock Text="{x:Static loc:GuiLocalizationString.option_tolerance}" FontSize="12" Opacity="0.7"/>
+                            <TextBlock Text="{x:Static loc:GuiLocalizationString.option_tolerance}" FontSize="12"
+                                       Opacity="0.7" />
                             <NumericUpDown Value="{Binding Tolerance}" Minimum="0" Maximum="100"
                                            Increment="0.1" FormatString="F2" Width="200"
-                                           HorizontalAlignment="Left"/>
+                                           HorizontalAlignment="Left" />
                         </StackPanel>
 
                         <!-- 父子线事件通道合并容差 -->
                         <StackPanel IsVisible="{Binding ShowMergeTolerance}" Spacing="4">
-                            <TextBlock Text="{x:Static loc:GuiLocalizationString.option_unbind_merge_tolerance}" FontSize="12" Opacity="0.7"/>
+                            <TextBlock Text="{x:Static loc:GuiLocalizationString.option_unbind_merge_tolerance}"
+                                       FontSize="12" Opacity="0.7" />
                             <NumericUpDown Value="{Binding MergeTolerance}" Minimum="0" Maximum="100"
                                            Increment="0.1" FormatString="F2" Width="200"
-                                           HorizontalAlignment="Left"/>
+                                           HorizontalAlignment="Left" />
                         </StackPanel>
 
                         <!-- 经典模式 -->
                         <CheckBox IsVisible="{Binding ShowClassicMode}"
                                   Content="{x:Static loc:GuiLocalizationString.option_classic_mode}"
-                                  IsChecked="{Binding ClassicMode}"/>
+                                  IsChecked="{Binding ClassicMode}" />
 
                         <!-- 禁用压缩 -->
                         <CheckBox IsVisible="{Binding ShowDisableCompress}"
                                   IsEnabled="{Binding DisableCompressEnabled}"
                                   Content="{x:Static loc:GuiLocalizationString.option_disable_compress}"
                                   IsChecked="{Binding DisableCompress}"
-                                  ToolTip.Tip="{x:Static loc:GuiLocalizationString.option_disable_compress_hint}"/>
+                                  ToolTip.Tip="{x:Static loc:GuiLocalizationString.option_disable_compress_hint}" />
 
                         <!-- 渲染选项 -->
                         <StackPanel IsVisible="{Binding ShowRenderOptions}" Spacing="8">
                             <StackPanel Orientation="Horizontal" Spacing="16">
                                 <StackPanel Spacing="4">
-                                    <TextBlock Text="{x:Static loc:GuiLocalizationString.option_pixels_per_beat}" FontSize="12" Opacity="0.7"/>
+                                    <TextBlock Text="{x:Static loc:GuiLocalizationString.option_pixels_per_beat}"
+                                               FontSize="12" Opacity="0.7" />
                                     <NumericUpDown Value="{Binding PixelsPerBeat}" Minimum="10" Maximum="1000"
-                                                   Increment="10" FormatString="F0" Width="140"/>
+                                                   Increment="10" FormatString="F0" Width="140" />
                                 </StackPanel>
                                 <StackPanel Spacing="4">
-                                    <TextBlock Text="{x:Static loc:GuiLocalizationString.option_channel_width}" FontSize="12" Opacity="0.7"/>
+                                    <TextBlock Text="{x:Static loc:GuiLocalizationString.option_channel_width}"
+                                               FontSize="12" Opacity="0.7" />
                                     <NumericUpDown Value="{Binding ChannelWidth}" Minimum="50" Maximum="1000"
-                                                   Increment="10" FormatString="F0" Width="140"/>
+                                                   Increment="10" FormatString="F0" Width="140" />
                                 </StackPanel>
                             </StackPanel>
                             <StackPanel Orientation="Horizontal" Spacing="16">
                                 <StackPanel Spacing="4">
-                                    <TextBlock Text="{x:Static loc:GuiLocalizationString.option_samples_per_event}" FontSize="12" Opacity="0.7"/>
+                                    <TextBlock Text="{x:Static loc:GuiLocalizationString.option_samples_per_event}"
+                                               FontSize="12" Opacity="0.7" />
                                     <NumericUpDown Value="{Binding SamplesPerEvent}" Minimum="4" Maximum="1024"
-                                                   Increment="4" FormatString="F0" Width="140"/>
+                                                   Increment="4" FormatString="F0" Width="140" />
                                 </StackPanel>
                                 <StackPanel Spacing="4">
-                                    <TextBlock Text="{x:Static loc:GuiLocalizationString.option_beat_subdivisions}" FontSize="12" Opacity="0.7"/>
+                                    <TextBlock Text="{x:Static loc:GuiLocalizationString.option_beat_subdivisions}"
+                                               FontSize="12" Opacity="0.7" />
                                     <NumericUpDown Value="{Binding BeatSubdivisions}" Minimum="1" Maximum="16"
-                                                   Increment="1" FormatString="F0" Width="140"/>
+                                                   Increment="1" FormatString="F0" Width="140" />
                                 </StackPanel>
                             </StackPanel>
                             <StackPanel Spacing="4">
-                                <TextBlock Text="{x:Static loc:GuiLocalizationString.option_render_output_dir}" FontSize="12" Opacity="0.7"/>
+                                <TextBlock Text="{x:Static loc:GuiLocalizationString.option_render_output_dir}"
+                                           FontSize="12" Opacity="0.7" />
                                 <Grid ColumnDefinitions="*,Auto">
                                     <TextBox Grid.Column="0" Text="{Binding RenderOutputDir}"
-                                             PlaceholderText="{x:Static loc:GuiLocalizationString.option_render_output_dir_hint}"/>
+                                             PlaceholderText="{x:Static loc:GuiLocalizationString.option_render_output_dir_hint}" />
                                     <Button Grid.Column="1" Margin="8,0,0,0" Padding="12,6"
                                             Content="{x:Static loc:GuiLocalizationString.btn_browse}"
-                                            Click="OnBrowseOutputDirClick"/>
+                                            Click="OnBrowseOutputDirClick" />
                                 </Grid>
                             </StackPanel>
                         </StackPanel>
@@ -177,7 +189,7 @@
                 Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
                 BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
                 BorderThickness="0,1,0,0">
-            <TextBlock Text="{Binding StatusText}" FontSize="12" Opacity="0.7"/>
+            <TextBlock Text="{Binding StatusText}" FontSize="12" Opacity="0.7" />
         </Border>
 
         <!-- 底部按钮 -->
@@ -189,26 +201,30 @@
                             IsEnabled="{Binding !IsProcessing}">
                         <StackPanel Orientation="Horizontal" Spacing="6">
                             <TextBlock Text="&#xf060;" Classes="fa-icon"
-                                       FontSize="13" VerticalAlignment="Center"/>
-                            <TextBlock Text="{x:Static loc:GuiLocalizationString.btn_back_to_import}" VerticalAlignment="Center"/>
+                                       FontSize="13" VerticalAlignment="Center" />
+                            <TextBlock Text="{x:Static loc:GuiLocalizationString.btn_back_to_import}"
+                                       VerticalAlignment="Center" />
                         </StackPanel>
                     </Button>
                     <Button Padding="12,8" Click="OnSettingsClick"
                             IsEnabled="{Binding !IsProcessing}">
                         <StackPanel Orientation="Horizontal" Spacing="6">
                             <TextBlock Text="&#xf013;" Classes="fa-icon"
-                                       FontSize="14" VerticalAlignment="Center"/>
-                            <TextBlock Text="{x:Static loc:GuiLocalizationString.btn_settings}" VerticalAlignment="Center"/>
+                                       FontSize="14" VerticalAlignment="Center" />
+                            <TextBlock Text="{x:Static loc:GuiLocalizationString.btn_settings}"
+                                       VerticalAlignment="Center" />
                         </StackPanel>
                     </Button>
                 </StackPanel>
                 <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="12">
-                    <Button Content="{x:Static loc:GuiLocalizationString.btn_run_tool}" Classes="accent" Padding="24,8" FontSize="14"
+                    <Button Content="{x:Static loc:GuiLocalizationString.btn_run_tool}" Classes="accent" Padding="24,8"
+                            FontSize="14"
                             Click="OnRunClick"
-                            IsEnabled="{Binding CanRun}"/>
-                    <Button Content="{x:Static loc:GuiLocalizationString.btn_export_chart}" Padding="24,8" FontSize="14"
+                            IsEnabled="{Binding CanRun}" />
+                    <Button Content="{x:Static loc:GuiLocalizationString.btn_export_chart}" Padding="24,8"
+                            FontSize="14"
                             Click="OnExportClick"
-                            IsEnabled="{Binding !IsProcessing}"/>
+                            IsEnabled="{Binding !IsProcessing}" />
                 </StackPanel>
             </Grid>
         </Border>

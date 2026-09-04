@@ -20,6 +20,7 @@ namespace KaedePhi.Core.PhiChain.v6.JsonConverter
             {
                 serializer.Serialize(writer, point);
             }
+
             writer.WriteEndArray();
         }
 

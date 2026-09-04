@@ -11,22 +11,25 @@
                 <StackPanel Spacing="20" Width="500" HorizontalAlignment="Left">
                     <StackPanel Orientation="Horizontal" Spacing="10">
                         <TextBlock Text="&#xf56e;" Classes="fa-icon"
-                                   FontSize="24" VerticalAlignment="Center"/>
-                        <TextBlock Text="{x:Static loc:GuiLocalizationString.export_title}" FontSize="22" FontWeight="SemiBold"/>
+                                   FontSize="24" VerticalAlignment="Center" />
+                        <TextBlock Text="{x:Static loc:GuiLocalizationString.export_title}" FontSize="22"
+                                   FontWeight="SemiBold" />
                     </StackPanel>
 
                     <StackPanel Spacing="8">
-                        <TextBlock Text="{x:Static loc:GuiLocalizationString.export_output_format}" FontSize="13" Opacity="0.7"/>
+                        <TextBlock Text="{x:Static loc:GuiLocalizationString.export_output_format}" FontSize="13"
+                                   Opacity="0.7" />
                         <ComboBox ItemsSource="{Binding AvailableFormats}"
                                   SelectedItem="{Binding SelectedFormat}"
-                                  HorizontalAlignment="Stretch"/>
+                                  HorizontalAlignment="Stretch" />
                     </StackPanel>
 
-                    <CheckBox Content="{x:Static loc:GuiLocalizationString.export_stream_writing}" IsChecked="{Binding UseStream}"/>
+                    <CheckBox Content="{x:Static loc:GuiLocalizationString.export_stream_writing}"
+                              IsChecked="{Binding UseStream}" />
 
                     <CheckBox Content="{x:Static loc:GuiLocalizationString.export_indented_output}"
                               IsChecked="{Binding IndentedOutput}"
-                              IsVisible="{Binding IsJsonFormat}"/>
+                              IsVisible="{Binding IsJsonFormat}" />
 
                     <!-- 转换选项面板（仅在导出格式与导入格式不同时显示） -->
                     <Border IsVisible="{Binding ShowConversionOptions}"
@@ -34,111 +37,166 @@
                             BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
                             BorderThickness="1" CornerRadius="8" Padding="16,12">
                         <StackPanel Spacing="12">
-                            <TextBlock Text="{x:Static loc:GuiLocalizationString.convert_options_title}" FontSize="14" FontWeight="SemiBold"/>
+                            <TextBlock Text="{x:Static loc:GuiLocalizationString.convert_options_title}" FontSize="14"
+                                       FontWeight="SemiBold" />
 
                             <!-- PE 转换选项 -->
                             <StackPanel Spacing="8" IsVisible="{Binding ShowPeOptions}">
-                                <TextBlock Text="{x:Static loc:GuiLocalizationString.convert_pe_options}" FontSize="12" Opacity="0.7"/>
+                                <TextBlock Text="{x:Static loc:GuiLocalizationString.convert_pe_options}" FontSize="12"
+                                           Opacity="0.7" />
                                 <StackPanel Spacing="6">
                                     <StackPanel Spacing="4">
-                                        <TextBlock Text="{x:Static loc:GuiLocalizationString.convert_easing_precision}" FontSize="12" Opacity="0.7"/>
-                                        <TextBox Text="{Binding PeUnsupportedEasingPrecision}" Width="200" HorizontalAlignment="Left"/>
+                                        <TextBlock Text="{x:Static loc:GuiLocalizationString.convert_easing_precision}"
+                                                   FontSize="12" Opacity="0.7" />
+                                        <TextBox Text="{Binding PeUnsupportedEasingPrecision}" Width="200"
+                                                 HorizontalAlignment="Left" />
                                     </StackPanel>
                                     <StackPanel Spacing="4">
-                                        <TextBlock Text="{x:Static loc:GuiLocalizationString.convert_alpha_precision}" FontSize="12" Opacity="0.7"/>
-                                        <TextBox Text="{Binding PeAlphaCutPrecision}" Width="200" HorizontalAlignment="Left"/>
+                                        <TextBlock Text="{x:Static loc:GuiLocalizationString.convert_alpha_precision}"
+                                                   FontSize="12" Opacity="0.7" />
+                                        <TextBox Text="{Binding PeAlphaCutPrecision}" Width="200"
+                                                 HorizontalAlignment="Left" />
                                     </StackPanel>
                                     <StackPanel Spacing="4">
-                                        <TextBlock Text="{x:Static loc:GuiLocalizationString.convert_alpha_tolerance}" FontSize="12" Opacity="0.7"/>
-                                        <NumericUpDown Value="{Binding PeAlphaCutTolerance}" Increment="0.01" FormatString="F3" Width="200" HorizontalAlignment="Left"/>
+                                        <TextBlock Text="{x:Static loc:GuiLocalizationString.convert_alpha_tolerance}"
+                                                   FontSize="12" Opacity="0.7" />
+                                        <NumericUpDown Value="{Binding PeAlphaCutTolerance}" Increment="0.01"
+                                                       FormatString="F3" Width="200" HorizontalAlignment="Left" />
                                     </StackPanel>
                                     <StackPanel Spacing="4">
-                                        <TextBlock Text="{x:Static loc:GuiLocalizationString.convert_speed_precision}" FontSize="12" Opacity="0.7"/>
-                                        <TextBox Text="{Binding PeSpeedCutPrecision}" Width="200" HorizontalAlignment="Left"/>
+                                        <TextBlock Text="{x:Static loc:GuiLocalizationString.convert_speed_precision}"
+                                                   FontSize="12" Opacity="0.7" />
+                                        <TextBox Text="{Binding PeSpeedCutPrecision}" Width="200"
+                                                 HorizontalAlignment="Left" />
                                     </StackPanel>
                                 </StackPanel>
                             </StackPanel>
 
                             <!-- PhigrosV3 转换选项 -->
                             <StackPanel Spacing="8" IsVisible="{Binding ShowPhigrosOptions}">
-                                <TextBlock Text="{x:Static loc:GuiLocalizationString.convert_phigros_options}" FontSize="12" Opacity="0.7"/>
+                                <TextBlock Text="{x:Static loc:GuiLocalizationString.convert_phigros_options}"
+                                           FontSize="12" Opacity="0.7" />
                                 <StackPanel Spacing="6">
                                     <StackPanel Spacing="4">
-                                        <TextBlock Text="{x:Static loc:GuiLocalizationString.convert_default_bpm}" FontSize="12" Opacity="0.7"/>
-                                        <NumericUpDown Value="{Binding PhigrosDefaultBpm}" Increment="1" FormatString="F0" Width="200" HorizontalAlignment="Left"/>
+                                        <TextBlock Text="{x:Static loc:GuiLocalizationString.convert_default_bpm}"
+                                                   FontSize="12" Opacity="0.7" />
+                                        <NumericUpDown Value="{Binding PhigrosDefaultBpm}" Increment="1"
+                                                       FormatString="F0" Width="200" HorizontalAlignment="Left" />
                                     </StackPanel>
                                     <StackPanel Spacing="4">
-                                        <TextBlock Text="{x:Static loc:GuiLocalizationString.convert_easing_precision}" FontSize="12" Opacity="0.7"/>
-                                        <TextBox Text="{Binding PhigrosEasingPrecision}" Width="200" HorizontalAlignment="Left"/>
+                                        <TextBlock Text="{x:Static loc:GuiLocalizationString.convert_easing_precision}"
+                                                   FontSize="12" Opacity="0.7" />
+                                        <TextBox Text="{Binding PhigrosEasingPrecision}" Width="200"
+                                                 HorizontalAlignment="Left" />
                                     </StackPanel>
                                     <StackPanel Spacing="4">
-                                        <TextBlock Text="{x:Static loc:GuiLocalizationString.convert_alpha_precision}" FontSize="12" Opacity="0.7"/>
-                                        <TextBox Text="{Binding PhigrosAlphaCutPrecision}" Width="200" HorizontalAlignment="Left"/>
+                                        <TextBlock Text="{x:Static loc:GuiLocalizationString.convert_alpha_precision}"
+                                                   FontSize="12" Opacity="0.7" />
+                                        <TextBox Text="{Binding PhigrosAlphaCutPrecision}" Width="200"
+                                                 HorizontalAlignment="Left" />
                                     </StackPanel>
-                                    <CheckBox Content="{x:Static loc:GuiLocalizationString.convert_filter_fake_notes}" IsChecked="{Binding FilterFakeNotes}"/>
-                                    <CheckBox Content="{x:Static loc:GuiLocalizationString.convert_negative_alpha_elevation}" IsChecked="{Binding NegativeAlphaElevation}"/>
+                                    <CheckBox Content="{x:Static loc:GuiLocalizationString.convert_filter_fake_notes}"
+                                              IsChecked="{Binding FilterFakeNotes}" />
+                                    <CheckBox
+                                        Content="{x:Static loc:GuiLocalizationString.convert_negative_alpha_elevation}"
+                                        IsChecked="{Binding NegativeAlphaElevation}" />
                                     <StackPanel Spacing="4" IsVisible="{Binding NegativeAlphaElevation}">
-                                        <TextBlock Text="{x:Static loc:GuiLocalizationString.convert_negative_alpha_step}" FontSize="12" Opacity="0.7"/>
-                                        <NumericUpDown Value="{Binding NegativeAlphaStep}" Increment="0.5" FormatString="F1" Minimum="0.1" Width="200" HorizontalAlignment="Left"/>
+                                        <TextBlock
+                                            Text="{x:Static loc:GuiLocalizationString.convert_negative_alpha_step}"
+                                            FontSize="12" Opacity="0.7" />
+                                        <NumericUpDown Value="{Binding NegativeAlphaStep}" Increment="0.5"
+                                                       FormatString="F1" Minimum="0.1" Width="200"
+                                                       HorizontalAlignment="Left" />
                                     </StackPanel>
                                 </StackPanel>
                             </StackPanel>
 
                             <!-- RePhiEdit 转换选项 -->
                             <StackPanel Spacing="8" IsVisible="{Binding ShowRePhiEditOptions}">
-                                <TextBlock Text="{x:Static loc:GuiLocalizationString.convert_rephiedit_options}" FontSize="12" Opacity="0.7"/>
+                                <TextBlock Text="{x:Static loc:GuiLocalizationString.convert_rephiedit_options}"
+                                           FontSize="12" Opacity="0.7" />
                                 <StackPanel Spacing="6">
                                     <StackPanel Spacing="4">
-                                        <TextBlock Text="{x:Static loc:GuiLocalizationString.convert_easing_precision}" FontSize="12" Opacity="0.7"/>
-                                        <TextBox Text="{Binding RePhiEditUnsupportedEasingPrecision}" Width="200" HorizontalAlignment="Left"/>
+                                        <TextBlock Text="{x:Static loc:GuiLocalizationString.convert_easing_precision}"
+                                                   FontSize="12" Opacity="0.7" />
+                                        <TextBox Text="{Binding RePhiEditUnsupportedEasingPrecision}" Width="200"
+                                                 HorizontalAlignment="Left" />
                                     </StackPanel>
                                 </StackPanel>
                             </StackPanel>
 
                             <!-- PhiChain 转换选项 -->
                             <StackPanel Spacing="8" IsVisible="{Binding ShowPhiChainOptions}">
-                                <TextBlock Text="{x:Static loc:GuiLocalizationString.convert_phichain_options}" FontSize="12" Opacity="0.7"/>
+                                <TextBlock Text="{x:Static loc:GuiLocalizationString.convert_phichain_options}"
+                                           FontSize="12" Opacity="0.7" />
                                 <StackPanel Spacing="6">
-                                    <CheckBox Content="{x:Static loc:GuiLocalizationString.convert_unbind_non_rotating}" IsChecked="{Binding PhiChainUnbindNonRotatingChildren}"/>
+                                    <CheckBox
+                                        Content="{x:Static loc:GuiLocalizationString.convert_unbind_non_rotating}"
+                                        IsChecked="{Binding PhiChainUnbindNonRotatingChildren}" />
 
                                     <!-- 父子线解绑选项 -->
-                                    <TextBlock Text="{x:Static loc:GuiLocalizationString.convert_unbind_section}" FontSize="11" FontWeight="SemiBold" Margin="0,4,0,0"/>
+                                    <TextBlock Text="{x:Static loc:GuiLocalizationString.convert_unbind_section}"
+                                               FontSize="11" FontWeight="SemiBold" Margin="0,4,0,0" />
                                     <StackPanel Spacing="6">
                                         <StackPanel Spacing="4">
-                                            <TextBlock Text="{x:Static loc:GuiLocalizationString.convert_unbind_precision}" FontSize="12" Opacity="0.7"/>
-                                            <TextBox Text="{Binding PhiChainUnbindPrecision}" Width="200" HorizontalAlignment="Left"/>
+                                            <TextBlock
+                                                Text="{x:Static loc:GuiLocalizationString.convert_unbind_precision}"
+                                                FontSize="12" Opacity="0.7" />
+                                            <TextBox Text="{Binding PhiChainUnbindPrecision}" Width="200"
+                                                     HorizontalAlignment="Left" />
                                         </StackPanel>
                                         <StackPanel Spacing="4">
-                                            <TextBlock Text="{x:Static loc:GuiLocalizationString.convert_unbind_tolerance}" FontSize="12" Opacity="0.7"/>
-                                            <NumericUpDown Value="{Binding PhiChainUnbindTolerance}" Increment="0.01" FormatString="F3" Width="200" HorizontalAlignment="Left"/>
+                                            <TextBlock
+                                                Text="{x:Static loc:GuiLocalizationString.convert_unbind_tolerance}"
+                                                FontSize="12" Opacity="0.7" />
+                                            <NumericUpDown Value="{Binding PhiChainUnbindTolerance}" Increment="0.01"
+                                                           FormatString="F3" Width="200" HorizontalAlignment="Left" />
                                         </StackPanel>
                                         <StackPanel Spacing="4">
-                                            <TextBlock Text="{x:Static loc:GuiLocalizationString.convert_unbind_merge_tolerance}" FontSize="12" Opacity="0.7"/>
-                                            <NumericUpDown Value="{Binding PhiChainUnbindMergeTolerance}" Increment="0.01" FormatString="F3" Width="200" HorizontalAlignment="Left"/>
+                                            <TextBlock
+                                                Text="{x:Static loc:GuiLocalizationString.convert_unbind_merge_tolerance}"
+                                                FontSize="12" Opacity="0.7" />
+                                            <NumericUpDown Value="{Binding PhiChainUnbindMergeTolerance}"
+                                                           Increment="0.01" FormatString="F3" Width="200"
+                                                           HorizontalAlignment="Left" />
                                         </StackPanel>
-                                        <CheckBox Content="{x:Static loc:GuiLocalizationString.convert_unbind_classic}" IsChecked="{Binding PhiChainUnbindClassicMode}"/>
+                                        <CheckBox Content="{x:Static loc:GuiLocalizationString.convert_unbind_classic}"
+                                                  IsChecked="{Binding PhiChainUnbindClassicMode}" />
                                     </StackPanel>
 
                                     <!-- 多层级合并选项 -->
-                                    <TextBlock Text="{x:Static loc:GuiLocalizationString.convert_merge_section}" FontSize="11" FontWeight="SemiBold" Margin="0,4,0,0"/>
+                                    <TextBlock Text="{x:Static loc:GuiLocalizationString.convert_merge_section}"
+                                               FontSize="11" FontWeight="SemiBold" Margin="0,4,0,0" />
                                     <StackPanel Spacing="6">
                                         <StackPanel Spacing="4">
-                                            <TextBlock Text="{x:Static loc:GuiLocalizationString.convert_merge_precision}" FontSize="12" Opacity="0.7"/>
-                                            <TextBox Text="{Binding PhiChainMultiLayerMergePrecision}" Width="200" HorizontalAlignment="Left"/>
+                                            <TextBlock
+                                                Text="{x:Static loc:GuiLocalizationString.convert_merge_precision}"
+                                                FontSize="12" Opacity="0.7" />
+                                            <TextBox Text="{Binding PhiChainMultiLayerMergePrecision}" Width="200"
+                                                     HorizontalAlignment="Left" />
                                         </StackPanel>
                                         <StackPanel Spacing="4">
-                                            <TextBlock Text="{x:Static loc:GuiLocalizationString.convert_merge_tolerance}" FontSize="12" Opacity="0.7"/>
-                                            <NumericUpDown Value="{Binding PhiChainMultiLayerMergeTolerance}" Increment="0.01" FormatString="F3" Width="200" HorizontalAlignment="Left"/>
+                                            <TextBlock
+                                                Text="{x:Static loc:GuiLocalizationString.convert_merge_tolerance}"
+                                                FontSize="12" Opacity="0.7" />
+                                            <NumericUpDown Value="{Binding PhiChainMultiLayerMergeTolerance}"
+                                                           Increment="0.01" FormatString="F3" Width="200"
+                                                           HorizontalAlignment="Left" />
                                         </StackPanel>
-                                        <CheckBox Content="{x:Static loc:GuiLocalizationString.convert_merge_classic}" IsChecked="{Binding PhiChainMultiLayerMergeClassicMode}"/>
+                                        <CheckBox Content="{x:Static loc:GuiLocalizationString.convert_merge_classic}"
+                                                  IsChecked="{Binding PhiChainMultiLayerMergeClassicMode}" />
                                     </StackPanel>
 
                                     <!-- 缓动截取切割选项 -->
-                                    <TextBlock Text="{x:Static loc:GuiLocalizationString.convert_easing_cut_section}" FontSize="11" FontWeight="SemiBold" Margin="0,4,0,0"/>
+                                    <TextBlock Text="{x:Static loc:GuiLocalizationString.convert_easing_cut_section}"
+                                               FontSize="11" FontWeight="SemiBold" Margin="0,4,0,0" />
                                     <StackPanel Spacing="6">
                                         <StackPanel Spacing="4">
-                                            <TextBlock Text="{x:Static loc:GuiLocalizationString.convert_easing_cut_precision}" FontSize="12" Opacity="0.7"/>
-                                            <TextBox Text="{Binding PhiChainEasingCutPrecision}" Width="200" HorizontalAlignment="Left"/>
+                                            <TextBlock
+                                                Text="{x:Static loc:GuiLocalizationString.convert_easing_cut_precision}"
+                                                FontSize="12" Opacity="0.7" />
+                                            <TextBox Text="{Binding PhiChainEasingCutPrecision}" Width="200"
+                                                     HorizontalAlignment="Left" />
                                         </StackPanel>
                                     </StackPanel>
                                 </StackPanel>
@@ -146,75 +204,112 @@
 
                             <!-- PhiFans 转换选项 -->
                             <StackPanel Spacing="8" IsVisible="{Binding ShowPhiFansOptions}">
-                                <TextBlock Text="{x:Static loc:GuiLocalizationString.convert_phifans_options}" FontSize="12" Opacity="0.7"/>
+                                <TextBlock Text="{x:Static loc:GuiLocalizationString.convert_phifans_options}"
+                                           FontSize="12" Opacity="0.7" />
                                 <StackPanel Spacing="6">
                                     <StackPanel Spacing="4">
-                                        <TextBlock Text="{x:Static loc:GuiLocalizationString.convert_easing_precision}" FontSize="12" Opacity="0.7"/>
-                                        <TextBox Text="{Binding PhiFansUnsupportedEasingPrecision}" Width="200" HorizontalAlignment="Left"/>
+                                        <TextBlock Text="{x:Static loc:GuiLocalizationString.convert_easing_precision}"
+                                                   FontSize="12" Opacity="0.7" />
+                                        <TextBox Text="{Binding PhiFansUnsupportedEasingPrecision}" Width="200"
+                                                 HorizontalAlignment="Left" />
                                     </StackPanel>
                                     <StackPanel Spacing="4">
-                                        <TextBlock Text="{x:Static loc:GuiLocalizationString.convert_phifans_discontinuity_precision}" FontSize="12" Opacity="0.7"/>
-                                        <NumericUpDown Value="{Binding PhiFansDiscontinuityBeatPrecision}" Increment="1" FormatString="F0" Minimum="1" Maximum="4096" Width="200" HorizontalAlignment="Left"/>
+                                        <TextBlock
+                                            Text="{x:Static loc:GuiLocalizationString.convert_phifans_discontinuity_precision}"
+                                            FontSize="12" Opacity="0.7" />
+                                        <NumericUpDown Value="{Binding PhiFansDiscontinuityBeatPrecision}"
+                                                       Increment="1" FormatString="F0" Minimum="1" Maximum="4096"
+                                                       Width="200" HorizontalAlignment="Left" />
                                     </StackPanel>
-                                    <TextBlock Text="{x:Static loc:GuiLocalizationString.convert_merge_section}" FontSize="11" FontWeight="SemiBold" Margin="0,4,0,0"/>
+                                    <TextBlock Text="{x:Static loc:GuiLocalizationString.convert_merge_section}"
+                                               FontSize="11" FontWeight="SemiBold" Margin="0,4,0,0" />
                                     <StackPanel Spacing="6">
                                         <StackPanel Spacing="4">
-                                            <TextBlock Text="{x:Static loc:GuiLocalizationString.convert_merge_precision}" FontSize="12" Opacity="0.7"/>
-                                            <TextBox Text="{Binding MultiLayerMergePrecision}" Width="200" HorizontalAlignment="Left"/>
+                                            <TextBlock
+                                                Text="{x:Static loc:GuiLocalizationString.convert_merge_precision}"
+                                                FontSize="12" Opacity="0.7" />
+                                            <TextBox Text="{Binding MultiLayerMergePrecision}" Width="200"
+                                                     HorizontalAlignment="Left" />
                                         </StackPanel>
                                         <StackPanel Spacing="4">
-                                            <TextBlock Text="{x:Static loc:GuiLocalizationString.convert_merge_tolerance}" FontSize="12" Opacity="0.7"/>
-                                            <NumericUpDown Value="{Binding MultiLayerMergeTolerance}" Increment="0.01" FormatString="F3" Width="200" HorizontalAlignment="Left"/>
+                                            <TextBlock
+                                                Text="{x:Static loc:GuiLocalizationString.convert_merge_tolerance}"
+                                                FontSize="12" Opacity="0.7" />
+                                            <NumericUpDown Value="{Binding MultiLayerMergeTolerance}" Increment="0.01"
+                                                           FormatString="F3" Width="200" HorizontalAlignment="Left" />
                                         </StackPanel>
-                                        <CheckBox Content="{x:Static loc:GuiLocalizationString.convert_merge_classic}" IsChecked="{Binding MultiLayerMergeClassicMode}"/>
-                                        <CheckBox Content="{x:Static loc:GuiLocalizationString.convert_merge_compress}" IsChecked="{Binding MultiLayerMergeCompress}"/>
+                                        <CheckBox Content="{x:Static loc:GuiLocalizationString.convert_merge_classic}"
+                                                  IsChecked="{Binding MultiLayerMergeClassicMode}" />
+                                        <CheckBox Content="{x:Static loc:GuiLocalizationString.convert_merge_compress}"
+                                                  IsChecked="{Binding MultiLayerMergeCompress}" />
                                     </StackPanel>
                                 </StackPanel>
                             </StackPanel>
 
                             <!-- 通用选项 -->
                             <StackPanel Spacing="8" IsVisible="{Binding ShowGenericOptions}">
-                                <TextBlock Text="{x:Static loc:GuiLocalizationString.convert_common_options}" FontSize="12" Opacity="0.7"/>
+                                <TextBlock Text="{x:Static loc:GuiLocalizationString.convert_common_options}"
+                                           FontSize="12" Opacity="0.7" />
 
                                 <!-- 解绑选项 -->
-                                <TextBlock Text="{x:Static loc:GuiLocalizationString.convert_unbind_section}" FontSize="11" FontWeight="SemiBold" Margin="0,4,0,0"/>
+                                <TextBlock Text="{x:Static loc:GuiLocalizationString.convert_unbind_section}"
+                                           FontSize="11" FontWeight="SemiBold" Margin="0,4,0,0" />
                                 <StackPanel Spacing="6">
                                     <StackPanel Spacing="4">
-                                        <TextBlock Text="{x:Static loc:GuiLocalizationString.convert_unbind_precision}" FontSize="12" Opacity="0.7"/>
-                                        <TextBox Text="{Binding UnbindPrecision}" Width="200" HorizontalAlignment="Left"/>
+                                        <TextBlock Text="{x:Static loc:GuiLocalizationString.convert_unbind_precision}"
+                                                   FontSize="12" Opacity="0.7" />
+                                        <TextBox Text="{Binding UnbindPrecision}" Width="200"
+                                                 HorizontalAlignment="Left" />
                                     </StackPanel>
                                     <StackPanel Spacing="4">
-                                        <TextBlock Text="{x:Static loc:GuiLocalizationString.convert_unbind_tolerance}" FontSize="12" Opacity="0.7"/>
-                                        <NumericUpDown Value="{Binding UnbindTolerance}" Increment="0.01" FormatString="F3" Width="200" HorizontalAlignment="Left"/>
+                                        <TextBlock Text="{x:Static loc:GuiLocalizationString.convert_unbind_tolerance}"
+                                                   FontSize="12" Opacity="0.7" />
+                                        <NumericUpDown Value="{Binding UnbindTolerance}" Increment="0.01"
+                                                       FormatString="F3" Width="200" HorizontalAlignment="Left" />
                                     </StackPanel>
                                     <StackPanel Spacing="4">
-                                        <TextBlock Text="{x:Static loc:GuiLocalizationString.convert_unbind_merge_tolerance}" FontSize="12" Opacity="0.7"/>
-                                        <NumericUpDown Value="{Binding UnbindMergeTolerance}" Increment="0.01" FormatString="F3" Width="200" HorizontalAlignment="Left"/>
+                                        <TextBlock
+                                            Text="{x:Static loc:GuiLocalizationString.convert_unbind_merge_tolerance}"
+                                            FontSize="12" Opacity="0.7" />
+                                        <NumericUpDown Value="{Binding UnbindMergeTolerance}" Increment="0.01"
+                                                       FormatString="F3" Width="200" HorizontalAlignment="Left" />
                                     </StackPanel>
-                                    <CheckBox Content="{x:Static loc:GuiLocalizationString.convert_unbind_classic}" IsChecked="{Binding UnbindClassicMode}"/>
-                                    <CheckBox Content="{x:Static loc:GuiLocalizationString.convert_unbind_compress}" IsChecked="{Binding UnbindCompress}"/>
+                                    <CheckBox Content="{x:Static loc:GuiLocalizationString.convert_unbind_classic}"
+                                              IsChecked="{Binding UnbindClassicMode}" />
+                                    <CheckBox Content="{x:Static loc:GuiLocalizationString.convert_unbind_compress}"
+                                              IsChecked="{Binding UnbindCompress}" />
                                 </StackPanel>
 
                                 <!-- 多层级合并选项 -->
-                                <TextBlock Text="{x:Static loc:GuiLocalizationString.convert_merge_section}" FontSize="11" FontWeight="SemiBold" Margin="0,4,0,0"/>
+                                <TextBlock Text="{x:Static loc:GuiLocalizationString.convert_merge_section}"
+                                           FontSize="11" FontWeight="SemiBold" Margin="0,4,0,0" />
                                 <StackPanel Spacing="6">
                                     <StackPanel Spacing="4">
-                                        <TextBlock Text="{x:Static loc:GuiLocalizationString.convert_merge_precision}" FontSize="12" Opacity="0.7"/>
-                                        <TextBox Text="{Binding MultiLayerMergePrecision}" Width="200" HorizontalAlignment="Left"/>
+                                        <TextBlock Text="{x:Static loc:GuiLocalizationString.convert_merge_precision}"
+                                                   FontSize="12" Opacity="0.7" />
+                                        <TextBox Text="{Binding MultiLayerMergePrecision}" Width="200"
+                                                 HorizontalAlignment="Left" />
                                     </StackPanel>
                                     <StackPanel Spacing="4">
-                                        <TextBlock Text="{x:Static loc:GuiLocalizationString.convert_merge_tolerance}" FontSize="12" Opacity="0.7"/>
-                                        <NumericUpDown Value="{Binding MultiLayerMergeTolerance}" Increment="0.01" FormatString="F3" Width="200" HorizontalAlignment="Left"/>
+                                        <TextBlock Text="{x:Static loc:GuiLocalizationString.convert_merge_tolerance}"
+                                                   FontSize="12" Opacity="0.7" />
+                                        <NumericUpDown Value="{Binding MultiLayerMergeTolerance}" Increment="0.01"
+                                                       FormatString="F3" Width="200" HorizontalAlignment="Left" />
                                     </StackPanel>
-                                    <CheckBox Content="{x:Static loc:GuiLocalizationString.convert_merge_classic}" IsChecked="{Binding MultiLayerMergeClassicMode}"/>
-                                    <CheckBox Content="{x:Static loc:GuiLocalizationString.convert_merge_compress}" IsChecked="{Binding MultiLayerMergeCompress}"/>
+                                    <CheckBox Content="{x:Static loc:GuiLocalizationString.convert_merge_classic}"
+                                              IsChecked="{Binding MultiLayerMergeClassicMode}" />
+                                    <CheckBox Content="{x:Static loc:GuiLocalizationString.convert_merge_compress}"
+                                              IsChecked="{Binding MultiLayerMergeCompress}" />
                                 </StackPanel>
 
                                 <!-- 判定线过滤 -->
-                                <TextBlock Text="{x:Static loc:GuiLocalizationString.convert_line_filter}" FontSize="11" FontWeight="SemiBold" Margin="0,4,0,0"/>
+                                <TextBlock Text="{x:Static loc:GuiLocalizationString.convert_line_filter}"
+                                           FontSize="11" FontWeight="SemiBold" Margin="0,4,0,0" />
                                 <StackPanel Spacing="6">
-                                    <CheckBox Content="{x:Static loc:GuiLocalizationString.convert_remove_attach_ui}" IsChecked="{Binding RemoveAttachUiLine}"/>
-                                    <CheckBox Content="{x:Static loc:GuiLocalizationString.convert_remove_texture}" IsChecked="{Binding RemoveTextureLine}"/>
+                                    <CheckBox Content="{x:Static loc:GuiLocalizationString.convert_remove_attach_ui}"
+                                              IsChecked="{Binding RemoveAttachUiLine}" />
+                                    <CheckBox Content="{x:Static loc:GuiLocalizationString.convert_remove_texture}"
+                                              IsChecked="{Binding RemoveTextureLine}" />
                                 </StackPanel>
                             </StackPanel>
                         </StackPanel>
@@ -230,7 +325,7 @@
                 <!-- 状态文字 -->
                 <TextBlock Text="{Binding StatusText}" FontSize="12" Opacity="0.7"
                            HorizontalAlignment="Center"
-                           IsVisible="{Binding HasStatusText}"/>
+                           IsVisible="{Binding HasStatusText}" />
 
                 <!-- 导出中指示器 -->
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="8"
@@ -242,10 +337,10 @@
                                 <Style.Animations>
                                     <Animation Duration="0:0:1" IterationCount="Infinite">
                                         <KeyFrame Cue="0%">
-                                            <Setter Property="RotateTransform.Angle" Value="0"/>
+                                            <Setter Property="RotateTransform.Angle" Value="0" />
                                         </KeyFrame>
                                         <KeyFrame Cue="100%">
-                                            <Setter Property="RotateTransform.Angle" Value="360"/>
+                                            <Setter Property="RotateTransform.Angle" Value="360" />
                                         </KeyFrame>
                                     </Animation>
                                 </Style.Animations>
@@ -253,7 +348,7 @@
                         </TextBlock.Styles>
                     </TextBlock>
                     <TextBlock Text="{x:Static loc:GuiLocalizationString.status_exporting}" FontSize="13"
-                               VerticalAlignment="Center"/>
+                               VerticalAlignment="Center" />
                 </StackPanel>
 
                 <!-- 按钮 -->
@@ -263,19 +358,19 @@
                             IsVisible="{Binding !IsExporting}">
                         <StackPanel Orientation="Horizontal" Spacing="6">
                             <TextBlock Text="&#xf060;" Classes="fa-icon"
-                                       FontSize="13" VerticalAlignment="Center"/>
-                            <TextBlock Text="{x:Static loc:GuiLocalizationString.btn_back_to_import}"/>
+                                       FontSize="13" VerticalAlignment="Center" />
+                            <TextBlock Text="{x:Static loc:GuiLocalizationString.btn_back_to_import}" />
                         </StackPanel>
                     </Button>
                     <Button Classes="accent" Padding="24,8" FontSize="14"
                             Content="{x:Static loc:GuiLocalizationString.btn_export}"
                             Click="OnExportClick"
                             IsEnabled="{Binding !IsExporting}"
-                            IsVisible="{Binding !IsExporting}"/>
+                            IsVisible="{Binding !IsExporting}" />
                     <Button Padding="24,8" FontSize="14"
                             Content="{x:Static loc:GuiLocalizationString.btn_cancel}"
                             Click="OnCancelExportClick"
-                            IsVisible="{Binding IsExporting}"/>
+                            IsVisible="{Binding IsExporting}" />
                 </StackPanel>
             </StackPanel>
         </Border>

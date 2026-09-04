@@ -159,6 +159,7 @@ public static class EventBuilder
                 result.Add(ConvertEventWithTransform(evt, eventType, transform));
             }
         }
+
         return result;
     }
 
@@ -184,6 +185,7 @@ public static class EventBuilder
                 result.Add(ConvertEvent(evt, eventType));
             }
         }
+
         return result;
     }
 
@@ -209,6 +211,7 @@ public static class EventBuilder
                 result.Add(ConvertEvent(evt, eventType));
             }
         }
+
         return result;
     }
 

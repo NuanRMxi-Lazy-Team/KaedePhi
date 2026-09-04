@@ -12,6 +12,7 @@ public static partial class WorkspaceClearCommand
         Description = CliLocalizationString.cli_opt_workspace_clear_id_desc,
         Arity = ArgumentArity.ZeroOrOne,
     };
+
     public static readonly Option<bool> AllOpt = new("--all")
     {
         Description = CliLocalizationString.cli_opt_workspace_clear_all_desc,
