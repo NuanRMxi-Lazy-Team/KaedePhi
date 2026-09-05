@@ -45,12 +45,12 @@ public class EventCutter<TPayload> : LoggableBase, IEventCutter<KpcEvents.Event<
             var cutEnd = evt.EndBeat > endBeat ? endBeat : evt.EndBeat;
 
             var totalBeats = cutEnd - cutStart;
-            var segmentCount = (int)Math.Ceiling((totalBeats / cutLength));
+            var segmentCount = (int)Math.Ceiling(totalBeats / cutLength);
 
             for (var i = 0; i < segmentCount; i++)
             {
-                var currentBeat = new Beat(cutStart + (cutLength * i));
-                var segmentEnd = new Beat(cutStart + (cutLength * (i + 1)));
+                var currentBeat = new Beat(cutStart + cutLength * i);
+                var segmentEnd = new Beat(cutStart + cutLength * (i + 1));
                 if (segmentEnd > cutEnd)
                     segmentEnd = cutEnd;
 

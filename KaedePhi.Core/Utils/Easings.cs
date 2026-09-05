@@ -39,7 +39,7 @@ namespace KaedePhi.Core.Utils
         }
 
         public static double EaseInOutQuart(double t) =>
-            t < 0.5 ? 8 * t * t * t * t : 1 - 8 * (--t) * t * t * t;
+            t < 0.5 ? 8 * t * t * t * t : 1 - 8 * --t * t * t * t;
 
         // 五次
         public static double EaseInQuint(double t) => t * t * t * t * t;
@@ -51,7 +51,7 @@ namespace KaedePhi.Core.Utils
         }
 
         public static double EaseInOutQuint(double t) =>
-            t < 0.5 ? 16 * t * t * t * t * t : 1 + 16 * (--t) * t * t * t * t;
+            t < 0.5 ? 16 * t * t * t * t * t : 1 + 16 * --t * t * t * t * t;
 
         // 正弦
         public static double EaseInSine(double t) => 1 - Math.Cos(t * Math.PI / 2);
@@ -82,12 +82,12 @@ namespace KaedePhi.Core.Utils
         // 圆形
         public static double EaseInCirc(double t) => 1 - Math.Sqrt(1 - t * t);
 
-        public static double EaseOutCirc(double t) => Math.Sqrt(1 - (--t) * t);
+        public static double EaseOutCirc(double t) => Math.Sqrt(1 - --t * t);
 
         public static double EaseInOutCirc(double t) =>
             t < 0.5f
                 ? 0.5f * (1 - Math.Sqrt(1 - 4 * t * t))
-                : 0.5f * (Math.Sqrt(1 - 4 * (--t) * t) + 1);
+                : 0.5f * (Math.Sqrt(1 - 4 * --t * t) + 1);
 
         // 回弹
         public static double EaseInBack(double t)

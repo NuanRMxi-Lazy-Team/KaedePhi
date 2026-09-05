@@ -362,7 +362,7 @@ public class EventListMergerPlus<TPayload> : EventListMerger<TPayload>
     {
         var prevEnd = GetPreviousEndValue(events, nextBeat);
         var outgoing =
-            (eventAtCurrent is not null && eventAtCurrent.EndBeat >= nextBeat)
+            eventAtCurrent is not null && eventAtCurrent.EndBeat >= nextBeat
                 ? eventAtCurrent.GetValueAtBeat(nextBeat)
                 : prevEnd;
         var incoming = eventAtNext is not null ? eventAtNext.GetValueAtBeat(nextBeat) : prevEnd;

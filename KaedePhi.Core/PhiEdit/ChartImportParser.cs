@@ -40,7 +40,7 @@ namespace KaedePhi.Core.PhiEdit
                     }
                 );
             }
-            else if (part[0].StartsWith("n", StringComparison.Ordinal))
+            else if (part[0].StartsWith('n'))
             {
                 var (speedPart, widthPart) = GetInlineNoteParts(part);
                 if (speedPart is null)
@@ -94,7 +94,7 @@ namespace KaedePhi.Core.PhiEdit
                     }
                 );
             }
-            else if (part[0].StartsWith("n", StringComparison.Ordinal))
+            else if (part[0].StartsWith('n'))
             {
                 var (speedPart, widthPart) = GetInlineNoteParts(part);
                 if (speedPart is null)
@@ -387,7 +387,7 @@ namespace KaedePhi.Core.PhiEdit
             if (
                 part[0].Length < 2
                 || !int.TryParse(
-                    part[0].Substring(1),
+                    part[0][1..],
                     NumberStyles.Integer,
                     CultureInfo.InvariantCulture,
                     out var noteTypeValue

@@ -59,7 +59,7 @@ internal sealed class PhigrosV3TimeMapper
         var seconds = 0d;
         foreach (var (beat, bpm) in changes)
         {
-            seconds += ((double)(beat - segmentBeat)) * 60d / segmentBpm;
+            seconds += (double)(beat - segmentBeat) * 60d / segmentBpm;
             _segments.Add(new TempoSegment(beat, bpm, seconds));
             segmentBeat = beat;
             segmentBpm = bpm;
@@ -141,7 +141,7 @@ internal sealed class PhigrosV3TimeMapper
         }
 
         var seconds =
-            (segment.StartSeconds + ((double)(beat - segment.StartBeat)) * 60d / segment.Bpm)
+            (segment.StartSeconds + (double)(beat - segment.StartBeat) * 60d / segment.Bpm)
             * bpmFactor;
         if (!double.IsFinite(seconds))
             throw new FormatException("KPC BPM 时间积分结果不是有限数值。");

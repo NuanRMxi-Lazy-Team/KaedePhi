@@ -461,7 +461,7 @@ public static class FatherUnbindHelpers
             X: lastX.StartValue + (currentX.EndValue - lastX.StartValue) * progress,
             Y: lastY.StartValue + (currentY.EndValue - lastY.StartValue) * progress
         );
-        return (GetNormalizedKpcDistance(actualJunction, predictedJunction) / originalMovementRange)
+        return GetNormalizedKpcDistance(actualJunction, predictedJunction) / originalMovementRange
             <= relativeTolerance;
     }
 

@@ -143,12 +143,12 @@ public class PhiEditJudgeLineBuilder
     private static bool HasNonDefaultExtendLayer(ExtendLayer? layer) =>
         layer != null
         && (
-            (layer.ColorEvents?.Count > 0)
-            || (layer.ScaleXEvents?.Count > 0)
-            || (layer.ScaleYEvents?.Count > 0)
-            || (layer.TextEvents?.Count > 0)
-            || (layer.PaintEvents?.Count > 0)
-            || (layer.GifEvents?.Count > 0)
+            layer.ColorEvents?.Count > 0
+            || layer.ScaleXEvents?.Count > 0
+            || layer.ScaleYEvents?.Count > 0
+            || layer.TextEvents?.Count > 0
+            || layer.PaintEvents?.Count > 0
+            || layer.GifEvents?.Count > 0
         );
 
     private static bool IsDefaultAnchor(float[]? anchor) =>

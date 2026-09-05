@@ -375,7 +375,7 @@ public class PhigrosV3JudgeLineBuilder
             if (middleValue == 0)
                 return middleBeat;
 
-            if ((middleValue < 0) == startsNegative)
+            if (middleValue < 0 == startsNegative)
                 low = middle;
             else
                 high = middle;
