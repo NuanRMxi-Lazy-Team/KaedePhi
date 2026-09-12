@@ -62,12 +62,12 @@ public sealed class PrecisionAnalyzer : DiagnosticAnalyzer
             return;
 
         // 依次按阈值匹配规则：非正数、超上限、偏高
-        var diagnostic =
-            value <= 0 ? PrecisionDiagnostic.Rule
-            : value > PrecisionThresholds.MaximumPrecision ? PrecisionDiagnostic.ExcessiveRule
-            : value > PrecisionThresholds.HighPrecisionThreshold
-                ? PrecisionDiagnostic.HighPrecisionRule
-            : null;
+        var diagnostic = value switch
+        {
+            <= 0 => PrecisionDiagnostic.Rule,
+            > PrecisionThresholds.MaximumPrecision => PrecisionDiagnostic.ExcessiveRule,
+            _ => value > PrecisionThresholds.HighPrecisionThreshold ? PrecisionDiagnostic.HighPrecisionRule : null
+        };
         if (diagnostic is null)
             return;
 

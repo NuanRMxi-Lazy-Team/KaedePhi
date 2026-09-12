@@ -29,7 +29,7 @@ public readonly record struct CoordinateProfile(
     );
 
     /// <summary>
-    /// 默认渲染坐标系配置（当前与常见 675x450 编辑器坐标兼容）。
+    /// 默认渲染坐标系配置
     /// </summary>
     public static readonly CoordinateProfile DefaultRenderProfile = new(
         -675d,

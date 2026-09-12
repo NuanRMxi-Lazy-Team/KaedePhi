@@ -11,15 +11,6 @@ namespace KaedePhi.Core.PhiEdit
     public partial class Chart
     {
         /// <summary>
-        /// 将 PhiEditChart 格式的文本字符串反序列化为 <see cref="Chart"/> 对象。
-        /// <para>反序列化为 CPU 密集的同步操作，直接返回已完成任务，不做线程池假异步。</para>
-        /// </summary>
-        /// <param name="pec">符合 PhiEditChart 规范的文本字符串。</param>
-        /// <returns>已完整反序列化并排序的 <see cref="Chart"/> 实例。</returns>
-        /// <exception cref="FormatException">首行不是合法整数偏移量，或任意指令字段数不足。</exception>
-        public static Task<Chart> LoadAsync(string pec) => Task.FromResult(Load(pec));
-
-        /// <summary>
         /// 以惰性迭代方式枚举单条判定线 <paramref name="judgeLine"/> 的所有 PhiEditChart 导出行。
         /// <para>
         /// 输出顺序为：移动关键帧 → 速度关键帧 → 旋转关键帧 → 不透明度关键帧 →
@@ -31,7 +22,7 @@ namespace KaedePhi.Core.PhiEdit
         /// <returns>按 PhiEditChart 规范格式化的文本行序列。</returns>
         private static IEnumerable<string> GetJudgeLineLines(JudgeLine judgeLine, int index)
         {
-            // Frame
+            // 关键帧按 PhiEditChart 规定的通道顺序输出。
             foreach (var frame in judgeLine.MoveFrames)
                 yield return frame.ToString(index);
             foreach (var frame in judgeLine.SpeedFrames)
@@ -40,16 +31,22 @@ namespace KaedePhi.Core.PhiEdit
                 yield return frame.ToString(index, "cd");
             foreach (var frame in judgeLine.AlphaFrames)
                 yield return frame.ToString(index, "ca");
-            // Event
+
+            // 事件按移动、旋转、不透明度的顺序输出。
             foreach (var ev in judgeLine.MoveEvents)
                 yield return ev.ToString(index);
             foreach (var ev in judgeLine.RotateEvents)
                 yield return ev.ToString(index, "cr");
             foreach (var ev in judgeLine.AlphaEvents)
                 yield return ev.ToString(index, "cf");
-            // Note
+
             foreach (var note in judgeLine.NoteList)
-                yield return note.ToString(index);
+            {
+                var (noteLine, speedLine, widthLine) = note.GetExportParts(index);
+                yield return noteLine;
+                yield return speedLine;
+                yield return widthLine;
+            }
         }
 
         /// <summary>
@@ -100,8 +97,7 @@ namespace KaedePhi.Core.PhiEdit
         public async Task ExportToStreamAsync(Stream stream)
         {
             await using var writer = CreateStreamWriter(stream);
-            foreach (var line in GetExportLines())
-                await writer.WriteLineAsync(line);
+            await WriteExportLinesAsync(writer).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -109,8 +105,15 @@ namespace KaedePhi.Core.PhiEdit
         /// </summary>
         /// <param name="stream">要写入的流。</param>
         /// <returns>用于写入谱面文本的 <see cref="StreamWriter"/> 实例。</returns>
-        private static StreamWriter CreateStreamWriter(Stream stream) =>
-            new(stream, JsonDefaults.NoBomUtf8, 1024, leaveOpen: true);
+        private static StreamWriter CreateStreamWriter(Stream stream)
+        {
+            if (stream is null)
+                throw new ArgumentNullException(nameof(stream));
+            if (!stream.CanWrite)
+                throw new ArgumentException("Stream must be writable.", nameof(stream));
+
+            return new StreamWriter(stream, JsonDefaults.NoBomUtf8, 1024, leaveOpen: true);
+        }
 
         /// <summary>
         /// 将谱面以 PhiEditChart 格式写入指定的行写入函数。
@@ -120,6 +123,16 @@ namespace KaedePhi.Core.PhiEdit
         {
             foreach (var line in GetExportLines())
                 writeLineFunc(line);
+        }
+
+        /// <summary>
+        /// 异步写出共享的导出行序列，避免同步和异步导出分别维护一套遍历逻辑。
+        /// </summary>
+        /// <param name="writer">目标文本写入器。</param>
+        private async Task WriteExportLinesAsync(StreamWriter writer)
+        {
+            foreach (var line in GetExportLines())
+                await writer.WriteLineAsync(line).ConfigureAwait(false);
         }
     }
 }

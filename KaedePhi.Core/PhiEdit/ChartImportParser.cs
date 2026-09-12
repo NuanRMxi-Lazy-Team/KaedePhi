@@ -2,133 +2,125 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using KaedePhi.Core.Common;
 
 namespace KaedePhi.Core.PhiEdit
 {
     public partial class Chart
     {
-        /// <summary>
-        /// 解析谱面中的一行文本，将结果写入 <paramref name="chart"/> 或 <paramref name="judgeDict"/>。
-        /// <para>
-        /// 若当前行为 Note 指令且未内联速度/宽度信息，则通过 <paramref name="readNextLineFunc"/> 额外读取紧跟的两行。
-        /// </para>
-        /// </summary>
-        /// <param name="line">当前非空白文本行。</param>
-        /// <param name="readNextLineFunc">用于按需读取后续行（Note 多行格式）的函数。</param>
-        /// <param name="chart">正在构建的谱面对象。</param>
-        /// <param name="judgeDict">判定线暂存字典。</param>
-        /// <exception cref="FormatException">指令字段数不足，或 Note 缺失速度/宽度行。</exception>
-        private static void ParseChartLineCore(
-            string line,
-            Func<string?> readNextLineFunc,
-            Chart chart,
-            Dictionary<int, JudgeLine> judgeDict
-        )
+        private readonly struct NotePart
         {
-            var part = SplitWhitespace(line);
-            var judgeLineIndex = GetJudgeLineIndex(part);
-
-            if (part[0] == "bp")
+            public NotePart(string marker, string value)
             {
-                EnsureMinParts(part, 3, "bp");
-                chart.BpmList.Add(
-                    new BpmItem
-                    {
-                        StartBeat = ParseFloat(part[1], "bp 起始拍"),
-                        Bpm = ParseFloat(part[2], "bp BPM"),
-                    }
-                );
+                Marker = marker;
+                Value = value;
             }
-            else if (part[0].StartsWith('n'))
-            {
-                var (speedPart, widthPart) = GetInlineNoteParts(part);
-                if (speedPart is null)
-                {
-                    var speedLine = readNextLineFunc();
-                    var widthLine = readNextLineFunc();
-                    if (speedLine is null || widthLine is null)
-                        throw new FormatException("Malformed note: missing speed or width lines.");
-                    speedPart = SplitWhitespace(speedLine);
-                    widthPart = SplitWhitespace(widthLine);
-                }
 
-                AddNoteToDict(BuildNote(part, speedPart, widthPart), judgeLineIndex, judgeDict);
+            public string Marker { get; }
+            public string Value { get; }
+        }
+
+        private readonly struct PendingNote
+        {
+            public PendingNote(string[] commandParts, int judgeLineIndex)
+            {
+                CommandParts = commandParts;
+                JudgeLineIndex = judgeLineIndex;
             }
-            else
-                ParseLineCommand(part, judgeLineIndex, judgeDict);
+
+            public string[] CommandParts { get; }
+            public int JudgeLineIndex { get; }
         }
 
         /// <summary>
-        /// 解析谱面中的一行文本，将结果写入 <paramref name="chart"/> 或 <paramref name="judgeDict"/>。
-        /// <para>
-        /// 若当前行为 Note 指令且未内联速度/宽度信息，则从 <paramref name="lines"/> 额外读取紧跟的两行。
-        /// </para>
+        /// 解析一条指令。只有缺少内联速度和宽度信息的 Note 才返回待续行状态。
         /// </summary>
         /// <param name="line">当前非空白文本行。</param>
-        /// <param name="lines">谱面全部文本行数组。</param>
-        /// <param name="index">当前行在 <paramref name="lines"/> 中的索引。</param>
-        /// <param name="chart">正在构建的谱面对象。</param>
+        /// <param name="chart">正在构建的谱面。</param>
         /// <param name="judgeDict">判定线暂存字典。</param>
-        /// <returns>消耗的行数（1 为仅当前行，3 为包含后续两行）。</returns>
-        /// <exception cref="FormatException">指令字段数不足，或 Note 缺失速度/宽度行。</exception>
-        private static int ParseChartLineCore(
+        /// <returns>需要继续读取两行参数的 Note；其他指令返回 <see langword="null"/>。</returns>
+        /// <exception cref="FormatException">指令字段数不足或字段格式错误。</exception>
+        private static PendingNote? ParseChartLineCore(
             string line,
-            string[] lines,
-            int index,
             Chart chart,
             Dictionary<int, JudgeLine> judgeDict
         )
         {
-            var part = SplitWhitespace(line);
-            var judgeLineIndex = GetJudgeLineIndex(part);
+            var parts = SplitWhitespace(line);
+            var judgeLineIndex = GetJudgeLineIndex(parts);
 
-            if (part[0] == "bp")
+            if (parts[0] == "bp")
             {
-                EnsureMinParts(part, 3, "bp");
+                EnsureMinParts(parts, 3, "bp");
                 chart.BpmList.Add(
                     new BpmItem
                     {
-                        StartBeat = ParseFloat(part[1], "bp 起始拍"),
-                        Bpm = ParseFloat(part[2], "bp BPM"),
+                        StartBeat = ParseFloat(parts[1], "bp 起始拍"),
+                        Bpm = ParseFloat(parts[2], "bp BPM"),
                     }
                 );
+                return null;
             }
-            else if (part[0].StartsWith('n'))
+
+            if (parts[0].StartsWith('n'))
             {
-                var (speedPart, widthPart) = GetInlineNoteParts(part);
-                if (speedPart is null)
+                if (TryGetInlineNoteParts(parts, out var speedPart, out var widthPart))
                 {
-                    if (index + 2 >= lines.Length)
-                        throw new FormatException(
-                            $"Malformed note at line {index + 1}: missing speed or width lines."
-                        );
-                    speedPart = SplitWhitespace(lines[index + 1]);
-                    widthPart = SplitWhitespace(lines[index + 2]);
-                    AddNoteToDict(BuildNote(part, speedPart, widthPart), judgeLineIndex, judgeDict);
-                    return 3;
+                    AddNoteToDict(
+                        BuildNote(parts, speedPart, widthPart),
+                        judgeLineIndex,
+                        judgeDict
+                    );
+                    return null;
                 }
 
-                AddNoteToDict(BuildNote(part, speedPart, widthPart), judgeLineIndex, judgeDict);
+                return new PendingNote(parts, judgeLineIndex);
             }
-            else
-                ParseLineCommand(part, judgeLineIndex, judgeDict);
 
-            return 1;
+            ParseLineCommand(parts, judgeLineIndex, judgeDict);
+            return null;
+        }
+
+        /// <summary>
+        /// 使用已经读取的速度行和宽度行完成一个多行 Note。
+        /// </summary>
+        /// <param name="pending">待完成的 Note 信息。</param>
+        /// <param name="speedLine">速度倍率行。</param>
+        /// <param name="widthLine">宽度比例行。</param>
+        /// <param name="judgeDict">判定线暂存字典。</param>
+        /// <param name="missingLinesMessage">续行缺失时使用的错误消息。</param>
+        /// <exception cref="FormatException">续行缺失或字段格式错误。</exception>
+        private static void CompletePendingNote(
+            PendingNote pending,
+            string? speedLine,
+            string? widthLine,
+            Dictionary<int, JudgeLine> judgeDict,
+            string missingLinesMessage
+        )
+        {
+            if (speedLine is null || widthLine is null)
+                throw new FormatException(missingLinesMessage);
+
+            var speedPart = ParseNotePart(speedLine, isSpeedPart: true);
+            var widthPart = ParseNotePart(widthLine, isSpeedPart: false);
+            AddNoteToDict(
+                BuildNote(pending.CommandParts, speedPart, widthPart),
+                pending.JudgeLineIndex,
+                judgeDict
+            );
         }
 
         /// <summary>
         /// 校验指令的字段数量是否满足最低要求；不满足时抛出包含命令名称和实际/期望字段数的 <see cref="FormatException"/>。
         /// </summary>
-        /// <param name="part">已按空格拆分的指令字段数组。</param>
+        /// <param name="parts">已按空格拆分的指令字段数组。</param>
         /// <param name="min">该指令要求的最小字段数（含指令标识符本身）。</param>
-        /// <param name="cmd">指令名称，用于生成错误消息（如 <c>"bp"</c>、<c>"cm"</c>）。</param>
-        /// <exception cref="FormatException"><paramref name="part"/> 的长度小于 <paramref name="min"/>。</exception>
-        private static void EnsureMinParts(string[] part, int min, string cmd)
+        /// <param name="command">指令名称，用于生成错误消息。</param>
+        /// <exception cref="FormatException"><paramref name="parts"/> 的长度小于 <paramref name="min"/>。</exception>
+        private static void EnsureMinParts(string[] parts, int min, string command)
         {
-            if (part.Length < min)
+            if (parts.Length < min)
                 throw new FormatException(
-                    $"Malformed '{cmd}' command: expected at least {min} parts, got {part.Length}."
+                    $"Malformed '{command}' command: expected at least {min} parts, got {parts.Length}."
                 );
         }
 
@@ -141,20 +133,20 @@ namespace KaedePhi.Core.PhiEdit
             line.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries);
 
         /// <summary>
-        /// 解析指令的判定线索引字段（<c>part[1]</c>），若为 <c>"bp"</c> 则返回 -1。
+        /// 解析指令的判定线索引字段；BPM 指令不属于任何判定线。
         /// </summary>
-        /// <param name="part">已按空格拆分的指令字段数组。</param>
-        /// <returns>判定线索引，若为 <c>"bp"</c> 则返回 -1。</returns>
-        /// <exception cref="FormatException"><paramref name="part"/> 的长度不足或格式错误。</exception>
-        private static int GetJudgeLineIndex(string[] part)
+        /// <param name="parts">已按空格拆分的指令字段数组。</param>
+        /// <returns>判定线索引，BPM 指令返回 -1。</returns>
+        /// <exception cref="FormatException"><paramref name="parts"/> 的长度不足或格式错误。</exception>
+        private static int GetJudgeLineIndex(string[] parts)
         {
-            if (part.Length == 0)
+            if (parts.Length == 0)
                 throw new FormatException("Malformed chart command: command is empty.");
-            if (part[0] == "bp")
+            if (parts[0] == "bp")
                 return -1;
 
-            EnsureMinParts(part, 2, part[0]);
-            return ParseInteger(part[1], $"{part[0]} 判定线索引");
+            EnsureMinParts(parts, 2, parts[0]);
+            return ParseInteger(parts[1], $"{parts[0]} 判定线索引");
         }
 
         /// <summary>
@@ -167,7 +159,7 @@ namespace KaedePhi.Core.PhiEdit
             int.TryParse(text, NumberStyles.Integer, CultureInfo.InvariantCulture, out value);
 
         /// <summary>
-        /// 尝试将文本解析为整数。
+        /// 解析一个整数并在失败时生成包含字段名称的格式异常。
         /// </summary>
         /// <param name="text">要解析的文本。</param>
         /// <param name="field">字段名称，用于生成错误消息。</param>
@@ -181,12 +173,12 @@ namespace KaedePhi.Core.PhiEdit
         }
 
         /// <summary>
-        /// 尝试将文本解析为浮点数，使用不区分区域的浮点格式。
+        /// 解析一个有限浮点数并在失败时生成包含字段名称的格式异常。
         /// </summary>
         /// <param name="text">要解析的文本。</param>
         /// <param name="field">字段名称，用于生成错误消息。</param>
         /// <returns>解析成功的浮点数值。</returns>
-        /// <exception cref="FormatException">解析失败。</exception>
+        /// <exception cref="FormatException">解析失败或结果不是有限值。</exception>
         private static float ParseFloat(string text, string field)
         {
             if (
@@ -204,12 +196,12 @@ namespace KaedePhi.Core.PhiEdit
         }
 
         /// <summary>
-        /// 尝试将文本解析为二进制标记（0/1），用于表示布尔值。
+        /// 解析 0/1 二进制标记。
         /// </summary>
         /// <param name="text">要解析的文本。</param>
         /// <param name="field">字段名称，用于生成错误消息。</param>
         /// <returns>解析成功的布尔值。</returns>
-        /// <exception cref="FormatException">解析失败。</exception>
+        /// <exception cref="FormatException">文本不是 0 或 1。</exception>
         private static bool ParseBinaryFlag(string text, string field) =>
             text switch
             {
@@ -219,11 +211,11 @@ namespace KaedePhi.Core.PhiEdit
             };
 
         /// <summary>
-        /// 尝试将文本解析为上下侧标记（1/2），用于表示布尔值。
+        /// 解析 1/2 上下侧标记。
         /// </summary>
         /// <param name="text">要解析的文本。</param>
         /// <returns>解析成功的布尔值。</returns>
-        /// <exception cref="FormatException">解析失败。</exception>
+        /// <exception cref="FormatException">文本不是 1 或 2。</exception>
         private static bool ParseAboveFlag(string text) =>
             text switch
             {
@@ -233,161 +225,106 @@ namespace KaedePhi.Core.PhiEdit
             };
 
         /// <summary>
-        /// 根据指令类型（<c>cv</c>/<c>cp</c>/<c>cd</c>/<c>ca</c>/<c>cm</c>/<c>cr</c>/<c>cf</c>）
-        /// 解析对应的关键帧或事件，追加到 <paramref name="judgeDict"/> 中对应判定线的集合内。
-        /// <para>
-        /// 未知指令类型将被静默忽略。若指令所对应的判定线尚不存在，会自动创建并注册。
-        /// </para>
+        /// 根据指令类型解析关键帧或事件，并追加到对应判定线。
+        /// 未知指令保持静默忽略，以兼容 PhiEdit 的扩展指令。
         /// </summary>
-        /// <param name="part">已按空格拆分的指令字段数组，<c>part[0]</c> 为指令标识符，<c>part[1]</c> 为判定线索引。</param>
-        /// <param name="judgeLineIndex">当前指令作用的判定线索。</param>
-        /// <param name="judgeDict">判定线暂存字典，解析结果将就地写入。</param>
+        /// <param name="parts">已按空格拆分的指令字段数组。</param>
+        /// <param name="judgeLineIndex">当前指令作用的判定线索引。</param>
+        /// <param name="judgeDict">判定线暂存字典。</param>
         /// <exception cref="FormatException">指令字段数不足。</exception>
         private static void ParseLineCommand(
-            string[] part,
+            string[] parts,
             int judgeLineIndex,
             Dictionary<int, JudgeLine> judgeDict
         )
         {
-            switch (part[0])
+            switch (parts[0])
             {
                 case "cv":
-                    EnsureMinParts(part, 4, "cv");
-                    Ensure();
-                    judgeDict[judgeLineIndex]
-                        .SpeedFrames.Add(
-                            new Frame
-                            {
-                                Beat = ParseFloat(part[2], "cv 拍数"),
-                                Value = ParseFloat(part[3], "cv 数值"),
-                            }
-                        );
-                    break;
-                case "cp":
-                    EnsureMinParts(part, 5, "cp");
-                    Ensure();
-                    judgeDict[judgeLineIndex]
-                        .MoveFrames.Add(
-                            new MoveFrame
-                            {
-                                Beat = ParseFloat(part[2], "cp 拍数"),
-                                XValue = ParseFloat(part[3], "cp X 数值"),
-                                YValue = ParseFloat(part[4], "cp Y 数值"),
-                            }
-                        );
-                    break;
                 case "cd":
-                    EnsureMinParts(part, 4, "cd");
-                    Ensure();
-                    judgeDict[judgeLineIndex]
-                        .RotateFrames.Add(
-                            new Frame
-                            {
-                                Beat = ParseFloat(part[2], "cd 拍数"),
-                                Value = ParseFloat(part[3], "cd 数值"),
-                            }
-                        );
-                    break;
                 case "ca":
-                    EnsureMinParts(part, 4, "ca");
-                    Ensure();
-                    judgeDict[judgeLineIndex]
-                        .AlphaFrames.Add(
-                            new Frame
-                            {
-                                Beat = ParseFloat(part[2], "ca 拍数"),
-                                Value = ParseFloat(part[3], "ca 数值"),
-                            }
-                        );
+                {
+                    EnsureMinParts(parts, 4, parts[0]);
+                    var frame = new Frame
+                    {
+                        Beat = ParseFloat(parts[2], $"{parts[0]} 拍数"),
+                        Value = ParseFloat(parts[3], $"{parts[0]} 数值"),
+                    };
+                    var judgeLine = GetOrCreateJudgeLine(judgeLineIndex, judgeDict);
+                    if (parts[0] == "cv")
+                        judgeLine.SpeedFrames.Add(frame);
+                    else if (parts[0] == "cd")
+                        judgeLine.RotateFrames.Add(frame);
+                    else
+                        judgeLine.AlphaFrames.Add(frame);
                     break;
+                }
+                case "cp":
+                {
+                    EnsureMinParts(parts, 5, "cp");
+                    GetOrCreateJudgeLine(judgeLineIndex, judgeDict).MoveFrames.Add(
+                        new MoveFrame
+                        {
+                            Beat = ParseFloat(parts[2], "cp 拍数"),
+                            XValue = ParseFloat(parts[3], "cp X 数值"),
+                            YValue = ParseFloat(parts[4], "cp Y 数值"),
+                        }
+                    );
+                    break;
+                }
                 case "cm":
-                    EnsureMinParts(part, 7, "cm");
-                    Ensure();
-                    judgeDict[judgeLineIndex]
-                        .MoveEvents.Add(
-                            new MoveEvent
-                            {
-                                StartBeat = ParseFloat(part[2], "cm 起始拍"),
-                                EndBeat = ParseFloat(part[3], "cm 结束拍"),
-                                EndXValue = ParseFloat(part[4], "cm X 数值"),
-                                EndYValue = ParseFloat(part[5], "cm Y 数值"),
-                                EasingType = new Easing(ParseInteger(part[6], "cm 缓动类型")),
-                            }
-                        );
+                {
+                    EnsureMinParts(parts, 7, "cm");
+                    GetOrCreateJudgeLine(judgeLineIndex, judgeDict).MoveEvents.Add(
+                        new MoveEvent
+                        {
+                            StartBeat = ParseFloat(parts[2], "cm 起始拍"),
+                            EndBeat = ParseFloat(parts[3], "cm 结束拍"),
+                            EndXValue = ParseFloat(parts[4], "cm X 数值"),
+                            EndYValue = ParseFloat(parts[5], "cm Y 数值"),
+                            EasingType = Easing.Get(ParseInteger(parts[6], "cm 缓动类型")),
+                        }
+                    );
                     break;
+                }
                 case "cr":
-                    EnsureMinParts(part, 6, "cr");
-                    Ensure();
-                    judgeDict[judgeLineIndex]
-                        .RotateEvents.Add(
-                            new Event
-                            {
-                                StartBeat = ParseFloat(part[2], "cr 起始拍"),
-                                EndBeat = ParseFloat(part[3], "cr 结束拍"),
-                                EndValue = ParseFloat(part[4], "cr 数值"),
-                                EasingType = new Easing(ParseInteger(part[5], "cr 缓动类型")),
-                            }
-                        );
-                    break;
                 case "cf":
-                    EnsureMinParts(part, 5, "cf");
-                    Ensure();
-                    judgeDict[judgeLineIndex]
-                        .AlphaEvents.Add(
-                            new Event
-                            {
-                                StartBeat = ParseFloat(part[2], "cf 起始拍"),
-                                EndBeat = ParseFloat(part[3], "cf 结束拍"),
-                                EndValue = ParseFloat(part[4], "cf 数值"),
-                                EasingType = Easing.Linear,
-                            }
-                        );
+                {
+                    var isRotate = parts[0] == "cr";
+                    EnsureMinParts(parts, isRotate ? 6 : 5, parts[0]);
+                    var eventValue = new Event
+                    {
+                        StartBeat = ParseFloat(parts[2], $"{parts[0]} 起始拍"),
+                        EndBeat = ParseFloat(parts[3], $"{parts[0]} 结束拍"),
+                        EndValue = ParseFloat(parts[4], $"{parts[0]} 数值"),
+                        EasingType = isRotate
+                            ? Easing.Get(ParseInteger(parts[5], "cr 缓动类型"))
+                            : Easing.Linear,
+                    };
+                    var judgeLine = GetOrCreateJudgeLine(judgeLineIndex, judgeDict);
+                    if (isRotate)
+                        judgeLine.RotateEvents.Add(eventValue);
+                    else
+                        judgeLine.AlphaEvents.Add(eventValue);
                     break;
-            }
-
-            return;
-
-            void Ensure()
-            {
-                if (!judgeDict.ContainsKey(judgeLineIndex))
-                    judgeDict[judgeLineIndex] = new JudgeLine();
+                }
             }
         }
 
         /// <summary>
-        /// 根据已拆分的字段数组构造一个 <see cref="Note"/> 对象。
-        /// <para>
-        /// <c>part[0]</c> 的第二个字符决定音符类型；Hold 音符（类型 2）会从 <c>part</c> 读取结束拍，
-        /// 其余音符的结束拍等于起始拍。速度倍率和宽度比例分别从
-        /// <paramref name="noteSpeedMultiplierPart"/>[1] 和 <paramref name="noteWidthRatioPart"/>[1] 读取。
-        /// </para>
+        /// 根据已拆分的字段数组构造一个 Note 对象。
         /// </summary>
-        /// <param name="part">Note 主指令字段数组（至少 4 个元素）。</param>
-        /// <param name="noteSpeedMultiplierPart">速度行字段数组，格式为 <c>["#", value]</c>（至少 2 个元素）。</param>
-        /// <param name="noteWidthRatioPart">宽度行字段数组，格式为 <c>["&amp;", value]</c>（至少 2 个元素）。</param>
-        /// <returns>完整填充的 <see cref="Note"/> 实例。</returns>
-        /// <exception cref="FormatException">任意字段数组元素数量不足。</exception>
-        private static Note BuildNote(
-            string[] part,
-            string[] noteSpeedMultiplierPart,
-            string[]? noteWidthRatioPart
-        )
+        /// <param name="parts">Note 主指令字段数组。</param>
+        /// <param name="speedPart">速度倍率字段。</param>
+        /// <param name="widthPart">宽度比例字段。</param>
+        /// <returns>完整填充的 Note 实例。</returns>
+        /// <exception cref="FormatException">任意字段数组元素数量不足或格式错误。</exception>
+        private static Note BuildNote(string[] parts, NotePart speedPart, NotePart widthPart)
         {
-            if (noteWidthRatioPart is null)
-                throw new FormatException("Malformed note: missing width ratio part.");
-            if (noteSpeedMultiplierPart.Length < 2)
-                throw new FormatException(
-                    "Malformed note speed multiplier part: expected at least 2 elements."
-                );
-            if (noteWidthRatioPart.Length < 2)
-                throw new FormatException(
-                    "Malformed note width ratio part: expected at least 2 elements."
-                );
-
             if (
-                part[0].Length < 2
+                parts[0].Length < 2
                 || !int.TryParse(
-                    part[0][1..],
+                    parts[0][1..],
                     NumberStyles.Integer,
                     CultureInfo.InvariantCulture,
                     out var noteTypeValue
@@ -400,17 +337,17 @@ namespace KaedePhi.Core.PhiEdit
             var noteType = (NoteType)noteTypeValue;
             var isHold = noteType == NoteType.Hold;
             var requiredPartCount = isHold ? 7 : 6;
-            var inlineMarkerIndex = Array.IndexOf(part, "#");
-            var notePartCount = inlineMarkerIndex >= 0 ? inlineMarkerIndex : part.Length;
+            var inlineMarkerIndex = Array.IndexOf(parts, "#");
+            var notePartCount = inlineMarkerIndex >= 0 ? inlineMarkerIndex : parts.Length;
             if (notePartCount < requiredPartCount)
                 throw new FormatException(
                     $"Malformed 'note' command: expected at least {requiredPartCount} parts, got {notePartCount}."
                 );
-            if (noteSpeedMultiplierPart[0] != "#" || noteWidthRatioPart[0] != "&")
+            if (speedPart.Marker != "#" || widthPart.Marker != "&")
                 throw new FormatException("Malformed note: invalid speed or width marker.");
 
-            var startBeat = ParseFloat(part[2], "note 起始拍");
-            var endBeat = isHold ? ParseFloat(part[3], "note 结束拍") : startBeat;
+            var startBeat = ParseFloat(parts[2], "note 起始拍");
+            var endBeat = isHold ? ParseFloat(parts[3], "note 结束拍") : startBeat;
             if (isHold && endBeat <= startBeat)
                 throw new FormatException("Hold 音符的结束拍必须晚于开始拍。");
 
@@ -418,88 +355,182 @@ namespace KaedePhi.Core.PhiEdit
             {
                 StartBeat = startBeat,
                 EndBeat = endBeat,
-                PositionX = ParseFloat(part[isHold ? 4 : 3], "note X 坐标"),
-                Above = ParseAboveFlag(part[isHold ? 5 : 4]),
-                IsFake = ParseBinaryFlag(part[isHold ? 6 : 5], "note 假音符标记"),
-                SpeedMultiplier = ParseFloat(noteSpeedMultiplierPart[1], "note 速度倍率"),
-                WidthRatio = ParseFloat(noteWidthRatioPart[1], "note 宽度比例"),
+                PositionX = ParseFloat(parts[isHold ? 4 : 3], "note X 坐标"),
+                Above = ParseAboveFlag(parts[isHold ? 5 : 4]),
+                IsFake = ParseBinaryFlag(parts[isHold ? 6 : 5], "note 假音符标记"),
+                SpeedMultiplier = ParseFloat(speedPart.Value, "note 速度倍率"),
+                WidthRatio = ParseFloat(widthPart.Value, "note 宽度比例"),
                 Type = noteType,
             };
         }
 
         /// <summary>
-        /// 从 Note 主指令字段数组中尝试提取内联的速度行和宽度行。
-        /// <para>
-        /// 部分不规范谱面允许将速度（<c># value</c>）和宽度（<c>&amp; value</c>）以空格连接内联在同一行中；
-        /// 本方法通过查找 <c>#</c> 和 <c>&amp;</c> 标记判断是否为内联格式。
-        /// </para>
+        /// 解析独立的 Note 速度或宽度行。
         /// </summary>
-        /// <param name="part">Note 行按空格拆分后的全部字段。</param>
-        /// <returns>
-        /// 若找到内联的速度和宽度信息，返回对应的两个字段数组元组 <c>(speedPart, widthPart)</c>；
-        /// 否则两者均为 <see langword="null"/>，表示需要额外读取后续两行。
-        /// </returns>
-        private static (string[]? speedPart, string[]? widthPart) GetInlineNoteParts(string[] part)
+        /// <param name="line">参数行文本。</param>
+        /// <param name="isSpeedPart">是否为速度倍率行。</param>
+        /// <returns>参数行的标记和值。</returns>
+        /// <exception cref="FormatException">参数行字段不足。</exception>
+        private static NotePart ParseNotePart(string line, bool isSpeedPart)
         {
-            var hashIndex = Array.IndexOf(part, "#");
-            var ampIndex = Array.IndexOf(part, "&");
-            if (
-                hashIndex != -1
-                && ampIndex != -1
-                && hashIndex + 1 < part.Length
-                && ampIndex + 1 < part.Length
-            )
-                return (new[] { "#", part[hashIndex + 1] }, new[] { "&", part[ampIndex + 1] });
-            return (null, null);
+            var parts = SplitWhitespace(line);
+            if (parts.Length < 2)
+                throw new FormatException(
+                    isSpeedPart
+                        ? "Malformed note speed multiplier part: expected at least 2 elements."
+                        : "Malformed note width ratio part: expected at least 2 elements."
+                );
+            return new NotePart(parts[0], parts[1]);
         }
 
         /// <summary>
-        /// 将 <paramref name="note"/> 追加到 <paramref name="judgeDict"/> 中对应判定线的 <see cref="JudgeLine.NoteList"/>。
-        /// 若指定索引的判定线尚不存在，则自动创建并注册。
+        /// 从 Note 主指令中尝试读取内联的速度和宽度参数。
+        /// </summary>
+        /// <param name="parts">Note 行按空格拆分后的字段。</param>
+        /// <param name="speedPart">读取到的速度倍率字段。</param>
+        /// <param name="widthPart">读取到的宽度比例字段。</param>
+        /// <returns>同时找到两个完整内联参数时返回 <c>true</c>。</returns>
+        private static bool TryGetInlineNoteParts(
+            string[] parts,
+            out NotePart speedPart,
+            out NotePart widthPart
+        )
+        {
+            var hashIndex = Array.IndexOf(parts, "#");
+            var ampIndex = Array.IndexOf(parts, "&");
+            if (
+                hashIndex >= 0
+                && ampIndex >= 0
+                && hashIndex + 1 < parts.Length
+                && ampIndex + 1 < parts.Length
+            )
+            {
+                speedPart = new NotePart("#", parts[hashIndex + 1]);
+                widthPart = new NotePart("&", parts[ampIndex + 1]);
+                return true;
+            }
+
+            speedPart = default;
+            widthPart = default;
+            return false;
+        }
+
+        /// <summary>
+        /// 获取指定判定线，若尚不存在则创建并登记。
+        /// </summary>
+        /// <param name="judgeLineIndex">判定线索引。</param>
+        /// <param name="judgeDict">判定线暂存字典。</param>
+        /// <returns>对应的判定线实例。</returns>
+        private static JudgeLine GetOrCreateJudgeLine(
+            int judgeLineIndex,
+            Dictionary<int, JudgeLine> judgeDict
+        )
+        {
+            if (!judgeDict.TryGetValue(judgeLineIndex, out var judgeLine))
+            {
+                judgeLine = new JudgeLine();
+                judgeDict.Add(judgeLineIndex, judgeLine);
+            }
+
+            return judgeLine;
+        }
+
+        /// <summary>
+        /// 将 Note 追加到指定判定线。
         /// </summary>
         /// <param name="note">待追加的音符。</param>
-        /// <param name="judgeLineIndex">音符所属判定线的索引。</param>
+        /// <param name="judgeLineIndex">音符所属判定线索引。</param>
         /// <param name="judgeDict">判定线暂存字典。</param>
         private static void AddNoteToDict(
             Note note,
             int judgeLineIndex,
             Dictionary<int, JudgeLine> judgeDict
+        ) => GetOrCreateJudgeLine(judgeLineIndex, judgeDict).NoteList.Add(note);
+
+        /// <summary>
+        /// 初始化谱面对象和判定线字典，并解析首行偏移量。
+        /// </summary>
+        /// <param name="firstLine">谱面首行。</param>
+        /// <returns>初始化后的谱面和判定线字典。</returns>
+        /// <exception cref="FormatException">首行偏移量格式错误。</exception>
+        private static (Chart chart, Dictionary<int, JudgeLine> judgeDict) InitializeChart(
+            string? firstLine
         )
         {
-            if (!judgeDict.ContainsKey(judgeLineIndex))
-                judgeDict[judgeLineIndex] = new JudgeLine();
-            judgeDict[judgeLineIndex].NoteList.Add(note);
+            if (!TryParseInteger(firstLine?.TrimStart('\uFEFF'), out var offset))
+                throw new FormatException(
+                    "Malformed chart file: first line is not a valid integer offset."
+                );
+
+            return (new Chart { Offset = offset }, new Dictionary<int, JudgeLine>());
         }
 
         /// <summary>
-        /// 对 <paramref name="chart"/> 和 <paramref name="judgeDict"/> 执行最终的排序与组装。
-        /// <para>
-        /// BPM 列表按起始拍升序排序；每条判定线的关键帧列表、事件列表和音符列表分别按拍数/起始拍升序排序；
-        /// 最后将 <paramref name="judgeDict"/> 按判定线索引升序转换为 <see cref="Chart.JudgeLineList"/>。
-        /// </para>
+        /// 对解析结果执行稳定排序，并将判定线字典转换为列表。
         /// </summary>
-        /// <param name="chart">待完善的谱面对象，<see cref="Chart.JudgeLineList"/> 将在此方法中赋值。</param>
+        /// <param name="chart">待完善的谱面对象。</param>
         /// <param name="judgeDict">解析阶段积累的判定线暂存字典。</param>
         private static void SortAndBuild(Chart chart, Dictionary<int, JudgeLine> judgeDict)
         {
-            chart.BpmList = chart.BpmList.OrderBy(b => b.StartBeat).ToList();
+            chart.BpmList = SortByBeat(chart.BpmList, static bpm => bpm.StartBeat);
             foreach (var judgeLine in judgeDict.Values)
             {
-                // 排序
-                // Frame
-                judgeLine.SpeedFrames = judgeLine.SpeedFrames.OrderBy(f => f.Beat).ToList();
-                judgeLine.MoveFrames = judgeLine.MoveFrames.OrderBy(f => f.Beat).ToList();
-                judgeLine.RotateFrames = judgeLine.RotateFrames.OrderBy(f => f.Beat).ToList();
-                judgeLine.AlphaFrames = judgeLine.AlphaFrames.OrderBy(f => f.Beat).ToList();
-                // Event
-                judgeLine.MoveEvents = judgeLine.MoveEvents.OrderBy(e => e.StartBeat).ToList();
-                judgeLine.RotateEvents = judgeLine.RotateEvents.OrderBy(e => e.StartBeat).ToList();
-                judgeLine.AlphaEvents = judgeLine.AlphaEvents.OrderBy(e => e.StartBeat).ToList();
-                // Note
-                judgeLine.NoteList = judgeLine.NoteList.OrderBy(n => n.StartBeat).ToList();
+                judgeLine.SpeedFrames = SortByBeat(
+                    judgeLine.SpeedFrames,
+                    static frame => frame.Beat
+                );
+                judgeLine.MoveFrames = SortByBeat(
+                    judgeLine.MoveFrames,
+                    static frame => frame.Beat
+                );
+                judgeLine.RotateFrames = SortByBeat(
+                    judgeLine.RotateFrames,
+                    static frame => frame.Beat
+                );
+                judgeLine.AlphaFrames = SortByBeat(
+                    judgeLine.AlphaFrames,
+                    static frame => frame.Beat
+                );
+                judgeLine.MoveEvents = SortByBeat(
+                    judgeLine.MoveEvents,
+                    static eventValue => eventValue.StartBeat
+                );
+                judgeLine.RotateEvents = SortByBeat(
+                    judgeLine.RotateEvents,
+                    static eventValue => eventValue.StartBeat
+                );
+                judgeLine.AlphaEvents = SortByBeat(
+                    judgeLine.AlphaEvents,
+                    static eventValue => eventValue.StartBeat
+                );
+                judgeLine.NoteList = SortByBeat(
+                    judgeLine.NoteList,
+                    static note => note.StartBeat
+                );
             }
 
-            chart.JudgeLineList = judgeDict.OrderBy(kv => kv.Key).Select(kv => kv.Value).ToList();
+            chart.JudgeLineList = judgeDict
+                .OrderBy(pair => pair.Key)
+                .Select(pair => pair.Value)
+                .ToList();
+        }
+
+        /// <summary>
+        /// 对拍点列表执行稳定排序；若输入已经有序则直接复用原列表。
+        /// </summary>
+        /// <typeparam name="T">列表元素类型。</typeparam>
+        /// <param name="items">待排序列表。</param>
+        /// <param name="getBeat">获取元素排序拍点的函数。</param>
+        /// <returns>排序后的列表。</returns>
+        private static List<T> SortByBeat<T>(List<T> items, Func<T, float> getBeat)
+        {
+            for (var i = 1; i < items.Count; i++)
+            {
+                if (getBeat(items[i - 1]) > getBeat(items[i]))
+                    return items.OrderBy(getBeat).ToList();
+            }
+
+            return items;
         }
     }
 }

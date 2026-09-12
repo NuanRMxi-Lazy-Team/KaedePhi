@@ -62,14 +62,15 @@ public sealed class JudgeLineUnbinderAnalyzer : DiagnosticAnalyzer
                 continue;
 
             // 依次按阈值匹配规则：动态零容差、过大、过小
-            var diagnostic =
-                isDynamicMethod && argument.Parameter?.Name == "tolerance" && value == 0.0
-                    ? JudgeLineUnbinderDiagnostic.ZeroToleranceRule
-                : value >= JudgeLineUnbinderTolerance.ErrorThreshold
-                    ? JudgeLineUnbinderDiagnostic.Rule
-                : value > 0.0 && value < JudgeLineUnbinderTolerance.SmallToleranceThreshold
+            DiagnosticDescriptor? diagnostic;
+            if (isDynamicMethod && argument.Parameter?.Name == "tolerance" && value == 0.0)
+                diagnostic = JudgeLineUnbinderDiagnostic.ZeroToleranceRule;
+            else if (value >= JudgeLineUnbinderTolerance.ErrorThreshold)
+                diagnostic = JudgeLineUnbinderDiagnostic.Rule;
+            else
+                diagnostic = value is > 0.0 and < JudgeLineUnbinderTolerance.SmallToleranceThreshold
                     ? JudgeLineUnbinderDiagnostic.SmallToleranceRule
-                : null;
+                    : null;
             if (diagnostic is null)
                 continue;
 

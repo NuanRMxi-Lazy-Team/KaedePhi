@@ -16,10 +16,10 @@ public class ChartExtensionTests
 
             var chart = Chart.Load(
                 "0\r\n  bp\t0.5   120.5\r"
-                    + "cv\t0\t1.5\t2.5\n"
-                    + "n1\t0\t2.5\t0.25\t1\t0\n"
-                    + "#\t1.5\n"
-                    + "&\t0.75"
+                + "cv\t0\t1.5\t2.5\n"
+                + "n1\t0\t2.5\t0.25\t1\t0\n"
+                + "#\t1.5\n"
+                + "&\t0.75"
             );
 
             chart.BpmList[0].StartBeat.Should().Be(0.5f);
@@ -60,6 +60,107 @@ public class ChartExtensionTests
         var act = () => Chart.Load("0\ncv 0 invalid 1");
 
         act.Should().Throw<FormatException>();
+    }
+
+    [Fact]
+    public async Task Loaders_UseTheSameParserForAllChartCommands()
+    {
+        const string pec =
+            "-20\n"
+            + "bp 4 180\n"
+            + "bp 0 120\n"
+            + "cp 1 2 300 400\n"
+            + "cv 1 1 2\n"
+            + "cd 1 3 45\n"
+            + "ca 1 4 0.5\n"
+            + "cm 1 0 2 500 600 2\n"
+            + "cr 1 2 3 90 3\n"
+            + "cf 1 4 5 0.5\n"
+            + "n2 1 3 4 100 1 0\n"
+            + "# 1.25\n"
+            + "& 0.5\n"
+            + "n1 1 1 200 2 1 # 2 & 0.75\n"
+            + "extension 1 ignored\n";
+
+        var fromText = Chart.Load(pec);
+        await using var asyncStream = new MemoryStream(Encoding.UTF8.GetBytes(pec));
+        var fromAsyncStream = await Chart.LoadStreamAsync(asyncStream);
+        await using var syncStream = new MemoryStream(Encoding.UTF8.GetBytes(pec));
+        var fromSyncStream = Chart.LoadStream(syncStream);
+
+        fromText.Export().Should().Be(fromAsyncStream.Export());
+        fromText.Export().Should().Be(fromSyncStream.Export());
+        fromText.BpmList.Select(item => item.StartBeat).Should().Equal(0, 4);
+        fromText.JudgeLineList.Should().HaveCount(1);
+        fromText.JudgeLineList[0].NoteList.Should().HaveCount(2);
+        asyncStream.CanRead.Should().BeTrue();
+        syncStream.CanRead.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task Loaders_RejectTruncatedMultilineNote()
+    {
+        const string pec = "0\nn1 0 1 100 1 0\n# 1";
+
+        var textAction = () => Chart.Load(pec);
+        var syncAction = () => Chart.LoadStream(new MemoryStream(Encoding.UTF8.GetBytes(pec)));
+        var asyncAction = () =>
+            Chart.LoadStreamAsync(new MemoryStream(Encoding.UTF8.GetBytes(pec)));
+
+        textAction.Should().Throw<FormatException>();
+        syncAction.Should().Throw<FormatException>();
+        await asyncAction.Should().ThrowAsync<FormatException>();
+    }
+
+    [Fact]
+    public async Task StreamApis_RejectInvalidOwnershipArguments()
+    {
+        var loadAction = () => Chart.LoadStream(null!);
+        var loadAsyncAction = () => Chart.LoadStreamAsync(null!);
+        var chart = new Chart();
+        var exportAction = () => chart.ExportToStream(null!);
+        var exportAsyncAction = () => chart.ExportToStreamAsync(null!);
+
+        loadAction.Should().Throw<ArgumentNullException>();
+        await loadAsyncAction.Should().ThrowAsync<ArgumentNullException>();
+        exportAction.Should().Throw<ArgumentNullException>();
+        await exportAsyncAction.Should().ThrowAsync<ArgumentNullException>();
+    }
+
+    [Fact]
+    public async Task Exporters_WriteTheSamePhysicalLines()
+    {
+        var chart = new Chart
+        {
+            Offset = 12,
+            JudgeLineList =
+            [
+                new JudgeLine
+                {
+                    NoteList =
+                    [
+                        new Note
+                        {
+                            Type = NoteType.Hold,
+                            StartBeat = 1,
+                            EndBeat = 2,
+                            PositionX = 100,
+                        },
+                    ],
+                },
+            ],
+        };
+        var expected = chart.Export() + Environment.NewLine;
+
+        using var syncStream = new MemoryStream();
+        chart.ExportToStream(syncStream);
+        Encoding.UTF8.GetString(syncStream.ToArray()).Should().Be(expected);
+
+        await using var asyncStream = new MemoryStream();
+        await chart.ExportToStreamAsync(asyncStream);
+        Encoding.UTF8.GetString(asyncStream.ToArray()).Should().Be(expected);
+        syncStream.CanWrite.Should().BeTrue();
+        asyncStream.CanWrite.Should().BeTrue();
     }
 
     [Fact]

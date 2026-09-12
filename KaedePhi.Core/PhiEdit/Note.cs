@@ -1,6 +1,5 @@
 using System;
 using System.Globalization;
-using System.Text;
 
 namespace KaedePhi.Core.PhiEdit
 {
@@ -29,58 +28,58 @@ namespace KaedePhi.Core.PhiEdit
         /// <exception cref="ArgumentException">存储的数值有误</exception>
         public string ToString(int judgeLineIndex)
         {
+            var (noteLine, speedLine, widthLine) = GetExportParts(judgeLineIndex);
+            return string.Join(Environment.NewLine, noteLine, speedLine, widthLine);
+        }
+
+        /// <summary>
+        /// 获取 Note 导出的三条物理文本行，供字符串导出和流式导出共享。
+        /// </summary>
+        /// <param name="judgeLineIndex">判定线索引。</param>
+        /// <returns>Note 主指令、速度倍率行和宽度比例行。</returns>
+        /// <exception cref="ArgumentException">存储的数值有误。</exception>
+        internal (string noteLine, string speedLine, string widthLine) GetExportParts(
+            int judgeLineIndex
+        )
+        {
             const int fakeNote = 1;
             const int realNote = 0;
             const int aboveNote = 1;
             const int belowNote = 2;
-            var stringBuilder = new StringBuilder();
-            if (Type != NoteType.Hold)
-            {
-                if (Math.Abs(StartBeat - EndBeat) > 0.0001f) // 两者不相等？这不是Hold吧，throw
-                    throw new ArgumentException("非Hold音符的开始拍与结束拍应相等");
 
-                var aboveNumber = Above ? aboveNote : belowNote; // 上方为1，下方为2
-                var isFakeNumber = IsFake ? fakeNote : realNote; // 假音符为1，真音符为0
-                stringBuilder.AppendLine(
-                    string.Format(
-                        CultureInfo.InvariantCulture,
-                        "{0} {1} {2} {3} {4} {5}",
-                        $"n{(int)Type}",
-                        judgeLineIndex,
-                        StartBeat,
-                        PositionX,
-                        aboveNumber,
-                        isFakeNumber
-                    )
-                );
-            }
-            else
-            {
-                var aboveNumber = Above ? aboveNote : belowNote; // 上方为1，下方为2
-                var isFakeNumber = IsFake ? fakeNote : realNote; // 假音符为1，真音符为0
-                stringBuilder.AppendLine(
-                    string.Format(
-                        CultureInfo.InvariantCulture,
-                        "{0} {1} {2} {3} {4} {5} {6}",
-                        $"n{(int)Type}",
-                        judgeLineIndex,
-                        StartBeat,
-                        EndBeat,
-                        PositionX,
-                        aboveNumber,
-                        isFakeNumber
-                    )
-                );
-            }
+            if (Type != NoteType.Hold && Math.Abs(StartBeat - EndBeat) > 0.0001f)
+                throw new ArgumentException("非Hold音符的开始拍与结束拍应相等");
 
-            stringBuilder.AppendLine(
-                string.Format(CultureInfo.InvariantCulture, "{0} {1}", "#", SpeedMultiplier)
-            );
-            stringBuilder.AppendLine(
+            var aboveNumber = Above ? aboveNote : belowNote;
+            var isFakeNumber = IsFake ? fakeNote : realNote;
+            var noteLine = Type == NoteType.Hold
+                ? string.Format(
+                    CultureInfo.InvariantCulture,
+                    "{0} {1} {2} {3} {4} {5} {6}",
+                    $"n{(int)Type}",
+                    judgeLineIndex,
+                    StartBeat,
+                    EndBeat,
+                    PositionX,
+                    aboveNumber,
+                    isFakeNumber
+                )
+                : string.Format(
+                    CultureInfo.InvariantCulture,
+                    "{0} {1} {2} {3} {4} {5}",
+                    $"n{(int)Type}",
+                    judgeLineIndex,
+                    StartBeat,
+                    PositionX,
+                    aboveNumber,
+                    isFakeNumber
+                );
+
+            return (
+                noteLine,
+                string.Format(CultureInfo.InvariantCulture, "{0} {1}", "#", SpeedMultiplier),
                 string.Format(CultureInfo.InvariantCulture, "{0} {1}", "&", WidthRatio)
             );
-
-            return stringBuilder.ToString().Trim();
         }
 
         public Note Clone()
