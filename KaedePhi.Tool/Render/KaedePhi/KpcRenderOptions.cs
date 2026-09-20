@@ -1,95 +1,9 @@
-using SkiaSharp;
-
 namespace KaedePhi.Tool.Render.KaedePhi;
 
 /// <summary>
-/// KPC 谱面事件通道渲染配置。
+/// 已弃用的 KPC 谱面事件通道渲染配置，行为与 <see cref="Intermediate.IrRenderOptions"/> 一致。
 /// </summary>
-public class KpcRenderOptions
+[Obsolete("已弃用：请迁移至 KaedePhi.Tool.Render.Intermediate.IrRenderOptions。")]
+public class KpcRenderOptions : Intermediate.IrRenderOptions
 {
-    /// <summary>每拍对应的像素高度</summary>
-    public float PixelsPerBeat { get; set; } = 100f;
-
-    /// <summary>每个通道的宽度（像素）</summary>
-    public int ChannelWidth { get; set; } = 150;
-
-    /// <summary>每个事件的采样点数（越高曲线越平滑）</summary>
-    public int SamplesPerEvent { get; set; } = 64;
-
-    /// <summary>
-    /// 每拍的细分格线数。
-    /// 1 = 只绘制节拍线（每拍一条）；
-    /// 4 = 每拍绘制四条（四分音符位置）；
-    /// 默认 2（半拍）。
-    /// </summary>
-    public int BeatSubdivisions { get; set; } = 2;
-
-    /// <summary>曲线描边宽度</summary>
-    public float StrokeWidth { get; set; } = 2f;
-
-    /// <summary>左侧留白宽度（用于绘制拍号标注）</summary>
-    public int LeftMargin { get; set; } = 64;
-
-    /// <summary>顶部留白高度（用于绘制通道标题）</summary>
-    public int HeaderHeight { get; set; } = 44;
-
-    /// <summary>底部留白</summary>
-    public int BottomPadding { get; set; } = 24;
-
-    /// <summary>通道之间的间距</summary>
-    public int ChannelPadding { get; set; } = 4;
-
-    /// <summary>采样范围填充比例（用于自动计算值域范围的上下边距）</summary>
-    public double RangePaddingRatio { get; set; } = 0.10;
-
-    /// <summary>每个事件用于值域探测的采样点数</summary>
-    public int RangeSamplesPerEvent { get; set; } = 16;
-
-    /// <summary>段分组容差（相邻事件端点小于此值时视为连续）</summary>
-    public double SegmentGroupTolerance { get; set; } = 1e-6;
-
-    /// <summary>最小值域半宽（当值域接近零时的兜底值）</summary>
-    public double MinValueRangeHalf { get; set; } = 0.1;
-
-    /// <summary>最小值域半宽比例（相对于中心值的比例）</summary>
-    public double MinValueRangeHalfRatio { get; set; } = 0.15;
-
-    /// <summary>背景颜色</summary>
-    public SKColor BackgroundColor { get; set; } = new(22, 22, 30);
-
-    /// <summary>整拍格线颜色</summary>
-    public SKColor BeatGridColor { get; set; } = new(65, 65, 80);
-
-    /// <summary>半拍格线颜色（较暗）</summary>
-    public SKColor SubBeatGridColor { get; set; } = new(40, 40, 52);
-
-    /// <summary>通道背景颜色</summary>
-    public SKColor ChannelBackgroundColor { get; set; } = new(32, 32, 46);
-
-    /// <summary>通道中心参考线颜色</summary>
-    public SKColor CenterLineColor { get; set; } = new(80, 80, 100);
-
-    /// <summary>事件背景块颜色（半透明）</summary>
-    public SKColor EventBlockColor { get; set; } = new(255, 255, 255, 18);
-
-    /// <summary>事件间连接线颜色</summary>
-    public SKColor ConnectionColor { get; set; } = new(160, 160, 160, 140);
-
-    /// <summary>标注文字颜色</summary>
-    public SKColor TextColor { get; set; } = new(180, 180, 190);
-
-    /// <summary>MoveX 通道颜色</summary>
-    public SKColor MoveXColor { get; set; } = new(90, 180, 255);
-
-    /// <summary>MoveY 通道颜色</summary>
-    public SKColor MoveYColor { get; set; } = new(80, 230, 160);
-
-    /// <summary>Rotate 通道颜色</summary>
-    public SKColor RotateColor { get; set; } = new(255, 200, 80);
-
-    /// <summary>Alpha 通道颜色</summary>
-    public SKColor AlphaColor { get; set; } = new(200, 100, 255);
-
-    /// <summary>Speed 通道颜色</summary>
-    public SKColor SpeedColor { get; set; } = new(255, 110, 110);
 }

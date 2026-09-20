@@ -1,6 +1,6 @@
-using KaedePhi.Core.KaedePhi;
+using KaedePhi.Core.Intermediate;
 
-namespace KaedePhi.Tests.KaedePhi;
+namespace KaedePhi.Tests.Intermediate;
 
 public class NoteTests
 {

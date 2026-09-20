@@ -1,8 +1,8 @@
 using System.Reflection;
-using KaedePhi.Core.Common;
+using KaedePhi.Core.Primitives;
 using KaedePhi.Tool.Common;
 using KaedePhi.Tool.Converter;
-using KaedePhi.Tool.Converter.KaedePhi;
+using KaedePhi.Tool.Converter.Intermediate;
 using KaedePhi.Tool.Converter.PhiChain;
 using KaedePhi.Tool.Converter.PhiChain.Model;
 using KaedePhi.Tool.Converter.PhiEdit;
@@ -13,12 +13,12 @@ using KaedePhi.Tool.Converter.Phigros.v3;
 using KaedePhi.Tool.Converter.Phigros.v3.Model;
 using KaedePhi.Tool.Converter.RePhiEdit;
 using KaedePhi.Tool.Converter.RePhiEdit.Model;
-using Kpc = KaedePhi.Core.KaedePhi;
-using Pc = KaedePhi.Core.PhiChain.v6;
-using Pe = KaedePhi.Core.PhiEdit;
-using Pf = KaedePhi.Core.PhiFans;
-using Phigros = KaedePhi.Core.Phigros.v3;
-using Rpe = KaedePhi.Core.RePhiEdit;
+using Ir = KaedePhi.Core.Intermediate;
+using Pc = KaedePhi.Core.Formats.PhiChain.v6;
+using Pe = KaedePhi.Core.Formats.PhiEdit;
+using Pf = KaedePhi.Core.Formats.PhiFans;
+using Phigros = KaedePhi.Core.Formats.Phigros.v3;
+using Rpe = KaedePhi.Core.Formats.RePhiEdit;
 
 namespace KaedePhi.Tests.Validation;
 
@@ -27,7 +27,7 @@ public class NoteEndBeatInvariantTests
     [Fact]
     public void NormalizeAndValidateNoteEndBeats_NullChartThrows()
     {
-        Action act = () => KpcChartNormalizer.NormalizeAndValidateNoteEndBeats(null!);
+        Action act = () => IrChartNormalizer.NormalizeAndValidateNoteEndBeats(null!);
 
         act.Should().Throw<ArgumentNullException>();
     }
@@ -40,9 +40,9 @@ public class NoteEndBeatInvariantTests
         NoteType type
     )
     {
-        var source = CreateKpcChart(type, 3, 9);
+        var source = CreateIrChart(type, 3, 9);
 
-        var normalized = KpcChartNormalizer.NormalizeAndValidateNoteEndBeats(source);
+        var normalized = IrChartNormalizer.NormalizeAndValidateNoteEndBeats(source);
 
         ((double)normalized.JudgeLineList[0].Notes[0].EndBeat).Should().Be(3);
         ((double)source.JudgeLineList[0].Notes[0].EndBeat).Should().Be(9);
@@ -54,11 +54,11 @@ public class NoteEndBeatInvariantTests
     [Fact]
     public void NormalizeAndValidateNoteEndBeats_HoldWithoutExplicitEndPassesThrough()
     {
-        var source = CreateKpcChartWithNote(
-            new Kpc.Note { Type = NoteType.Hold, StartBeat = Beat(3) }
+        var source = CreateIrChartWithNote(
+            new Ir.Note { Type = NoteType.Hold, StartBeat = Beat(3) }
         );
 
-        Action act = () => KpcChartNormalizer.NormalizeAndValidateNoteEndBeats(source);
+        Action act = () => IrChartNormalizer.NormalizeAndValidateNoteEndBeats(source);
 
         act.Should().NotThrow();
         ((double)source.JudgeLineList[0].Notes[0].EndBeat).Should().Be(1);
@@ -69,9 +69,9 @@ public class NoteEndBeatInvariantTests
     [InlineData(2)]
     public void NormalizeAndValidateNoteEndBeats_HoldNotAfterStartPassesThrough(double endBeat)
     {
-        var source = CreateKpcChart(NoteType.Hold, 3, endBeat);
+        var source = CreateIrChart(NoteType.Hold, 3, endBeat);
 
-        Action act = () => KpcChartNormalizer.NormalizeAndValidateNoteEndBeats(source);
+        Action act = () => IrChartNormalizer.NormalizeAndValidateNoteEndBeats(source);
 
         act.Should().NotThrow();
         ((double)source.JudgeLineList[0].Notes[0].EndBeat).Should().Be(endBeat);
@@ -80,22 +80,22 @@ public class NoteEndBeatInvariantTests
     [Fact]
     public void NormalizeAndValidateNoteEndBeats_ValidHoldKeepsEndOnIndependentCopy()
     {
-        var source = CreateKpcChart(NoteType.Hold, 3, 5);
+        var source = CreateIrChart(NoteType.Hold, 3, 5);
 
-        var normalized = KpcChartNormalizer.NormalizeAndValidateNoteEndBeats(source);
+        var normalized = IrChartNormalizer.NormalizeAndValidateNoteEndBeats(source);
 
         ((double)normalized.JudgeLineList[0].Notes[0].EndBeat).Should().Be(5);
         normalized.JudgeLineList[0].Notes[0].Should().NotBeSameAs(source.JudgeLineList[0].Notes[0]);
     }
 
     [Fact]
-    public void KaedePhiConverter_ToKpcAndFromKpcReturnIndependentNormalizedCopies()
+    public void IntermediateConverter_ToIrAndFromIrReturnIndependentNormalizedCopies()
     {
-        var source = CreateKpcChart(NoteType.Tap, 3, 9);
-        var converter = new KaedePhiConverter();
+        var source = CreateIrChart(NoteType.Tap, 3, 9);
+        var converter = new IntermediateConverter();
 
-        var imported = converter.ToKpc(source, null);
-        var exported = converter.FromKpc(source, null);
+        var imported = converter.ToIr(source, null);
+        var exported = converter.FromIr(source, null);
 
         ((double)imported.JudgeLineList[0].Notes[0].EndBeat).Should().Be(3);
         ((double)exported.JudgeLineList[0].Notes[0].EndBeat).Should().Be(3);
@@ -105,7 +105,7 @@ public class NoteEndBeatInvariantTests
     }
 
     [Fact]
-    public void PhiEditConverter_ToKpcNormalizesNonHoldAndRejectsInvalidSourceHold()
+    public void PhiEditConverter_ToIrNormalizesNonHoldAndRejectsInvalidSourceHold()
     {
         var converter = new PhiEditConverter();
         var nonHold = new Pe.Chart
@@ -145,8 +145,8 @@ public class NoteEndBeatInvariantTests
             ],
         };
 
-        var converted = converter.ToKpc(nonHold, new PhiEditToKpcConvertOptions());
-        Action act = () => converter.ToKpc(invalidHold, new PhiEditToKpcConvertOptions());
+        var converted = converter.ToIr(nonHold, new PhiEditToIrConvertOptions());
+        Action act = () => converter.ToIr(invalidHold, new PhiEditToIrConvertOptions());
 
         ((double)converted.JudgeLineList[0].Notes[0].EndBeat).Should().Be(3);
         act.Should().Throw<FormatException>();
@@ -156,7 +156,7 @@ public class NoteEndBeatInvariantTests
     [InlineData(float.NaN)]
     [InlineData(float.PositiveInfinity)]
     [InlineData(float.NegativeInfinity)]
-    public void PhiEditConverter_ToKpcRejectsNonFiniteHoldEndBeat(float endBeat)
+    public void PhiEditConverter_ToIrRejectsNonFiniteHoldEndBeat(float endBeat)
     {
         var source = new Pe.Chart
         {
@@ -177,13 +177,13 @@ public class NoteEndBeatInvariantTests
             ],
         };
 
-        Action act = () => new PhiEditConverter().ToKpc(source, new PhiEditToKpcConvertOptions());
+        Action act = () => new PhiEditConverter().ToIr(source, new PhiEditToIrConvertOptions());
 
         act.Should().Throw<FormatException>();
     }
 
     [Fact]
-    public void PhiEditConverter_ToKpcKeepsValidHoldEndBeat()
+    public void PhiEditConverter_ToIrKeepsValidHoldEndBeat()
     {
         var source = new Pe.Chart
         {
@@ -204,13 +204,13 @@ public class NoteEndBeatInvariantTests
             ],
         };
 
-        var converted = new PhiEditConverter().ToKpc(source, new PhiEditToKpcConvertOptions());
+        var converted = new PhiEditConverter().ToIr(source, new PhiEditToIrConvertOptions());
 
         ((double)converted.JudgeLineList[0].Notes[0].EndBeat).Should().Be(5);
     }
 
     [Fact]
-    public void PhiFansConverter_ToKpcNormalizesNonHoldAndRejectsMissingSourceHoldEnd()
+    public void PhiFansConverter_ToIrNormalizesNonHoldAndRejectsMissingSourceHoldEnd()
     {
         var converter = new PhiFansConverter();
         var nonHold = CreatePhiFansChart(
@@ -225,15 +225,15 @@ public class NoteEndBeatInvariantTests
             new Pf.Note { Type = Pf.NoteType.Hold, Beat = Beat(-1) }
         );
 
-        var converted = converter.ToKpc(nonHold, null);
-        Action act = () => converter.ToKpc(invalidHold, null);
+        var converted = converter.ToIr(nonHold, null);
+        Action act = () => converter.ToIr(invalidHold, null);
 
         ((double)converted.JudgeLineList[0].Notes[0].EndBeat).Should().Be(3);
         act.Should().Throw<FormatException>();
     }
 
     [Fact]
-    public void PhiFansConverter_ToKpcKeepsValidHoldEndBeat()
+    public void PhiFansConverter_ToIrKeepsValidHoldEndBeat()
     {
         var source = CreatePhiFansChart(
             new Pf.Note
@@ -244,13 +244,13 @@ public class NoteEndBeatInvariantTests
             }
         );
 
-        var converted = new PhiFansConverter().ToKpc(source, null);
+        var converted = new PhiFansConverter().ToIr(source, null);
 
         ((double)converted.JudgeLineList[0].Notes[0].EndBeat).Should().Be(5);
     }
 
     [Fact]
-    public void PhigrosV3Converter_ToKpcNormalizesNonHoldAndRejectsMissingSourceHoldTime()
+    public void PhigrosV3Converter_ToIrNormalizesNonHoldAndRejectsMissingSourceHoldTime()
     {
         var converter = new PhigrosV3Converter();
         var nonHold = CreatePhigrosChart(
@@ -265,8 +265,8 @@ public class NoteEndBeatInvariantTests
             new Phigros.Note { Type = Phigros.NoteType.Hold, Time = -32 }
         );
 
-        var converted = converter.ToKpc(nonHold, null);
-        Action act = () => converter.ToKpc(invalidHold, null);
+        var converted = converter.ToIr(nonHold, null);
+        Action act = () => converter.ToIr(invalidHold, null);
 
         ((double)converted.JudgeLineList[0].Notes[0].EndBeat).Should().Be(3);
         act.Should().Throw<FormatException>();
@@ -276,7 +276,7 @@ public class NoteEndBeatInvariantTests
     [InlineData(float.NaN)]
     [InlineData(float.PositiveInfinity)]
     [InlineData(float.NegativeInfinity)]
-    public void PhigrosV3Converter_ToKpcRejectsNonFiniteHoldTime(float holdTime)
+    public void PhigrosV3Converter_ToIrRejectsNonFiniteHoldTime(float holdTime)
     {
         var source = CreatePhigrosChart(
             new Phigros.Note
@@ -287,13 +287,13 @@ public class NoteEndBeatInvariantTests
             }
         );
 
-        Action act = () => new PhigrosV3Converter().ToKpc(source, null);
+        Action act = () => new PhigrosV3Converter().ToIr(source, null);
 
         act.Should().Throw<FormatException>();
     }
 
     [Fact]
-    public void PhigrosV3Converter_ToKpcKeepsValidHoldEndBeat()
+    public void PhigrosV3Converter_ToIrKeepsValidHoldEndBeat()
     {
         var source = CreatePhigrosChart(
             new Phigros.Note
@@ -304,13 +304,13 @@ public class NoteEndBeatInvariantTests
             }
         );
 
-        var converted = new PhigrosV3Converter().ToKpc(source, null);
+        var converted = new PhigrosV3Converter().ToIr(source, null);
 
         ((double)converted.JudgeLineList[0].Notes[0].EndBeat).Should().Be(5);
     }
 
     [Fact]
-    public void RePhiEditConverter_ToKpcNormalizesNonHoldAndRejectsMissingSourceHoldEnd()
+    public void RePhiEditConverter_ToIrNormalizesNonHoldAndRejectsMissingSourceHoldEnd()
     {
         var converter = new RePhiEditConverter();
         var nonHold = CreateRePhiEditChart(
@@ -325,15 +325,15 @@ public class NoteEndBeatInvariantTests
             new Rpe.Note { Type = NoteType.Hold, StartBeat = Beat(0) }
         );
 
-        var converted = converter.ToKpc(nonHold, null);
-        Action act = () => converter.ToKpc(invalidHold, null);
+        var converted = converter.ToIr(nonHold, null);
+        Action act = () => converter.ToIr(invalidHold, null);
 
         ((double)converted.JudgeLineList[0].Notes[0].EndBeat).Should().Be(3);
         act.Should().Throw<FormatException>();
     }
 
     [Fact]
-    public void RePhiEditConverter_ToKpcKeepsValidHoldEndBeat()
+    public void RePhiEditConverter_ToIrKeepsValidHoldEndBeat()
     {
         var source = CreateRePhiEditChart(
             new Rpe.Note
@@ -344,13 +344,13 @@ public class NoteEndBeatInvariantTests
             }
         );
 
-        var converted = new RePhiEditConverter().ToKpc(source, null);
+        var converted = new RePhiEditConverter().ToIr(source, null);
 
         ((double)converted.JudgeLineList[0].Notes[0].EndBeat).Should().Be(5);
     }
 
     [Fact]
-    public void PhiChainConverter_ToKpcNormalizesNonHoldAndRejectsZeroDurationSourceHold()
+    public void PhiChainConverter_ToIrNormalizesNonHoldAndRejectsZeroDurationSourceHold()
     {
         var converter = new PhiChainConverter();
         var nonHold = CreatePhiChainChart(new Pc.Note { Type = Pc.NoteType.Tap, Beat = Beat(3) });
@@ -363,15 +363,15 @@ public class NoteEndBeatInvariantTests
             }
         );
 
-        var converted = converter.ToKpc(nonHold, new PhiChainToKpcConvertOptions());
-        Action act = () => converter.ToKpc(invalidHold, new PhiChainToKpcConvertOptions());
+        var converted = converter.ToIr(nonHold, new PhiChainToIrConvertOptions());
+        Action act = () => converter.ToIr(invalidHold, new PhiChainToIrConvertOptions());
 
         ((double)converted.JudgeLineList[0].Notes[0].EndBeat).Should().Be(3);
         act.Should().Throw<FormatException>();
     }
 
     [Fact]
-    public void PhiChainConverter_ToKpcKeepsValidOrdinaryHoldEndBeat()
+    public void PhiChainConverter_ToIrKeepsValidOrdinaryHoldEndBeat()
     {
         var source = CreatePhiChainChart(
             new Pc.Note
@@ -382,13 +382,13 @@ public class NoteEndBeatInvariantTests
             }
         );
 
-        var converted = new PhiChainConverter().ToKpc(source, new PhiChainToKpcConvertOptions());
+        var converted = new PhiChainConverter().ToIr(source, new PhiChainToIrConvertOptions());
 
         ((double)converted.JudgeLineList[0].Notes[0].EndBeat).Should().Be(5);
     }
 
     [Fact]
-    public void PhiChainConverter_ToKpcRejectsCurveHoldWithoutDuration()
+    public void PhiChainConverter_ToIrRejectsCurveHoldWithoutDuration()
     {
         var line = new Pc.SerializedLine
         {
@@ -405,13 +405,13 @@ public class NoteEndBeatInvariantTests
         };
         var source = new Pc.Chart { Lines = [line] };
 
-        Action act = () => new PhiChainConverter().ToKpc(source, new PhiChainToKpcConvertOptions());
+        Action act = () => new PhiChainConverter().ToIr(source, new PhiChainToIrConvertOptions());
 
         act.Should().Throw<FormatException>();
     }
 
     [Fact]
-    public void PhiChainConverter_ToKpcKeepsValidCurveHoldEndBeat()
+    public void PhiChainConverter_ToIrKeepsValidCurveHoldEndBeat()
     {
         var line = new Pc.SerializedLine
         {
@@ -430,7 +430,7 @@ public class NoteEndBeatInvariantTests
         };
         var source = new Pc.Chart { Lines = [line] };
 
-        var converted = new PhiChainConverter().ToKpc(source, new PhiChainToKpcConvertOptions());
+        var converted = new PhiChainConverter().ToIr(source, new PhiChainToIrConvertOptions());
 
         converted.JudgeLineList[0].Notes.Should().HaveCount(3);
         converted.JudgeLineList[0].Notes[2].Type.Should().Be(NoteType.Hold);
@@ -438,28 +438,28 @@ public class NoteEndBeatInvariantTests
     }
 
     [Fact]
-    public void FromKpc_InvalidHoldPassesThroughWithoutMutatingInput()
+    public void FromIr_InvalidHoldPassesThroughWithoutMutatingInput()
     {
-        var source = CreateKpcChartWithNote(
-            new Kpc.Note { Type = NoteType.Hold, StartBeat = Beat(3) }
+        var source = CreateIrChartWithNote(
+            new Ir.Note { Type = NoteType.Hold, StartBeat = Beat(3) }
         );
 
-        Action act = () => new KaedePhiConverter().FromKpc(source, null);
+        Action act = () => new IntermediateConverter().FromIr(source, null);
 
         act.Should().NotThrow();
         ((double)source.JudgeLineList[0].Notes[0].EndBeat).Should().Be(1);
     }
 
     [Fact]
-    public void FromKpc_NonHoldEndIsNormalizedForAllExternalFormatsWithoutMutatingInput()
+    public void FromIr_NonHoldEndIsNormalizedForAllExternalFormatsWithoutMutatingInput()
     {
-        var source = CreateKpcChart(NoteType.Tap, 3, 9);
+        var source = CreateIrChart(NoteType.Tap, 3, 9);
 
-        var pe = new PhiEditConverter().FromKpc(source, new KpcToPhiEditConvertOptions());
-        var pf = new PhiFansConverter().FromKpc(source, new KpcToPhiFansConvertOptions());
-        var pc = new PhiChainConverter().FromKpc(source, new KpcToPhiChainConvertOptions());
-        var phigros = new PhigrosV3Converter().FromKpc(source, new KpcToPhigrosV3ConvertOptions());
-        var rpe = new RePhiEditConverter().FromKpc(source, new ConvertOption());
+        var pe = new PhiEditConverter().FromIr(source, new IrToPhiEditConvertOptions());
+        var pf = new PhiFansConverter().FromIr(source, new IrToPhiFansConvertOptions());
+        var pc = new PhiChainConverter().FromIr(source, new IrToPhiChainConvertOptions());
+        var phigros = new PhigrosV3Converter().FromIr(source, new IrToPhigrosV3ConvertOptions());
+        var rpe = new RePhiEditConverter().FromIr(source, new ConvertOption());
 
         pe.JudgeLineList[0].NoteList[0].EndBeat.Should().Be(3);
         ((double)pf.JudgeLineList[0].NoteList[0].HoldEndBeat).Should().Be(3);
@@ -472,37 +472,37 @@ public class NoteEndBeatInvariantTests
     [Fact]
     public void ChartPipeline_NormalizesSourceConverterResultBeforeTargetConverter()
     {
-        var sourceChart = CreateKpcChart(NoteType.Tap, 3, 9);
-        var sourceConverter = new UnvalidatedKpcConverter { ToKpcResult = sourceChart };
-        var targetConverter = new UnvalidatedKpcConverter();
+        var sourceChart = CreateIrChart(NoteType.Tap, 3, 9);
+        var sourceConverter = new UnvalidatedIrConverter { ToIrResult = sourceChart };
+        var targetConverter = new UnvalidatedIrConverter();
 
-        var pipeline = ChartPipeline.From<Kpc.Chart, Unit?, Unit?>(
-            new Kpc.Chart(),
+        var pipeline = ChartPipeline.From<Ir.Chart, Unit?, Unit?>(
+            new Ir.Chart(),
             sourceConverter,
             null,
             TestContext.Current.CancellationToken
         );
-        _ = pipeline.To<Kpc.Chart, Unit?, Unit?>(targetConverter, null);
+        _ = pipeline.To<Ir.Chart, Unit?, Unit?>(targetConverter, null);
 
-        targetConverter.ReceivedKpc.Should().NotBeNull();
-        ((double)targetConverter.ReceivedKpc!.JudgeLineList[0].Notes[0].EndBeat).Should().Be(3);
-        targetConverter.ReceivedKpc.Should().NotBeSameAs(sourceChart);
+        targetConverter.ReceivedIr.Should().NotBeNull();
+        ((double)targetConverter.ReceivedIr!.JudgeLineList[0].Notes[0].EndBeat).Should().Be(3);
+        targetConverter.ReceivedIr.Should().NotBeSameAs(sourceChart);
         ((double)sourceChart.JudgeLineList[0].Notes[0].EndBeat).Should().Be(9);
     }
 
     [Fact]
     public void ChartPipeline_AllowsInvalidSourceConverterResult()
     {
-        var sourceConverter = new UnvalidatedKpcConverter
+        var sourceConverter = new UnvalidatedIrConverter
         {
-            ToKpcResult = CreateKpcChartWithNote(
-                new Kpc.Note { Type = NoteType.Hold, StartBeat = Beat(3) }
+            ToIrResult = CreateIrChartWithNote(
+                new Ir.Note { Type = NoteType.Hold, StartBeat = Beat(3) }
             ),
         };
 
         Action act = () =>
-            ChartPipeline.From<Kpc.Chart, Unit?, Unit?>(
-                new Kpc.Chart(),
+            ChartPipeline.From<Ir.Chart, Unit?, Unit?>(
+                new Ir.Chart(),
                 sourceConverter,
                 null,
                 TestContext.Current.CancellationToken
@@ -514,45 +514,45 @@ public class NoteEndBeatInvariantTests
     [Fact]
     public void ChartPipeline_ReNormalizesEachTargetInputAndIsolatesSourceConverterReference()
     {
-        var sourceChart = CreateKpcChart(NoteType.Tap, 3, 9);
-        var sourceConverter = new UnvalidatedKpcConverter { ToKpcResult = sourceChart };
+        var sourceChart = CreateIrChart(NoteType.Tap, 3, 9);
+        var sourceConverter = new UnvalidatedIrConverter { ToIrResult = sourceChart };
         var firstTargetEndBeat = 0d;
-        var firstTarget = new UnvalidatedKpcConverter
+        var firstTarget = new UnvalidatedIrConverter
         {
-            OnFromKpc = chart =>
+            OnFromIr = chart =>
             {
                 firstTargetEndBeat = (double)chart.JudgeLineList[0].Notes[0].EndBeat;
                 chart.JudgeLineList[0].Notes[0].EndBeat = Beat(15);
             },
         };
-        var secondTarget = new UnvalidatedKpcConverter();
+        var secondTarget = new UnvalidatedIrConverter();
 
-        var pipeline = ChartPipeline.From<Kpc.Chart, Unit?, Unit?>(
-            new Kpc.Chart(),
+        var pipeline = ChartPipeline.From<Ir.Chart, Unit?, Unit?>(
+            new Ir.Chart(),
             sourceConverter,
             null,
             TestContext.Current.CancellationToken
         );
         sourceChart.JudgeLineList[0].Notes[0].EndBeat = Beat(11);
-        _ = pipeline.To<Kpc.Chart, Unit?, Unit?>(firstTarget, null);
-        _ = pipeline.To<Kpc.Chart, Unit?, Unit?>(secondTarget, null);
+        _ = pipeline.To<Ir.Chart, Unit?, Unit?>(firstTarget, null);
+        _ = pipeline.To<Ir.Chart, Unit?, Unit?>(secondTarget, null);
 
         firstTargetEndBeat.Should().Be(3);
-        secondTarget.ReceivedKpc.Should().NotBeNull();
-        ((double)secondTarget.ReceivedKpc!.JudgeLineList[0].Notes[0].EndBeat).Should().Be(3);
-        firstTarget.ReceivedKpc.Should().NotBeSameAs(secondTarget.ReceivedKpc);
+        secondTarget.ReceivedIr.Should().NotBeNull();
+        ((double)secondTarget.ReceivedIr!.JudgeLineList[0].Notes[0].EndBeat).Should().Be(3);
+        firstTarget.ReceivedIr.Should().NotBeSameAs(secondTarget.ReceivedIr);
         ((double)sourceChart.JudgeLineList[0].Notes[0].EndBeat).Should().Be(11);
     }
 
     [Fact]
     public async Task ChartFormatDescriptor_ImportAsyncNormalizesIndependentCopy()
     {
-        var importedChart = CreateKpcChart(NoteType.Tap, 3, 9);
+        var importedChart = CreateIrChart(NoteType.Tap, 3, 9);
         var descriptor = CreateDescriptor();
         SetDescriptorDelegate(
             descriptor,
             "Importer",
-            (Func<string, object?, ChartLogSink, CancellationToken, Task<Kpc.Chart>>)(
+            (Func<string, object?, ChartLogSink, CancellationToken, Task<Ir.Chart>>)(
                 (_, _, _, _) => Task.FromResult(importedChart)
             )
         );
@@ -570,12 +570,12 @@ public class NoteEndBeatInvariantTests
     [Fact]
     public async Task ChartFormatDescriptor_ImportStreamAsyncNormalizesIndependentCopy()
     {
-        var importedChart = CreateKpcChart(NoteType.Drag, 3, 9);
+        var importedChart = CreateIrChart(NoteType.Drag, 3, 9);
         var descriptor = CreateDescriptor();
         SetDescriptorDelegate(
             descriptor,
             "StreamImporter",
-            (Func<Stream, object?, ChartLogSink, CancellationToken, Task<Kpc.Chart>>)(
+            (Func<Stream, object?, ChartLogSink, CancellationToken, Task<Ir.Chart>>)(
                 (_, _, _, _) => Task.FromResult(importedChart)
             )
         );
@@ -594,14 +594,14 @@ public class NoteEndBeatInvariantTests
     [Fact]
     public async Task ChartFormatDescriptor_ExportAsyncPassesNormalizedIndependentCopyToExporter()
     {
-        var sourceChart = CreateKpcChart(NoteType.Flick, 3, 9);
-        Kpc.Chart? exportedChart = null;
+        var sourceChart = CreateIrChart(NoteType.Flick, 3, 9);
+        Ir.Chart? exportedChart = null;
         var descriptor = CreateDescriptor();
         SetDescriptorDelegate(
             descriptor,
             "Exporter",
             (Func<
-                Kpc.Chart,
+                Ir.Chart,
                 string,
                 ChartWriteSettings,
                 object?,
@@ -638,7 +638,7 @@ public class NoteEndBeatInvariantTests
             descriptor,
             "Exporter",
             (Func<
-                Kpc.Chart,
+                Ir.Chart,
                 string,
                 ChartWriteSettings,
                 object?,
@@ -653,8 +653,8 @@ public class NoteEndBeatInvariantTests
                 }
             )
         );
-        var sourceChart = CreateKpcChartWithNote(
-            new Kpc.Note { Type = NoteType.Hold, StartBeat = Beat(3) }
+        var sourceChart = CreateIrChartWithNote(
+            new Ir.Note { Type = NoteType.Hold, StartBeat = Beat(3) }
         );
 
         Func<Task> act = () =>
@@ -685,9 +685,9 @@ public class NoteEndBeatInvariantTests
         property!.SetValue(descriptor, value);
     }
 
-    private static Kpc.Chart CreateKpcChart(NoteType type, double startBeat, double endBeat) =>
-        CreateKpcChartWithNote(
-            new Kpc.Note
+    private static Ir.Chart CreateIrChart(NoteType type, double startBeat, double endBeat) =>
+        CreateIrChartWithNote(
+            new Ir.Note
             {
                 Type = type,
                 StartBeat = Beat(startBeat),
@@ -695,8 +695,8 @@ public class NoteEndBeatInvariantTests
             }
         );
 
-    private static Kpc.Chart CreateKpcChartWithNote(Kpc.Note note) =>
-        new() { JudgeLineList = [new Kpc.JudgeLine { Notes = [note] }] };
+    private static Ir.Chart CreateIrChartWithNote(Ir.Note note) =>
+        new() { JudgeLineList = [new Ir.JudgeLine { Notes = [note] }] };
 
     private static Pf.Chart CreatePhiFansChart(Pf.Note note) =>
         new() { JudgeLineList = [new Pf.Line { NoteList = [note] }] };
@@ -712,13 +712,13 @@ public class NoteEndBeatInvariantTests
 
     private static Beat Beat(double value) => new(value);
 
-    private sealed class UnvalidatedKpcConverter : IChartConverter<Kpc.Chart, Unit?, Unit?>
+    private sealed class UnvalidatedIrConverter : IChartConverter<Ir.Chart, Unit?, Unit?>
     {
-        public Kpc.Chart? ToKpcResult { get; init; }
+        public Ir.Chart? ToIrResult { get; init; }
 
-        public Kpc.Chart? ReceivedKpc { get; private set; }
+        public Ir.Chart? ReceivedIr { get; private set; }
 
-        public Action<Kpc.Chart>? OnFromKpc { get; init; }
+        public Action<Ir.Chart>? OnFromIr { get; init; }
 
         public Action<string>? OnInfo { get; set; }
 
@@ -735,12 +735,12 @@ public class NoteEndBeatInvariantTests
             Action<string>? debug = null
         ) => new TestDisposable();
 
-        public Kpc.Chart ToKpc(Kpc.Chart input, Unit? options) => ToKpcResult ?? input;
+        public Ir.Chart ToIr(Ir.Chart input, Unit? options) => ToIrResult ?? input;
 
-        public Kpc.Chart FromKpc(Kpc.Chart input, Unit? options)
+        public Ir.Chart FromIr(Ir.Chart input, Unit? options)
         {
-            ReceivedKpc = input;
-            OnFromKpc?.Invoke(input);
+            ReceivedIr = input;
+            OnFromIr?.Invoke(input);
             return input;
         }
     }

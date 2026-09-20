@@ -1,11 +1,14 @@
-using KaedePhi.Core.Common;
-using KaedePhi.Core.KaedePhi;
+#pragma warning disable CS0618
+
+using KaedePhi.Tool.Compatibility;
+using Kpc = KaedePhi.Core.KaedePhi;
 
 namespace KaedePhi.Tool.Common;
 
 /// <summary>
-/// 创建音符结束拍已规范的谱面副本。
+/// 已弃用的 KPC 谱面规范化入口，行为与 <see cref="IrChartNormalizer"/> 一致。
 /// </summary>
+[Obsolete("已弃用：请迁移至 KaedePhi.Tool.Common.IrChartNormalizer。")]
 public static class KpcChartNormalizer
 {
     /// <summary>
@@ -13,33 +16,11 @@ public static class KpcChartNormalizer
     /// </summary>
     /// <param name="chart">待复制的 KPC 谱面。</param>
     /// <returns>音符结束拍已规范的独立谱面副本。</returns>
-    public static Chart NormalizeAndValidateNoteEndBeats(Chart chart)
-    {
-        ArgumentNullException.ThrowIfNull(chart);
-        KpcChartValidator.ValidateBpmAndBpmFactors(chart);
-
-        var normalized = chart.Clone();
-        NormalizeJudgeLineNotes(normalized.JudgeLineList);
-        return normalized;
-    }
-
-    private static void NormalizeJudgeLineNotes(IReadOnlyList<JudgeLine> judgeLines)
-    {
-        foreach (var line in judgeLines)
-            NormalizeNotes(line.Notes);
-    }
-
-    private static void NormalizeNotes(IReadOnlyList<Note> notes)
-    {
-        foreach (var note in notes)
-            NormalizeNote(note);
-    }
-
-    private static void NormalizeNote(Note note)
-    {
-        if (note.Type == NoteType.Hold)
-            return;
-
-        note.EndBeat = new Beat((int[])note.StartBeat);
-    }
+    [Obsolete("已弃用：请迁移至 IrChartNormalizer.NormalizeAndValidateNoteEndBeats。")]
+    public static Kpc.Chart NormalizeAndValidateNoteEndBeats(Kpc.Chart chart) =>
+        KpcCompatibilityMapper.ToKpc(
+            IrChartNormalizer.NormalizeAndValidateNoteEndBeats(
+                KpcCompatibilityMapper.ToIntermediate(chart)
+            )
+        );
 }

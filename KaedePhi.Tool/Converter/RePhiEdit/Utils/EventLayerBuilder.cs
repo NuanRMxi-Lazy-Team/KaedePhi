@@ -3,29 +3,29 @@ using KaedePhi.Tool.Converter.RePhiEdit.Model;
 namespace KaedePhi.Tool.Converter.RePhiEdit.Utils;
 
 /// <summary>
-/// RPE 与 KPC 事件层之间的双向转换工具。
+/// RPE 与 IR 事件层之间的双向转换工具。
 /// </summary>
 public static class EventLayerBuilder
 {
     /// <summary>
-    /// 将 RPE 事件层转换为 KPC 事件层。
+    /// 将 RPE 事件层转换为 IR 事件层。
     /// </summary>
     /// <param name="src">RPE 事件层。</param>
-    /// <returns>KPC 事件层。</returns>
-    public static KpcEvents.EventLayer ConvertEventLayer(RpeEvents.EventLayer src)
+    /// <returns>IR 事件层。</returns>
+    public static IrEvents.EventLayer ConvertEventLayer(RpeEvents.EventLayer src)
     {
-        var result = new KpcEvents.EventLayer();
+        var result = new IrEvents.EventLayer();
         if (src.MoveXEvents is not null)
             result.MoveXEvents = src.MoveXEvents.ConvertAll(e =>
-                EventBuilder.ConvertFloatToDoubleEvent(e, Transform.TransformToKpcX)
+                EventBuilder.ConvertFloatToDoubleEvent(e, Transform.TransformToIrX)
             );
         if (src.MoveYEvents is not null)
             result.MoveYEvents = src.MoveYEvents.ConvertAll(e =>
-                EventBuilder.ConvertFloatToDoubleEvent(e, Transform.TransformToKpcY)
+                EventBuilder.ConvertFloatToDoubleEvent(e, Transform.TransformToIrY)
             );
         if (src.RotateEvents is not null)
             result.RotateEvents = src.RotateEvents.ConvertAll(e =>
-                EventBuilder.ConvertFloatToDoubleEvent(e, Transform.TransformToKpcAngle)
+                EventBuilder.ConvertFloatToDoubleEvent(e, Transform.TransformToIrAngle)
             );
         if (src.AlphaEvents is not null)
             result.AlphaEvents = src.AlphaEvents.ConvertAll(EventBuilder.ConvertIntEvent);
@@ -35,13 +35,13 @@ public static class EventLayerBuilder
     }
 
     /// <summary>
-    /// 将 KPC 事件层转换为 RPE 事件层，不支持的缓动将被切段降级。
+    /// 将 IR 事件层转换为 RPE 事件层，不支持的缓动将被切段降级。
     /// </summary>
-    /// <param name="src">KPC 事件层。</param>
+    /// <param name="src">IR 事件层。</param>
     /// <param name="options">切割选项。</param>
     /// <returns>RPE 事件层。</returns>
     public static RpeEvents.EventLayer ConvertEventLayer(
-        KpcEvents.EventLayer src,
+        IrEvents.EventLayer src,
         ConvertOption.CuttingOptions options
     )
     {
@@ -95,15 +95,15 @@ public static class EventLayerBuilder
     }
 
     /// <summary>
-    /// 将 RPE 扩展层转换为 KPC 扩展层。
+    /// 将 RPE 扩展层转换为 IR 扩展层。
     /// </summary>
     /// <param name="src">RPE 扩展层，可为 null。</param>
-    /// <returns>KPC 扩展层，输入为 null 时返回 null。</returns>
-    public static KpcEvents.ExtendLayer? ConvertExtendLayer(RpeEvents.ExtendLayer? src)
+    /// <returns>IR 扩展层，输入为 null 时返回 null。</returns>
+    public static IrEvents.ExtendLayer? ConvertExtendLayer(RpeEvents.ExtendLayer? src)
     {
         if (src == null)
             return null;
-        var result = new KpcEvents.ExtendLayer();
+        var result = new IrEvents.ExtendLayer();
         if (src.ColorEvents is not null)
             result.ColorEvents = src.ColorEvents.ConvertAll(EventBuilder.ConvertByteArrayEvent);
         if (src.ScaleXEvents is not null)
@@ -122,13 +122,13 @@ public static class EventLayerBuilder
     }
 
     /// <summary>
-    /// 将 KPC 扩展层转换为 RPE 扩展层，不支持的缓动将被切段降级。
+    /// 将 IR 扩展层转换为 RPE 扩展层，不支持的缓动将被切段降级。
     /// </summary>
-    /// <param name="src">KPC 扩展层，可为 null。</param>
+    /// <param name="src">IR 扩展层，可为 null。</param>
     /// <param name="options">切割选项。</param>
     /// <returns>RPE 扩展层，输入为 null 时返回 null。</returns>
     public static RpeEvents.ExtendLayer? ConvertExtendLayer(
-        KpcEvents.ExtendLayer? src,
+        IrEvents.ExtendLayer? src,
         ConvertOption.CuttingOptions options
     )
     {

@@ -1,6 +1,6 @@
 using KaedePhi.Tool.Common;
 using KaedePhi.Tool.Converter.PhiEdit.Model;
-using Meta = KaedePhi.Core.KaedePhi.Meta;
+using Meta = KaedePhi.Core.Intermediate.Meta;
 
 namespace KaedePhi.Tool.Converter.PhiEdit;
 
@@ -9,7 +9,7 @@ namespace KaedePhi.Tool.Converter.PhiEdit;
 /// </summary>
 public class PhiEditConverter
     : LoggableBase,
-        IChartConverter<Pe.Chart, PhiEditToKpcConvertOptions, KpcToPhiEditConvertOptions>,
+        IChartConverter<Pe.Chart, PhiEditToIrConvertOptions, IrToPhiEditConvertOptions>,
         ICancellableChartConverter
 {
     private CancellationToken _ct;
@@ -18,12 +18,12 @@ public class PhiEditConverter
     public void SetCancellationToken(CancellationToken ct) => _ct = ct;
 
     /// <summary>
-    /// 将 PhiEdit 格式转换为 KPC 内部格式。
+    /// 将 PhiEdit 格式转换为 IR 内部格式。
     /// </summary>
     /// <param name="source">PhiEdit 谱面</param>
     /// <param name="option">输入转换选项</param>
-    /// <returns>KPC 谱面</returns>
-    public Kpc.Chart ToKpc(Pe.Chart source, PhiEditToKpcConvertOptions option)
+    /// <returns>IR 谱面</returns>
+    public Ir.Chart ToIr(Pe.Chart source, PhiEditToIrConvertOptions option)
     {
         ArgumentNullException.ThrowIfNull(source);
         ArgumentNullException.ThrowIfNull(option);
@@ -31,30 +31,30 @@ public class PhiEditConverter
 
         _ct.ThrowIfCancellationRequested();
 
-        var converted = new Kpc.Chart
+        var converted = new Ir.Chart
         {
             BpmList = source.BpmList.ConvertAll(Utils.BpmItemBuilder.ConvertBpmItem),
             Meta = Utils.MetaBuilder.ConvertMeta(source),
-            JudgeLineList = new Utils.KaedePhiJudgeLineBuilder(option, _ct).ConvertJudgeLines(
+            JudgeLineList = new Utils.IntermediateJudgeLineBuilder(option, _ct).ConvertJudgeLines(
                 source.JudgeLineList
             ),
         };
-        return KpcChartNormalizer.NormalizeAndValidateNoteEndBeats(converted);
+        return IrChartNormalizer.NormalizeAndValidateNoteEndBeats(converted);
     }
 
     /// <summary>
-    /// 将 KPC 内部格式转换为 PhiEdit 格式。
+    /// 将 IR 内部格式转换为 PhiEdit 格式。
     /// </summary>
-    /// <param name="input">KPC 谱面</param>
+    /// <param name="input">IR 谱面</param>
     /// <param name="options">输出转换选项</param>
     /// <returns>PhiEdit 谱面</returns>
-    public Pe.Chart FromKpc(Kpc.Chart input, KpcToPhiEditConvertOptions options)
+    public Pe.Chart FromIr(Ir.Chart input, IrToPhiEditConvertOptions options)
     {
         ArgumentNullException.ThrowIfNull(input);
         ArgumentNullException.ThrowIfNull(options);
         ConversionOptionsValidator.Validate(options);
-        var normalized = KpcChartNormalizer.NormalizeAndValidateNoteEndBeats(input);
-        KpcChartValidator.ValidateJudgeLineHierarchy(normalized.JudgeLineList);
+        var normalized = IrChartNormalizer.NormalizeAndValidateNoteEndBeats(input);
+        IrChartValidator.ValidateJudgeLineHierarchy(normalized.JudgeLineList);
         _ct.ThrowIfCancellationRequested();
 
         WarnIfUnsupportedMeta(normalized.Meta);

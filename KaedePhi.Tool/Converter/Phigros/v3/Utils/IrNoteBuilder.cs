@@ -1,18 +1,18 @@
-using KaedePhi.Core.Common;
+using KaedePhi.Core.Primitives;
 using KaedePhi.Tool.Common;
-using PhigrosNote = KaedePhi.Core.Phigros.v3.Note;
-using PhigrosNoteType = KaedePhi.Core.Phigros.v3.NoteType;
+using PhigrosNote = KaedePhi.Core.Formats.Phigros.v3.Note;
+using PhigrosNoteType = KaedePhi.Core.Formats.Phigros.v3.NoteType;
 
 namespace KaedePhi.Tool.Converter.Phigros.v3.Utils;
 
 /// <summary>
-/// PhigrosV3 音符到 KPC 音符的转换工具。
+/// PhigrosV3 音符到 IR 音符的转换工具。
 /// </summary>
 public static class NoteBuilder
 {
     private const float NoteSegmentation = 32f;
 
-    public static List<Kpc.Note> ConvertNotes(
+    public static List<Ir.Note> ConvertNotes(
         List<PhigrosNote>? notesAbove,
         List<PhigrosNote>? notesBelow
     )
@@ -21,7 +21,7 @@ public static class NoteBuilder
         if (capacity == 0)
             return [];
 
-        var result = new List<Kpc.Note>(capacity);
+        var result = new List<Ir.Note>(capacity);
         if (notesAbove != null)
             result.AddRange(notesAbove.Select(n => ConvertNote(n, true)));
         if (notesBelow != null)
@@ -29,7 +29,7 @@ public static class NoteBuilder
         return result;
     }
 
-    public static Kpc.Note ConvertNote(PhigrosNote src, bool above)
+    public static Ir.Note ConvertNote(PhigrosNote src, bool above)
     {
         if (
             src.Type == PhigrosNoteType.Hold
@@ -37,7 +37,7 @@ public static class NoteBuilder
         )
             throw new FormatException("Phigros Hold 音符缺少有效的持续时间。");
 
-        return new Kpc.Note
+        return new Ir.Note
         {
             Above = above,
             StartBeat = new Beat(src.Time / NoteSegmentation),

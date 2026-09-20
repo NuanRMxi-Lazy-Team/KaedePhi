@@ -1,9 +1,9 @@
-using KaedePhi.Core.Common;
-using KaedePhi.Core.PhiFans;
+using KaedePhi.Core.Primitives;
+using KaedePhi.Core.Formats.PhiFans;
 using KaedePhi.Tool.Common;
-using KaedePhi.Tool.Event.KaedePhi;
-using KaedePhi.Tool.Layer.KaedePhi;
-using PfEvent = KaedePhi.Core.PhiFans.Event;
+using KaedePhi.Tool.Event.Intermediate;
+using KaedePhi.Tool.Layer.Intermediate;
+using PfEvent = KaedePhi.Core.Formats.PhiFans.Event;
 
 namespace KaedePhi.Tool.Converter.PhiFans.Utils;
 
@@ -12,7 +12,7 @@ internal static class EventBuilder
     private const double BeatEpsilon = 1e-7;
     private const float ValueEpsilon = 1e-5f;
 
-    internal static void RemoveInstantEvents(KpcEvents.EventLayer layer)
+    internal static void RemoveInstantEvents(IrEvents.EventLayer layer)
     {
         layer.AlphaEvents?.RemoveAll(evt => evt.StartBeat == evt.EndBeat);
         layer.MoveXEvents?.RemoveAll(evt => evt.StartBeat == evt.EndBeat);
@@ -22,12 +22,12 @@ internal static class EventBuilder
     }
 
     internal static (
-        List<KpcEvents.Event<T>> Events,
+        List<IrEvents.Event<T>> Events,
         HashSet<Beat> ExactStepBeats
     ) ResolveChannelComposition<T>(
-        List<KpcEvents.Event<T>>? configuredEvents,
-        IReadOnlyList<KpcEvents.EventLayer> sourceLayers,
-        Func<KpcEvents.EventLayer, List<KpcEvents.Event<T>>?> selectEvents,
+        List<IrEvents.Event<T>>? configuredEvents,
+        IReadOnlyList<IrEvents.EventLayer> sourceLayers,
+        Func<IrEvents.EventLayer, List<IrEvents.Event<T>>?> selectEvents,
         bool linearOnly,
         double cutLength
     )
@@ -70,12 +70,12 @@ internal static class EventBuilder
     }
 
     private static List<(Beat Start, Beat End)> CollectUnsupportedOverlapIntervals<T>(
-        IReadOnlyList<List<KpcEvents.Event<T>>> sourceEventLists,
+        IReadOnlyList<List<IrEvents.Event<T>>> sourceEventLists,
         bool linearOnly
     )
         where T : notnull
     {
-        var indexedEvents = new List<(int LayerIndex, KpcEvents.Event<T> Event)>();
+        var indexedEvents = new List<(int LayerIndex, IrEvents.Event<T> Event)>();
         for (var layerIndex = 0; layerIndex < sourceEventLists.Count; layerIndex++)
         {
             foreach (var evt in sourceEventLists[layerIndex])
@@ -123,7 +123,7 @@ internal static class EventBuilder
     }
 
     private static bool ComponentHasUnsupportedCrossLayerOverlap<T>(
-        IReadOnlyList<(int LayerIndex, KpcEvents.Event<T> Event)> events,
+        IReadOnlyList<(int LayerIndex, IrEvents.Event<T> Event)> events,
         int startIndex,
         int endIndex,
         bool linearOnly
@@ -175,9 +175,9 @@ internal static class EventBuilder
         return false;
     }
 
-    private static List<KpcEvents.Event<T>> SpliceComposedIntervals<T>(
-        List<KpcEvents.Event<T>> configuredEvents,
-        IReadOnlyList<List<KpcEvents.Event<T>>> sourceEventLists,
+    private static List<IrEvents.Event<T>> SpliceComposedIntervals<T>(
+        List<IrEvents.Event<T>> configuredEvents,
+        IReadOnlyList<List<IrEvents.Event<T>>> sourceEventLists,
         IReadOnlySet<Beat> sourceStartBeats,
         IReadOnlyList<(Beat Start, Beat End)> intervals,
         bool linearOnly,
@@ -185,7 +185,7 @@ internal static class EventBuilder
     )
         where T : notnull
     {
-        var result = new List<KpcEvents.Event<T>>();
+        var result = new List<IrEvents.Event<T>>();
         foreach (var evt in configuredEvents)
         {
             if (evt.StartBeat == evt.EndBeat)
@@ -223,8 +223,8 @@ internal static class EventBuilder
         return result.OrderBy(evt => evt.StartBeat).ThenBy(evt => evt.EndBeat).ToList();
     }
 
-    private static List<KpcEvents.Event<T>> ComposeConfiguredFragment<T>(
-        KpcEvents.Event<T> evt,
+    private static List<IrEvents.Event<T>> ComposeConfiguredFragment<T>(
+        IrEvents.Event<T> evt,
         Beat start,
         Beat end,
         double cutLength
@@ -239,7 +239,7 @@ internal static class EventBuilder
             ];
         }
 
-        var result = new List<KpcEvents.Event<T>>();
+        var result = new List<IrEvents.Event<T>>();
         var step = new Beat(cutLength);
         for (var beat = start; beat < end; )
         {
@@ -285,8 +285,8 @@ internal static class EventBuilder
         return fragments;
     }
 
-    private static List<KpcEvents.Event<T>> ComposeInterval<T>(
-        IReadOnlyList<List<KpcEvents.Event<T>>> sourceEventLists,
+    private static List<IrEvents.Event<T>> ComposeInterval<T>(
+        IReadOnlyList<List<IrEvents.Event<T>>> sourceEventLists,
         IReadOnlySet<Beat> sourceStartBeats,
         Beat start,
         Beat end,
@@ -334,7 +334,7 @@ internal static class EventBuilder
         }
 
         var ordered = boundaries.ToList();
-        var result = new List<KpcEvents.Event<T>>(ordered.Count - 1);
+        var result = new List<IrEvents.Event<T>>(ordered.Count - 1);
         for (var index = 0; index < ordered.Count - 1; index++)
         {
             var segmentStart = ordered[index];
@@ -355,8 +355,8 @@ internal static class EventBuilder
         return result;
     }
 
-    private static IEnumerable<KpcEvents.Event<T>> EnumerateEventsForInterval<T>(
-        List<KpcEvents.Event<T>> events,
+    private static IEnumerable<IrEvents.Event<T>> EnumerateEventsForInterval<T>(
+        List<IrEvents.Event<T>> events,
         Beat start,
         Beat end
     )
@@ -388,7 +388,7 @@ internal static class EventBuilder
     }
 
     private static HashSet<Beat> CollectStepTransitionBeats<T>(
-        IReadOnlyList<List<KpcEvents.Event<T>>> sourceEventLists
+        IReadOnlyList<List<IrEvents.Event<T>>> sourceEventLists
     )
         where T : notnull
     {
@@ -420,9 +420,9 @@ internal static class EventBuilder
         return transitions;
     }
 
-    private static List<KpcEvents.Event<T>> ComposeStepTimeline<T>(
-        List<KpcEvents.Event<T>> configuredEvents,
-        IReadOnlyList<List<KpcEvents.Event<T>>> sourceEventLists,
+    private static List<IrEvents.Event<T>> ComposeStepTimeline<T>(
+        List<IrEvents.Event<T>> configuredEvents,
+        IReadOnlyList<List<IrEvents.Event<T>>> sourceEventLists,
         IReadOnlySet<Beat> sourceStartBeats,
         HashSet<Beat> stepBeats,
         bool linearOnly,
@@ -431,7 +431,7 @@ internal static class EventBuilder
         where T : notnull
     {
         var orderedSteps = stepBeats.OrderBy(beat => beat).ToList();
-        var result = new List<KpcEvents.Event<T>>();
+        var result = new List<IrEvents.Event<T>>();
         foreach (var evt in configuredEvents.Where(evt => evt.StartBeat < evt.EndBeat))
         {
             var interiorSteps = orderedSteps
@@ -495,7 +495,7 @@ internal static class EventBuilder
     }
 
     private static T SumAtBeat<T>(
-        IReadOnlyList<List<KpcEvents.Event<T>>> sourceEventLists,
+        IReadOnlyList<List<IrEvents.Event<T>>> sourceEventLists,
         Beat beat
     )
         where T : notnull
@@ -504,14 +504,14 @@ internal static class EventBuilder
         foreach (var events in sourceEventLists)
         {
             if (events.Count > 0)
-                sum = NumericHelper.Add(sum, KpcEvents.EventLayer.GetValueAtBeat(events, beat));
+                sum = NumericHelper.Add(sum, IrEvents.EventLayer.GetValueAtBeat(events, beat));
         }
 
         return sum;
     }
 
     private static T SumBeforeBeat<T>(
-        IReadOnlyList<List<KpcEvents.Event<T>>> sourceEventLists,
+        IReadOnlyList<List<IrEvents.Event<T>>> sourceEventLists,
         Beat beat
     )
         where T : notnull
@@ -530,8 +530,8 @@ internal static class EventBuilder
         return sum;
     }
 
-    private static KpcEvents.Event<T>? FindLastEventBeforeBeat<T>(
-        List<KpcEvents.Event<T>> events,
+    private static IrEvents.Event<T>? FindLastEventBeforeBeat<T>(
+        List<IrEvents.Event<T>> events,
         Beat beat
     )
         where T : notnull
@@ -540,7 +540,7 @@ internal static class EventBuilder
         return candidate >= 0 ? events[candidate] : null;
     }
 
-    private static int FindFirstEventAtOrAfterBeat<T>(List<KpcEvents.Event<T>> events, Beat beat)
+    private static int FindFirstEventAtOrAfterBeat<T>(List<IrEvents.Event<T>> events, Beat beat)
         where T : notnull
     {
         var low = 0;
@@ -561,7 +561,7 @@ internal static class EventBuilder
         return low;
     }
 
-    private static KpcEvents.Event<T> CreateLinearEvent<T>(
+    private static IrEvents.Event<T> CreateLinearEvent<T>(
         Beat start,
         Beat end,
         T startValue,
@@ -574,10 +574,10 @@ internal static class EventBuilder
             EndBeat = end,
             StartValue = startValue,
             EndValue = endValue,
-            Easing = Kpc.Easing.Linear,
+            Easing = Ir.Easing.Linear,
         };
 
-    private static KpcEvents.Event<T> CreateInstantEvent<T>(Beat beat, T value)
+    private static IrEvents.Event<T> CreateInstantEvent<T>(Beat beat, T value)
         where T : notnull =>
         new()
         {
@@ -585,11 +585,11 @@ internal static class EventBuilder
             EndBeat = beat,
             StartValue = value,
             EndValue = value,
-            Easing = Kpc.Easing.Linear,
+            Easing = Ir.Easing.Linear,
         };
 
-    internal static IEnumerable<KpcEvents.Event<T>> ExpandUnsupportedEvents<T>(
-        IEnumerable<KpcEvents.Event<T>> events,
+    internal static IEnumerable<IrEvents.Event<T>> ExpandUnsupportedEvents<T>(
+        IEnumerable<IrEvents.Event<T>> events,
         double cutLength,
         bool linearOnly
     )
@@ -617,19 +617,19 @@ internal static class EventBuilder
         }
     }
 
-    private static KpcEvents.Event<T> CreateLinearInstantEvent<T>(KpcEvents.Event<T> evt)
+    private static IrEvents.Event<T> CreateLinearInstantEvent<T>(IrEvents.Event<T> evt)
         where T : notnull
     {
         var instant = evt.Clone();
         instant.StartValue = instant.EndValue;
-        instant.Easing = Kpc.Easing.Linear;
+        instant.Easing = Ir.Easing.Linear;
         instant.IsBezier = false;
         instant.EasingLeft = 0;
         instant.EasingRight = 1;
         return instant;
     }
 
-    private static bool CanMapDirectly<T>(KpcEvents.Event<T> evt, bool linearOnly)
+    private static bool CanMapDirectly<T>(IrEvents.Event<T> evt, bool linearOnly)
         where T : notnull
     {
         var easing = (int)evt.Easing;
@@ -639,19 +639,19 @@ internal static class EventBuilder
             && (linearOnly ? easing == 1 : easing is >= 1 and <= 31);
     }
 
-    internal static List<KpcEvents.Event<double>> ConvertPhiFansEventsToDouble(
+    internal static List<IrEvents.Event<double>> ConvertPhiFansEventsToDouble(
         List<PfEvent> src,
         Func<float, double> valueTransform
     )
     {
-        var result = new List<KpcEvents.Event<double>>();
+        var result = new List<IrEvents.Event<double>>();
         var i = 0;
         while (i < src.Count)
         {
             var item = src[i];
             if (item.Continuous)
             {
-                result.Add(CreateInstantKpcEvent(item.Beat, item.Value, valueTransform));
+                result.Add(CreateInstantIrEvent(item.Beat, item.Value, valueTransform));
                 i++;
                 continue;
             }
@@ -660,20 +660,20 @@ internal static class EventBuilder
             {
                 var endItem = src[i + 1];
                 result.Add(
-                    new KpcEvents.Event<double>
+                    new IrEvents.Event<double>
                     {
                         StartBeat = new Beat((int[])item.Beat),
                         EndBeat = new Beat((int[])endItem.Beat),
                         StartValue = valueTransform(item.Value),
                         EndValue = valueTransform(endItem.Value),
-                        Easing = new Kpc.Easing(EasingConverter.ToKpc((int)item.Easing)),
+                        Easing = new Ir.Easing(EasingConverter.ToIr((int)item.Easing)),
                     }
                 );
                 i += 2;
             }
             else
             {
-                result.Add(CreateInstantKpcEvent(item.Beat, item.Value, valueTransform));
+                result.Add(CreateInstantIrEvent(item.Beat, item.Value, valueTransform));
                 i++;
             }
         }
@@ -681,19 +681,19 @@ internal static class EventBuilder
         return result;
     }
 
-    internal static List<KpcEvents.Event<float>> ConvertPhiFansEventsToFloat(
+    internal static List<IrEvents.Event<float>> ConvertPhiFansEventsToFloat(
         List<PfEvent> src,
         Func<float, float> valueTransform
     )
     {
-        var result = new List<KpcEvents.Event<float>>();
+        var result = new List<IrEvents.Event<float>>();
         var i = 0;
         while (i < src.Count)
         {
             var item = src[i];
             if (item.Continuous)
             {
-                result.Add(CreateInstantKpcEvent(item.Beat, item.Value, valueTransform));
+                result.Add(CreateInstantIrEvent(item.Beat, item.Value, valueTransform));
                 i++;
                 continue;
             }
@@ -702,20 +702,20 @@ internal static class EventBuilder
             {
                 var endItem = src[i + 1];
                 result.Add(
-                    new KpcEvents.Event<float>
+                    new IrEvents.Event<float>
                     {
                         StartBeat = new Beat((int[])item.Beat),
                         EndBeat = new Beat((int[])endItem.Beat),
                         StartValue = valueTransform(item.Value),
                         EndValue = valueTransform(endItem.Value),
-                        Easing = new Kpc.Easing(1),
+                        Easing = new Ir.Easing(1),
                     }
                 );
                 i += 2;
             }
             else
             {
-                result.Add(CreateInstantKpcEvent(item.Beat, item.Value, valueTransform));
+                result.Add(CreateInstantIrEvent(item.Beat, item.Value, valueTransform));
                 i++;
             }
         }
@@ -723,19 +723,19 @@ internal static class EventBuilder
         return result;
     }
 
-    internal static List<KpcEvents.Event<int>> ConvertPhiFansEventsToInt(
+    internal static List<IrEvents.Event<int>> ConvertPhiFansEventsToInt(
         List<PfEvent> src,
         Func<float, int> valueTransform
     )
     {
-        var result = new List<KpcEvents.Event<int>>();
+        var result = new List<IrEvents.Event<int>>();
         var i = 0;
         while (i < src.Count)
         {
             var item = src[i];
             if (item.Continuous)
             {
-                result.Add(CreateInstantKpcEvent(item.Beat, item.Value, valueTransform));
+                result.Add(CreateInstantIrEvent(item.Beat, item.Value, valueTransform));
                 i++;
                 continue;
             }
@@ -744,20 +744,20 @@ internal static class EventBuilder
             {
                 var endItem = src[i + 1];
                 result.Add(
-                    new KpcEvents.Event<int>
+                    new IrEvents.Event<int>
                     {
                         StartBeat = new Beat((int[])item.Beat),
                         EndBeat = new Beat((int[])endItem.Beat),
                         StartValue = valueTransform(item.Value),
                         EndValue = valueTransform(endItem.Value),
-                        Easing = new Kpc.Easing(EasingConverter.ToKpc((int)item.Easing)),
+                        Easing = new Ir.Easing(EasingConverter.ToIr((int)item.Easing)),
                     }
                 );
                 i += 2;
             }
             else
             {
-                result.Add(CreateInstantKpcEvent(item.Beat, item.Value, valueTransform));
+                result.Add(CreateInstantIrEvent(item.Beat, item.Value, valueTransform));
                 i++;
             }
         }
@@ -765,7 +765,7 @@ internal static class EventBuilder
         return result;
     }
 
-    private static KpcEvents.Event<T> CreateInstantKpcEvent<T>(
+    private static IrEvents.Event<T> CreateInstantIrEvent<T>(
         Beat beat,
         float value,
         Func<float, T> valueTransform
@@ -773,18 +773,18 @@ internal static class EventBuilder
         where T : notnull
     {
         var v = valueTransform(value);
-        return new KpcEvents.Event<T>
+        return new IrEvents.Event<T>
         {
             StartBeat = new Beat((int[])beat),
             EndBeat = new Beat((int[])beat),
             StartValue = v,
             EndValue = v,
-            Easing = new Kpc.Easing(1),
+            Easing = new Ir.Easing(1),
         };
     }
 
-    internal static void ConvertKpcEventToPhiFans<T>(
-        KpcEvents.Event<T> src,
+    internal static void ConvertIrEventToPhiFans<T>(
+        IrEvents.Event<T> src,
         List<PfEvent> dst,
         Func<T, float> valueTransform,
         Func<int, int> easingMap

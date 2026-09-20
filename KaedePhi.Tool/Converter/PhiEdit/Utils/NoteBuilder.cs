@@ -1,13 +1,13 @@
-using KaedePhi.Core.Common;
+using KaedePhi.Core.Primitives;
 
 namespace KaedePhi.Tool.Converter.PhiEdit.Utils;
 
 /// <summary>
-/// PE 与 KPC 音符之间的双向转换工具。
+/// PE 与 IR 音符之间的双向转换工具。
 /// </summary>
 public static class NoteBuilder
 {
-    public static Kpc.Note ConvertNote(Pe.Note src)
+    public static Ir.Note ConvertNote(Pe.Note src)
     {
         if (
             src.Type == Pe.NoteType.Hold
@@ -15,20 +15,20 @@ public static class NoteBuilder
         )
             throw new FormatException("PhiEdit Hold 音符缺少有效的结束拍。");
 
-        return new Kpc.Note
+        return new Ir.Note
         {
             Above = src.Above,
             StartBeat = new Beat(src.StartBeat),
             EndBeat = new Beat(src.Type == Pe.NoteType.Hold ? src.EndBeat : src.StartBeat),
             IsFake = src.IsFake,
-            PositionX = Transform.TransformToKpcX(src.PositionX) + Kpc.Chart.CoordinateSystem.MaxX,
+            PositionX = Transform.TransformToIrX(src.PositionX) + Ir.Chart.CoordinateSystem.MaxX,
             WidthRatio = src.WidthRatio,
             SpeedMultiplier = src.SpeedMultiplier,
             Type = (NoteType)(int)src.Type,
         };
     }
 
-    public static Pe.Note ConvertNote(Kpc.Note src, Action<string>? warnLogger)
+    public static Pe.Note ConvertNote(Ir.Note src, Action<string>? warnLogger)
     {
         WarnIfUnsupportedNoteFields(src, warnLogger);
         return new Pe.Note
@@ -37,14 +37,14 @@ public static class NoteBuilder
             StartBeat = (float)(double)src.StartBeat,
             EndBeat = (float)(double)src.EndBeat,
             IsFake = src.IsFake,
-            PositionX = Transform.TransformToPeX(src.PositionX - Kpc.Chart.CoordinateSystem.MaxX),
+            PositionX = Transform.TransformToPeX(src.PositionX - Ir.Chart.CoordinateSystem.MaxX),
             WidthRatio = src.WidthRatio,
             SpeedMultiplier = src.SpeedMultiplier,
             Type = (Pe.NoteType)(int)src.Type,
         };
     }
 
-    private static void WarnIfUnsupportedNoteFields(Kpc.Note src, Action<string>? warnLogger)
+    private static void WarnIfUnsupportedNoteFields(Ir.Note src, Action<string>? warnLogger)
     {
         if (src.Alpha != 255)
             Warn($"PE 不支持 Note.Alpha（值={src.Alpha}）");

@@ -1,14 +1,14 @@
-using KaedePhi.Core.Common;
-using KaedePhi.Core.PhiChain.v6;
+using KaedePhi.Core.Primitives;
+using KaedePhi.Core.Formats.PhiChain.v6;
 using KaedePhi.Tool.Converter.PhiChain.Model;
-using KaedePhi.Tool.Event.KaedePhi;
-using PhichainEventType = KaedePhi.Core.PhiChain.v6.LineEventType;
-using PhichainEventValueType = KaedePhi.Core.PhiChain.v6.LineEventValueType;
+using KaedePhi.Tool.Event.Intermediate;
+using PhichainEventType = KaedePhi.Core.Formats.PhiChain.v6.LineEventType;
+using PhichainEventValueType = KaedePhi.Core.Formats.PhiChain.v6.LineEventValueType;
 
 namespace KaedePhi.Tool.Converter.PhiChain.Utils;
 
 /// <summary>
-/// PhiChain 与 KPC 事件之间的双向转换工具。
+/// PhiChain 与 IR 事件之间的双向转换工具。
 /// </summary>
 public static class EventBuilder
 {
@@ -19,13 +19,13 @@ public static class EventBuilder
     private static readonly EventCutter<float> FloatCutter = new();
 
     /// <summary>
-    /// 将 PhiChain 事件列表转换为 KPC 事件层。
+    /// 将 PhiChain 事件列表转换为 IR 事件层。
     /// </summary>
     /// <param name="events">PhiChain 事件列表</param>
-    /// <returns>KPC 事件层</returns>
-    public static KpcEvents.EventLayer ConvertEvents(List<LineEvent> events)
+    /// <returns>IR 事件层</returns>
+    public static IrEvents.EventLayer ConvertEvents(List<LineEvent> events)
     {
-        var layer = new KpcEvents.EventLayer();
+        var layer = new IrEvents.EventLayer();
 
         foreach (var evt in events)
         {
@@ -34,19 +34,19 @@ public static class EventBuilder
                 case PhichainEventType.X:
                     layer.MoveXEvents ??= [];
                     layer.MoveXEvents.Add(
-                        ConvertEventToDoubleWithTransform(evt, Transform.TransformToKpcX)
+                        ConvertEventToDoubleWithTransform(evt, Transform.TransformToIrX)
                     );
                     break;
                 case PhichainEventType.Y:
                     layer.MoveYEvents ??= [];
                     layer.MoveYEvents.Add(
-                        ConvertEventToDoubleWithTransform(evt, Transform.TransformToKpcY)
+                        ConvertEventToDoubleWithTransform(evt, Transform.TransformToIrY)
                     );
                     break;
                 case PhichainEventType.Rotation:
                     layer.RotateEvents ??= [];
                     layer.RotateEvents.Add(
-                        ConvertEventToDoubleWithTransform(evt, Transform.TransformToKpcAngle)
+                        ConvertEventToDoubleWithTransform(evt, Transform.TransformToIrAngle)
                     );
                     break;
                 case PhichainEventType.Opacity:
@@ -64,24 +64,24 @@ public static class EventBuilder
     }
 
     /// <summary>
-    /// 将 KPC 事件层转换为 PhiChain 事件列表（使用默认选项）。
+    /// 将 IR 事件层转换为 PhiChain 事件列表（使用默认选项）。
     /// </summary>
-    /// <param name="layer">KPC 事件层</param>
+    /// <param name="layer">IR 事件层</param>
     /// <returns>PhiChain 事件列表</returns>
-    public static List<LineEvent> ConvertEventLayer(KpcEvents.EventLayer layer)
+    public static List<LineEvent> ConvertEventLayer(IrEvents.EventLayer layer)
     {
-        return ConvertEventLayer(layer, new KpcToPhiChainConvertOptions());
+        return ConvertEventLayer(layer, new IrToPhiChainConvertOptions());
     }
 
     /// <summary>
-    /// 将 KPC 事件层转换为 PhiChain 事件列表。
+    /// 将 IR 事件层转换为 PhiChain 事件列表。
     /// </summary>
-    /// <param name="layer">KPC 事件层</param>
+    /// <param name="layer">IR 事件层</param>
     /// <param name="options">转换选项</param>
     /// <returns>PhiChain 事件列表</returns>
     public static List<LineEvent> ConvertEventLayer(
-        KpcEvents.EventLayer layer,
-        KpcToPhiChainConvertOptions options
+        IrEvents.EventLayer layer,
+        IrToPhiChainConvertOptions options
     )
     {
         if (options.EasingCutPrecision <= 0)
@@ -135,10 +135,10 @@ public static class EventBuilder
     /// 转换 double 事件列表，对使用缓动截取的事件进行切割。
     /// </summary>
     private static List<LineEvent> ConvertEventsWithTransform(
-        List<KpcEvents.Event<double>> events,
+        List<IrEvents.Event<double>> events,
         PhichainEventType eventType,
         Func<double, float> transform,
-        KpcToPhiChainConvertOptions options
+        IrToPhiChainConvertOptions options
     )
     {
         var result = new List<LineEvent>();
@@ -167,9 +167,9 @@ public static class EventBuilder
     /// 转换 int 事件列表，对使用缓动截取的事件进行切割。
     /// </summary>
     private static List<LineEvent> ConvertIntEventsWithCutting(
-        List<KpcEvents.Event<int>> events,
+        List<IrEvents.Event<int>> events,
         PhichainEventType eventType,
-        KpcToPhiChainConvertOptions options
+        IrToPhiChainConvertOptions options
     )
     {
         var result = new List<LineEvent>();
@@ -193,9 +193,9 @@ public static class EventBuilder
     /// 转换 float 事件列表，对使用缓动截取的事件进行切割。
     /// </summary>
     private static List<LineEvent> ConvertFloatEventsWithCutting(
-        List<KpcEvents.Event<float>> events,
+        List<IrEvents.Event<float>> events,
         PhichainEventType eventType,
-        KpcToPhiChainConvertOptions options
+        IrToPhiChainConvertOptions options
     )
     {
         var result = new List<LineEvent>();
@@ -218,21 +218,21 @@ public static class EventBuilder
     /// <summary>
     /// 检查事件是否需要切割（使用了非默认的缓动截取）。
     /// </summary>
-    private static bool NeedsCutting<T>(KpcEvents.Event<T> evt)
+    private static bool NeedsCutting<T>(IrEvents.Event<T> evt)
         where T : notnull
     {
         return Math.Abs(evt.EasingLeft) > 0.0001f || Math.Abs(evt.EasingRight - 1.0f) > 0.0001f;
     }
 
     /// <summary>
-    /// 将 PhiChain 事件转换为 KPC double 事件，带坐标变换。
+    /// 将 PhiChain 事件转换为 IR double 事件，带坐标变换。
     /// </summary>
-    private static KpcEvents.Event<double> ConvertEventToDoubleWithTransform(
+    private static IrEvents.Event<double> ConvertEventToDoubleWithTransform(
         LineEvent src,
         Func<float, double> transform
     )
     {
-        var kpcEvent = new KpcEvents.Event<double>
+        var irEvent = new IrEvents.Event<double>
         {
             StartBeat = new Beat((int[])src.StartBeat),
             EndBeat = new Beat((int[])src.EndBeat),
@@ -240,13 +240,13 @@ public static class EventBuilder
 
         if (src.Value.Type == PhichainEventValueType.Transition)
         {
-            kpcEvent.StartValue = transform(src.Value.Start);
-            kpcEvent.EndValue = transform(src.Value.End);
+            irEvent.StartValue = transform(src.Value.Start);
+            irEvent.EndValue = transform(src.Value.End);
 
             if (src.Value.Easing.EasingType == EasingKind.Custom)
             {
-                kpcEvent.IsBezier = true;
-                kpcEvent.BezierPoints =
+                irEvent.IsBezier = true;
+                irEvent.BezierPoints =
                 [
                     src.Value.Easing.X1,
                     src.Value.Easing.Y1,
@@ -256,24 +256,24 @@ public static class EventBuilder
             }
             else
             {
-                kpcEvent.Easing = EasingConverter.ConvertEasing(src.Value.Easing);
+                irEvent.Easing = EasingConverter.ConvertEasing(src.Value.Easing);
             }
         }
         else
         {
-            kpcEvent.StartValue = transform(src.Value.Value);
-            kpcEvent.EndValue = transform(src.Value.Value);
+            irEvent.StartValue = transform(src.Value.Value);
+            irEvent.EndValue = transform(src.Value.Value);
         }
 
-        return kpcEvent;
+        return irEvent;
     }
 
     /// <summary>
-    /// 将 PhiChain 事件转换为 KPC int 事件（透明度）。
+    /// 将 PhiChain 事件转换为 IR int 事件（透明度）。
     /// </summary>
-    private static KpcEvents.Event<int> ConvertEventToInt(LineEvent src)
+    private static IrEvents.Event<int> ConvertEventToInt(LineEvent src)
     {
-        var kpcEvent = new KpcEvents.Event<int>
+        var irEvent = new IrEvents.Event<int>
         {
             StartBeat = new Beat((int[])src.StartBeat),
             EndBeat = new Beat((int[])src.EndBeat),
@@ -281,14 +281,14 @@ public static class EventBuilder
 
         if (src.Value.Type == PhichainEventValueType.Transition)
         {
-            // PhiChain 透明度范围 0-255，与 KPC 一致
-            kpcEvent.StartValue = (int)src.Value.Start;
-            kpcEvent.EndValue = (int)src.Value.End;
+            // PhiChain 透明度范围 0-255，与 IR 一致
+            irEvent.StartValue = (int)src.Value.Start;
+            irEvent.EndValue = (int)src.Value.End;
 
             if (src.Value.Easing.EasingType == EasingKind.Custom)
             {
-                kpcEvent.IsBezier = true;
-                kpcEvent.BezierPoints =
+                irEvent.IsBezier = true;
+                irEvent.BezierPoints =
                 [
                     src.Value.Easing.X1,
                     src.Value.Easing.Y1,
@@ -298,24 +298,24 @@ public static class EventBuilder
             }
             else
             {
-                kpcEvent.Easing = EasingConverter.ConvertEasing(src.Value.Easing);
+                irEvent.Easing = EasingConverter.ConvertEasing(src.Value.Easing);
             }
         }
         else
         {
-            kpcEvent.StartValue = (int)src.Value.Value;
-            kpcEvent.EndValue = (int)src.Value.Value;
+            irEvent.StartValue = (int)src.Value.Value;
+            irEvent.EndValue = (int)src.Value.Value;
         }
 
-        return kpcEvent;
+        return irEvent;
     }
 
     /// <summary>
-    /// 将 PhiChain 事件转换为 KPC float 事件（速度）。
+    /// 将 PhiChain 事件转换为 IR float 事件（速度）。
     /// </summary>
-    private static KpcEvents.Event<float> ConvertEventToFloat(LineEvent src)
+    private static IrEvents.Event<float> ConvertEventToFloat(LineEvent src)
     {
-        var kpcEvent = new KpcEvents.Event<float>
+        var irEvent = new IrEvents.Event<float>
         {
             StartBeat = new Beat((int[])src.StartBeat),
             EndBeat = new Beat((int[])src.EndBeat),
@@ -323,13 +323,13 @@ public static class EventBuilder
 
         if (src.Value.Type == PhichainEventValueType.Transition)
         {
-            kpcEvent.StartValue = src.Value.Start;
-            kpcEvent.EndValue = src.Value.End;
+            irEvent.StartValue = src.Value.Start;
+            irEvent.EndValue = src.Value.End;
 
             if (src.Value.Easing.EasingType == EasingKind.Custom)
             {
-                kpcEvent.IsBezier = true;
-                kpcEvent.BezierPoints =
+                irEvent.IsBezier = true;
+                irEvent.BezierPoints =
                 [
                     src.Value.Easing.X1,
                     src.Value.Easing.Y1,
@@ -339,23 +339,23 @@ public static class EventBuilder
             }
             else
             {
-                kpcEvent.Easing = EasingConverter.ConvertEasing(src.Value.Easing);
+                irEvent.Easing = EasingConverter.ConvertEasing(src.Value.Easing);
             }
         }
         else
         {
-            kpcEvent.StartValue = src.Value.Value;
-            kpcEvent.EndValue = src.Value.Value;
+            irEvent.StartValue = src.Value.Value;
+            irEvent.EndValue = src.Value.Value;
         }
 
-        return kpcEvent;
+        return irEvent;
     }
 
     /// <summary>
-    /// 将 KPC double 事件转换为 PhiChain 事件，带坐标变换。
+    /// 将 IR double 事件转换为 PhiChain 事件，带坐标变换。
     /// </summary>
     private static LineEvent ConvertEventWithTransform(
-        KpcEvents.Event<double> src,
+        IrEvents.Event<double> src,
         PhichainEventType eventType,
         Func<double, float> transform
     )
@@ -399,9 +399,9 @@ public static class EventBuilder
     }
 
     /// <summary>
-    /// 将 KPC int 事件转换为 PhiChain 事件。
+    /// 将 IR int 事件转换为 PhiChain 事件。
     /// </summary>
-    private static LineEvent ConvertEvent(KpcEvents.Event<int> src, PhichainEventType eventType)
+    private static LineEvent ConvertEvent(IrEvents.Event<int> src, PhichainEventType eventType)
     {
         var lineEvent = new LineEvent
         {
@@ -442,9 +442,9 @@ public static class EventBuilder
     }
 
     /// <summary>
-    /// 将 KPC float 事件转换为 PhiChain 事件。
+    /// 将 IR float 事件转换为 PhiChain 事件。
     /// </summary>
-    private static LineEvent ConvertEvent(KpcEvents.Event<float> src, PhichainEventType eventType)
+    private static LineEvent ConvertEvent(IrEvents.Event<float> src, PhichainEventType eventType)
     {
         var lineEvent = new LineEvent
         {
@@ -603,9 +603,9 @@ public static class EventBuilder
     {
         try
         {
-            var easingNumber = EasingConverter.ConvertToKpcEasingNumber(easing);
-            var kpcEasing = new Kpc.Easing(easingNumber);
-            return kpcEasing.Interpolate(0f, 1f, 0.0, 1.0, t);
+            var easingNumber = EasingConverter.ConvertToIrEasingNumber(easing);
+            var irEasing = new Ir.Easing(easingNumber);
+            return irEasing.Interpolate(0f, 1f, 0.0, 1.0, t);
         }
         catch (EasingConverter.EasingNotSupportedException)
         {

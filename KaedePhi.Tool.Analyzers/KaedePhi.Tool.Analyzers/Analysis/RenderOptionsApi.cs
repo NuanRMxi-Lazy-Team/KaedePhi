@@ -4,12 +4,12 @@ using Microsoft.CodeAnalysis;
 namespace KaedePhi.Tool.Analyzers.Analysis;
 
 /// <summary>
-/// KpcRenderOptions 类型的识别与数值属性的合法取值区间。
+/// IrRenderOptions 类型的识别与数值属性的合法取值区间。
 /// </summary>
 internal static class RenderOptionsApi
 {
-    private const string RenderNamespace = "KaedePhi.Tool.Render.KaedePhi";
-    private const string RenderOptionsMetadataName = "KpcRenderOptions";
+    private const string RenderNamespace = "KaedePhi.Tool.Render.Intermediate";
+    private const string RenderOptionsMetadataName = "IrRenderOptions";
 
     /// <summary>
     /// 描述数值属性的合法取值区间。
@@ -37,7 +37,7 @@ internal static class RenderOptionsApi
         public string Display { get; }
     }
 
-    // 各数值属性的合法区间，与 KpcRenderValidator.Validate 保持一致
+    // 各数值属性的合法区间，与 IrRenderValidator.Validate 保持一致
     private static readonly ImmutableDictionary<string, Bound> Bounds =
         ImmutableDictionary.CreateRange([
             // 每拍像素高：大于 0 且不超过 10000
@@ -107,10 +107,10 @@ internal static class RenderOptionsApi
     }
 
     /// <summary>
-    /// 判断类型是否为 KpcRenderOptions。
+    /// 判断类型是否为 IrRenderOptions。
     /// </summary>
     /// <param name="type">待判断的类型符号</param>
-    /// <returns>是否为 KpcRenderOptions</returns>
+    /// <returns>是否为 IrRenderOptions</returns>
     private static bool IsRenderOptionsType(INamedTypeSymbol? type) =>
         type is not null
         && type.OriginalDefinition.ContainingNamespace?.ToDisplayString() == RenderNamespace

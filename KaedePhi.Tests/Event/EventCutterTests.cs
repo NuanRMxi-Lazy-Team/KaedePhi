@@ -1,6 +1,6 @@
-using KaedePhi.Core.Common;
-using KaedePhi.Tool.Event.KaedePhi;
-using KpcEvents = KaedePhi.Core.KaedePhi.Events;
+using KaedePhi.Core.Primitives;
+using KaedePhi.Tool.Event.Intermediate;
+using IrEvents = KaedePhi.Core.Intermediate.Events;
 
 namespace KaedePhi.Tests.Event;
 
@@ -11,7 +11,7 @@ public class EventCutterTests
     [Fact(Timeout = 1_000)]
     public void CutEventToLinear_WithMaximumPrecision_ProducesStrictlyAdvancingSegments()
     {
-        var evt = new KpcEvents.Event<double>
+        var evt = new IrEvents.Event<double>
         {
             StartBeat = new Beat([0, 0, 1]),
             EndBeat = new Beat([0, 1, 512]),
@@ -32,7 +32,7 @@ public class EventCutterTests
     [Fact(Timeout = 1_000)]
     public void CutEventToLinear_WithUnrepresentableStep_ThrowsArgumentOutOfRangeException()
     {
-        var evt = new KpcEvents.Event<double>
+        var evt = new IrEvents.Event<double>
         {
             StartBeat = new Beat([0, 0, 1]),
             EndBeat = new Beat([0, 1, 1024]),

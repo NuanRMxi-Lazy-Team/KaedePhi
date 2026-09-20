@@ -1,10 +1,10 @@
-using KaedePhi.Core.PhiFans;
+using KaedePhi.Core.Formats.PhiFans;
 
 namespace KaedePhi.Tool.Converter.PhiFans.Utils;
 
 internal static class MetaBuilder
 {
-    internal static Kpc.Meta ConvertToKpc(Info info, int offset) =>
+    internal static Ir.Meta ConvertToIr(Info info, int offset) =>
         new()
         {
             Name = info.Name,
@@ -15,7 +15,7 @@ internal static class MetaBuilder
             Offset = offset,
         };
 
-    internal static Info ConvertFromKpc(Kpc.Meta source) =>
+    internal static Info ConvertFromIr(Ir.Meta source) =>
         new()
         {
             Name = source.Name,

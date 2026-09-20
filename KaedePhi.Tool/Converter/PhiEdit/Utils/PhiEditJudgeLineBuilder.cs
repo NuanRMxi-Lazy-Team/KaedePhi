@@ -1,24 +1,24 @@
-using KaedePhi.Core.Common;
+using KaedePhi.Core.Primitives;
 using KaedePhi.Tool.Common;
 using KaedePhi.Tool.Converter.PhiEdit.Model;
-using KaedePhi.Tool.JudgeLines.KaedePhi;
-using KaedePhi.Tool.Layer.KaedePhi;
-using ExtendLayer = KaedePhi.Core.KaedePhi.Events.ExtendLayer;
-using KpcJudgeLine = KaedePhi.Core.KaedePhi.JudgeLine;
+using KaedePhi.Tool.JudgeLines.Intermediate;
+using KaedePhi.Tool.Layer.Intermediate;
+using ExtendLayer = KaedePhi.Core.Intermediate.Events.ExtendLayer;
+using IrJudgeLine = KaedePhi.Core.Intermediate.JudgeLine;
 
 namespace KaedePhi.Tool.Converter.PhiEdit.Utils;
 
 /// <summary>
-/// KPC 判定线到 PE 判定线的构建器。
+/// IR 判定线到 PE 判定线的构建器。
 /// </summary>
 public class PhiEditJudgeLineBuilder
 {
-    private readonly KpcToPhiEditConvertOptions _options;
+    private readonly IrToPhiEditConvertOptions _options;
     private readonly LineEventBuilder _eventBuilder;
     private readonly LayerProcessor _layerProcessor = new();
     private readonly Action<string>? _warnLogger;
 
-    public PhiEditJudgeLineBuilder(KpcToPhiEditConvertOptions options, Action<string>? warnLogger)
+    public PhiEditJudgeLineBuilder(IrToPhiEditConvertOptions options, Action<string>? warnLogger)
     {
         _options = options;
         _eventBuilder = new LineEventBuilder(options, warnLogger);
@@ -28,10 +28,10 @@ public class PhiEditJudgeLineBuilder
     /// <summary>
     /// 转换单条判定线，并在转换前记录 PE 不支持字段的告警。
     /// </summary>
-    /// <param name="src">待转换的 KPC 判定线</param>
+    /// <param name="src">待转换的 IR 判定线</param>
     /// <param name="allLine">用于解除父子绑定的原始判定线列表</param>
     /// <returns>转换后的 PE 判定线；匹配过滤条件时返回空值</returns>
-    public Pe.JudgeLine? ConvertJudgeLine(KpcJudgeLine src, List<KpcJudgeLine> allLine)
+    public Pe.JudgeLine? ConvertJudgeLine(IrJudgeLine src, List<IrJudgeLine> allLine)
     {
         WarnIfUnsupportedJudgeLineFields(src);
 
@@ -90,7 +90,7 @@ public class PhiEditJudgeLineBuilder
     /// <summary>
     /// 检查判定线中 PE 不支持字段是否出现非默认值，并逐项告警。
     /// </summary>
-    private void WarnIfUnsupportedJudgeLineFields(KpcJudgeLine src)
+    private void WarnIfUnsupportedJudgeLineFields(IrJudgeLine src)
     {
         var textureRemoveHint = _options.LineFilter.RemoveTextureLine
             ? "，判定线将被自动移除。"
@@ -124,7 +124,7 @@ public class PhiEditJudgeLineBuilder
     /// <summary>
     /// 检查判定线中 PE 不支持的控件字段，并逐项告警。
     /// </summary>
-    private void WarnIfUnsupportedControlFields(KpcJudgeLine src)
+    private void WarnIfUnsupportedControlFields(IrJudgeLine src)
     {
         if (HasNonDefaultExtendLayer(src.Extended))
             Warn("PE 不支持 JudgeLine.Extended（包含非默认数据）");

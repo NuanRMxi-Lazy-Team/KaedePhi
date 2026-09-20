@@ -1,18 +1,18 @@
-using KaedePhi.Core.Common;
-using Kpc = KaedePhi.Core.KaedePhi;
-using KpcEvents = KaedePhi.Core.KaedePhi.Events;
+using KaedePhi.Core.Primitives;
+using Ir = KaedePhi.Core.Intermediate;
+using IrEvents = KaedePhi.Core.Intermediate.Events;
 
-namespace KaedePhi.Tests.KaedePhi;
+namespace KaedePhi.Tests.Intermediate;
 
 public class EventEvaluationContractTests
 {
     [Fact]
     public void GetValueAtBeatAsDouble_BezierEvent_UsesBezierCurve()
     {
-        var evt = CreateKpcEvent(0, 2, 0, 100);
+        var evt = CreateIrEvent(0, 2, 0, 100);
         evt.IsBezier = true;
         evt.BezierPoints = [0, 0, 1, 1];
-        evt.Easing = new Kpc.Easing(5);
+        evt.Easing = new Ir.Easing(5);
 
         evt.GetValueAtBeatAsDouble(Beat(1)).Should().BeApproximately(50, 1e-6);
     }
@@ -20,7 +20,7 @@ public class EventEvaluationContractTests
     [Fact]
     public void GetValueAtBeat_BezierByteArray_IgnoresEasingBounds()
     {
-        var evt = new KpcEvents.Event<byte[]>
+        var evt = new IrEvents.Event<byte[]>
         {
             StartBeat = Beat(0),
             EndBeat = Beat(4),
@@ -38,7 +38,7 @@ public class EventEvaluationContractTests
     [Fact]
     public void GetValueAtBeat_ZeroDuration_ReturnsEndValueAtExactBeat()
     {
-        var evt = CreateKpcEvent(3, 3, 10, 20);
+        var evt = CreateIrEvent(3, 3, 10, 20);
 
         evt.GetValueAtBeat(Beat(3)).Should().Be(20);
     }
@@ -46,7 +46,7 @@ public class EventEvaluationContractTests
     [Fact]
     public void GetValueAtBeatAsDouble_ZeroDuration_ReturnsEndValueAtExactBeat()
     {
-        var evt = CreateKpcEvent(3, 3, 10, 20);
+        var evt = CreateIrEvent(3, 3, 10, 20);
 
         evt.GetValueAtBeatAsDouble(Beat(3)).Should().Be(20);
     }
@@ -54,18 +54,18 @@ public class EventEvaluationContractTests
     [Fact]
     public void EventLayerGetValueAtBeat_ZeroDuration_ReturnsEndValueAtExactBeat()
     {
-        var evt = CreateKpcEvent(3, 3, 10, 20);
+        var evt = CreateIrEvent(3, 3, 10, 20);
 
-        KpcEvents.EventLayer.GetValueAtBeat([evt], Beat(3)).Should().Be(20);
+        IrEvents.EventLayer.GetValueAtBeat([evt], Beat(3)).Should().Be(20);
     }
 
     [Fact]
     public void EasingsEvaluate_EqualBounds_ReturnsLinearProgressAndFiniteEventValue()
     {
-        Kpc.Easings.Evaluate(5, 0.4, 0.4, 0.25).Should().BeApproximately(0.25, 1e-12);
+        Ir.Easings.Evaluate(5, 0.4, 0.4, 0.25).Should().BeApproximately(0.25, 1e-12);
 
-        var evt = CreateKpcEvent(0, 4, 0, 100);
-        evt.Easing = new Kpc.Easing(5);
+        var evt = CreateIrEvent(0, 4, 0, 100);
+        evt.Easing = new Ir.Easing(5);
         evt.EasingLeft = 0.4f;
         evt.EasingRight = 0.4f;
 
@@ -77,13 +77,13 @@ public class EventEvaluationContractTests
     [Fact]
     public void GetValueAtBeatAsDouble_IntEvent_PreservesContinuousPrecision()
     {
-        var evt = new KpcEvents.Event<int>
+        var evt = new IrEvents.Event<int>
         {
             StartBeat = Beat(0),
             EndBeat = Beat(2),
             StartValue = 0,
             EndValue = 3,
-            Easing = Kpc.Easing.Linear,
+            Easing = Ir.Easing.Linear,
         };
 
         evt.GetValueAtBeatAsDouble(Beat(1)).Should().Be(1.5);
@@ -93,8 +93,8 @@ public class EventEvaluationContractTests
     [Fact]
     public void GetValueAtBeat_CollidingBeatRepresentations_PreservesNonzeroDurationBehavior()
     {
-        var positive = CreateKpcEvent(CollidingStartBeat(), CollidingEndBeat(), 10, 20);
-        var reverse = CreateKpcEvent(CollidingEndBeat(), CollidingStartBeat(), 10, 20);
+        var positive = CreateIrEvent(CollidingStartBeat(), CollidingEndBeat(), 10, 20);
+        var reverse = CreateIrEvent(CollidingEndBeat(), CollidingStartBeat(), 10, 20);
 
         new[]
         {
@@ -108,8 +108,8 @@ public class EventEvaluationContractTests
     [Fact]
     public void GetValueAtBeatAsDouble_CollidingBeatRepresentations_PreservesNonzeroDurationBehavior()
     {
-        var positive = CreateKpcEvent(CollidingStartBeat(), CollidingEndBeat(), 10, 20);
-        var reverse = CreateKpcEvent(CollidingEndBeat(), CollidingStartBeat(), 10, 20);
+        var positive = CreateIrEvent(CollidingStartBeat(), CollidingEndBeat(), 10, 20);
+        var reverse = CreateIrEvent(CollidingEndBeat(), CollidingStartBeat(), 10, 20);
 
         new[]
         {
@@ -120,7 +120,7 @@ public class EventEvaluationContractTests
             .Equal(10, 10);
     }
 
-    private static KpcEvents.Event<double> CreateKpcEvent(
+    private static IrEvents.Event<double> CreateIrEvent(
         double startBeat,
         double endBeat,
         double startValue,
@@ -132,10 +132,10 @@ public class EventEvaluationContractTests
             EndBeat = Beat(endBeat),
             StartValue = startValue,
             EndValue = endValue,
-            Easing = Kpc.Easing.Linear,
+            Easing = Ir.Easing.Linear,
         };
 
-    private static KpcEvents.Event<double> CreateKpcEvent(
+    private static IrEvents.Event<double> CreateIrEvent(
         Beat startBeat,
         Beat endBeat,
         double startValue,
@@ -147,7 +147,7 @@ public class EventEvaluationContractTests
             EndBeat = endBeat,
             StartValue = startValue,
             EndValue = endValue,
-            Easing = Kpc.Easing.Linear,
+            Easing = Ir.Easing.Linear,
         };
 
     private static Beat Beat(double value) => new(value);

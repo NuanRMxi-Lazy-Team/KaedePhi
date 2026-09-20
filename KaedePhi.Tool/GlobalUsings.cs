@@ -1,8 +1,8 @@
-global using Kpc = KaedePhi.Core.KaedePhi;
-global using KpcControls = KaedePhi.Core.KaedePhi.Controls;
-global using KpcEvents = KaedePhi.Core.KaedePhi.Events;
-global using Pe = KaedePhi.Core.PhiEdit;
-global using Phichain = KaedePhi.Core.PhiChain.v6;
-global using Rpe = KaedePhi.Core.RePhiEdit;
-global using RpeControls = KaedePhi.Core.RePhiEdit.Controls;
-global using RpeEvents = KaedePhi.Core.RePhiEdit.Events;
+global using Ir = KaedePhi.Core.Intermediate;
+global using IrControls = KaedePhi.Core.Intermediate.Controls;
+global using IrEvents = KaedePhi.Core.Intermediate.Events;
+global using Pe = KaedePhi.Core.Formats.PhiEdit;
+global using Phichain = KaedePhi.Core.Formats.PhiChain.v6;
+global using Rpe = KaedePhi.Core.Formats.RePhiEdit;
+global using RpeControls = KaedePhi.Core.Formats.RePhiEdit.Controls;
+global using RpeEvents = KaedePhi.Core.Formats.RePhiEdit.Events;

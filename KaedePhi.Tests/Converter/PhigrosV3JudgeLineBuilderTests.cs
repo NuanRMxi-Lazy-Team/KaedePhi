@@ -1,9 +1,9 @@
-using KaedePhi.Core.Common;
-using KaedePhi.Core.KaedePhi;
-using KaedePhi.Core.KaedePhi.Events;
+using KaedePhi.Core.Primitives;
+using KaedePhi.Core.Intermediate;
+using KaedePhi.Core.Intermediate.Events;
 using KaedePhi.Tool.Converter.Phigros.v3.Model;
 using KaedePhi.Tool.Converter.Phigros.v3.Utils;
-using KpcEvents = KaedePhi.Core.KaedePhi.Events;
+using IrEvents = KaedePhi.Core.Intermediate.Events;
 
 namespace KaedePhi.Tests.Converter;
 
@@ -20,7 +20,7 @@ public class PhigrosV3JudgeLineBuilderTests
                 {
                     AlphaEvents =
                     [
-                        new KpcEvents.Event<int>
+                        new IrEvents.Event<int>
                         {
                             StartBeat = Beat(0),
                             EndBeat = Beat(1),
@@ -32,7 +32,7 @@ public class PhigrosV3JudgeLineBuilderTests
                 },
             ],
         };
-        var options = new KpcToPhigrosV3ConvertOptions();
+        var options = new IrToPhigrosV3ConvertOptions();
         options.NegativeAlpha.Enabled = true;
 
         var converted = new PhigrosV3JudgeLineBuilder(
@@ -60,7 +60,7 @@ public class PhigrosV3JudgeLineBuilderTests
                 {
                     MoveYEvents =
                     [
-                        new KpcEvents.Event<double>
+                        new IrEvents.Event<double>
                         {
                             StartBeat = Beat(0),
                             EndBeat = Beat(1),
@@ -70,7 +70,7 @@ public class PhigrosV3JudgeLineBuilderTests
                     ],
                     AlphaEvents =
                     [
-                        new KpcEvents.Event<int>
+                        new IrEvents.Event<int>
                         {
                             StartBeat = Beat(1),
                             EndBeat = Beat(2),
@@ -81,7 +81,7 @@ public class PhigrosV3JudgeLineBuilderTests
                 },
             ],
         };
-        var options = new KpcToPhigrosV3ConvertOptions();
+        var options = new IrToPhigrosV3ConvertOptions();
         options.NegativeAlpha.Enabled = true;
 
         var converted = new PhigrosV3JudgeLineBuilder(
@@ -106,7 +106,7 @@ public class PhigrosV3JudgeLineBuilderTests
         var line = new JudgeLine();
 
         var converted = new PhigrosV3JudgeLineBuilder(
-            new KpcToPhigrosV3ConvertOptions(),
+            new IrToPhigrosV3ConvertOptions(),
             120f,
             97f,
             null
@@ -132,7 +132,7 @@ public class PhigrosV3JudgeLineBuilderTests
                 {
                     AlphaEvents =
                     [
-                        new KpcEvents.Event<int>
+                        new IrEvents.Event<int>
                         {
                             StartBeat = Beat(2),
                             EndBeat = Beat(3),
@@ -143,7 +143,7 @@ public class PhigrosV3JudgeLineBuilderTests
                 },
             ],
         };
-        var options = new KpcToPhigrosV3ConvertOptions();
+        var options = new IrToPhigrosV3ConvertOptions();
         options.Alpha.CutPrecision = 1d;
 
         var converted = new PhigrosV3JudgeLineBuilder(options, 120f, 97f, null).ConvertJudgeLine(
@@ -165,7 +165,7 @@ public class PhigrosV3JudgeLineBuilderTests
     }
 
     [Fact]
-    public void FromKpc_NegativeAlphaTailUsesChartEndTime()
+    public void FromIr_NegativeAlphaTailUsesChartEndTime()
     {
         var negativeAlphaLine = new JudgeLine
         {
@@ -175,7 +175,7 @@ public class PhigrosV3JudgeLineBuilderTests
                 {
                     AlphaEvents =
                     [
-                        new KpcEvents.Event<int>
+                        new IrEvents.Event<int>
                         {
                             StartBeat = Beat(0),
                             EndBeat = Beat(1),
@@ -187,12 +187,12 @@ public class PhigrosV3JudgeLineBuilderTests
             ],
         };
         var chart = new Chart { JudgeLineList = [negativeAlphaLine, new JudgeLine()] };
-        var options = new KpcToPhigrosV3ConvertOptions();
+        var options = new IrToPhigrosV3ConvertOptions();
         options.NegativeAlpha.Enabled = true;
         options.Cutting.MisalignedXyEventPrecision = 1d;
         options.Alpha.CutPrecision = 1d;
 
-        var converted = new global::KaedePhi.Tool.Converter.Phigros.v3.PhigrosV3Converter().FromKpc(
+        var converted = new global::KaedePhi.Tool.Converter.Phigros.v3.PhigrosV3Converter().FromIr(
             chart,
             options
         );
@@ -207,7 +207,7 @@ public class PhigrosV3JudgeLineBuilderTests
     }
 
     [Fact]
-    public void FromKpc_HoldUsesMergedMultiLayerSpeedTimeline()
+    public void FromIr_HoldUsesMergedMultiLayerSpeedTimeline()
     {
         var line = new JudgeLine
         {
@@ -218,13 +218,13 @@ public class PhigrosV3JudgeLineBuilderTests
                 new EventLayer { SpeedEvents = [SpeedEvent(0, 2, 4.5f, 4.5f)] },
             ],
         };
-        var options = new KpcToPhigrosV3ConvertOptions();
+        var options = new IrToPhigrosV3ConvertOptions();
         options.MultiLayerMerge.ClassicMode = true;
         options.MultiLayerMerge.Precision = 1d;
         options.Speed.CutPrecision = 1d;
 
         var converted = new global::KaedePhi.Tool.Converter.Phigros.v3.PhigrosV3Converter()
-            .FromKpc(new Chart { JudgeLineList = [line] }, options)
+            .FromIr(new Chart { JudgeLineList = [line] }, options)
             .JudgeLineList.Single();
 
         converted.NotesAbove.Single().Speed.Should().Be(2f);
@@ -232,17 +232,17 @@ public class PhigrosV3JudgeLineBuilderTests
     }
 
     [Fact]
-    public void FromKpc_ChangingFinalSpeedEmitsEndValueInTail()
+    public void FromIr_ChangingFinalSpeedEmitsEndValueInTail()
     {
         var line = new JudgeLine
         {
             EventLayers = [new EventLayer { SpeedEvents = [SpeedEvent(0, 2, 4.5f, 13.5f)] }],
         };
-        var options = new KpcToPhigrosV3ConvertOptions();
+        var options = new IrToPhigrosV3ConvertOptions();
         options.Speed.CutPrecision = 1d;
 
         var converted = new global::KaedePhi.Tool.Converter.Phigros.v3.PhigrosV3Converter()
-            .FromKpc(new Chart { JudgeLineList = [line] }, options)
+            .FromIr(new Chart { JudgeLineList = [line] }, options)
             .JudgeLineList.Single();
 
         converted
@@ -282,7 +282,7 @@ public class PhigrosV3JudgeLineBuilderTests
     }
 
     [Fact]
-    public void FromKpc_HoldSamplesSpeedPrefixGapBoundaryAndTail()
+    public void FromIr_HoldSamplesSpeedPrefixGapBoundaryAndTail()
     {
         var line = new JudgeLine
         {
@@ -295,11 +295,11 @@ public class PhigrosV3JudgeLineBuilderTests
                 },
             ],
         };
-        var options = new KpcToPhigrosV3ConvertOptions();
+        var options = new IrToPhigrosV3ConvertOptions();
         options.Speed.CutPrecision = 1d;
 
         var converted = new global::KaedePhi.Tool.Converter.Phigros.v3.PhigrosV3Converter()
-            .FromKpc(new Chart { JudgeLineList = [line] }, options)
+            .FromIr(new Chart { JudgeLineList = [line] }, options)
             .JudgeLineList.Single();
 
         converted.NotesAbove.Select(n => n.Speed).Should().Equal(1f, 2f, 2f, 3f, 3f);
@@ -307,7 +307,7 @@ public class PhigrosV3JudgeLineBuilderTests
     }
 
     [Fact]
-    public void FromKpc_WithBpmList_ReparameterizesNotesAndAllEventChannels()
+    public void FromIr_WithBpmList_ReparameterizesNotesAndAllEventChannels()
     {
         var firstLine = new JudgeLine
         {
@@ -367,13 +367,13 @@ public class PhigrosV3JudgeLineBuilderTests
             ],
             JudgeLineList = [firstLine, secondLine],
         };
-        var options = new KpcToPhigrosV3ConvertOptions();
+        var options = new IrToPhigrosV3ConvertOptions();
         options.Cutting.EasingPrecision = 1d;
         options.Cutting.MisalignedXyEventPrecision = 1d;
         options.Alpha.CutPrecision = 1d;
         options.Speed.CutPrecision = 1d;
 
-        var converted = new global::KaedePhi.Tool.Converter.Phigros.v3.PhigrosV3Converter().FromKpc(
+        var converted = new global::KaedePhi.Tool.Converter.Phigros.v3.PhigrosV3Converter().FromIr(
             chart,
             options
         );
@@ -419,7 +419,7 @@ public class PhigrosV3JudgeLineBuilderTests
     }
 
     [Fact]
-    public void FromKpc_WithFloorPosition_LogsLossAndKeepsPhigrosDefault()
+    public void FromIr_WithFloorPosition_LogsLossAndKeepsPhigrosDefault()
     {
         var source = new JudgeLine
         {
@@ -440,7 +440,7 @@ public class PhigrosV3JudgeLineBuilderTests
                 {
                     RotateEvents =
                     [
-                        new KpcEvents.Event<double>
+                        new IrEvents.Event<double>
                         {
                             StartBeat = Beat(0),
                             EndBeat = Beat(1),
@@ -456,13 +456,13 @@ public class PhigrosV3JudgeLineBuilderTests
         var converter = new global::KaedePhi.Tool.Converter.Phigros.v3.PhigrosV3Converter();
         converter.OnWarning = warnings.Add;
 
-        var converted = converter.FromKpc(
+        var converted = converter.FromIr(
             new Chart
             {
                 BpmList = [new BpmItem { StartBeat = Beat(0), Bpm = 120f }],
                 JudgeLineList = [source],
             },
-            new KpcToPhigrosV3ConvertOptions()
+            new IrToPhigrosV3ConvertOptions()
         );
 
         warnings
@@ -475,7 +475,7 @@ public class PhigrosV3JudgeLineBuilderTests
     }
 
     [Fact]
-    public void FromKpc_WithoutBpmList_PreservesDefaultBpmAndBeatTime()
+    public void FromIr_WithoutBpmList_PreservesDefaultBpmAndBeatTime()
     {
         var source = new JudgeLine
         {
@@ -492,7 +492,7 @@ public class PhigrosV3JudgeLineBuilderTests
         };
 
         var converted = new global::KaedePhi.Tool.Converter.Phigros.v3.PhigrosV3Converter()
-            .FromKpc(new Chart { JudgeLineList = [source] }, new KpcToPhigrosV3ConvertOptions())
+            .FromIr(new Chart { JudgeLineList = [source] }, new IrToPhigrosV3ConvertOptions())
             .JudgeLineList.Single();
 
         converted.Bpm.Should().Be(60f);
@@ -500,7 +500,7 @@ public class PhigrosV3JudgeLineBuilderTests
     }
 
     [Fact]
-    public void FromKpc_WithBpmList_DerivesHoldTimeFromQuantizedEndpoints()
+    public void FromIr_WithBpmList_DerivesHoldTimeFromQuantizedEndpoints()
     {
         var source = new JudgeLine
         {
@@ -516,13 +516,13 @@ public class PhigrosV3JudgeLineBuilderTests
         };
 
         var converted = new global::KaedePhi.Tool.Converter.Phigros.v3.PhigrosV3Converter()
-            .FromKpc(
+            .FromIr(
                 new Chart
                 {
                     BpmList = [new BpmItem { StartBeat = Beat(0), Bpm = 120f }],
                     JudgeLineList = [source],
                 },
-                new KpcToPhigrosV3ConvertOptions()
+                new IrToPhigrosV3ConvertOptions()
             )
             .JudgeLineList.Single()
             .NotesAbove.Single();
@@ -534,7 +534,7 @@ public class PhigrosV3JudgeLineBuilderTests
     }
 
     [Fact]
-    public void FromKpc_WithBpmListAndAncestorFactorMismatch_AllowsParentUnbind()
+    public void FromIr_WithBpmListAndAncestorFactorMismatch_AllowsParentUnbind()
     {
         var chart = new Chart
         {
@@ -561,16 +561,16 @@ public class PhigrosV3JudgeLineBuilderTests
         };
 
         Action act = () =>
-            new global::KaedePhi.Tool.Converter.Phigros.v3.PhigrosV3Converter().FromKpc(
+            new global::KaedePhi.Tool.Converter.Phigros.v3.PhigrosV3Converter().FromIr(
                 chart,
-                new KpcToPhigrosV3ConvertOptions()
+                new IrToPhigrosV3ConvertOptions()
             );
 
         act.Should().NotThrow();
     }
 
     [Fact]
-    public void FromKpc_WithBpmList_RejectsTimeAtTailEventSentinel()
+    public void FromIr_WithBpmList_RejectsTimeAtTailEventSentinel()
     {
         var chart = new Chart
         {
@@ -593,16 +593,16 @@ public class PhigrosV3JudgeLineBuilderTests
         };
 
         Action act = () =>
-            new global::KaedePhi.Tool.Converter.Phigros.v3.PhigrosV3Converter().FromKpc(
+            new global::KaedePhi.Tool.Converter.Phigros.v3.PhigrosV3Converter().FromIr(
                 chart,
-                new KpcToPhigrosV3ConvertOptions()
+                new IrToPhigrosV3ConvertOptions()
             );
 
         act.Should().Throw<FormatException>().WithMessage("*尾事件*哨兵*");
     }
 
     [Fact]
-    public void FromKpc_WithFloorPositionOnFilteredLine_LogsDiscardBeforeFiltering()
+    public void FromIr_WithFloorPositionOnFilteredLine_LogsDiscardBeforeFiltering()
     {
         var source = new JudgeLine
         {
@@ -623,10 +623,10 @@ public class PhigrosV3JudgeLineBuilderTests
         {
             OnWarning = warnings.Add,
         };
-        var options = new KpcToPhigrosV3ConvertOptions();
+        var options = new IrToPhigrosV3ConvertOptions();
         options.LineFilter.RemoveTextureLine = true;
 
-        var converted = converter.FromKpc(new Chart { JudgeLineList = [source] }, options);
+        var converted = converter.FromIr(new Chart { JudgeLineList = [source] }, options);
 
         converted.JudgeLineList.Should().BeEmpty();
         warnings
@@ -635,7 +635,7 @@ public class PhigrosV3JudgeLineBuilderTests
     }
 
     [Fact]
-    public void FromKpc_WithFloorPositionOnFilteredFather_LogsDiscardBeforeUnbinding()
+    public void FromIr_WithFloorPositionOnFilteredFather_LogsDiscardBeforeUnbinding()
     {
         var parent = new JudgeLine
         {
@@ -646,7 +646,7 @@ public class PhigrosV3JudgeLineBuilderTests
                 {
                     RotateEvents =
                     [
-                        new KpcEvents.Event<double>
+                        new IrEvents.Event<double>
                         {
                             StartBeat = Beat(0),
                             EndBeat = Beat(1),
@@ -676,10 +676,10 @@ public class PhigrosV3JudgeLineBuilderTests
         {
             OnWarning = warnings.Add,
         };
-        var options = new KpcToPhigrosV3ConvertOptions();
+        var options = new IrToPhigrosV3ConvertOptions();
         options.LineFilter.RemoveTextureLine = true;
 
-        var converted = converter.FromKpc(new Chart { JudgeLineList = [parent, child] }, options);
+        var converted = converter.FromIr(new Chart { JudgeLineList = [parent, child] }, options);
 
         converted.JudgeLineList.Should().ContainSingle();
         warnings
@@ -698,7 +698,7 @@ public class PhigrosV3JudgeLineBuilderTests
             Father = 0,
             Notes = [new Note { StartBeat = Beat(1), EndBeat = Beat(1) }],
         };
-        var options = new KpcToPhigrosV3ConvertOptions();
+        var options = new IrToPhigrosV3ConvertOptions();
 
         var converted = new PhigrosV3JudgeLineBuilder(options, 120f, 2f, null).ConvertJudgeLine(
             source,
@@ -720,7 +720,7 @@ public class PhigrosV3JudgeLineBuilderTests
             SpeedMultiplier = speedMultiplier,
         };
 
-    private static KpcEvents.Event<float> SpeedEvent(
+    private static IrEvents.Event<float> SpeedEvent(
         double startBeat,
         double endBeat,
         float startValue,
@@ -734,7 +734,7 @@ public class PhigrosV3JudgeLineBuilderTests
             EndValue = endValue,
         };
 
-    private static KpcEvents.Event<double> DoubleEvent(
+    private static IrEvents.Event<double> DoubleEvent(
         double startBeat,
         double endBeat,
         double startValue,
@@ -748,7 +748,7 @@ public class PhigrosV3JudgeLineBuilderTests
             EndValue = endValue,
         };
 
-    private static KpcEvents.Event<int> IntEvent(
+    private static IrEvents.Event<int> IntEvent(
         double startBeat,
         double endBeat,
         int startValue,

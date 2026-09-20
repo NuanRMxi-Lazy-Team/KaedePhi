@@ -1,4 +1,4 @@
-using KaedePhi.Core.Utils;
+using KaedePhi.Core.Primitives.Mathematics;
 
 namespace KaedePhi.Tests.Utils;
 

@@ -15,11 +15,11 @@ internal static class ProcessingParameterApi
 {
     // 各目标类型的命名空间与元数据名称
     private const string JudgeLineNamespace = "KaedePhi.Tool.JudgeLines";
-    private const string JudgeLineImplementationNamespace = "KaedePhi.Tool.JudgeLines.KaedePhi";
+    private const string JudgeLineImplementationNamespace = "KaedePhi.Tool.JudgeLines.Intermediate";
     private const string LayerNamespace = "KaedePhi.Tool.Layer";
-    private const string LayerImplementationNamespace = "KaedePhi.Tool.Layer.KaedePhi";
+    private const string LayerImplementationNamespace = "KaedePhi.Tool.Layer.Intermediate";
     private const string EventNamespace = "KaedePhi.Tool.Event";
-    private const string EventImplementationNamespace = "KaedePhi.Tool.Event.KaedePhi";
+    private const string EventImplementationNamespace = "KaedePhi.Tool.Event.Intermediate";
     private const string JudgeLineUnbinderInterface = "IJudgeLineUnbinder`1";
     private const string JudgeLineUnbinderImplementation = "JudgeLineUnbinder";
     private const string LayerProcessorInterface = "ILayerProcessor`1";

@@ -1,65 +1,62 @@
-using KaedePhi.Core.Common;
+#pragma warning disable CS0618
+
+using KaedePhi.Tool.Compatibility;
+using KpcEvents = KaedePhi.Core.KaedePhi.Events;
 
 namespace KaedePhi.Tool.Event.KaedePhi;
 
 /// <summary>
-/// 采用归一化斜率差（Slope 路线）判定自适应分段切割的事件合并器。
-/// <para>
-/// 比例尺取 <b>两个子段各自 swing 的最大值</b>：
-/// <c>scale = max(|nextNum−startNum|, |endNum−nextNum|, 1e-3)</c>，
-/// 与 <see cref="EventCompressor{TPayload}.EventListCompressSlope"/> 的 <c>TryMergeSlope</c> 逻辑完全对齐。
-/// </para>
-/// <para>
-/// 判定条件：<c>|firstSlope − secondSlope| &gt; tolerance%</c>，其中斜率以 scale 归一化。
-/// 相较欧氏垂直距离，斜率差对曲线在测试点附近的 <b>速度突变</b> 更灵敏，
-/// 适合检测缓入缓出曲线在零速区域的细微弯曲。
-/// </para>
+/// 已弃用的 KPC 斜率自适应事件列表合并器，行为与 <see cref="Intermediate.EventListMergerSlope{TPayload}"/> 一致。
 /// </summary>
-/// <typeparam name="TPayload">事件值类型（<see langword="int"/>、<see langword="float"/> 或 <see langword="double"/>）。</typeparam>
-public class EventListMergerSlope<TPayload> : EventListMergerPlus<TPayload>
+/// <typeparam name="TPayload">事件值类型。</typeparam>
+[Obsolete("已弃用：请迁移至 KaedePhi.Tool.Event.Intermediate.EventListMergerSlope{TPayload}。")]
+public class EventListMergerSlope<TPayload>
+    : Intermediate.EventListMergerSlope<TPayload>,
+        IEventListMerger<KpcEvents.Event<TPayload>>
     where TPayload : notnull
 {
-    /// <inheritdoc/>
-    protected override bool ShouldSplitAdaptiveSegment(
-        Beat segmentStart,
-        Beat nextBeat,
-        Beat intervalEnd,
-        TPayload? segmentStartSum,
-        TPayload? sumAtNext,
-        TPayload? sumAtEnd,
+    /// <summary>
+    /// 将来源 KPC 事件列表叠加到目标列表上，返回合并后的新事件列表。
+    /// </summary>
+    /// <param name="toEvents">目标轨道事件列表。</param>
+    /// <param name="fromEvents">来源轨道事件列表。</param>
+    /// <param name="precision">重叠区段的切片精度（每拍切片数）。</param>
+    /// <returns>叠加后的新事件列表，已按起始拍升序排序。</returns>
+    [Obsolete("已弃用：请迁移至 EventListMergerSlope{TPayload}.EventListMerge。")]
+    public List<KpcEvents.Event<TPayload>> EventListMerge(
+        List<KpcEvents.Event<TPayload>>? toEvents,
+        List<KpcEvents.Event<TPayload>>? fromEvents,
+        double precision
+    ) =>
+        KpcCompatibilityMapper.ToKpc(
+            base.EventListMerge(
+                KpcCompatibilityMapper.ToIntermediate(toEvents),
+                KpcCompatibilityMapper.ToIntermediate(fromEvents),
+                precision
+            )
+        )!;
+
+    /// <summary>
+    /// 将来源 KPC 事件列表自适应叠加到目标列表上，返回合并后的新事件列表。
+    /// </summary>
+    /// <param name="toEvents">目标轨道事件列表。</param>
+    /// <param name="fromEvents">来源轨道事件列表。</param>
+    /// <param name="precision">自适应采样的最大步数上限。</param>
+    /// <param name="tolerance">误差容差百分比。</param>
+    /// <returns>叠加后的新事件列表，已按起始拍升序排序。</returns>
+    [Obsolete("已弃用：请迁移至 EventListMergerSlope{TPayload}.EventListMerge。")]
+    public List<KpcEvents.Event<TPayload>> EventListMerge(
+        List<KpcEvents.Event<TPayload>>? toEvents,
+        List<KpcEvents.Event<TPayload>>? fromEvents,
+        double precision,
         double tolerance
-    )
-    {
-        if (nextBeat >= intervalEnd)
-            return true;
-        if (nextBeat <= segmentStart)
-            return false;
-
-        var dtTotal = (double)(intervalEnd - segmentStart);
-        var dtLocal = (double)(nextBeat - segmentStart);
-        if (dtTotal <= 1e-12 || dtLocal <= 1e-12)
-            return false;
-
-        var startNum = ToDouble(segmentStartSum);
-        var nextNum = ToDouble(sumAtNext);
-        var endNum = ToDouble(sumAtEnd);
-
-        // 以两个子段各自 swing 的最大值为归一化尺度，与 EventCompressor.TryMergeSlope 对齐：
-        //   rangeFirst = |B − A|（segmentStart → nextBeat）
-        //   rangeSecond = |C − B|（nextBeat → intervalEnd）
-        //   scale = max(rangeFirst, rangeSecond, 1e-3)
-        var rangeFirst = Math.Abs(nextNum - startNum);
-        var rangeSecond = Math.Abs(endNum - nextNum);
-        var scale = Math.Max(Math.Max(rangeFirst, rangeSecond), 1e-3);
-
-        // 与 TryMergeSlope 相同的归一化斜率差公式：
-        //   firstSlope  = (B − A) / dtLocal     / scale  （前半段斜率）
-        //   secondSlope = (C − B) / dtRemaining / scale  （后半段斜率）
-        //   split if |firstSlope − secondSlope| > tolerance%
-        var remainingTime = dtTotal - dtLocal;
-        var firstSlope = dtLocal < 1e-12 ? 0.0 : (nextNum - startNum) / dtLocal / scale;
-        var secondSlope = remainingTime < 1e-12 ? 0.0 : (endNum - nextNum) / remainingTime / scale;
-
-        return Math.Abs(firstSlope - secondSlope) > Math.Max(0d, tolerance) / 100.0;
-    }
+    ) =>
+        KpcCompatibilityMapper.ToKpc(
+            base.EventListMerge(
+                KpcCompatibilityMapper.ToIntermediate(toEvents),
+                KpcCompatibilityMapper.ToIntermediate(fromEvents),
+                precision,
+                tolerance
+            )
+        )!;
 }

@@ -11,7 +11,7 @@ internal static class JudgeLineUnbinderApi
 {
     // 按命名空间与元数据名称识别目标类型，避免依赖具体程序集引用
     private const string JudgeLineNamespace = "KaedePhi.Tool.JudgeLines";
-    private const string ImplementationNamespace = "KaedePhi.Tool.JudgeLines.KaedePhi";
+    private const string ImplementationNamespace = "KaedePhi.Tool.JudgeLines.Intermediate";
     private const string InterfaceMetadataName = "IJudgeLineUnbinder`1";
     private const string ImplementationMetadataName = "JudgeLineUnbinder";
     private const string ToleranceParameterName = "tolerance";

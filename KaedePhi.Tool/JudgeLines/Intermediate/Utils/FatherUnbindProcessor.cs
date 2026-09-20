@@ -1,13 +1,13 @@
 using System.Collections.Concurrent;
-using KaedePhi.Core.Common;
+using KaedePhi.Core.Primitives;
 using KaedePhi.Tool.Common;
-using KaedePhi.Tool.Event.KaedePhi;
-using JudgeLine = KaedePhi.Core.KaedePhi.JudgeLine;
+using KaedePhi.Tool.Event.Intermediate;
+using JudgeLine = KaedePhi.Core.Intermediate.JudgeLine;
 
-namespace KaedePhi.Tool.JudgeLines.KaedePhi.Utils;
+namespace KaedePhi.Tool.JudgeLines.Intermediate.Utils;
 
 /// <summary>
-/// KPC 判定线父子解绑处理器（等间隔采样）。
+/// IR 判定线父子解绑处理器（等间隔采样）。
 /// 将判定线与父线解绑，以等间隔拍步长采样保持原始行为。
 /// </summary>
 public class FatherUnbindProcessor : FatherUnbindProcessorBase
@@ -156,9 +156,9 @@ public class FatherUnbindProcessor : FatherUnbindProcessorBase
             progress?.Report(new ToolProgress(1.0));
             return judgeLineCopy;
 
-            List<KpcEvents.Event<double>> Merge(
-                List<KpcEvents.Event<double>> a,
-                List<KpcEvents.Event<double>> b
+            List<IrEvents.Event<double>> Merge(
+                List<IrEvents.Event<double>> a,
+                List<IrEvents.Event<double>> b
             ) => _merger.EventListMerge(a, b, precision);
         }
         catch (Exception ex)

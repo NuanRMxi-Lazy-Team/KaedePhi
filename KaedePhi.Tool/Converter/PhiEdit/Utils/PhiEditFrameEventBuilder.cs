@@ -1,11 +1,11 @@
-using KaedePhi.Core.Common;
+using KaedePhi.Core.Primitives;
 using KaedePhi.Tool.Converter.PhiEdit.Model;
-using KpcEasing = KaedePhi.Core.KaedePhi.Easing;
+using IrEasing = KaedePhi.Core.Intermediate.Easing;
 
 namespace KaedePhi.Tool.Converter.PhiEdit.Utils;
 
 /// <summary>
-/// PE Frame/Event 模型到 KPC Event 模型的插值构建器。
+/// PE Frame/Event 模型到 IR Event 模型的插值构建器。
 /// </summary>
 public class PhiEditFrameEventBuilder
 {
@@ -16,8 +16,8 @@ public class PhiEditFrameEventBuilder
     /// <summary>
     /// 根据转换选项初始化构建器实例。
     /// </summary>
-    /// <param name="options">PE 到 KPC 转换选项</param>
-    public PhiEditFrameEventBuilder(PhiEditToKpcConvertOptions options)
+    /// <param name="options">PE 到 IR 转换选项</param>
+    public PhiEditFrameEventBuilder(PhiEditToIrConvertOptions options)
     {
         _frameDurationBeat = options.FrameDurationBeat;
         _trailingBeatPadding = options.TrailingBeatPadding;
@@ -72,8 +72,8 @@ public class PhiEditFrameEventBuilder
     /// <param name="horizonBeat">判定线时间范围上界</param>
     /// <param name="selector">从 (X, Y) 元组中提取目标轴分量的选择器</param>
     /// <param name="valueTransformer">将 float 源值转换为目标坐标系 double 值的函数</param>
-    /// <returns>转换后的 KPC Move 轴事件列表；若无有效事件则返回 null</returns>
-    public List<KpcEvents.Event<double>>? BuildMoveAxisEvents(
+    /// <returns>转换后的 IR Move 轴事件列表；若无有效事件则返回 null</returns>
+    public List<IrEvents.Event<double>>? BuildMoveAxisEvents(
         List<Pe.MoveFrame>? frames,
         List<Pe.MoveEvent>? events,
         double horizonBeat,
@@ -94,7 +94,7 @@ public class PhiEditFrameEventBuilder
         if (boundaries.Count < 2)
             return null;
 
-        var result = new List<KpcEvents.Event<double>>(boundaries.Count - 1);
+        var result = new List<IrEvents.Event<double>>(boundaries.Count - 1);
         for (var i = 0; i < boundaries.Count - 1; i++)
         {
             var startBeat = boundaries[i];
@@ -123,7 +123,7 @@ public class PhiEditFrameEventBuilder
                 orderedEventsByEnd
             );
             result.Add(
-                new KpcEvents.Event<double>
+                new IrEvents.Event<double>
                 {
                     StartBeat = new Beat(startBeat),
                     EndBeat = new Beat(endBeat),
@@ -158,8 +158,8 @@ public class PhiEditFrameEventBuilder
     /// <param name="events">源 PE Event 列表</param>
     /// <param name="horizonBeat">判定线时间范围上界</param>
     /// <param name="valueTransformer">将 float 源值转换为目标类型 T 的函数</param>
-    /// <returns>转换后的 KPC 标量事件列表；若无有效事件则返回 null</returns>
-    public List<KpcEvents.Event<T>>? BuildScalarEvents<T>(
+    /// <returns>转换后的 IR 标量事件列表；若无有效事件则返回 null</returns>
+    public List<IrEvents.Event<T>>? BuildScalarEvents<T>(
         List<Pe.Frame>? frames,
         List<Pe.Event>? events,
         double horizonBeat,
@@ -180,7 +180,7 @@ public class PhiEditFrameEventBuilder
         if (boundaries.Count < 2)
             return null;
 
-        var result = new List<KpcEvents.Event<T>>(boundaries.Count - 1);
+        var result = new List<IrEvents.Event<T>>(boundaries.Count - 1);
         for (var i = 0; i < boundaries.Count - 1; i++)
         {
             var startBeat = boundaries[i];
@@ -212,7 +212,7 @@ public class PhiEditFrameEventBuilder
                 orderedEventsByEnd
             );
             result.Add(
-                new KpcEvents.Event<T>
+                new IrEvents.Event<T>
                 {
                     StartBeat = new Beat(startBeat),
                     EndBeat = new Beat(endBeat),
@@ -393,8 +393,8 @@ public class PhiEditFrameEventBuilder
     /// <param name="startBeat">事件起始拍点</param>
     /// <param name="endBeat">事件结束拍点</param>
     /// <param name="value">常量值</param>
-    /// <returns>线性缓动、起止值均为 <paramref name="value"/> 的 KPC 事件</returns>
-    private static KpcEvents.Event<T> CreateConstantEvent<T>(
+    /// <returns>线性缓动、起止值均为 <paramref name="value"/> 的 IR 事件</returns>
+    private static IrEvents.Event<T> CreateConstantEvent<T>(
         double startBeat,
         double endBeat,
         T value
@@ -404,7 +404,7 @@ public class PhiEditFrameEventBuilder
         {
             StartBeat = new Beat(startBeat),
             EndBeat = new Beat(endBeat),
-            Easing = new KpcEasing(1),
+            Easing = new IrEasing(1),
             EasingLeft = 0f,
             EasingRight = 1f,
             StartValue = value,

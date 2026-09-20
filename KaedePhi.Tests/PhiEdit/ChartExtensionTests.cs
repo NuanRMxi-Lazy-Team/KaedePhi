@@ -1,6 +1,6 @@
 using System.Globalization;
 using System.Text;
-using KaedePhi.Core.PhiEdit;
+using KaedePhi.Core.Formats.PhiEdit;
 
 namespace KaedePhi.Tests.PhiEdit;
 

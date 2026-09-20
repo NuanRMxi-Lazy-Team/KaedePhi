@@ -1,6 +1,6 @@
-using KaedePhi.Core.Common;
-using Rpe = KaedePhi.Core.RePhiEdit;
-using RpeEvents = KaedePhi.Core.RePhiEdit.Events;
+using KaedePhi.Core.Primitives;
+using Rpe = KaedePhi.Core.Formats.RePhiEdit;
+using RpeEvents = KaedePhi.Core.Formats.RePhiEdit.Events;
 
 namespace KaedePhi.Tests.RePhiEdit;
 

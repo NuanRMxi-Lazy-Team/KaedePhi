@@ -2,7 +2,7 @@ namespace KaedePhi.Tool.Converter.PhiFans.Utils;
 
 internal static class EasingConverter
 {
-    internal static int ToKpc(int pfEasing) =>
+    internal static int ToIr(int pfEasing) =>
         pfEasing switch
         {
             0 => 1,
@@ -40,10 +40,10 @@ internal static class EasingConverter
         };
 
     /// <summary>
-    /// 将 KPC 缓动编号映射为 PhiFans 缓动编号。
+    /// 将 IR 缓动编号映射为 PhiFans 缓动编号。
     /// </summary>
-    internal static int FromKpc(int kpcEasing) =>
-        kpcEasing switch
+    internal static int FromIr(int irEasing) =>
+        irEasing switch
         {
             1 => 0,
             2 => 1,
@@ -77,8 +77,8 @@ internal static class EasingConverter
             30 => 29,
             31 => 30,
             _ => throw new ArgumentOutOfRangeException(
-                nameof(kpcEasing),
-                kpcEasing,
+                nameof(irEasing),
+                irEasing,
                 "PhiFans 不支持该缓动编号。"
             ),
         };

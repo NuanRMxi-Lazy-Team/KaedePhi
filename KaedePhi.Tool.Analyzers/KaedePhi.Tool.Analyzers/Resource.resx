@@ -208,7 +208,7 @@
     <comment>KPTE0013 诊断消息。</comment>
   </data>
   <data name="kpte_0013_description" xml:space="preserve">
-    <value>KpcRenderOptions 的数值属性超出运行时允许范围，会在渲染前抛出参数异常。</value>
+    <value>IrRenderOptions 的数值属性超出运行时允许范围，会在渲染前抛出参数异常。</value>
     <comment>KPTE0013 诊断描述。</comment>
   </data>
 </root>

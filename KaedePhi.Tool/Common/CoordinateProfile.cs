@@ -1,6 +1,6 @@
-using Chart = KaedePhi.Core.KaedePhi.Chart;
-using PhichainChart = KaedePhi.Core.PhiChain.v6.Chart;
-using PhiFansChart = KaedePhi.Core.PhiFans.Chart;
+using Chart = KaedePhi.Core.Intermediate.Chart;
+using PhichainChart = KaedePhi.Core.Formats.PhiChain.v6.Chart;
+using PhiFansChart = KaedePhi.Core.Formats.PhiFans.Chart;
 
 namespace KaedePhi.Tool.Common;
 
@@ -18,9 +18,9 @@ public readonly record struct CoordinateProfile(
 )
 {
     /// <summary>
-    /// KPC 的归一化坐标系配置。
+    /// IR 的归一化坐标系配置。
     /// </summary>
-    public static readonly CoordinateProfile KpcProfile = new(
+    public static readonly CoordinateProfile IrProfile = new(
         Chart.CoordinateSystem.MinX,
         Chart.CoordinateSystem.MaxX,
         Chart.CoordinateSystem.MinY,

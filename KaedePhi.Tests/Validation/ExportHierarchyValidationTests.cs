@@ -1,7 +1,7 @@
 using System.Reflection;
 using KaedePhi.Tool.Common;
 using KaedePhi.Tool.Converter;
-using KaedePhi.Tool.Converter.KaedePhi;
+using KaedePhi.Tool.Converter.Intermediate;
 using KaedePhi.Tool.Converter.PhiChain;
 using KaedePhi.Tool.Converter.PhiChain.Model;
 using KaedePhi.Tool.Converter.PhiEdit;
@@ -12,74 +12,74 @@ using KaedePhi.Tool.Converter.Phigros.v3;
 using KaedePhi.Tool.Converter.Phigros.v3.Model;
 using KaedePhi.Tool.Converter.RePhiEdit;
 using KaedePhi.Tool.Converter.RePhiEdit.Model;
-using KaedePhi.Tool.Render.KaedePhi;
-using Kpc = KaedePhi.Core.KaedePhi;
+using KaedePhi.Tool.Render.Intermediate;
+using Ir = KaedePhi.Core.Intermediate;
 
 namespace KaedePhi.Tests.Validation;
 
 public class ExportHierarchyValidationTests
 {
     [Fact]
-    public void KaedePhiConverter_FromKpcAllowsSelfReferencingJudgeLine()
+    public void IntermediateConverter_FromIrAllowsSelfReferencingJudgeLine()
     {
-        Action act = () => new KaedePhiConverter().FromKpc(CreateSelfReferencingChart(), null);
+        Action act = () => new IntermediateConverter().FromIr(CreateSelfReferencingChart(), null);
 
         act.Should().NotThrow();
     }
 
     [Fact]
-    public void PhiEditConverter_FromKpcRejectsSelfReferencingJudgeLine()
+    public void PhiEditConverter_FromIrRejectsSelfReferencingJudgeLine()
     {
         Action act = () =>
-            new PhiEditConverter().FromKpc(
+            new PhiEditConverter().FromIr(
                 CreateSelfReferencingChart(),
-                new KpcToPhiEditConvertOptions()
+                new IrToPhiEditConvertOptions()
             );
 
         act.Should().Throw<FormatException>();
     }
 
     [Fact]
-    public void PhiFansConverter_FromKpcRejectsSelfReferencingJudgeLine()
+    public void PhiFansConverter_FromIrRejectsSelfReferencingJudgeLine()
     {
         Action act = () =>
-            new PhiFansConverter().FromKpc(
+            new PhiFansConverter().FromIr(
                 CreateSelfReferencingChart(),
-                new KpcToPhiFansConvertOptions()
+                new IrToPhiFansConvertOptions()
             );
 
         act.Should().Throw<FormatException>();
     }
 
     [Fact]
-    public void PhiChainConverter_FromKpcRejectsSelfReferencingJudgeLine()
+    public void PhiChainConverter_FromIrRejectsSelfReferencingJudgeLine()
     {
         Action act = () =>
-            new PhiChainConverter().FromKpc(
+            new PhiChainConverter().FromIr(
                 CreateSelfReferencingChart(),
-                new KpcToPhiChainConvertOptions()
+                new IrToPhiChainConvertOptions()
             );
 
         act.Should().Throw<FormatException>();
     }
 
     [Fact]
-    public void PhigrosV3Converter_FromKpcRejectsSelfReferencingJudgeLine()
+    public void PhigrosV3Converter_FromIrRejectsSelfReferencingJudgeLine()
     {
         Action act = () =>
-            new PhigrosV3Converter().FromKpc(
+            new PhigrosV3Converter().FromIr(
                 CreateSelfReferencingChart(),
-                new KpcToPhigrosV3ConvertOptions()
+                new IrToPhigrosV3ConvertOptions()
             );
 
         act.Should().Throw<FormatException>();
     }
 
     [Fact]
-    public void RePhiEditConverter_FromKpcRejectsSelfReferencingJudgeLine()
+    public void RePhiEditConverter_FromIrRejectsSelfReferencingJudgeLine()
     {
         Action act = () =>
-            new RePhiEditConverter().FromKpc(CreateSelfReferencingChart(), new ConvertOption());
+            new RePhiEditConverter().FromIr(CreateSelfReferencingChart(), new ConvertOption());
 
         act.Should().Throw<FormatException>();
     }
@@ -87,14 +87,14 @@ public class ExportHierarchyValidationTests
     [Fact]
     public void ChartPipelineSource_ToAllowsSelfReferencingJudgeLine()
     {
-        var source = ChartPipeline.From<Kpc.Chart, Unit?, Unit?>(
+        var source = ChartPipeline.From<Ir.Chart, Unit?, Unit?>(
             CreateSelfReferencingChart(),
             new UnvalidatedConverter(),
             null,
             TestContext.Current.CancellationToken
         );
 
-        Action act = () => source.To<Kpc.Chart, Unit?, Unit?>(new UnvalidatedConverter(), null);
+        Action act = () => source.To<Ir.Chart, Unit?, Unit?>(new UnvalidatedConverter(), null);
 
         act.Should().NotThrow();
     }
@@ -129,16 +129,16 @@ public class ExportHierarchyValidationTests
     }
 
     [Fact]
-    public void KpcChartRenderExporter_ExportChartAllowsSelfReferencingJudgeLine()
+    public void IrChartRenderExporter_ExportChartAllowsSelfReferencingJudgeLine()
     {
         var outputDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
         try
         {
             Action act = () =>
-                new KpcChartRenderExporter().ExportChart(
+                new IrChartRenderExporter().ExportChart(
                     CreateSelfReferencingChart(),
                     outputDir,
-                    new KpcRenderOptions()
+                    new IrRenderOptions()
                 );
 
             act.Should().NotThrow();
@@ -151,17 +151,17 @@ public class ExportHierarchyValidationTests
     }
 
     [Fact]
-    public void KpcChartRenderExporter_ExportChartAllowsValidJudgeLineTree()
+    public void IrChartRenderExporter_ExportChartAllowsValidJudgeLineTree()
     {
         var outputDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
-        var chart = new Kpc.Chart
+        var chart = new Ir.Chart
         {
-            JudgeLineList = [new Kpc.JudgeLine(), new Kpc.JudgeLine { Father = 0 }],
+            JudgeLineList = [new Ir.JudgeLine(), new Ir.JudgeLine { Father = 0 }],
         };
         try
         {
             Action act = () =>
-                new KpcChartRenderExporter().ExportChart(chart, outputDir, new KpcRenderOptions());
+                new IrChartRenderExporter().ExportChart(chart, outputDir, new IrRenderOptions());
 
             act.Should().NotThrow();
         }
@@ -176,20 +176,20 @@ public class ExportHierarchyValidationTests
     public void ValidateJudgeLineHierarchy_RejectsSelfReferencingJudgeLine()
     {
         Action act = () =>
-            KpcChartValidator.ValidateJudgeLineHierarchy(
+            IrChartValidator.ValidateJudgeLineHierarchy(
                 CreateSelfReferencingChart().JudgeLineList
             );
 
         act.Should().Throw<FormatException>();
     }
 
-    private static Kpc.Chart CreateSelfReferencingChart() =>
-        new() { JudgeLineList = [new Kpc.JudgeLine { Father = 0 }] };
+    private static Ir.Chart CreateSelfReferencingChart() =>
+        new() { JudgeLineList = [new Ir.JudgeLine { Father = 0 }] };
 
     private static void SetExporter(
         ChartFormatDescriptor descriptor,
         Func<
-            Kpc.Chart,
+            Ir.Chart,
             string,
             ChartWriteSettings,
             object?,
@@ -207,7 +207,7 @@ public class ExportHierarchyValidationTests
         property!.SetValue(descriptor, exporter);
     }
 
-    private sealed class UnvalidatedConverter : IChartConverter<Kpc.Chart, Unit?, Unit?>
+    private sealed class UnvalidatedConverter : IChartConverter<Ir.Chart, Unit?, Unit?>
     {
         public Action<string>? OnInfo { get; set; }
 
@@ -224,9 +224,9 @@ public class ExportHierarchyValidationTests
             Action<string>? debug = null
         ) => new TestDisposable();
 
-        public Kpc.Chart ToKpc(Kpc.Chart input, Unit? options) => input;
+        public Ir.Chart ToIr(Ir.Chart input, Unit? options) => input;
 
-        public Kpc.Chart FromKpc(Kpc.Chart input, Unit? options) => input;
+        public Ir.Chart FromIr(Ir.Chart input, Unit? options) => input;
     }
 
     private sealed class TestDisposable : IDisposable

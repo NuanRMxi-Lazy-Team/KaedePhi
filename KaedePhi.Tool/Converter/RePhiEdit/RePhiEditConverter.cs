@@ -1,4 +1,4 @@
-using KaedePhi.Core.Common;
+using KaedePhi.Core.Primitives;
 using KaedePhi.Tool.Common;
 using KaedePhi.Tool.Converter.RePhiEdit.Model;
 using KaedePhi.Tool.Converter.RePhiEdit.Utils;
@@ -19,27 +19,27 @@ public class RePhiEditConverter
     public void SetCancellationToken(CancellationToken ct) => _ct = ct;
 
     /// <summary>
-    /// 将 RePhiEdit 格式转换为 KPC 内部格式。
+    /// 将 RePhiEdit 格式转换为 IR 内部格式。
     /// </summary>
     /// <param name="source">RePhiEdit 谱面</param>
     /// <param name="_">未使用</param>
-    /// <returns>KPC 谱面</returns>
-    public Kpc.Chart ToKpc(Rpe.Chart source, Unit? _)
+    /// <returns>IR 谱面</returns>
+    public Ir.Chart ToIr(Rpe.Chart source, Unit? _)
     {
         ArgumentNullException.ThrowIfNull(source);
         _ct.ThrowIfCancellationRequested();
-        var converted = new Kpc.Chart
+        var converted = new Ir.Chart
         {
             BpmList = source.BpmList.ConvertAll(ConvertBpmItem),
             Meta = MetaBuilder.ConvertMeta(source.Meta),
             JudgeLineList = ConvertJudgeLinesWithCancellation(source.JudgeLineList),
         };
-        return KpcChartNormalizer.NormalizeAndValidateNoteEndBeats(converted);
+        return IrChartNormalizer.NormalizeAndValidateNoteEndBeats(converted);
     }
 
-    private List<Kpc.JudgeLine> ConvertJudgeLinesWithCancellation(List<Rpe.JudgeLine> judgeLines)
+    private List<Ir.JudgeLine> ConvertJudgeLinesWithCancellation(List<Rpe.JudgeLine> judgeLines)
     {
-        var result = new List<Kpc.JudgeLine>(judgeLines.Count);
+        var result = new List<Ir.JudgeLine>(judgeLines.Count);
         for (var i = 0; i < judgeLines.Count; i++)
         {
             _ct.ThrowIfCancellationRequested();
@@ -50,18 +50,18 @@ public class RePhiEditConverter
     }
 
     /// <summary>
-    /// 将 KPC 内部格式转换为 RePhiEdit 格式。
+    /// 将 IR 内部格式转换为 RePhiEdit 格式。
     /// </summary>
-    /// <param name="input">KPC 谱面</param>
+    /// <param name="input">IR 谱面</param>
     /// <param name="options">输出转换选项</param>
     /// <returns>RePhiEdit 谱面</returns>
-    public Rpe.Chart FromKpc(Kpc.Chart input, ConvertOption options)
+    public Rpe.Chart FromIr(Ir.Chart input, ConvertOption options)
     {
         ArgumentNullException.ThrowIfNull(input);
         ArgumentNullException.ThrowIfNull(options);
         ConversionOptionsValidator.Validate(options);
-        var normalized = KpcChartNormalizer.NormalizeAndValidateNoteEndBeats(input);
-        KpcChartValidator.ValidateJudgeLineHierarchy(normalized.JudgeLineList);
+        var normalized = IrChartNormalizer.NormalizeAndValidateNoteEndBeats(input);
+        IrChartValidator.ValidateJudgeLineHierarchy(normalized.JudgeLineList);
         _ct.ThrowIfCancellationRequested();
 
         var lines = new List<Rpe.JudgeLine>(normalized.JudgeLineList.Count);
@@ -79,9 +79,9 @@ public class RePhiEditConverter
         };
     }
 
-    private static Kpc.BpmItem ConvertBpmItem(Rpe.BpmItem src) =>
+    private static Ir.BpmItem ConvertBpmItem(Rpe.BpmItem src) =>
         new() { Bpm = src.Bpm, StartBeat = new Beat((int[])src.StartBeat) };
 
-    private static Rpe.BpmItem ConvertBpmItem(Kpc.BpmItem src) =>
+    private static Rpe.BpmItem ConvertBpmItem(Ir.BpmItem src) =>
         new() { Bpm = src.Bpm, StartBeat = new Beat((int[])src.StartBeat) };
 }

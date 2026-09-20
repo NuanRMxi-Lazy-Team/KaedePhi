@@ -13,7 +13,7 @@ public sealed class EventCutterAnalyzerTests
     public async Task DoubleCutLengthGreaterThanOne_ReportsDiagnostic()
     {
         const string source = """
-            using KaedePhi.Tool.Event.KaedePhi;
+            using KaedePhi.Tool.Event.Intermediate;
 
             public static class Test
             {
@@ -32,7 +32,7 @@ public sealed class EventCutterAnalyzerTests
                 }
             }
 
-            namespace KaedePhi.Tool.Event.KaedePhi
+            namespace KaedePhi.Tool.Event.Intermediate
             {
                 public sealed class EventCutter<T>
                 {
@@ -53,7 +53,7 @@ public sealed class EventCutterAnalyzerTests
     {
         const string source = """
             using KaedePhi.Core.Common;
-            using KaedePhi.Tool.Event.KaedePhi;
+            using KaedePhi.Tool.Event.Intermediate;
 
             public static class Test
             {
@@ -72,7 +72,7 @@ public sealed class EventCutterAnalyzerTests
                 }
             }
 
-            namespace KaedePhi.Tool.Event.KaedePhi
+            namespace KaedePhi.Tool.Event.Intermediate
             {
                 public sealed class EventCutter<T>
                 {
@@ -92,7 +92,7 @@ public sealed class EventCutterAnalyzerTests
     public async Task CutLengthEqualsOne_ReportsDiagnosticWithoutReciprocalMessage()
     {
         const string source = """
-            using KaedePhi.Tool.Event.KaedePhi;
+            using KaedePhi.Tool.Event.Intermediate;
 
             public static class Test
             {
@@ -103,7 +103,7 @@ public sealed class EventCutterAnalyzerTests
                 }
             }
 
-            namespace KaedePhi.Tool.Event.KaedePhi
+            namespace KaedePhi.Tool.Event.Intermediate
             {
                 public sealed class EventCutter<T>
                 {
@@ -122,7 +122,7 @@ public sealed class EventCutterAnalyzerTests
     public async Task NonConstantOrSmallCutLength_DoesNotReportDiagnostic()
     {
         const string source = """
-            using KaedePhi.Tool.Event.KaedePhi;
+            using KaedePhi.Tool.Event.Intermediate;
 
             public static class Test
             {
@@ -135,7 +135,7 @@ public sealed class EventCutterAnalyzerTests
                 }
             }
 
-            namespace KaedePhi.Tool.Event.KaedePhi
+            namespace KaedePhi.Tool.Event.Intermediate
             {
                 public sealed class EventCutter<T>
                 {

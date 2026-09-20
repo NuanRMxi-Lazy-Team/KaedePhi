@@ -1,16 +1,17 @@
-using KaedePhi.Core.Common;
+using KaedePhi.Core.Primitives;
 using KaedePhi.Tool.Common;
 using KaedePhi.Tool.Converter.Phigros.v3.Model;
-using KaedePhi.Tool.Event.KaedePhi;
-using KaedePhi.Tool.Layer.KaedePhi;
-using KpcEventLayer = KaedePhi.Core.KaedePhi.Events.EventLayer;
-using PhigrosEvent = KaedePhi.Core.Phigros.v3.Event;
-using PhigrosSpeedEvent = KaedePhi.Core.Phigros.v3.SpeedEvent;
+using KaedePhi.Tool.Event.Intermediate;
+using KaedePhi.Tool.Layer.Intermediate;
+using IrEventLayer = KaedePhi.Core.Intermediate.Events.EventLayer;
+using PhigrosEvent = KaedePhi.Core.Formats.Phigros.v3.Event;
+using PhigrosSpeedEvent = KaedePhi.Core.Formats.Phigros.v3.SpeedEvent;
+using PhigrosJudgeLine = KaedePhi.Core.Formats.Phigros.v3.JudgeLine;
 
 namespace KaedePhi.Tool.Converter.Phigros.v3.Utils;
 
 /// <summary>
-/// KPC 事件到 PhigrosV3 事件的构建器。
+/// IR 事件到 PhigrosV3 事件的构建器。
 /// </summary>
 public class PhigrosV3EventBuilder
 {
@@ -18,7 +19,7 @@ public class PhigrosV3EventBuilder
     private const float BeatToPhigrosTime = 32f;
     private const float TailEventEndTime = PhigrosV3TimeMapper.TailEventEndTime;
 
-    private readonly KpcToPhigrosV3ConvertOptions _options;
+    private readonly IrToPhigrosV3ConvertOptions _options;
     private readonly Action<string>? _warnLogger;
     private readonly EventCutter<double> _eventCutterDouble = new();
     private readonly EventCutter<int> _eventCutterInt = new();
@@ -26,11 +27,13 @@ public class PhigrosV3EventBuilder
     private readonly LayerProcessor _layerProcessor = new();
     private readonly PhigrosV3TimeMapper? _timeMapper;
 
-    public PhigrosV3EventBuilder(KpcToPhigrosV3ConvertOptions options, Action<string>? warnLogger)
-        : this(options, warnLogger, null) { }
+    public PhigrosV3EventBuilder(IrToPhigrosV3ConvertOptions options, Action<string>? warnLogger)
+        : this(options, warnLogger, null)
+    {
+    }
 
     internal PhigrosV3EventBuilder(
-        KpcToPhigrosV3ConvertOptions options,
+        IrToPhigrosV3ConvertOptions options,
         Action<string>? warnLogger,
         PhigrosV3TimeMapper? timeMapper
     )
@@ -40,17 +43,17 @@ public class PhigrosV3EventBuilder
         _timeMapper = timeMapper;
     }
 
-    public void ConvertLineEvents(Core.Phigros.v3.JudgeLine target, List<KpcEventLayer> layers)
+    public void ConvertLineEvents(PhigrosJudgeLine target, List<IrEventLayer> layers)
     {
         ConvertLineEvents(target, ResolvePrimaryLayer(layers), 1f);
     }
 
-    internal KpcEventLayer ResolvePrimaryLayer(List<KpcEventLayer> layers)
+    internal IrEventLayer ResolvePrimaryLayer(List<IrEventLayer> layers)
     {
         if (layers.Count == 0)
-            return new KpcEventLayer();
+            return new IrEventLayer();
 
-        KpcEventLayer primaryLayer;
+        IrEventLayer primaryLayer;
         if (layers.Skip(1).Any(HasAnyEventData))
         {
             if (_options.MultiLayerMerge.ClassicMode)
@@ -73,8 +76,8 @@ public class PhigrosV3EventBuilder
     }
 
     internal void ConvertLineEvents(
-        Core.Phigros.v3.JudgeLine target,
-        KpcEventLayer primaryLayer,
+        PhigrosJudgeLine target,
+        IrEventLayer primaryLayer,
         float bpmFactor
     )
     {
@@ -92,8 +95,8 @@ public class PhigrosV3EventBuilder
     #region 移动事件
 
     private void ConvertMoveEvents(
-        Core.Phigros.v3.JudgeLine target,
-        KpcEventLayer layer,
+        PhigrosJudgeLine target,
+        IrEventLayer layer,
         float bpmFactor
     )
     {
@@ -151,9 +154,9 @@ public class PhigrosV3EventBuilder
         double xEnd,
         double yStart,
         double yEnd
-    )> MergeAndFill(
-        List<KpcEvents.Event<double>> xEvents,
-        List<KpcEvents.Event<double>> yEvents,
+        )> MergeAndFill(
+        List<IrEvents.Event<double>> xEvents,
+        List<IrEvents.Event<double>> yEvents,
         double defaultValue
     )
     {
@@ -207,8 +210,8 @@ public class PhigrosV3EventBuilder
     /// [<paramref name="start"/>, <paramref name="end"/>] 的事件。
     /// 若不存在则返回 <c>null</c>。
     /// </summary>
-    private static KpcEvents.Event<T>? BinaryFindEventCovering<T>(
-        List<KpcEvents.Event<T>> sortedEvents,
+    private static IrEvents.Event<T>? BinaryFindEventCovering<T>(
+        List<IrEvents.Event<T>> sortedEvents,
         Beat start,
         Beat end
     )
@@ -244,7 +247,7 @@ public class PhigrosV3EventBuilder
 
     private void ConvertScalarEvents(
         List<PhigrosEvent> target,
-        List<KpcEvents.Event<double>>? sourceEvents,
+        List<IrEvents.Event<double>>? sourceEvents,
         Func<double, float> valueTransform,
         float bpmFactor
     )
@@ -292,8 +295,8 @@ public class PhigrosV3EventBuilder
     #region 不透明度事件
 
     private void ConvertAlphaEvents(
-        Core.Phigros.v3.JudgeLine target,
-        List<KpcEvents.Event<int>>? sourceEvents,
+        PhigrosJudgeLine target,
+        List<IrEvents.Event<int>>? sourceEvents,
         float bpmFactor
     )
     {
@@ -310,7 +313,7 @@ public class PhigrosV3EventBuilder
         {
             filled.Insert(
                 0,
-                new KpcEvents.Event<int>
+                new IrEvents.Event<int>
                 {
                     StartBeat = new Beat(0d),
                     EndBeat = filled[0].StartBeat,
@@ -359,8 +362,8 @@ public class PhigrosV3EventBuilder
     #region 速度事件
 
     private void ConvertSpeedEvents(
-        Core.Phigros.v3.JudgeLine target,
-        List<KpcEvents.Event<float>>? sourceEvents,
+        PhigrosJudgeLine target,
+        List<IrEvents.Event<float>>? sourceEvents,
         float bpmFactor
     )
     {
@@ -412,8 +415,8 @@ public class PhigrosV3EventBuilder
 
     #region 辅助方法
 
-    private static List<KpcEvents.Event<T>> FillGaps<T>(
-        List<KpcEvents.Event<T>> events,
+    private static List<IrEvents.Event<T>> FillGaps<T>(
+        List<IrEvents.Event<T>> events,
         T defaultValue
     )
         where T : notnull
@@ -426,7 +429,7 @@ public class PhigrosV3EventBuilder
             ? events
             : [.. events.OrderBy(e => (double)e.StartBeat)];
 
-        var result = new List<KpcEvents.Event<T>>(sorted.Count * 2);
+        var result = new List<IrEvents.Event<T>>(sorted.Count * 2);
         var lastEndValue = defaultValue;
         var lastEndBeat = new Beat(0d);
 
@@ -438,7 +441,7 @@ public class PhigrosV3EventBuilder
             if (startBeat > lastEndBeat && result.Count > 0)
             {
                 result.Add(
-                    new KpcEvents.Event<T>
+                    new IrEvents.Event<T>
                     {
                         StartBeat = lastEndBeat,
                         EndBeat = startBeat,
@@ -460,7 +463,7 @@ public class PhigrosV3EventBuilder
     /// O(n) 检查——若 <paramref name="events"/> 已按 <c>StartBeat</c> 升序排列则返回
     /// <c>true</c>，避免在常规路径下执行 O(n log n) 的 <c>OrderBy</c>。
     /// </summary>
-    private static bool IsSortedByStartBeat<T>(List<KpcEvents.Event<T>> events)
+    private static bool IsSortedByStartBeat<T>(List<IrEvents.Event<T>> events)
         where T : notnull
     {
         for (var i = 1; i < events.Count; i++)
@@ -472,8 +475,8 @@ public class PhigrosV3EventBuilder
         return true;
     }
 
-    private IEnumerable<KpcEvents.Event<T>> SplitAtTempoChanges<T>(
-        IEnumerable<KpcEvents.Event<T>> events
+    private IEnumerable<IrEvents.Event<T>> SplitAtTempoChanges<T>(
+        IEnumerable<IrEvents.Event<T>> events
     )
         where T : notnull
     {
@@ -496,8 +499,8 @@ public class PhigrosV3EventBuilder
         }
     }
 
-    private static KpcEvents.Event<T> CreateLinearSegment<T>(
-        KpcEvents.Event<T> source,
+    private static IrEvents.Event<T> CreateLinearSegment<T>(
+        IrEvents.Event<T> source,
         Beat startBeat,
         Beat endBeat
     )
@@ -515,7 +518,7 @@ public class PhigrosV3EventBuilder
             ? (float)((double)beat * BeatToPhigrosTime)
             : _timeMapper.ToEventTime(beat, bpmFactor);
 
-    private static bool HasAnyEventData(KpcEventLayer layer) =>
+    private static bool HasAnyEventData(IrEventLayer layer) =>
         (layer.MoveXEvents?.Count ?? 0) > 0
         || (layer.MoveYEvents?.Count ?? 0) > 0
         || (layer.RotateEvents?.Count ?? 0) > 0

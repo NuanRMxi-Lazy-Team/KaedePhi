@@ -14,7 +14,7 @@ public sealed class EventCutterCodeFixProviderTests
     public async Task DoubleCutLengthGreaterThanOne_ReplacesWithReciprocal()
     {
         const string source = """
-            using KaedePhi.Tool.Event.KaedePhi;
+            using KaedePhi.Tool.Event.Intermediate;
 
             public static class Test
             {
@@ -25,7 +25,7 @@ public sealed class EventCutterCodeFixProviderTests
                 }
             }
 
-            namespace KaedePhi.Tool.Event.KaedePhi
+            namespace KaedePhi.Tool.Event.Intermediate
             {
                 public sealed class EventCutter<T>
                 {
@@ -34,7 +34,7 @@ public sealed class EventCutterCodeFixProviderTests
             }
             """;
         const string fixedSource = """
-            using KaedePhi.Tool.Event.KaedePhi;
+            using KaedePhi.Tool.Event.Intermediate;
 
             public static class Test
             {
@@ -45,7 +45,7 @@ public sealed class EventCutterCodeFixProviderTests
                 }
             }
 
-            namespace KaedePhi.Tool.Event.KaedePhi
+            namespace KaedePhi.Tool.Event.Intermediate
             {
                 public sealed class EventCutter<T>
                 {
@@ -66,7 +66,7 @@ public sealed class EventCutterCodeFixProviderTests
     {
         const string source = """
             using KaedePhi.Core.Common;
-            using KaedePhi.Tool.Event.KaedePhi;
+            using KaedePhi.Tool.Event.Intermediate;
 
             public static class Test
             {
@@ -85,7 +85,7 @@ public sealed class EventCutterCodeFixProviderTests
                 }
             }
 
-            namespace KaedePhi.Tool.Event.KaedePhi
+            namespace KaedePhi.Tool.Event.Intermediate
             {
                 public sealed class EventCutter<T>
                 {
@@ -95,7 +95,7 @@ public sealed class EventCutterCodeFixProviderTests
             """;
         const string fixedSource = """
             using KaedePhi.Core.Common;
-            using KaedePhi.Tool.Event.KaedePhi;
+            using KaedePhi.Tool.Event.Intermediate;
 
             public static class Test
             {
@@ -114,7 +114,7 @@ public sealed class EventCutterCodeFixProviderTests
                 }
             }
 
-            namespace KaedePhi.Tool.Event.KaedePhi
+            namespace KaedePhi.Tool.Event.Intermediate
             {
                 public sealed class EventCutter<T>
                 {
@@ -134,7 +134,7 @@ public sealed class EventCutterCodeFixProviderTests
     public async Task CutLengthEqualsOne_DoesNotOfferCodeFix()
     {
         const string source = """
-            using KaedePhi.Tool.Event.KaedePhi;
+            using KaedePhi.Tool.Event.Intermediate;
 
             public static class Test
             {
@@ -145,7 +145,7 @@ public sealed class EventCutterCodeFixProviderTests
                 }
             }
 
-            namespace KaedePhi.Tool.Event.KaedePhi
+            namespace KaedePhi.Tool.Event.Intermediate
             {
                 public sealed class EventCutter<T>
                 {

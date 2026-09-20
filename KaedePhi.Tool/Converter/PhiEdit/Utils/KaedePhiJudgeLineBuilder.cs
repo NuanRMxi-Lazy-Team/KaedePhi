@@ -1,58 +1,51 @@
+#pragma warning disable CS0618
+
+using KaedePhi.Tool.Compatibility;
 using KaedePhi.Tool.Converter.PhiEdit.Model;
+using Kpc = KaedePhi.Core.KaedePhi;
 
 namespace KaedePhi.Tool.Converter.PhiEdit.Utils;
 
 /// <summary>
-/// PE 判定线到 KPC 判定线的构建器。
+/// 已弃用的 PE 判定线到 KPC 判定线的构建器，行为与 <see cref="IntermediateJudgeLineBuilder"/> 一致。
 /// </summary>
+[Obsolete(
+    "已弃用：请迁移至 KaedePhi.Tool.Converter.PhiEdit.Utils.IntermediateJudgeLineBuilder。"
+)]
 public class KaedePhiJudgeLineBuilder
 {
-    private readonly PhiEditFrameEventBuilder _phiEditFrameEvent;
-    private readonly EventLayerBuilder _eventLayerConverter;
-    private readonly CancellationToken _ct;
+    private readonly IntermediateJudgeLineBuilder _builder;
 
+    /// <summary>
+    /// 使用转换选项创建构建器。
+    /// </summary>
+    /// <param name="options">PhiEdit 转 IR 转换选项。</param>
+    /// <param name="ct">取消令牌。</param>
+    [Obsolete("已弃用：请迁移至 IntermediateJudgeLineBuilder。")]
     public KaedePhiJudgeLineBuilder(
         PhiEditToKpcConvertOptions options,
         CancellationToken ct = default
     )
     {
-        _eventLayerConverter = new EventLayerBuilder(options);
-        _phiEditFrameEvent = new PhiEditFrameEventBuilder(options);
-        _ct = ct;
+        _builder = new IntermediateJudgeLineBuilder(options, ct);
     }
 
     /// <summary>
     /// 转换全部判定线。
     /// </summary>
-    public List<Kpc.JudgeLine> ConvertJudgeLines(List<Pe.JudgeLine>? judgeLines)
-    {
-        if (judgeLines == null || judgeLines.Count == 0)
-            return [];
-
-        var result = new List<Kpc.JudgeLine>(judgeLines.Count);
-        for (var i = 0; i < judgeLines.Count; i++)
-        {
-            _ct.ThrowIfCancellationRequested();
-            result.Add(ConvertJudgeLine(judgeLines[i], i));
-        }
-
-        return result;
-    }
+    /// <param name="judgeLines">待转换的 PE 判定线列表。</param>
+    /// <returns>转换后的旧 KPC 判定线列表。</returns>
+    [Obsolete("已弃用：请迁移至 IntermediateJudgeLineBuilder.ConvertJudgeLines。")]
+    public List<Kpc.JudgeLine> ConvertJudgeLines(List<Pe.JudgeLine>? judgeLines) =>
+        KpcCompatibilityMapper.ToKpc(_builder.ConvertJudgeLines(judgeLines));
 
     /// <summary>
-    /// 转换单条判定线，并合成为单事件层的 KPC 判定线。
+    /// 转换单条判定线。
     /// </summary>
-    public Kpc.JudgeLine ConvertJudgeLine(Pe.JudgeLine src, int index)
-    {
-        var horizonBeat = _phiEditFrameEvent.GetJudgeLineHorizonBeat(src);
-        var eventLayer = _eventLayerConverter.ConvertEventLayer(src, horizonBeat);
-        eventLayer.Anticipation();
-
-        return new Kpc.JudgeLine
-        {
-            Name = $"PeJudgeLine_{index}",
-            Notes = src.NoteList.ConvertAll(NoteBuilder.ConvertNote),
-            EventLayers = [eventLayer],
-        };
-    }
+    /// <param name="src">待转换的 PE 判定线。</param>
+    /// <param name="index">判定线索引。</param>
+    /// <returns>转换后的旧 KPC 判定线。</returns>
+    [Obsolete("已弃用：请迁移至 IntermediateJudgeLineBuilder.ConvertJudgeLine。")]
+    public Kpc.JudgeLine ConvertJudgeLine(Pe.JudgeLine src, int index) =>
+        KpcCompatibilityMapper.ToKpc(_builder.ConvertJudgeLine(src, index));
 }

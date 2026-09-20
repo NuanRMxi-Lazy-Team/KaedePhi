@@ -1,5 +1,5 @@
-using KaedePhi.Core.Common;
-using KpcBpmItem = KaedePhi.Core.KaedePhi.BpmItem;
+using KaedePhi.Core.Primitives;
+using IrBpmItem = KaedePhi.Core.Intermediate.BpmItem;
 
 namespace KaedePhi.Tool.Converter.Phigros.v3.Utils;
 
@@ -13,7 +13,7 @@ internal sealed class PhigrosV3TimeMapper
     private const double MaximumTimeErrorSeconds = 0.001d;
     private readonly List<TempoSegment> _segments;
 
-    public PhigrosV3TimeMapper(IReadOnlyList<KpcBpmItem> bpmList)
+    public PhigrosV3TimeMapper(IReadOnlyList<IrBpmItem> bpmList)
     {
         if (bpmList.Any(item => item is null))
             throw new FormatException("谱面 BPM 列表包含空节点。");
@@ -144,7 +144,7 @@ internal sealed class PhigrosV3TimeMapper
             (segment.StartSeconds + (double)(beat - segment.StartBeat) * 60d / segment.Bpm)
             * bpmFactor;
         if (!double.IsFinite(seconds))
-            throw new FormatException("KPC BPM 时间积分结果不是有限数值。");
+            throw new FormatException("IR BPM 时间积分结果不是有限数值。");
         return seconds;
     }
 
@@ -162,7 +162,7 @@ internal sealed class PhigrosV3TimeMapper
             throw new FormatException("Phigros 映射时间与尾事件哨兵冲突。");
     }
 
-    private readonly record struct TempoEntry(KpcBpmItem Item, int Index);
+    private readonly record struct TempoEntry(IrBpmItem Item, int Index);
 
     private readonly record struct TempoSegment(Beat StartBeat, float Bpm, double StartSeconds);
 }

@@ -1,4 +1,7 @@
 using System.Collections.ObjectModel;
+using KpcChart = KaedePhi.Core.KaedePhi.Chart;
+using PhigrosChart = KaedePhi.Core.Formats.Phigros.v3.Chart;
+using PhiFansChart = KaedePhi.Core.Formats.PhiFans.Chart;
 using KaedePhi.Tool.Common;
 using KaedePhi.Tool.Converter.PhiChain;
 using KaedePhi.Tool.Converter.PhiChain.Model;
@@ -30,18 +33,18 @@ public static class ChartFormatRegistry
                 {
                     var converter = Prepare(new RePhiEditConverter(), log, ct);
                     var source = await Rpe.Chart.LoadFromJsonAsync(text);
-                    return converter.ToKpc(source, null);
+                    return converter.ToIr(source, null);
                 },
                 StreamImporter = async (stream, _, log, ct) =>
                 {
                     var converter = Prepare(new RePhiEditConverter(), log, ct);
                     var source = await Rpe.Chart.LoadFromStreamAsync(stream);
-                    return converter.ToKpc(source, null);
+                    return converter.ToIr(source, null);
                 },
                 Exporter = async (chart, path, write, options, log, ct) =>
                 {
                     var converter = Prepare(new RePhiEditConverter(), log, ct);
-                    var target = converter.FromKpc(
+                    var target = converter.FromIr(
                         chart,
                         Coerce(options, () => new ConvertOption())
                     );
@@ -59,32 +62,32 @@ public static class ChartFormatRegistry
             {
                 Type = ChartType.PhiEdit,
                 FileExtension = "pec",
-                ImportOptionsFactory = () => new PhiEditToKpcConvertOptions(),
-                ExportOptionsFactory = () => new KpcToPhiEditConvertOptions(),
+                ImportOptionsFactory = () => new PhiEditToIrConvertOptions(),
+                ExportOptionsFactory = () => new IrToPhiEditConvertOptions(),
                 Importer = async (text, options, log, ct) =>
                 {
                     var converter = Prepare(new PhiEditConverter(), log, ct);
                     var source = await Pe.Chart.LoadAsync(text);
-                    return converter.ToKpc(
+                    return converter.ToIr(
                         source,
-                        Coerce(options, () => new PhiEditToKpcConvertOptions())
+                        Coerce(options, () => new PhiEditToIrConvertOptions())
                     );
                 },
                 StreamImporter = async (stream, options, log, ct) =>
                 {
                     var converter = Prepare(new PhiEditConverter(), log, ct);
                     var source = await Pe.Chart.LoadStreamAsync(stream);
-                    return converter.ToKpc(
+                    return converter.ToIr(
                         source,
-                        Coerce(options, () => new PhiEditToKpcConvertOptions())
+                        Coerce(options, () => new PhiEditToIrConvertOptions())
                     );
                 },
                 Exporter = async (chart, path, write, options, log, ct) =>
                 {
                     var converter = Prepare(new PhiEditConverter(), log, ct);
-                    var target = converter.FromKpc(
+                    var target = converter.FromIr(
                         chart,
-                        Coerce(options, () => new KpcToPhiEditConvertOptions())
+                        Coerce(options, () => new IrToPhiEditConvertOptions())
                     );
                     await WriteAsync(
                         path,
@@ -100,25 +103,25 @@ public static class ChartFormatRegistry
             {
                 Type = ChartType.PhigrosV3,
                 FileExtension = "json",
-                ExportOptionsFactory = () => new KpcToPhigrosV3ConvertOptions(),
+                ExportOptionsFactory = () => new IrToPhigrosV3ConvertOptions(),
                 Importer = async (text, _, log, ct) =>
                 {
                     var converter = Prepare(new PhigrosV3Converter(), log, ct);
-                    var source = await Core.Phigros.v3.Chart.LoadFromJsonAsync(text);
-                    return converter.ToKpc(source, null);
+                    var source = await PhigrosChart.LoadFromJsonAsync(text);
+                    return converter.ToIr(source, null);
                 },
                 StreamImporter = async (stream, _, log, ct) =>
                 {
                     var converter = Prepare(new PhigrosV3Converter(), log, ct);
-                    var source = await Core.Phigros.v3.Chart.LoadFromStreamAsync(stream);
-                    return converter.ToKpc(source, null);
+                    var source = await PhigrosChart.LoadFromStreamAsync(stream);
+                    return converter.ToIr(source, null);
                 },
                 Exporter = async (chart, path, write, options, log, ct) =>
                 {
                     var converter = Prepare(new PhigrosV3Converter(), log, ct);
-                    var target = converter.FromKpc(
+                    var target = converter.FromIr(
                         chart,
-                        Coerce(options, () => new KpcToPhigrosV3ConvertOptions())
+                        Coerce(options, () => new IrToPhigrosV3ConvertOptions())
                     );
                     await WriteAsync(
                         path,
@@ -134,32 +137,32 @@ public static class ChartFormatRegistry
             {
                 Type = ChartType.PhiChain,
                 FileExtension = "json",
-                ImportOptionsFactory = () => new PhiChainToKpcConvertOptions(),
-                ExportOptionsFactory = () => new KpcToPhiChainConvertOptions(),
+                ImportOptionsFactory = () => new PhiChainToIrConvertOptions(),
+                ExportOptionsFactory = () => new IrToPhiChainConvertOptions(),
                 Importer = async (text, options, log, ct) =>
                 {
                     var converter = Prepare(new PhiChainConverter(), log, ct);
                     var source = await Phichain.Chart.LoadFromJsonAsync(text);
-                    return converter.ToKpc(
+                    return converter.ToIr(
                         source,
-                        Coerce(options, () => new PhiChainToKpcConvertOptions())
+                        Coerce(options, () => new PhiChainToIrConvertOptions())
                     );
                 },
                 StreamImporter = async (stream, options, log, ct) =>
                 {
                     var converter = Prepare(new PhiChainConverter(), log, ct);
                     var source = await Phichain.Chart.LoadFromJsonStreamAsync(stream);
-                    return converter.ToKpc(
+                    return converter.ToIr(
                         source,
-                        Coerce(options, () => new PhiChainToKpcConvertOptions())
+                        Coerce(options, () => new PhiChainToIrConvertOptions())
                     );
                 },
                 Exporter = async (chart, path, write, options, log, ct) =>
                 {
                     var converter = Prepare(new PhiChainConverter(), log, ct);
-                    var target = converter.FromKpc(
+                    var target = converter.FromIr(
                         chart,
-                        Coerce(options, () => new KpcToPhiChainConvertOptions())
+                        Coerce(options, () => new IrToPhiChainConvertOptions())
                     );
                     await WriteAsync(
                         path,
@@ -175,25 +178,25 @@ public static class ChartFormatRegistry
             {
                 Type = ChartType.PhiFans,
                 FileExtension = "json",
-                ExportOptionsFactory = () => new KpcToPhiFansConvertOptions(),
+                ExportOptionsFactory = () => new IrToPhiFansConvertOptions(),
                 Importer = async (text, _, log, ct) =>
                 {
                     var converter = Prepare(new PhiFansConverter(), log, ct);
-                    var source = await Core.PhiFans.Chart.LoadFromJsonAsync(text);
-                    return converter.ToKpc(source, null);
+                    var source = await PhiFansChart.LoadFromJsonAsync(text);
+                    return converter.ToIr(source, null);
                 },
                 StreamImporter = async (stream, _, log, ct) =>
                 {
                     var converter = Prepare(new PhiFansConverter(), log, ct);
-                    var source = await Core.PhiFans.Chart.LoadFromStreamAsync(stream);
-                    return converter.ToKpc(source, null);
+                    var source = await PhiFansChart.LoadFromStreamAsync(stream);
+                    return converter.ToIr(source, null);
                 },
                 Exporter = async (chart, path, write, options, log, ct) =>
                 {
                     var converter = Prepare(new PhiFansConverter(), log, ct);
-                    var target = converter.FromKpc(
+                    var target = converter.FromIr(
                         chart,
-                        Coerce(options, () => new KpcToPhiFansConvertOptions())
+                        Coerce(options, () => new IrToPhiFansConvertOptions())
                     );
                     await WriteAsync(
                         path,
@@ -237,14 +240,14 @@ public static class ChartFormatRegistry
         Descriptors.Values.Where(d => d.CanExport);
 
     /// <summary>
-    /// 检测谱面文本格式并转换为 KPC 中间格式。
+    /// 检测谱面文本格式并转换为 IR 中间格式。
     /// </summary>
     /// <param name="text">谱面原始文本</param>
     /// <param name="importOptions">导入选项，传 <see langword="null"/> 时使用格式默认值</param>
     /// <param name="log">日志回调集合</param>
     /// <param name="ct">取消令牌</param>
     /// <returns>检测到的格式与转换结果</returns>
-    public static async Task<(ChartType DetectedType, Kpc.Chart Chart)> ImportAsync(
+    public static async Task<(ChartType DetectedType, Ir.Chart Chart)> ImportIrAsync(
         string text,
         object? importOptions = null,
         ChartLogSink? log = null,
@@ -253,8 +256,27 @@ public static class ChartFormatRegistry
     {
         using var textReader = new StringReader(text);
         var detectedType = ChartGetType.GetType(textReader);
-        var chart = await Get(detectedType).ImportAsync(text, importOptions, log, ct);
+        var chart = await Get(detectedType).ImportIrAsync(text, importOptions, log, ct);
         return (detectedType, chart);
+    }
+
+    /// <summary>
+    /// 检测谱面文本格式并转换为已弃用的 KPC 中间格式。
+    /// </summary>
+    /// <param name="text">谱面原始文本</param>
+    /// <param name="importOptions">导入选项，传 <see langword="null"/> 时使用格式默认值</param>
+    /// <param name="log">日志回调集合</param>
+    /// <param name="ct">取消令牌</param>
+    /// <returns>检测到的格式与转换结果</returns>
+    [Obsolete("已弃用：请迁移至 ImportIrAsync。")]
+    public static async Task<(
+        ChartType DetectedType,
+        KpcChart Chart
+        )> ImportAsync(string text, object? importOptions = null, ChartLogSink? log = null,
+        CancellationToken ct = default)
+    {
+        var (detectedType, chart) = await ImportIrAsync(text, importOptions, log, ct);
+        return (detectedType, Compatibility.KpcCompatibilityMapper.ToKpc(chart));
     }
 
     /// <summary>
@@ -314,7 +336,7 @@ public static class ChartFormatRegistry
                 var temporaryPath = fullPath + "." + Guid.NewGuid().ToString("N") + ".tmp";
                 Directory.CreateDirectory(
                     Path.GetDirectoryName(fullPath)
-                        ?? throw new InvalidOperationException("Invalid output path")
+                    ?? throw new InvalidOperationException("Invalid output path")
                 );
                 try
                 {
@@ -351,7 +373,7 @@ public static class ChartFormatRegistry
                 var temporaryPath = fullPath + "." + Guid.NewGuid().ToString("N") + ".tmp";
                 Directory.CreateDirectory(
                     Path.GetDirectoryName(fullPath)
-                        ?? throw new InvalidOperationException("Invalid output path")
+                    ?? throw new InvalidOperationException("Invalid output path")
                 );
                 try
                 {

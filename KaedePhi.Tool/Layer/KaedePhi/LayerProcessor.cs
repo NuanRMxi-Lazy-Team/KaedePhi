@@ -1,319 +1,122 @@
-using KaedePhi.Core.Common;
+#pragma warning disable CS0618
+
 using KaedePhi.Tool.Common;
-using KaedePhi.Tool.Event.KaedePhi;
-using KaedePhi.Tool.JudgeLines.KaedePhi.Utils;
-using EventLayer = KaedePhi.Core.KaedePhi.Events.EventLayer;
+using KaedePhi.Tool.Compatibility;
+using KpcEvents = KaedePhi.Core.KaedePhi.Events;
 
 namespace KaedePhi.Tool.Layer.KaedePhi;
 
 /// <summary>
-/// KPC 谱面事件层处理器。
+/// 已弃用的 KPC 谱面事件层处理器，行为与 <see cref="Intermediate.LayerProcessor"/> 一致。
 /// </summary>
-public class LayerProcessor : LoggableBase, ILayerProcessor<EventLayer>
+[Obsolete("已弃用：请迁移至 KaedePhi.Tool.Layer.Intermediate.LayerProcessor。")]
+public class LayerProcessor
+    : Intermediate.LayerProcessor,
+        ILayerProcessor<KpcEvents.EventLayer>
 {
-    private readonly EventListMerger<double> _doubleMerger = new();
-    private readonly EventListMerger<int> _intMerger = new();
-    private readonly EventListMerger<float> _floatMerger = new();
-    private readonly EventListMergerSqrt<double> _doubleMergerSqrt = new();
-    private readonly EventListMergerPlus<double> _doubleMergerPlus = new();
-    private readonly EventListMergerPlus<int> _intMergerPlus = new();
-    private readonly EventListMergerPlus<float> _floatMergerPlus = new();
-    private readonly EventListMergerSqrt<double> _doubleMergerSqrtPlus = new();
-    private readonly EventCutter<double> _doubleCutter = new();
-    private readonly EventCutter<int> _intCutter = new();
-    private readonly EventCutter<float> _floatCutter = new();
-    private readonly EventCompressor<double> _doubleCompressor = new();
-    private readonly EventCompressor<int> _intCompressor = new();
-    private readonly EventCompressor<float> _floatCompressor = new();
-
-    /// <inheritdoc/>
-    public EventLayer LayerMerge(
-        List<EventLayer> layers,
+    /// <summary>
+    /// 将多个事件层合并为单层（固定采样）。
+    /// </summary>
+    /// <param name="layers">待合并的事件层列表。</param>
+    /// <param name="precision">每拍内的采样步数。</param>
+    /// <param name="progress">进度回调。</param>
+    /// <returns>合并后的单个事件层。</returns>
+    [Obsolete("已弃用：请迁移至 LayerProcessor.LayerMerge。")]
+    public KpcEvents.EventLayer LayerMerge(
+        List<KpcEvents.EventLayer> layers,
         double precision,
         IProgress<ToolProgress>? progress = null
-    )
-    {
-        layers = [.. layers.Where(layer => (object?)layer is not null)];
-        if (layers.Count <= 1)
-            return layers.FirstOrDefault()?.Clone() ?? new EventLayer();
-        layers = RemoveUnlessLayer(layers) ?? layers;
+    ) =>
+        KpcCompatibilityMapper.ToKpc(
+            base.LayerMerge(KpcCompatibilityMapper.ToIntermediate(layers), precision, progress)
+        );
 
-        var mergedLayer = new EventLayer();
-        var totalLayers = layers.Count;
-        for (var li = 0; li < totalLayers; li++)
-        {
-            var layer = layers[li];
-            if (layer.AlphaEvents is { Count: > 0 })
-                mergedLayer.AlphaEvents = _intMerger.EventListMerge(
-                    mergedLayer.AlphaEvents,
-                    layer.AlphaEvents,
-                    precision
-                );
-            if (layer.MoveXEvents is { Count: > 0 })
-                mergedLayer.MoveXEvents = _doubleMergerSqrt.EventListMerge(
-                    mergedLayer.MoveXEvents,
-                    layer.MoveXEvents,
-                    precision
-                );
-            if (layer.MoveYEvents is { Count: > 0 })
-                mergedLayer.MoveYEvents = _doubleMergerSqrt.EventListMerge(
-                    mergedLayer.MoveYEvents,
-                    layer.MoveYEvents,
-                    precision
-                );
-            if (layer.RotateEvents is { Count: > 0 })
-                mergedLayer.RotateEvents = _doubleMerger.EventListMerge(
-                    mergedLayer.RotateEvents,
-                    layer.RotateEvents,
-                    precision
-                );
-            if (layer.SpeedEvents is { Count: > 0 })
-                mergedLayer.SpeedEvents = _floatMerger.EventListMerge(
-                    mergedLayer.SpeedEvents,
-                    layer.SpeedEvents,
-                    precision
-                );
-
-            progress?.Report(new ToolProgress((double)(li + 1) / totalLayers));
-        }
-
-        progress?.Report(new ToolProgress(1.0));
-        return mergedLayer;
-    }
-
-    /// <inheritdoc/>
-    public EventLayer LayerMergePlus(
-        List<EventLayer> layers,
+    /// <summary>
+    /// 将多个事件层合并为单层（自适应采样）。
+    /// </summary>
+    /// <param name="layers">待合并的事件层列表。</param>
+    /// <param name="precision">自适应采样的最大步数上限。</param>
+    /// <param name="tolerance">误差容差百分比。</param>
+    /// <param name="progress">进度回调。</param>
+    /// <returns>合并后的单个事件层。</returns>
+    [Obsolete("已弃用：请迁移至 LayerProcessor.LayerMergePlus。")]
+    public KpcEvents.EventLayer LayerMergePlus(
+        List<KpcEvents.EventLayer> layers,
         double precision,
         double tolerance,
         IProgress<ToolProgress>? progress = null
-    )
-    {
-        layers = [.. layers.Where(layer => (object?)layer is not null)];
-        if (layers.Count <= 1)
-            return layers.FirstOrDefault()?.Clone() ?? new EventLayer();
-        layers = RemoveUnlessLayer(layers) ?? layers;
-
-        var mergedLayer = new EventLayer();
-        var totalLayers = layers.Count;
-        for (var li = 0; li < totalLayers; li++)
-        {
-            var layer = layers[li];
-            if (layer.AlphaEvents is { Count: > 0 })
-                mergedLayer.AlphaEvents = _intMergerPlus.EventListMerge(
-                    mergedLayer.AlphaEvents,
-                    layer.AlphaEvents,
-                    precision,
-                    tolerance
-                );
-            if (layer.MoveXEvents is { Count: > 0 })
-                mergedLayer.MoveXEvents = _doubleMergerSqrtPlus.EventListMerge(
-                    mergedLayer.MoveXEvents,
-                    layer.MoveXEvents,
-                    precision,
-                    tolerance
-                );
-            if (layer.MoveYEvents is { Count: > 0 })
-                mergedLayer.MoveYEvents = _doubleMergerSqrtPlus.EventListMerge(
-                    mergedLayer.MoveYEvents,
-                    layer.MoveYEvents,
-                    precision,
-                    tolerance
-                );
-            if (layer.RotateEvents is { Count: > 0 })
-                mergedLayer.RotateEvents = _doubleMergerPlus.EventListMerge(
-                    mergedLayer.RotateEvents,
-                    layer.RotateEvents,
-                    precision,
-                    tolerance
-                );
-            if (layer.SpeedEvents is { Count: > 0 })
-                mergedLayer.SpeedEvents = _floatMergerPlus.EventListMerge(
-                    mergedLayer.SpeedEvents,
-                    layer.SpeedEvents,
-                    precision,
-                    tolerance
-                );
-
-            progress?.Report(new ToolProgress((double)(li + 1) / totalLayers));
-        }
-
-        progress?.Report(new ToolProgress(1.0));
-        return mergedLayer;
-    }
-
-    /// <inheritdoc/>
-    public EventLayer CutLayerEvents(
-        EventLayer? layer,
-        double precision,
-        IProgress<ToolProgress>? progress = null
-    )
-    {
-        if (layer == null)
-            return new EventLayer();
-
-        var cutLength = new Beat(1d / precision);
-        var cutEventLayer = new EventLayer();
-        const int totalChannels = 5;
-        var completedChannels = 0;
-
-        if (layer.AlphaEvents is { Count: > 0 })
-            cutEventLayer.AlphaEvents = _intCutter.CutEventsInRange(
-                layer.AlphaEvents,
-                layer.AlphaEvents.Min(e => e.StartBeat),
-                layer.AlphaEvents.Max(e => e.EndBeat),
-                cutLength
-            );
-        progress?.Report(new ToolProgress((double)++completedChannels / totalChannels));
-
-        if (layer.MoveXEvents is { Count: > 0 })
-            cutEventLayer.MoveXEvents = _doubleCutter.CutEventsInRange(
-                layer.MoveXEvents,
-                layer.MoveXEvents.Min(e => e.StartBeat),
-                layer.MoveXEvents.Max(e => e.EndBeat),
-                cutLength
-            );
-        progress?.Report(new ToolProgress((double)++completedChannels / totalChannels));
-
-        if (layer.MoveYEvents is { Count: > 0 })
-            cutEventLayer.MoveYEvents = _doubleCutter.CutEventsInRange(
-                layer.MoveYEvents,
-                layer.MoveYEvents.Min(e => e.StartBeat),
-                layer.MoveYEvents.Max(e => e.EndBeat),
-                cutLength
-            );
-        progress?.Report(new ToolProgress((double)++completedChannels / totalChannels));
-
-        if (layer.RotateEvents is { Count: > 0 })
-            cutEventLayer.RotateEvents = _doubleCutter.CutEventsInRange(
-                layer.RotateEvents,
-                layer.RotateEvents.Min(e => e.StartBeat),
-                layer.RotateEvents.Max(e => e.EndBeat),
-                cutLength
-            );
-        progress?.Report(new ToolProgress((double)++completedChannels / totalChannels));
-
-        if (layer.SpeedEvents is { Count: > 0 })
-            cutEventLayer.SpeedEvents = _floatCutter.CutEventsInRange(
-                layer.SpeedEvents,
-                layer.SpeedEvents.Min(e => e.StartBeat),
-                layer.SpeedEvents.Max(e => e.EndBeat),
-                cutLength
-            );
-        progress?.Report(new ToolProgress(1.0));
-
-        return cutEventLayer;
-    }
-
-    /// <inheritdoc/>
-    public List<EventLayer> CutLayerEvents(
-        List<EventLayer> layers,
-        double precision,
-        IProgress<ToolProgress>? progress = null
-    )
-    {
-        layers = [.. layers.Where(layer => (object?)layer is not null)];
-        layers = RemoveUnlessLayer(layers) ?? layers;
-        var result = new List<EventLayer>(layers.Count);
-        for (var i = 0; i < layers.Count; i++)
-        {
-            result.Add(CutLayerEvents(layers[i], precision));
-            progress?.Report(new ToolProgress((double)(i + 1) / layers.Count));
-        }
-
-        progress?.Report(new ToolProgress(1.0));
-        return result;
-    }
-
-    /// <inheritdoc/>
-    public void LayerEventsCompress(
-        EventLayer layer,
-        double tolerance,
-        IProgress<ToolProgress>? progress = null
-    )
-    {
-        const int totalChannels = 5;
-        var completedChannels = 0;
-
-        if (layer.AlphaEvents is { Count: > 0 })
-            layer.AlphaEvents = _intCompressor.EventListCompressSlope(layer.AlphaEvents, tolerance);
-        progress?.Report(new ToolProgress((double)++completedChannels / totalChannels));
-
-        var canCompressPositionTogether = CanCompressPositionTogether(layer);
-        if (canCompressPositionTogether)
-        {
-            var (compressedX, compressedY) = FatherUnbindHelpers.CompressPositionEvents(
-                layer.MoveXEvents!,
-                layer.MoveYEvents!,
-                tolerance
-            );
-            layer.MoveXEvents = compressedX;
-            layer.MoveYEvents = compressedY;
-        }
-        else if (layer.MoveXEvents is { Count: > 0 })
-            layer.MoveXEvents = _doubleCompressor.EventListCompressSqrt(
-                layer.MoveXEvents,
-                tolerance
-            );
-
-        progress?.Report(new ToolProgress((double)++completedChannels / totalChannels));
-
-        if (!canCompressPositionTogether && layer.MoveYEvents is { Count: > 0 })
-            layer.MoveYEvents = _doubleCompressor.EventListCompressSqrt(
-                layer.MoveYEvents,
-                tolerance
-            );
-        progress?.Report(new ToolProgress((double)++completedChannels / totalChannels));
-
-        if (layer.RotateEvents is { Count: > 0 })
-            layer.RotateEvents = _doubleCompressor.EventListCompressSlope(
-                layer.RotateEvents,
-                tolerance
-            );
-        progress?.Report(new ToolProgress((double)++completedChannels / totalChannels));
-
-        if (layer.SpeedEvents is { Count: > 0 })
-            layer.SpeedEvents = _floatCompressor.EventListCompressSlope(
-                layer.SpeedEvents,
-                tolerance
-            );
-        progress?.Report(new ToolProgress(1.0));
-    }
-
-    private static bool CanCompressPositionTogether(EventLayer layer)
-    {
-        if (
-            layer.MoveXEvents is not { Count: > 0 } xEvents
-            || layer.MoveYEvents is not { Count: > 0 } yEvents
-            || xEvents.Count != yEvents.Count
-        )
-            return false;
-
-        for (var i = 0; i < xEvents.Count; i++)
-        {
-            if (
-                xEvents[i].StartBeat != yEvents[i].StartBeat
-                || xEvents[i].EndBeat != yEvents[i].EndBeat
+    ) =>
+        KpcCompatibilityMapper.ToKpc(
+            base.LayerMergePlus(
+                KpcCompatibilityMapper.ToIntermediate(layers),
+                precision,
+                tolerance,
+                progress
             )
-                return false;
-        }
+        );
 
-        return true;
-    }
+    /// <summary>
+    /// 将单个事件层中各通道事件按指定精度切割为等长段。
+    /// </summary>
+    /// <param name="layer">待切割的事件层。</param>
+    /// <param name="precision">每拍内的切割步数。</param>
+    /// <param name="progress">进度回调。</param>
+    /// <returns>切割后的事件层。</returns>
+    [Obsolete("已弃用：请迁移至 LayerProcessor.CutLayerEvents。")]
+    public KpcEvents.EventLayer CutLayerEvents(
+        KpcEvents.EventLayer? layer,
+        double precision,
+        IProgress<ToolProgress>? progress = null
+    ) =>
+        KpcCompatibilityMapper.ToKpc(
+            base.CutLayerEvents(
+                layer is null ? null : KpcCompatibilityMapper.ToIntermediate(layer),
+                precision,
+                progress
+            )
+        );
 
-    private List<EventLayer>? RemoveUnlessLayer(List<EventLayer>? layers)
+    /// <summary>
+    /// 将多个事件层中各通道事件按指定精度切割为等长段。
+    /// </summary>
+    /// <param name="layers">待切割的事件层列表。</param>
+    /// <param name="precision">每拍内的切割步数。</param>
+    /// <param name="progress">进度回调。</param>
+    /// <returns>切割后的事件层列表。</returns>
+    [Obsolete("已弃用：请迁移至 LayerProcessor.CutLayerEvents。")]
+    public List<KpcEvents.EventLayer> CutLayerEvents(
+        List<KpcEvents.EventLayer> layers,
+        double precision,
+        IProgress<ToolProgress>? progress = null
+    ) =>
+        KpcCompatibilityMapper.ToKpc(
+            base.CutLayerEvents(
+                KpcCompatibilityMapper.ToIntermediate(layers),
+                precision,
+                progress
+            )
+        );
+
+    /// <summary>
+    /// 压缩事件层中各通道的事件列表，原地修改传入的事件层。
+    /// </summary>
+    /// <param name="layer">待压缩的事件层（原地修改）。</param>
+    /// <param name="tolerance">容差百分比。</param>
+    /// <param name="progress">进度回调。</param>
+    [Obsolete("已弃用：请迁移至 LayerProcessor.LayerEventsCompress。")]
+    public void LayerEventsCompress(
+        KpcEvents.EventLayer layer,
+        double tolerance,
+        IProgress<ToolProgress>? progress = null
+    )
     {
-        if (layers is not { Count: > 1 })
-            return layers;
-        var layersCopy = layers.Select(l => l.Clone()).ToList();
-        foreach (var layer in layersCopy)
-        {
-            layer.AlphaEvents = _intCompressor.RemoveUselessEvent(layer.AlphaEvents);
-            layer.MoveXEvents = _doubleCompressor.RemoveUselessEvent(layer.MoveXEvents);
-            layer.MoveYEvents = _doubleCompressor.RemoveUselessEvent(layer.MoveYEvents);
-            layer.RotateEvents = _doubleCompressor.RemoveUselessEvent(layer.RotateEvents);
-        }
-
-        return layersCopy;
+        var mapped = KpcCompatibilityMapper.ToIntermediate(layer);
+        base.LayerEventsCompress(mapped, tolerance, progress);
+        var result = KpcCompatibilityMapper.ToKpc(mapped);
+        layer.MoveXEvents = result.MoveXEvents;
+        layer.MoveYEvents = result.MoveYEvents;
+        layer.RotateEvents = result.RotateEvents;
+        layer.AlphaEvents = result.AlphaEvents;
+        layer.SpeedEvents = result.SpeedEvents;
     }
 }

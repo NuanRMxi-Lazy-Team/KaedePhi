@@ -1,10 +1,10 @@
-using KaedePhi.Core.Common;
+using KaedePhi.Core.Primitives;
 using KaedePhi.Tool.Common;
 using KaedePhi.Tool.Converter.Phigros.v3.Model;
 using KaedePhi.Tool.Converter.Phigros.v3.Utils;
-using KpcMeta = KaedePhi.Core.KaedePhi.Meta;
-using PhigrosChart = KaedePhi.Core.Phigros.v3.Chart;
-using PhigrosJudgeLine = KaedePhi.Core.Phigros.v3.JudgeLine;
+using IrMeta = KaedePhi.Core.Intermediate.Meta;
+using PhigrosChart = KaedePhi.Core.Formats.Phigros.v3.Chart;
+using PhigrosJudgeLine = KaedePhi.Core.Formats.Phigros.v3.JudgeLine;
 
 namespace KaedePhi.Tool.Converter.Phigros.v3;
 
@@ -13,7 +13,7 @@ namespace KaedePhi.Tool.Converter.Phigros.v3;
 /// </summary>
 public class PhigrosV3Converter
     : LoggableBase,
-        IChartConverter<PhigrosChart, Unit?, KpcToPhigrosV3ConvertOptions>,
+        IChartConverter<PhigrosChart, Unit?, IrToPhigrosV3ConvertOptions>,
         ICancellableChartConverter
 {
     /// <summary>
@@ -29,12 +29,12 @@ public class PhigrosV3Converter
     public void SetCancellationToken(CancellationToken ct) => _ct = ct;
 
     /// <summary>
-    /// 将 Phigros V3 格式转换为 KPC 内部格式。
+    /// 将 Phigros V3 格式转换为 IR 内部格式。
     /// </summary>
     /// <param name="input">Phigros V3 谱面</param>
     /// <param name="options">输入转换选项（未使用）</param>
-    /// <returns>KPC 谱面</returns>
-    public Kpc.Chart ToKpc(PhigrosChart input, Unit? options)
+    /// <returns>IR 谱面</returns>
+    public Ir.Chart ToIr(PhigrosChart input, Unit? options)
     {
         ArgumentNullException.ThrowIfNull(input);
 
@@ -43,37 +43,37 @@ public class PhigrosV3Converter
         var defaultBpm =
             input.JudgeLineList.Count > 0 ? input.JudgeLineList[0].Bpm : DefaultPhigrosBpm;
 
-        var judgeLines = new List<Kpc.JudgeLine>(input.JudgeLineList.Count);
+        var judgeLines = new List<Ir.JudgeLine>(input.JudgeLineList.Count);
         for (var i = 0; i < input.JudgeLineList.Count; i++)
         {
             _ct.ThrowIfCancellationRequested();
             judgeLines.Add(
-                KpcJudgeLineBuilder.ConvertJudgeLine(input.JudgeLineList[i], i, defaultBpm)
+                IrJudgeLineBuilder.ConvertJudgeLine(input.JudgeLineList[i], i, defaultBpm)
             );
         }
 
-        var converted = new Kpc.Chart
+        var converted = new Ir.Chart
         {
             BpmList = BpmItemBuilder.ConvertBpmList(input.JudgeLineList),
             Meta = MetaBuilder.ConvertMeta(input),
             JudgeLineList = judgeLines,
         };
-        return KpcChartNormalizer.NormalizeAndValidateNoteEndBeats(converted);
+        return IrChartNormalizer.NormalizeAndValidateNoteEndBeats(converted);
     }
 
     /// <summary>
-    /// 将 KPC 内部格式转换为 Phigros V3 格式。
+    /// 将 IR 内部格式转换为 Phigros V3 格式。
     /// </summary>
-    /// <param name="input">KPC 谱面</param>
+    /// <param name="input">IR 谱面</param>
     /// <param name="options">输出转换选项</param>
     /// <returns>Phigros V3 谱面</returns>
-    public PhigrosChart FromKpc(Kpc.Chart input, KpcToPhigrosV3ConvertOptions options)
+    public PhigrosChart FromIr(Ir.Chart input, IrToPhigrosV3ConvertOptions options)
     {
         ArgumentNullException.ThrowIfNull(input);
         ArgumentNullException.ThrowIfNull(options);
         ConversionOptionsValidator.Validate(options);
-        var normalized = KpcChartNormalizer.NormalizeAndValidateNoteEndBeats(input);
-        KpcChartValidator.ValidateJudgeLineHierarchy(normalized.JudgeLineList);
+        var normalized = IrChartNormalizer.NormalizeAndValidateNoteEndBeats(input);
+        IrChartValidator.ValidateJudgeLineHierarchy(normalized.JudgeLineList);
         _ct.ThrowIfCancellationRequested();
 
         WarnIfUnsupportedMeta(normalized.Meta);
@@ -115,17 +115,17 @@ public class PhigrosV3Converter
         };
     }
 
-    private static float CalculateChartEndTime(Kpc.Chart input)
+    private static float CalculateChartEndTime(Ir.Chart input)
     {
         return (float)(GetMaximumChartBeat(input) * 32d) + 1f;
     }
 
-    private static Beat CalculateChartEndBeat(Kpc.Chart input)
+    private static Beat CalculateChartEndBeat(Ir.Chart input)
     {
         return new Beat(GetMaximumChartBeat(input) + 1d / 32d);
     }
 
-    private static double GetMaximumChartBeat(Kpc.Chart input)
+    private static double GetMaximumChartBeat(Ir.Chart input)
     {
         var maxBeat = 0d;
 
@@ -151,7 +151,7 @@ public class PhigrosV3Converter
         return maxBeat;
     }
 
-    private static double GetMaxEventEndBeat<T>(List<KpcEvents.Event<T>>? events)
+    private static double GetMaxEventEndBeat<T>(List<IrEvents.Event<T>>? events)
         where T : notnull
     {
         if (events is not { Count: > 0 })
@@ -159,9 +159,9 @@ public class PhigrosV3Converter
         return events.Max(e => (double)e.EndBeat);
     }
 
-    private static float GetPhigrosV3Offset(KpcMeta meta) => meta.Offset / 1000f;
+    private static float GetPhigrosV3Offset(IrMeta meta) => meta.Offset / 1000f;
 
-    private void WarnIfUnsupportedMeta(KpcMeta src) => WarnIfUnsupportedMeta("PhigrosV3", src);
+    private void WarnIfUnsupportedMeta(IrMeta src) => WarnIfUnsupportedMeta("PhigrosV3", src);
 
     private void Warn(string message) => LogWarning(message);
 }

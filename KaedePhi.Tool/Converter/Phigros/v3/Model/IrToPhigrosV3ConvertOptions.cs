@@ -1,11 +1,17 @@
 using KaedePhi.Tool.Common;
 
-namespace KaedePhi.Tool.Converter.PhiEdit.Model;
+namespace KaedePhi.Tool.Converter.Phigros.v3.Model;
 
-public class KpcToPhiEditConvertOptions
+public class IrToPhigrosV3ConvertOptions
 {
     public const double DefaultPrecision = Constants.DefaultPrecision;
     public const double DefaultTolerancePercent = Constants.DefaultTolerancePercent;
+    public const float DefaultGlobalBpm = 120f;
+
+    /// <summary>
+    /// 当谱面 BPM 列表为空时使用的默认全局 BPM。
+    /// </summary>
+    public float DefaultBpm { get; set; } = DefaultGlobalBpm;
 
     /// <summary>
     /// 事件切割相关配置
@@ -38,16 +44,21 @@ public class KpcToPhiEditConvertOptions
     public LineFilterOptions LineFilter { get; set; } = new();
 
     /// <summary>
-    /// 尾部拍填充量（拍），用于确保事件覆盖到判定线时间范围末端。
+    /// 音符过滤相关配置
     /// </summary>
-    public double TrailingBeatPadding { get; set; } = 1d / 64d;
+    public NoteFilterOptions NoteFilter { get; set; } = new();
+
+    /// <summary>
+    /// 负不透明度段判定线抬高相关配置
+    /// </summary>
+    public NegativeAlphaOptions NegativeAlpha { get; set; } = new();
 
     public class CuttingOptions
     {
         /// <summary>
         /// 非支持缓动切割精度
         /// </summary>
-        public double UnsupportedEasingPrecision { get; set; } = DefaultPrecision;
+        public double EasingPrecision { get; set; } = DefaultPrecision;
 
         /// <summary>
         /// 非对齐 XY 事件切割精度
@@ -61,16 +72,6 @@ public class KpcToPhiEditConvertOptions
         /// 带有缓动效果的 Alpha 事件切割精度
         /// </summary>
         public double CutPrecision { get; set; } = DefaultPrecision;
-
-        /// <summary>
-        /// 带有缓动效果的 Alpha 事件切割后是否压缩
-        /// </summary>
-        public bool CutCompress { get; set; } = true;
-
-        /// <summary>
-        /// 带有缓动效果的 Alpha 事件切割后压缩容差百分比
-        /// </summary>
-        public double CutTolerance { get; set; } = DefaultTolerancePercent;
     }
 
     public class SpeedOptions
@@ -198,5 +199,36 @@ public class KpcToPhiEditConvertOptions
         /// 是否移除带有自定义材质的判定线
         /// </summary>
         public bool RemoveTextureLine { get; set; }
+    }
+
+    public class NoteFilterOptions
+    {
+        /// <summary>
+        /// 是否过滤假音符。为 true 时直接删除 IsFake=true 的音符，为 false 时视为真音符保留。
+        /// </summary>
+        public bool FilterFakeNotes { get; set; }
+    }
+
+    public class NegativeAlphaOptions
+    {
+        public const double DefaultElevationStep = 4.0;
+
+        /// <summary>
+        /// 是否启用负不透明度段判定线抬高。
+        /// 当判定线不透明度为负值时，将判定线抬高至屏幕外。
+        /// </summary>
+        public bool Enabled { get; set; }
+
+        /// <summary>
+        /// 每次抬高的 IR 坐标系 Y 偏移量（默认 4.0，约等于两个屏幕高度）。
+        /// </summary>
+        public double ElevationStep { get; set; } = DefaultElevationStep;
+
+        /// <summary>
+        /// 抬高操作使用的渲染坐标系配置。
+        /// 默认使用标准 675×450 编辑器坐标。
+        /// </summary>
+        public CoordinateProfile RenderProfile { get; set; } =
+            CoordinateProfile.DefaultRenderProfile;
     }
 }

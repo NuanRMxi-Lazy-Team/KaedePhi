@@ -1,20 +1,20 @@
-using KaedePhi.Core.Common;
+using KaedePhi.Core.Primitives;
 using KaedePhi.Tool.Converter.PhiEdit;
 using KaedePhi.Tool.Converter.PhiEdit.Model;
 using KaedePhi.Tool.Converter.PhiEdit.Utils;
-using KpcSpeedEvent = KaedePhi.Core.KaedePhi.Events.Event<float>;
-using PeChart = KaedePhi.Core.PhiEdit.Chart;
-using PeEvent = KaedePhi.Core.PhiEdit.Event;
-using PeFrame = KaedePhi.Core.PhiEdit.Frame;
-using PeJudgeLine = KaedePhi.Core.PhiEdit.JudgeLine;
-using PeMoveEvent = KaedePhi.Core.PhiEdit.MoveEvent;
+using IrSpeedEvent = KaedePhi.Core.Intermediate.Events.Event<float>;
+using PeChart = KaedePhi.Core.Formats.PhiEdit.Chart;
+using PeEvent = KaedePhi.Core.Formats.PhiEdit.Event;
+using PeFrame = KaedePhi.Core.Formats.PhiEdit.Frame;
+using PeJudgeLine = KaedePhi.Core.Formats.PhiEdit.JudgeLine;
+using PeMoveEvent = KaedePhi.Core.Formats.PhiEdit.MoveEvent;
 
 namespace KaedePhi.Tests.Converter;
 
 public class PhiEditSpeedConversionTests
 {
     [Fact]
-    public void ToKpc_ConvertsEventsWhenMoveAndRotateFramesAreMissing()
+    public void ToIr_ConvertsEventsWhenMoveAndRotateFramesAreMissing()
     {
         var source = new PeChart
         {
@@ -46,7 +46,7 @@ public class PhiEditSpeedConversionTests
             ],
         };
 
-        var converted = new PhiEditConverter().ToKpc(source, new PhiEditToKpcConvertOptions());
+        var converted = new PhiEditConverter().ToIr(source, new PhiEditToIrConvertOptions());
         var layer = converted
             .JudgeLineList.Should()
             .ContainSingle()
@@ -63,14 +63,14 @@ public class PhiEditSpeedConversionTests
     }
 
     [Fact]
-    public void ConvertSpeedFrames_UsesFixedKpcToPeSpeedRatio()
+    public void ConvertSpeedFrames_UsesFixedIrToPeSpeedRatio()
     {
         var target = new PeJudgeLine();
-        var options = new KpcToPhiEditConvertOptions
+        var options = new IrToPhiEditConvertOptions
         {
-            Speed = new KpcToPhiEditConvertOptions.SpeedOptions { CutPrecision = 1d },
+            Speed = new IrToPhiEditConvertOptions.SpeedOptions { CutPrecision = 1d },
         };
-        var source = new List<KpcSpeedEvent>
+        var source = new List<IrSpeedEvent>
         {
             new()
             {
@@ -91,11 +91,11 @@ public class PhiEditSpeedConversionTests
     public void ConvertSpeedFrames_EmitsFirstStartAndEverySliceEnd()
     {
         var target = new PeJudgeLine();
-        var options = new KpcToPhiEditConvertOptions
+        var options = new IrToPhiEditConvertOptions
         {
-            Speed = new KpcToPhiEditConvertOptions.SpeedOptions { CutPrecision = 4d },
+            Speed = new IrToPhiEditConvertOptions.SpeedOptions { CutPrecision = 4d },
         };
-        var source = new List<KpcSpeedEvent>
+        var source = new List<IrSpeedEvent>
         {
             new()
             {
@@ -116,11 +116,11 @@ public class PhiEditSpeedConversionTests
     public void ConvertSpeedFrames_AdjacentEventsUseLaterStartAtSharedBeat()
     {
         var target = new PeJudgeLine();
-        var options = new KpcToPhiEditConvertOptions
+        var options = new IrToPhiEditConvertOptions
         {
-            Speed = new KpcToPhiEditConvertOptions.SpeedOptions { CutPrecision = 1d },
+            Speed = new IrToPhiEditConvertOptions.SpeedOptions { CutPrecision = 1d },
         };
-        var source = new List<KpcSpeedEvent>
+        var source = new List<IrSpeedEvent>
         {
             new()
             {

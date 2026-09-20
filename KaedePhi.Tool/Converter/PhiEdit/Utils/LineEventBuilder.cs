@@ -1,19 +1,19 @@
-using KaedePhi.Core.Common;
+using KaedePhi.Core.Primitives;
 using KaedePhi.Tool.Common;
 using KaedePhi.Tool.Converter.PhiEdit.Model;
-using KaedePhi.Tool.Event.KaedePhi;
-using KaedePhi.Tool.Layer.KaedePhi;
-using KpcEasing = KaedePhi.Core.KaedePhi.Easing;
-using KpcEventLayer = KaedePhi.Core.KaedePhi.Events.EventLayer;
+using KaedePhi.Tool.Event.Intermediate;
+using KaedePhi.Tool.Layer.Intermediate;
+using IrEasing = KaedePhi.Core.Intermediate.Easing;
+using IrEventLayer = KaedePhi.Core.Intermediate.Events.EventLayer;
 
 namespace KaedePhi.Tool.Converter.PhiEdit.Utils;
 
 /// <summary>
-/// KPC 事件到 PE Frame/Event 的构建器。
+/// IR 事件到 PE Frame/Event 的构建器。
 /// </summary>
 public class LineEventBuilder
 {
-    private readonly KpcToPhiEditConvertOptions _options;
+    private readonly IrToPhiEditConvertOptions _options;
     private readonly Action<string>? _warnLogger;
     private readonly EventCutter<int> _eventCutterInt;
     private readonly EventCompressor<int> _eventCompressorInt;
@@ -22,7 +22,7 @@ public class LineEventBuilder
     private readonly LayerProcessor _layerProcessor = new();
     private readonly Dictionary<Type, object> _eventCutters = new();
 
-    public LineEventBuilder(KpcToPhiEditConvertOptions options, Action<string>? warnLogger = null)
+    public LineEventBuilder(IrToPhiEditConvertOptions options, Action<string>? warnLogger = null)
     {
         _options = options;
         _warnLogger = warnLogger;
@@ -33,9 +33,9 @@ public class LineEventBuilder
     }
 
     /// <summary>
-    /// 将 KPC 事件层映射为 PE 的线事件结构。
+    /// 将 IR 事件层映射为 PE 的线事件结构。
     /// </summary>
-    public void ConvertLineEvents(Pe.JudgeLine target, List<KpcEventLayer> layers)
+    public void ConvertLineEvents(Pe.JudgeLine target, List<IrEventLayer> layers)
     {
         if (layers.Count == 0)
             return;
@@ -88,7 +88,7 @@ public class LineEventBuilder
     /// <summary>
     /// 转换 Alpha 事件：PE 的 cf 不支持缓动，需先按单事件切段并压缩，再写入线性事件。
     /// </summary>
-    public void ConvertAlphaEvents(Pe.JudgeLine target, List<KpcEvents.Event<int>>? sourceEvents)
+    public void ConvertAlphaEvents(Pe.JudgeLine target, List<IrEvents.Event<int>>? sourceEvents)
     {
         if (sourceEvents == null || sourceEvents.Count == 0)
             return;
@@ -149,7 +149,7 @@ public class LineEventBuilder
     /// <summary>
     /// 转换 Speed 事件：PE 无速度事件，仅导出帧。
     /// </summary>
-    public void ConvertSpeedFrames(Pe.JudgeLine target, List<KpcEvents.Event<float>>? sourceEvents)
+    public void ConvertSpeedFrames(Pe.JudgeLine target, List<IrEvents.Event<float>>? sourceEvents)
     {
         if (sourceEvents == null || sourceEvents.Count == 0)
             return;
@@ -200,7 +200,7 @@ public class LineEventBuilder
     /// <summary>
     /// 转换 MoveX/MoveY 事件为 PE MoveFrame 与 MoveEvent。
     /// </summary>
-    public void ConvertMoveEvents(Pe.JudgeLine target, KpcEventLayer layer)
+    public void ConvertMoveEvents(Pe.JudgeLine target, IrEventLayer layer)
     {
         var xEvents = ExpandEventsForUnsupportedEasing(layer.MoveXEvents ?? [], "移动X");
         var yEvents = ExpandEventsForUnsupportedEasing(layer.MoveYEvents ?? [], "移动Y");
@@ -233,7 +233,7 @@ public class LineEventBuilder
     public void ConvertScalarEvents(
         List<Pe.Frame> targetFrames,
         List<Pe.Event>? targetEvents,
-        List<KpcEvents.Event<double>>? sourceEvents,
+        List<IrEvents.Event<double>>? sourceEvents,
         Func<float, float> valueTransform,
         string channelName
     )
@@ -251,8 +251,8 @@ public class LineEventBuilder
 
     private void ProcessMoveInterval(
         Pe.JudgeLine target,
-        List<KpcEvents.Event<double>> xEvents,
-        List<KpcEvents.Event<double>> yEvents,
+        List<IrEvents.Event<double>> xEvents,
+        List<IrEvents.Event<double>> yEvents,
         float start,
         float end,
         ref double lastX,
@@ -291,8 +291,8 @@ public class LineEventBuilder
         Pe.JudgeLine target,
         float start,
         float end,
-        KpcEvents.Event<double>? activeX,
-        KpcEvents.Event<double>? activeY,
+        IrEvents.Event<double>? activeX,
+        IrEvents.Event<double>? activeY,
         ref double lastX,
         ref double lastY
     )
@@ -329,8 +329,8 @@ public class LineEventBuilder
     }
 
     private void WarnMoveSegmentMisalignment(
-        KpcEvents.Event<double>? activeX,
-        KpcEvents.Event<double>? activeY,
+        IrEvents.Event<double>? activeX,
+        IrEvents.Event<double>? activeY,
         bool xAligned,
         bool yAligned,
         float start,
@@ -365,15 +365,15 @@ public class LineEventBuilder
         }
     }
 
-    private static bool IsExactlyCovering(KpcEvents.Event<double>? ev, float start, float end) =>
+    private static bool IsExactlyCovering(IrEvents.Event<double>? ev, float start, float end) =>
         ev != null
         && Math.Abs((double)ev.StartBeat - start) <= Constants.FloatEpsilon
         && Math.Abs((double)ev.EndBeat - end) <= Constants.FloatEpsilon;
 
     private void EmitCutMoveSegments(
         Pe.JudgeLine target,
-        List<KpcEvents.Event<double>> xEvents,
-        List<KpcEvents.Event<double>> yEvents,
+        List<IrEvents.Event<double>> xEvents,
+        List<IrEvents.Event<double>> yEvents,
         float start,
         float end,
         ref double lastX,
@@ -443,7 +443,7 @@ public class LineEventBuilder
     private void ConvertScalarEventsInternal<T>(
         List<Pe.Frame> targetFrames,
         List<Pe.Event>? targetEvents,
-        List<KpcEvents.Event<T>>? sourceEvents,
+        List<IrEvents.Event<T>>? sourceEvents,
         Func<float, float> valueTransform,
         string channelName
     )
@@ -506,12 +506,12 @@ public class LineEventBuilder
         }
     }
 
-    private List<KpcEvents.Event<double>> ExpandEventsForUnsupportedEasing(
-        List<KpcEvents.Event<double>> source,
+    private List<IrEvents.Event<double>> ExpandEventsForUnsupportedEasing(
+        List<IrEvents.Event<double>> source,
         string channel
     )
     {
-        var expanded = new List<KpcEvents.Event<double>>();
+        var expanded = new List<IrEvents.Event<double>>();
         foreach (var ev in source.OrderBy(e => (double)e.StartBeat))
         {
             expanded.AddRange(ExpandUnsupportedEasing(ev, $"{channel}@{(double)ev.StartBeat:F3}"));
@@ -520,8 +520,8 @@ public class LineEventBuilder
         return expanded;
     }
 
-    private List<KpcEvents.Event<T>> ExpandUnsupportedEasing<T>(
-        KpcEvents.Event<T> src,
+    private List<IrEvents.Event<T>> ExpandUnsupportedEasing<T>(
+        IrEvents.Event<T> src,
         string context
     )
         where T : notnull
@@ -574,7 +574,7 @@ public class LineEventBuilder
 
     #region Common Helpers
 
-    private static List<float> CollectBoundaries(params List<KpcEvents.Event<double>>[] eventLists)
+    private static List<float> CollectBoundaries(params List<IrEvents.Event<double>>[] eventLists)
     {
         var boundaries = new SortedSet<float>();
         foreach (var list in eventLists)
@@ -589,8 +589,8 @@ public class LineEventBuilder
         return boundaries.ToList();
     }
 
-    private static KpcEvents.Event<double>? FindActiveEvent(
-        List<KpcEvents.Event<double>> events,
+    private static IrEvents.Event<double>? FindActiveEvent(
+        List<IrEvents.Event<double>> events,
         Beat beat
     )
     {
@@ -619,7 +619,7 @@ public class LineEventBuilder
         return beatValue < (double)ev.EndBeat - Constants.FloatEpsilon ? ev : null;
     }
 
-    private int SafeConvertEasingToInt(KpcEasing easing, string context)
+    private int SafeConvertEasingToInt(IrEasing easing, string context)
     {
         try
         {
@@ -643,7 +643,7 @@ public class LineEventBuilder
             ),
         };
 
-    private static bool HasAnyEventData(KpcEventLayer layer) =>
+    private static bool HasAnyEventData(IrEventLayer layer) =>
         (layer.MoveXEvents?.Count ?? 0) > 0
         || (layer.MoveYEvents?.Count ?? 0) > 0
         || (layer.RotateEvents?.Count ?? 0) > 0
@@ -651,7 +651,7 @@ public class LineEventBuilder
         || (layer.SpeedEvents?.Count ?? 0) > 0;
 
     private void WarnIfEventPayloadUnsupported<T>(
-        IEnumerable<KpcEvents.Event<T>> events,
+        IEnumerable<IrEvents.Event<T>> events,
         string channel
     )
         where T : notnull

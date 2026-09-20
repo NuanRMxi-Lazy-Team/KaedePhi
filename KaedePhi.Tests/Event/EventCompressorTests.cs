@@ -1,8 +1,8 @@
-using KaedePhi.Core.Common;
-using KaedePhi.Core.KaedePhi;
+using KaedePhi.Core.Primitives;
+using KaedePhi.Core.Intermediate;
 using KaedePhi.Tool.Common;
-using KaedePhi.Tool.Event.KaedePhi;
-using KpcEvents = KaedePhi.Core.KaedePhi.Events;
+using KaedePhi.Tool.Event.Intermediate;
+using IrEvents = KaedePhi.Core.Intermediate.Events;
 
 namespace KaedePhi.Tests.Event;
 
@@ -32,7 +32,7 @@ public class EventCompressorTests
     [Fact]
     public void CompressSqrt_SingleElement_ReturnsSameList()
     {
-        var events = new List<KpcEvents.Event<double>> { CreateEvent(0, 1, 0, 100) };
+        var events = new List<IrEvents.Event<double>> { CreateEvent(0, 1, 0, 100) };
 
         var result = _doubleCompressor.EventListCompressSqrt(events, 10);
 
@@ -44,7 +44,7 @@ public class EventCompressorTests
     [Fact]
     public void CompressSqrt_TwoLinearEvents_MergesIntoOne()
     {
-        var events = new List<KpcEvents.Event<double>>
+        var events = new List<IrEvents.Event<double>>
         {
             CreateEvent(0, 1, 0, 50),
             CreateEvent(1, 2, 50, 100),
@@ -60,7 +60,7 @@ public class EventCompressorTests
     [Fact]
     public void CompressSqrt_ThreeLinearEvents_MergesIntoOne()
     {
-        var events = new List<KpcEvents.Event<double>>
+        var events = new List<IrEvents.Event<double>>
         {
             CreateEvent(0, 1, 0, 33.33),
             CreateEvent(1, 2, 33.33, 66.66),
@@ -77,7 +77,7 @@ public class EventCompressorTests
     [Fact]
     public void CompressSqrt_DifferentEasingTypes_DoesNotMerge()
     {
-        var events = new List<KpcEvents.Event<double>>
+        var events = new List<IrEvents.Event<double>>
         {
             CreateEvent(0, 1, 0, 50, easingId: 1),
             CreateEvent(1, 2, 50, 100, easingId: 2),
@@ -91,7 +91,7 @@ public class EventCompressorTests
     [Fact]
     public void CompressSqrt_NonAdjacentEvents_DoesNotMerge()
     {
-        var events = new List<KpcEvents.Event<double>>
+        var events = new List<IrEvents.Event<double>>
         {
             CreateEvent(0, 1, 0, 50),
             CreateEvent(2, 3, 50, 100), // Gap between 1 and 2
@@ -105,7 +105,7 @@ public class EventCompressorTests
     [Fact]
     public void CompressSqrt_ZeroTolerance_DoesNotMerge()
     {
-        var events = new List<KpcEvents.Event<double>>
+        var events = new List<IrEvents.Event<double>>
         {
             CreateEvent(0, 1, 0, 50),
             CreateEvent(1, 2, 50, 100),
@@ -120,7 +120,7 @@ public class EventCompressorTests
     [Fact]
     public void CompressSqrt_HighTolerance_MergesMore()
     {
-        var events = new List<KpcEvents.Event<double>>
+        var events = new List<IrEvents.Event<double>>
         {
             CreateEvent(0, 1, 0, 100),
             CreateEvent(1, 2, 100, 50), // Non-linear: goes up then down
@@ -136,7 +136,7 @@ public class EventCompressorTests
     [Fact]
     public void CompressSqrt_InvalidTolerance_ThrowsArgumentOutOfRangeException()
     {
-        var events = new List<KpcEvents.Event<double>> { CreateEvent(0, 1, 0, 100) };
+        var events = new List<IrEvents.Event<double>> { CreateEvent(0, 1, 0, 100) };
 
         var act1 = () => _doubleCompressor.EventListCompressSqrt(events, -1);
         var act2 = () => _doubleCompressor.EventListCompressSqrt(events, 101);
@@ -149,7 +149,7 @@ public class EventCompressorTests
     public void CompressSqrt_ReportsProgress()
     {
         // Use more events to ensure progress is reported before completion
-        var events = new List<KpcEvents.Event<double>>
+        var events = new List<IrEvents.Event<double>>
         {
             CreateEvent(0, 1, 0, 10),
             CreateEvent(1, 2, 10, 20),
@@ -189,7 +189,7 @@ public class EventCompressorTests
     [Fact]
     public void CompressSlope_TwoLinearEvents_MergesIntoOne()
     {
-        var events = new List<KpcEvents.Event<double>>
+        var events = new List<IrEvents.Event<double>>
         {
             CreateEvent(0, 1, 0, 50),
             CreateEvent(1, 2, 50, 100),
@@ -203,7 +203,7 @@ public class EventCompressorTests
     [Fact]
     public void CompressSlope_DifferentSlopes_DoesNotMerge()
     {
-        var events = new List<KpcEvents.Event<double>>
+        var events = new List<IrEvents.Event<double>>
         {
             CreateEvent(0, 1, 0, 10), // slope = 10
             CreateEvent(1, 2, 10, 100), // slope = 90
@@ -237,7 +237,7 @@ public class EventCompressorTests
     [Fact]
     public void RemoveUselessEvent_SingleDefaultEvent_RemovesIt()
     {
-        var events = new List<KpcEvents.Event<double>>
+        var events = new List<IrEvents.Event<double>>
         {
             CreateEvent(0, 1, 0, 0), // Both values are default (0)
         };
@@ -250,7 +250,7 @@ public class EventCompressorTests
     [Fact]
     public void RemoveUselessEvent_SingleNonDefaultEvent_KeepsIt()
     {
-        var events = new List<KpcEvents.Event<double>> { CreateEvent(0, 1, 0, 100) };
+        var events = new List<IrEvents.Event<double>> { CreateEvent(0, 1, 0, 100) };
 
         var result = _doubleCompressor.RemoveUselessEvent(events);
 
@@ -260,7 +260,7 @@ public class EventCompressorTests
     [Fact]
     public void RemoveUselessEvent_MultipleDefaultEvents_KeepsAll()
     {
-        var events = new List<KpcEvents.Event<double>>
+        var events = new List<IrEvents.Event<double>>
         {
             CreateEvent(0, 1, 0, 0),
             CreateEvent(1, 2, 0, 0),
@@ -275,7 +275,7 @@ public class EventCompressorTests
     [Fact]
     public void RemoveUselessEvent_WithInt_WorksCorrectly()
     {
-        var events = new List<KpcEvents.Event<int>> { CreateIntEvent(0, 1, 0, 0) };
+        var events = new List<IrEvents.Event<int>> { CreateIntEvent(0, 1, 0, 0) };
 
         var result = _intCompressor.RemoveUselessEvent(events);
 
@@ -285,7 +285,7 @@ public class EventCompressorTests
     [Fact]
     public void RemoveUselessEvent_WithInt_NonDefault_KeepsIt()
     {
-        var events = new List<KpcEvents.Event<int>> { CreateIntEvent(0, 1, 0, 42) };
+        var events = new List<IrEvents.Event<int>> { CreateIntEvent(0, 1, 0, 42) };
 
         var result = _intCompressor.RemoveUselessEvent(events);
 
@@ -296,7 +296,7 @@ public class EventCompressorTests
 
     #region Helper Methods
 
-    private static KpcEvents.Event<double> CreateEvent(
+    private static IrEvents.Event<double> CreateEvent(
         double startBeat,
         double endBeat,
         double startValue,
@@ -304,7 +304,7 @@ public class EventCompressorTests
         int easingId = 1
     )
     {
-        return new KpcEvents.Event<double>
+        return new IrEvents.Event<double>
         {
             StartBeat = new Beat(startBeat),
             EndBeat = new Beat(endBeat),
@@ -314,7 +314,7 @@ public class EventCompressorTests
         };
     }
 
-    private static KpcEvents.Event<int> CreateIntEvent(
+    private static IrEvents.Event<int> CreateIntEvent(
         double startBeat,
         double endBeat,
         int startValue,
@@ -322,7 +322,7 @@ public class EventCompressorTests
         int easingId = 1
     )
     {
-        return new KpcEvents.Event<int>
+        return new IrEvents.Event<int>
         {
             StartBeat = new Beat(startBeat),
             EndBeat = new Beat(endBeat),

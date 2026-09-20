@@ -1,9 +1,9 @@
 using System.Reflection;
-using KaedePhi.Core.Common;
-using KaedePhi.Core.KaedePhi;
+using KaedePhi.Core.Primitives;
+using KaedePhi.Core.Intermediate;
 using KaedePhi.Tool.Common;
-using KaedePhi.Tool.Converter.KaedePhi;
-using KaedePhi.Tool.Render.KaedePhi;
+using KaedePhi.Tool.Converter.Intermediate;
+using KaedePhi.Tool.Render.Intermediate;
 
 namespace KaedePhi.Tests.Validation;
 
@@ -32,8 +32,8 @@ public class ValidationComponentTests
         };
         var invalid = new List<JudgeLine> { new() { Father = 2 } };
 
-        Action cycleCheck = () => KpcChartValidator.ValidateJudgeLineHierarchy(cyclic);
-        Action invalidCheck = () => KpcChartValidator.ValidateJudgeLineHierarchy(invalid);
+        Action cycleCheck = () => IrChartValidator.ValidateJudgeLineHierarchy(cyclic);
+        Action invalidCheck = () => IrChartValidator.ValidateJudgeLineHierarchy(invalid);
 
         cycleCheck.Should().Throw<FormatException>();
         invalidCheck.Should().Throw<FormatException>();
@@ -43,9 +43,9 @@ public class ValidationComponentTests
     public void ValidateRender_RequiresLineForLayer()
     {
         var chart = new Chart { JudgeLineList = [new JudgeLine()] };
-        var options = new KpcRenderOptions();
+        var options = new IrRenderOptions();
 
-        Action act = () => KpcRenderValidator.Validate(chart, options, layerIndex: 0);
+        Action act = () => IrRenderValidator.Validate(chart, options, layerIndex: 0);
 
         act.Should().Throw<ArgumentException>();
     }
@@ -60,7 +60,7 @@ public class ValidationComponentTests
     {
         var chart = new Chart { BpmList = [CreateBpmItemBypassingValidation(bpm)] };
 
-        Action act = () => KpcChartNormalizer.NormalizeAndValidateNoteEndBeats(chart);
+        Action act = () => IrChartNormalizer.NormalizeAndValidateNoteEndBeats(chart);
 
         act.Should().Throw<FormatException>().WithMessage("*BPM*0*");
     }
@@ -70,7 +70,7 @@ public class ValidationComponentTests
     {
         var chart = new Chart { BpmList = [new BpmItem { StartBeat = new Beat(-1), Bpm = 120f }] };
 
-        Action act = () => KpcChartNormalizer.NormalizeAndValidateNoteEndBeats(chart);
+        Action act = () => IrChartNormalizer.NormalizeAndValidateNoteEndBeats(chart);
 
         act.Should().NotThrow();
     }
@@ -88,7 +88,7 @@ public class ValidationComponentTests
         SetBpmFactorBypassingValidation(line, bpmFactor);
         var chart = new Chart { JudgeLineList = [line] };
 
-        Action act = () => KpcChartNormalizer.NormalizeAndValidateNoteEndBeats(chart);
+        Action act = () => IrChartNormalizer.NormalizeAndValidateNoteEndBeats(chart);
 
         act.Should().Throw<FormatException>().WithMessage("*判定线 0*BPM*");
     }
@@ -101,17 +101,17 @@ public class ValidationComponentTests
     {
         var chart = CreateChartWithMalformedStructure(malformedMember);
 
-        Action act = () => KpcChartNormalizer.NormalizeAndValidateNoteEndBeats(chart);
+        Action act = () => IrChartNormalizer.NormalizeAndValidateNoteEndBeats(chart);
 
         act.Should().NotThrow();
     }
 
     [Fact]
-    public void KaedePhiConverter_FromKpcAllowsNullCollections()
+    public void IntermediateConverter_FromIrAllowsNullCollections()
     {
         var chart = CreateChartWithMalformedStructure("Notes");
 
-        Action act = () => new KaedePhiConverter().FromKpc(chart, null);
+        Action act = () => new IntermediateConverter().FromIr(chart, null);
 
         act.Should().NotThrow();
     }

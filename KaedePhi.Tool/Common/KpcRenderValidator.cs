@@ -1,268 +1,56 @@
-using KaedePhi.Core.KaedePhi;
+#pragma warning disable CS0618
+
+using KaedePhi.Tool.Compatibility;
 using KaedePhi.Tool.Render.KaedePhi;
+using Kpc = KaedePhi.Core.KaedePhi;
+using KpcEvents = KaedePhi.Core.KaedePhi.Events;
 
 namespace KaedePhi.Tool.Common;
 
 /// <summary>
-/// 校验渲染配置、目标索引和位图安全边界。
+/// 已弃用的 KPC 渲染参数校验入口，行为与 <see cref="IrRenderValidator"/> 一致。
 /// </summary>
+[Obsolete("已弃用：请迁移至 KaedePhi.Tool.Common.IrRenderValidator。")]
 public static class KpcRenderValidator
 {
-    private const double MaximumPixelsPerBeat = 10_000d;
-    private const int MaximumChannelWidth = 10_000;
-    private const int MaximumSamplesPerEvent = 4096;
-    private const int MaximumBeatSubdivisions = 128;
-    private const double DefaultMinimumChartBeats = 4d;
-    private const double MaximumChartBeats = 1_000_000d;
-    private const int RenderedChannelCount = 5;
-    private const int ChannelGapCount = RenderedChannelCount - 1;
-    private const int AdditionalHorizontalPadding = 8;
+    /// <summary>渲染位图的最大像素数。</summary>
+    public const long MaximumRenderPixels = IrRenderValidator.MaximumRenderPixels;
 
     /// <summary>
-    /// 允许的最大渲染像素总数。
+    /// 校验 KPC 谱面与渲染配置。
     /// </summary>
-    public const long MaximumRenderPixels = 200_000_000L;
-
-    /// <summary>
-    /// 校验渲染配置、索引和最终位图尺寸。
-    /// </summary>
-    /// <param name="chart">待渲染谱面。</param>
+    /// <param name="chart">待渲染的 KPC 谱面。</param>
     /// <param name="options">渲染配置。</param>
-    /// <param name="lineIndex">可选判定线索引。</param>
-    /// <param name="layerIndex">可选事件层索引。</param>
-    /// <returns>无返回值。</returns>
+    /// <param name="lineIndex">若指定，则只渲染该索引的判定线。</param>
+    /// <param name="layerIndex">若指定，则只渲染该索引的事件层。</param>
+    [Obsolete("已弃用：请迁移至 IrRenderValidator.Validate。")]
     public static void Validate(
-        Chart chart,
+        Kpc.Chart chart,
         KpcRenderOptions options,
         int? lineIndex = null,
         int? layerIndex = null
-    )
-    {
-        ArgumentNullException.ThrowIfNull(chart);
-        ValidateOptions(options);
-        ValidateSelectedIndexes(chart, lineIndex, layerIndex);
-
-        var totalBeats = GetTotalBeats(chart);
-        ValidateTotalBeats(totalBeats);
-        var (width, height) = CalculateBitmapSize(options, totalBeats);
-        ValidateBitmapSize(width, height);
-    }
+    ) =>
+        IrRenderValidator.Validate(
+            KpcCompatibilityMapper.ToIntermediate(chart),
+            options,
+            lineIndex,
+            layerIndex
+        );
 
     /// <summary>
-    /// 校验不依赖具体谱面的渲染配置。
+    /// 校验渲染配置。
     /// </summary>
     /// <param name="options">渲染配置。</param>
-    /// <returns>无返回值。</returns>
-    public static void ValidateOptions(KpcRenderOptions options)
-    {
-        ArgumentNullException.ThrowIfNull(options);
-        ValidateSamplingOptions(options);
-        ValidateLayoutOptions(options);
-        ValidateRangeOptions(options);
-    }
+    [Obsolete("已弃用：请迁移至 IrRenderValidator.ValidateOptions。")]
+    public static void ValidateOptions(KpcRenderOptions options) =>
+        IrRenderValidator.ValidateOptions(options);
 
     /// <summary>
-    /// 校验单个事件层与渲染配置，并验证渲染位图尺寸的安全边界。
+    /// 校验单个事件层与渲染配置。
     /// </summary>
     /// <param name="layer">待渲染的事件层。</param>
     /// <param name="options">渲染配置。</param>
-    /// <returns>无返回值。</returns>
-    public static void ValidateEventLayer(KpcEvents.EventLayer layer, KpcRenderOptions options)
-    {
-        ArgumentNullException.ThrowIfNull(layer);
-        ValidateOptions(options);
-
-        var totalBeats = GetLayerTotalBeats(layer);
-        ValidateTotalBeats(totalBeats);
-        var (width, height) = CalculateBitmapSize(options, totalBeats);
-        ValidateBitmapSize(width, height);
-    }
-
-    private static double GetLayerTotalBeats(KpcEvents.EventLayer layer)
-    {
-        var totalBeats = DefaultMinimumChartBeats;
-        totalBeats = UpdateMaximumEndBeat(totalBeats, layer.MoveXEvents);
-        totalBeats = UpdateMaximumEndBeat(totalBeats, layer.MoveYEvents);
-        totalBeats = UpdateMaximumEndBeat(totalBeats, layer.RotateEvents);
-        totalBeats = UpdateMaximumEndBeat(totalBeats, layer.AlphaEvents);
-        totalBeats = UpdateMaximumEndBeat(totalBeats, layer.SpeedEvents);
-        return totalBeats;
-    }
-
-    private static void ValidateSamplingOptions(KpcRenderOptions options)
-    {
-        ValidateFinitePositiveAtMost(
-            options.PixelsPerBeat,
-            MaximumPixelsPerBeat,
-            nameof(options.PixelsPerBeat)
-        );
-        ValidatePositiveAtMost(
-            options.ChannelWidth,
-            MaximumChannelWidth,
-            nameof(options.ChannelWidth)
-        );
-        ValidatePositiveAtMost(
-            options.SamplesPerEvent,
-            MaximumSamplesPerEvent,
-            nameof(options.SamplesPerEvent)
-        );
-        ValidatePositiveAtMost(
-            options.BeatSubdivisions,
-            MaximumBeatSubdivisions,
-            nameof(options.BeatSubdivisions)
-        );
-    }
-
-    private static void ValidateLayoutOptions(KpcRenderOptions options)
-    {
-        if (
-            options.LeftMargin < 0
-            || options.HeaderHeight < 0
-            || options.BottomPadding < 0
-            || options.ChannelPadding < 0
-            || options.StrokeWidth < 0
-        )
-            throw new ArgumentOutOfRangeException(nameof(options));
-    }
-
-    private static void ValidateRangeOptions(KpcRenderOptions options)
-    {
-        ValidateFiniteNonNegative(options.RangePaddingRatio, nameof(options.RangePaddingRatio));
-        ValidatePositiveAtMost(
-            options.RangeSamplesPerEvent,
-            MaximumSamplesPerEvent,
-            nameof(options.RangeSamplesPerEvent)
-        );
-        ValidateFiniteNonNegative(
-            options.SegmentGroupTolerance,
-            nameof(options.SegmentGroupTolerance)
-        );
-        ValidateFiniteNonNegative(options.MinValueRangeHalf, nameof(options.MinValueRangeHalf));
-        ValidateFiniteNonNegative(
-            options.MinValueRangeHalfRatio,
-            nameof(options.MinValueRangeHalfRatio)
-        );
-    }
-
-    private static void ValidateSelectedIndexes(Chart chart, int? lineIndex, int? layerIndex)
-    {
-        var judgeLines = chart.JudgeLineList ?? [];
-        if (lineIndex is < 0 || lineIndex >= judgeLines.Count)
-            throw new ArgumentOutOfRangeException(nameof(lineIndex));
-        if (layerIndex is not null && lineIndex is null)
-            throw new ArgumentException(
-                "指定事件层索引时必须同时指定判定线索引。",
-                nameof(layerIndex)
-            );
-        if (lineIndex is not null && layerIndex is not null)
-            ValidateLayerIndex(judgeLines[lineIndex.Value], layerIndex.Value);
-    }
-
-    private static void ValidateLayerIndex(JudgeLine line, int layerIndex)
-    {
-        if (layerIndex < 0 || layerIndex >= line.EventLayers.Count)
-            throw new ArgumentOutOfRangeException(nameof(layerIndex));
-    }
-
-    private static double GetTotalBeats(Chart chart)
-    {
-        var totalBeats = DefaultMinimumChartBeats;
-        foreach (var line in chart.JudgeLineList)
-        {
-            if (line is null || line.EventLayers is null)
-                continue;
-            foreach (var layer in line.EventLayers)
-            {
-                if (layer is null)
-                    continue;
-                totalBeats = UpdateMaximumEndBeat(totalBeats, layer.MoveXEvents);
-                totalBeats = UpdateMaximumEndBeat(totalBeats, layer.MoveYEvents);
-                totalBeats = UpdateMaximumEndBeat(totalBeats, layer.RotateEvents);
-                totalBeats = UpdateMaximumEndBeat(totalBeats, layer.AlphaEvents);
-                totalBeats = UpdateMaximumEndBeat(totalBeats, layer.SpeedEvents);
-            }
-        }
-
-        return totalBeats;
-    }
-
-    private static double UpdateMaximumEndBeat<T>(
-        double currentMaximum,
-        IEnumerable<KpcEvents.Event<T>>? events
-    )
-        where T : notnull
-    {
-        if (events is null)
-            return currentMaximum;
-
-        foreach (var chartEvent in events)
-        {
-            var endBeat = (double)chartEvent.EndBeat;
-            if (!double.IsFinite(endBeat))
-                throw new FormatException("谱面事件拍数必须是有限数值。");
-            if (endBeat > currentMaximum)
-                currentMaximum = endBeat;
-        }
-
-        return currentMaximum;
-    }
-
-    private static void ValidateTotalBeats(double totalBeats)
-    {
-        if (totalBeats is < 0 or > MaximumChartBeats)
-            throw new ArgumentOutOfRangeException("chart", "谱面总拍数超过安全上限。");
-    }
-
-    private static (long Width, long Height) CalculateBitmapSize(
-        KpcRenderOptions options,
-        double totalBeats
-    )
-    {
-        var heightValue =
-            options.HeaderHeight
-            + Math.Ceiling(totalBeats * options.PixelsPerBeat)
-            + options.BottomPadding;
-        if (!double.IsFinite(heightValue) || heightValue > int.MaxValue)
-            throw new ArgumentOutOfRangeException(nameof(options), "渲染位图高度超过安全上限。");
-
-        var width =
-            options.LeftMargin
-            + (long)RenderedChannelCount * options.ChannelWidth
-            + (long)ChannelGapCount * options.ChannelPadding
-            + AdditionalHorizontalPadding;
-        return (width, (long)heightValue);
-    }
-
-    private static void ValidateBitmapSize(long width, long height)
-    {
-        if (
-            height <= 0
-            || width <= 0
-            || width > int.MaxValue
-            || width * height > MaximumRenderPixels
-        )
-            throw new ArgumentOutOfRangeException("options", "渲染位图尺寸超过安全上限。");
-    }
-
-    private static void ValidateFinitePositiveAtMost(
-        double value,
-        double maximum,
-        string parameterName
-    )
-    {
-        if (!double.IsFinite(value) || value <= 0 || value > maximum)
-            throw new ArgumentOutOfRangeException(parameterName);
-    }
-
-    private static void ValidatePositiveAtMost(int value, int maximum, string parameterName)
-    {
-        if (value <= 0 || value > maximum)
-            throw new ArgumentOutOfRangeException(parameterName);
-    }
-
-    private static void ValidateFiniteNonNegative(double value, string parameterName)
-    {
-        if (!double.IsFinite(value) || value < 0)
-            throw new ArgumentOutOfRangeException(parameterName);
-    }
+    [Obsolete("已弃用：请迁移至 IrRenderValidator.ValidateEventLayer。")]
+    public static void ValidateEventLayer(KpcEvents.EventLayer layer, KpcRenderOptions options) =>
+        IrRenderValidator.ValidateEventLayer(KpcCompatibilityMapper.ToIntermediate(layer), options);
 }

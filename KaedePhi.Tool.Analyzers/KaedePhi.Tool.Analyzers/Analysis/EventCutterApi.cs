@@ -10,7 +10,7 @@ internal static class EventCutterApi
 {
     // 按命名空间与元数据名称识别目标类型，避免依赖具体程序集引用
     private const string EventNamespace = "KaedePhi.Tool.Event";
-    private const string ImplementationNamespace = "KaedePhi.Tool.Event.KaedePhi";
+    private const string ImplementationNamespace = "KaedePhi.Tool.Event.Intermediate";
     private const string InterfaceMetadataName = "IEventCutter`2";
     private const string ImplementationMetadataName = "EventCutter`1";
     private const string BeatNamespace = "KaedePhi.Core.Common";

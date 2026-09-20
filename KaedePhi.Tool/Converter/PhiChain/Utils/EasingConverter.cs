@@ -1,30 +1,30 @@
-using PhiChainEasing = KaedePhi.Core.PhiChain.v6.Easing;
-using PhiChainEasingKind = KaedePhi.Core.PhiChain.v6.EasingKind;
+using PhiChainEasing = KaedePhi.Core.Formats.PhiChain.v6.Easing;
+using PhiChainEasingKind = KaedePhi.Core.Formats.PhiChain.v6.EasingKind;
 
 namespace KaedePhi.Tool.Converter.PhiChain.Utils;
 
 /// <summary>
-/// PhiChain 与 KPC 缓动类型之间的映射与转换工具。
+/// PhiChain 与 IR 缓动类型之间的映射与转换工具。
 /// </summary>
 public static class EasingConverter
 {
     /// <summary>
-    /// KPC 缓动在 PhiChain 中无对应项时抛出，用于触发切段拟合。
+    /// IR 缓动在 PhiChain 中无对应项时抛出，用于触发切段拟合。
     /// </summary>
     public sealed class EasingNotSupportedException(PhiChainEasingKind easingKind)
         : Exception(
-            $"PhiChain easing {easingKind} is unsupported in KPC and requires linear slicing"
+            $"PhiChain easing {easingKind} is unsupported in IR and requires linear slicing"
         )
     {
         public PhiChainEasingKind EasingKind { get; } = easingKind;
     }
 
     /// <summary>
-    /// 将 PhiChain 缓动转换为 KPC 缓动编号。
+    /// 将 PhiChain 缓动转换为 IR 缓动编号。
     /// </summary>
     /// <param name="src">PhiChain 缓动实例</param>
-    /// <returns>KPC 缓动编号，不支持的类型抛出异常</returns>
-    public static int ConvertToKpcEasingNumber(PhiChainEasing src)
+    /// <returns>IR 缓动编号，不支持的类型抛出异常</returns>
+    public static int ConvertToIrEasingNumber(PhiChainEasing src)
     {
         return src.EasingType switch
         {
@@ -73,13 +73,13 @@ public static class EasingConverter
     }
 
     /// <summary>
-    /// 将 KPC 缓动编号转换为 PhiChain 缓动。
+    /// 将 IR 缓动编号转换为 PhiChain 缓动。
     /// </summary>
-    /// <param name="kpcEasingNumber">KPC 缓动编号</param>
+    /// <param name="irEasingNumber">IR 缓动编号</param>
     /// <returns>PhiChain 缓动实例</returns>
-    public static PhiChainEasing ConvertFromKpcEasingNumber(int kpcEasingNumber)
+    public static PhiChainEasing ConvertFromIrEasingNumber(int irEasingNumber)
     {
-        var kind = kpcEasingNumber switch
+        var kind = irEasingNumber switch
         {
             1 => PhiChainEasingKind.Linear,
             2 => PhiChainEasingKind.EaseInSine,
@@ -118,26 +118,26 @@ public static class EasingConverter
     }
 
     /// <summary>
-    /// 将 KPC 缓动转换为 PhiChain 缓动；贝塞尔事件转为线性。
+    /// 将 IR 缓动转换为 PhiChain 缓动；贝塞尔事件转为线性。
     /// </summary>
-    /// <param name="src">KPC 缓动实例</param>
+    /// <param name="src">IR 缓动实例</param>
     /// <param name="isBezier">是否为贝塞尔事件</param>
     /// <returns>PhiChain 缓动实例</returns>
-    public static PhiChainEasing ConvertEasing(Kpc.Easing src, bool isBezier)
+    public static PhiChainEasing ConvertEasing(Ir.Easing src, bool isBezier)
     {
         return isBezier
             ? new PhiChainEasing { EasingType = PhiChainEasingKind.Linear }
-            : ConvertFromKpcEasingNumber((int)src);
+            : ConvertFromIrEasingNumber((int)src);
     }
 
     /// <summary>
-    /// 将 PhiChain 缓动转换为 KPC 缓动。
+    /// 将 PhiChain 缓动转换为 IR 缓动。
     /// </summary>
     /// <param name="src">PhiChain 缓动实例</param>
-    /// <returns>KPC 缓动实例</returns>
-    public static Kpc.Easing ConvertEasing(PhiChainEasing src)
+    /// <returns>IR 缓动实例</returns>
+    public static Ir.Easing ConvertEasing(PhiChainEasing src)
     {
-        return new Kpc.Easing(ConvertToKpcEasingNumber(src));
+        return new Ir.Easing(ConvertToIrEasingNumber(src));
     }
 
     /// <summary>

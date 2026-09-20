@@ -1,9 +1,9 @@
-using KaedePhi.Core.Common;
+using KaedePhi.Core.Primitives;
 using KaedePhi.Tool.Common;
 using KaedePhi.Tool.JudgeLines;
-using KaedePhi.Tool.JudgeLines.KaedePhi;
-using JudgeLine = KaedePhi.Core.KaedePhi.JudgeLine;
-using KpcEvents = KaedePhi.Core.KaedePhi.Events;
+using KaedePhi.Tool.JudgeLines.Intermediate;
+using JudgeLine = KaedePhi.Core.Intermediate.JudgeLine;
+using IrEvents = KaedePhi.Core.Intermediate.Events;
 
 namespace KaedePhi.Tests.JudgeLines;
 
@@ -80,11 +80,11 @@ public sealed class JudgeLineUnbinderContractTests
             {
                 EventLayers =
                 [
-                    new KpcEvents.EventLayer
+                    new IrEvents.EventLayer
                     {
                         MoveXEvents =
                         [
-                            new KpcEvents.Event<double>
+                            new IrEvents.Event<double>
                             {
                                 StartBeat = new Beat(0d),
                                 EndBeat = new Beat(1d),
@@ -95,6 +95,6 @@ public sealed class JudgeLineUnbinderContractTests
                     },
                 ],
             },
-            new JudgeLine { Father = 0, EventLayers = [new KpcEvents.EventLayer()] },
+            new JudgeLine { Father = 0, EventLayers = [new IrEvents.EventLayer()] },
         ];
 }

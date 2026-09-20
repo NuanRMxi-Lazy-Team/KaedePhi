@@ -1,13 +1,13 @@
-using KaedePhi.Core.Common;
-using KaedePhi.Core.PhiFans;
+using KaedePhi.Core.Primitives;
+using KaedePhi.Core.Formats.PhiFans;
 
 namespace KaedePhi.Tool.Converter.PhiFans.Utils;
 
 internal static class BpmBuilder
 {
-    internal static Kpc.BpmItem ConvertToKpc(Bpm source) =>
+    internal static Ir.BpmItem ConvertToIr(Bpm source) =>
         new() { Bpm = source.BeatPerMinute, StartBeat = new Beat((int[])source.StartBeat) };
 
-    internal static Bpm ConvertFromKpc(Kpc.BpmItem source) =>
+    internal static Bpm ConvertFromIr(Ir.BpmItem source) =>
         new() { BeatPerMinute = source.Bpm, StartBeat = new Beat((int[])source.StartBeat) };
 }

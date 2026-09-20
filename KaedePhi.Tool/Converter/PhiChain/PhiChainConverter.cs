@@ -1,8 +1,8 @@
-using KaedePhi.Core.PhiChain.v6;
+using KaedePhi.Core.Formats.PhiChain.v6;
 using KaedePhi.Tool.Common;
 using KaedePhi.Tool.Converter.PhiChain.Model;
 using KaedePhi.Tool.Converter.PhiChain.Utils;
-using PhiChainChart = KaedePhi.Core.PhiChain.v6.Chart;
+using PhiChainChart = KaedePhi.Core.Formats.PhiChain.v6.Chart;
 
 namespace KaedePhi.Tool.Converter.PhiChain;
 
@@ -11,7 +11,7 @@ namespace KaedePhi.Tool.Converter.PhiChain;
 /// </summary>
 public class PhiChainConverter
     : LoggableBase,
-        IChartConverter<PhiChainChart, PhiChainToKpcConvertOptions, KpcToPhiChainConvertOptions>,
+        IChartConverter<PhiChainChart, PhiChainToIrConvertOptions, IrToPhiChainConvertOptions>,
         ICancellableChartConverter
 {
     private CancellationToken _ct;
@@ -22,23 +22,23 @@ public class PhiChainConverter
     public void SetCancellationToken(CancellationToken ct) => _ct = ct;
 
     /// <summary>
-    /// 将 PhiChain 格式转换为 KPC 内部格式。
+    /// 将 PhiChain 格式转换为 IR 内部格式。
     /// </summary>
     /// <param name="source">PhiChain 谱面</param>
     /// <param name="options">转换选项</param>
-    /// <returns>KPC 谱面</returns>
-    public Kpc.Chart ToKpc(PhiChainChart source, PhiChainToKpcConvertOptions options)
+    /// <returns>IR 谱面</returns>
+    public Ir.Chart ToIr(PhiChainChart source, PhiChainToIrConvertOptions options)
     {
         ArgumentNullException.ThrowIfNull(source);
         ConversionOptionsValidator.Validate(options);
         _ct.ThrowIfCancellationRequested();
 
-        var kpcChart = new Kpc.Chart
+        var irChart = new Ir.Chart
         {
             BpmList = source.BpmList.ConvertAll(BpmBuilder.ConvertBpmPoint),
-            Meta = new Kpc.Meta
+            Meta = new Ir.Meta
             {
-                Offset = (int)source.Offset, // PhiChain 和 KPC 的 offset 单位均为毫秒
+                Offset = (int)source.Offset, // PhiChain 和 IR 的 offset 单位均为毫秒
             },
         };
 
@@ -50,7 +50,7 @@ public class PhiChainConverter
             JudgeLineBuilder.FlattenLine(
                 line,
                 -1,
-                kpcChart.JudgeLineList,
+                irChart.JudgeLineList,
                 ref lineIndex,
                 options,
                 OnWarning,
@@ -58,28 +58,28 @@ public class PhiChainConverter
             );
         }
 
-        return KpcChartNormalizer.NormalizeAndValidateNoteEndBeats(kpcChart);
+        return IrChartNormalizer.NormalizeAndValidateNoteEndBeats(irChart);
     }
 
     /// <summary>
-    /// 将 KPC 内部格式转换为 PhiChain 格式。
+    /// 将 IR 内部格式转换为 PhiChain 格式。
     /// </summary>
-    /// <param name="input">KPC 谱面</param>
+    /// <param name="input">IR 谱面</param>
     /// <param name="options">输出转换选项</param>
     /// <returns>PhiChain 谱面</returns>
-    public PhiChainChart FromKpc(Kpc.Chart input, KpcToPhiChainConvertOptions options)
+    public PhiChainChart FromIr(Ir.Chart input, IrToPhiChainConvertOptions options)
     {
         ArgumentNullException.ThrowIfNull(input);
         ArgumentNullException.ThrowIfNull(options);
         ConversionOptionsValidator.Validate(options);
-        var normalized = KpcChartNormalizer.NormalizeAndValidateNoteEndBeats(input);
-        KpcChartValidator.ValidateJudgeLineHierarchy(normalized.JudgeLineList);
+        var normalized = IrChartNormalizer.NormalizeAndValidateNoteEndBeats(input);
+        IrChartValidator.ValidateJudgeLineHierarchy(normalized.JudgeLineList);
         _ct.ThrowIfCancellationRequested();
         WarnIfUnsupportedMeta(normalized.Meta);
 
         var chart = new PhiChainChart
         {
-            Offset = normalized.Meta.Offset, // PhiChain 和 KPC 的 offset 单位均为毫秒
+            Offset = normalized.Meta.Offset, // PhiChain 和 IR 的 offset 单位均为毫秒
             BpmList = new BpmList(normalized.BpmList.ConvertAll(BpmBuilder.ConvertBpmItem)),
             // 构建父子关系树
             Lines = JudgeLineBuilder.BuildLineTree(
@@ -94,8 +94,8 @@ public class PhiChainConverter
     }
 
     /// <summary>
-    /// 检查 KPC Meta 字段是否会被 PhiChain 丢弃，发出警告。
+    /// 检查 IR Meta 字段是否会被 PhiChain 丢弃，发出警告。
     /// </summary>
-    /// <param name="src">KPC 元数据</param>
-    private void WarnIfUnsupportedMeta(Kpc.Meta src) => WarnIfUnsupportedMeta("PhiChain", src);
+    /// <param name="src">IR 元数据</param>
+    private void WarnIfUnsupportedMeta(Ir.Meta src) => WarnIfUnsupportedMeta("PhiChain", src);
 }

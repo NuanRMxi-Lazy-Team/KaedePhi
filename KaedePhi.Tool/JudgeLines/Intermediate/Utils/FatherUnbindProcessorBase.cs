@@ -1,10 +1,10 @@
 using System.Collections.Concurrent;
-using JudgeLine = KaedePhi.Core.KaedePhi.JudgeLine;
+using JudgeLine = KaedePhi.Core.Intermediate.JudgeLine;
 
-namespace KaedePhi.Tool.JudgeLines.KaedePhi.Utils;
+namespace KaedePhi.Tool.JudgeLines.Intermediate.Utils;
 
 /// <summary>
-/// KPC 判定线父子解绑处理器基类。
+/// IR 判定线父子解绑处理器基类。
 /// 封装缓存检查、父线递归解绑准备、通道合并及日志记录等共享逻辑，
 /// 具体采样策略由子类（等间隔 / 自适应）实现。
 /// </summary>

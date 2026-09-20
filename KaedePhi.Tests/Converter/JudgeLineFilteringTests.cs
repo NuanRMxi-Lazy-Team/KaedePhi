@@ -1,9 +1,9 @@
-using KaedePhi.Core.Common;
+using KaedePhi.Core.Primitives;
 using KaedePhi.Tool.Converter.PhiEdit;
 using KaedePhi.Tool.Converter.PhiEdit.Model;
 using KaedePhi.Tool.Converter.Phigros.v3;
 using KaedePhi.Tool.Converter.Phigros.v3.Model;
-using Kpc = KaedePhi.Core.KaedePhi;
+using Ir = KaedePhi.Core.Intermediate;
 
 namespace KaedePhi.Tests.Converter;
 
@@ -14,21 +14,21 @@ public class JudgeLineFilteringTests
     [InlineData(true, false)]
     [InlineData(false, true)]
     [InlineData(true, true)]
-    public void PhiEditFromKpc_FiltersOnlyLinesMatchingEnabledOptions(
+    public void PhiEditFromIr_FiltersOnlyLinesMatchingEnabledOptions(
         bool removeTextureLine,
         bool removeAttachUiLine
     )
     {
-        var options = new KpcToPhiEditConvertOptions
+        var options = new IrToPhiEditConvertOptions
         {
-            LineFilter = new KpcToPhiEditConvertOptions.LineFilterOptions
+            LineFilter = new IrToPhiEditConvertOptions.LineFilterOptions
             {
                 RemoveTextureLine = removeTextureLine,
                 RemoveAttachUiLine = removeAttachUiLine,
             },
         };
 
-        var result = new PhiEditConverter().FromKpc(CreateSourceChart(), options);
+        var result = new PhiEditConverter().FromIr(CreateSourceChart(), options);
         var expectedBeats = GetExpectedMarkerBeats(removeTextureLine, removeAttachUiLine);
 
         result.JudgeLineList.Should().HaveCount(expectedBeats.Count);
@@ -49,21 +49,21 @@ public class JudgeLineFilteringTests
     [InlineData(true, false)]
     [InlineData(false, true)]
     [InlineData(true, true)]
-    public void PhigrosFromKpc_FiltersOnlyLinesMatchingEnabledOptions(
+    public void PhigrosFromIr_FiltersOnlyLinesMatchingEnabledOptions(
         bool removeTextureLine,
         bool removeAttachUiLine
     )
     {
-        var options = new KpcToPhigrosV3ConvertOptions
+        var options = new IrToPhigrosV3ConvertOptions
         {
-            LineFilter = new KpcToPhigrosV3ConvertOptions.LineFilterOptions
+            LineFilter = new IrToPhigrosV3ConvertOptions.LineFilterOptions
             {
                 RemoveTextureLine = removeTextureLine,
                 RemoveAttachUiLine = removeAttachUiLine,
             },
         };
 
-        var result = new PhigrosV3Converter().FromKpc(CreateSourceChart(), options);
+        var result = new PhigrosV3Converter().FromIr(CreateSourceChart(), options);
         var expectedBeats = GetExpectedMarkerBeats(removeTextureLine, removeAttachUiLine);
 
         result.JudgeLineList.Should().HaveCount(expectedBeats.Count);
@@ -80,9 +80,9 @@ public class JudgeLineFilteringTests
             .Equal(expectedBeats.Select(beat => beat * 32));
     }
 
-    private static Kpc.Chart CreateSourceChart()
+    private static Ir.Chart CreateSourceChart()
     {
-        return new Kpc.Chart
+        return new Ir.Chart
         {
             JudgeLineList =
             [
@@ -93,19 +93,19 @@ public class JudgeLineFilteringTests
         };
     }
 
-    private static Kpc.JudgeLine CreateLine(
+    private static Ir.JudgeLine CreateLine(
         int markerBeat,
         string texture = CoreConstants.DefaultTexture,
         AttachUi? attachUi = null
     )
     {
-        return new Kpc.JudgeLine
+        return new Ir.JudgeLine
         {
             Texture = texture,
             AttachUi = attachUi,
             Notes =
             [
-                new Kpc.Note { StartBeat = new Beat(markerBeat), EndBeat = new Beat(markerBeat) },
+                new Ir.Note { StartBeat = new Beat(markerBeat), EndBeat = new Beat(markerBeat) },
             ],
         };
     }

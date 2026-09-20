@@ -1,4 +1,4 @@
-using KaedePhi.Core.Common;
+using KaedePhi.Core.Primitives;
 using KaedePhi.Tool.Converter.RePhiEdit.Model;
 
 namespace KaedePhi.Tool.Converter.RePhiEdit.Utils;
@@ -10,7 +10,7 @@ public static class JudgeLineBuilder
     /// </summary>
     /// <param name="src"></param>
     /// <returns></returns>
-    public static Kpc.JudgeLine ConvertJudgeLine(Rpe.JudgeLine src) =>
+    public static Ir.JudgeLine ConvertJudgeLine(Rpe.JudgeLine src) =>
         new()
         {
             Name = src.Name,
@@ -26,7 +26,7 @@ public static class JudgeLineBuilder
             Notes = src.Notes is not null ? src.Notes.ConvertAll(NoteBuilder.ConvertNote) : [],
             EventLayers = src.EventLayers.ConvertAll(EventLayerBuilder.ConvertEventLayer),
             Extended =
-                EventLayerBuilder.ConvertExtendLayer(src.Extended) ?? new KpcEvents.ExtendLayer(),
+                EventLayerBuilder.ConvertExtendLayer(src.Extended) ?? new IrEvents.ExtendLayer(),
             PositionControls = src.PositionControls.ConvertAll(ControlBuilder.ConvertXControl),
             AlphaControls = src.AlphaControls.ConvertAll(ControlBuilder.ConvertAlphaControl),
             SizeControls = src.SizeControls.ConvertAll(ControlBuilder.ConvertSizeControl),
@@ -35,7 +35,7 @@ public static class JudgeLineBuilder
         };
 
     public static Rpe.JudgeLine ConvertJudgeLine(
-        Kpc.JudgeLine src,
+        Ir.JudgeLine src,
         ConvertOption.CuttingOptions options
     ) =>
         new()

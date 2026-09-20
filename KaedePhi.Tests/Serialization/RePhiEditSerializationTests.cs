@@ -1,7 +1,7 @@
-using KaedePhi.Core.Common;
-using KaedePhi.Core.RePhiEdit;
-using KaedePhi.Core.RePhiEdit.Controls;
-using KaedePhi.Core.RePhiEdit.Events;
+using KaedePhi.Core.Primitives;
+using KaedePhi.Core.Formats.RePhiEdit;
+using KaedePhi.Core.Formats.RePhiEdit.Controls;
+using KaedePhi.Core.Formats.RePhiEdit.Events;
 
 namespace KaedePhi.Tests.Serialization;
 

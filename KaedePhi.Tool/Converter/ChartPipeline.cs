@@ -8,7 +8,7 @@ namespace KaedePhi.Tool.Converter;
 public static class ChartPipeline
 {
     /// <summary>
-    /// 以指定输入和来源转换器开始一条转换管线，inOptions 为该转换器 ToKpc 所需的 option
+    /// 以指定输入和来源转换器开始一条转换管线，inOptions 为该转换器 ToIr 所需的 option
     /// </summary>
     public static ChartPipelineSource From<TIn, TInOptions, TOutOptions>(
         TIn input,
@@ -18,23 +18,23 @@ public static class ChartPipeline
     )
     {
         ct.ThrowIfCancellationRequested();
-        var kpc = converter.ToKpc(input, inOptions);
-        var normalized = KpcChartNormalizer.NormalizeAndValidateNoteEndBeats(kpc);
+        var ir = converter.ToIr(input, inOptions);
+        var normalized = IrChartNormalizer.NormalizeAndValidateNoteEndBeats(ir);
         return new ChartPipelineSource(normalized, ct);
     }
 }
 
 /// <summary>
-/// 管线中间态：已持有 KPC 中间格式，等待指定目标转换器
+/// 管线中间态：已持有 IR 中间格式，等待指定目标转换器
 /// </summary>
 public sealed class ChartPipelineSource
 {
-    private readonly Kpc.Chart _kpc;
+    private readonly Ir.Chart _ir;
     private readonly CancellationToken _ct;
 
-    internal ChartPipelineSource(Kpc.Chart kpc, CancellationToken ct)
+    internal ChartPipelineSource(Ir.Chart ir, CancellationToken ct)
     {
-        _kpc = kpc;
+        _ir = ir;
         _ct = ct;
     }
 
@@ -47,7 +47,7 @@ public sealed class ChartPipelineSource
     )
     {
         _ct.ThrowIfCancellationRequested();
-        var normalized = KpcChartNormalizer.NormalizeAndValidateNoteEndBeats(_kpc);
-        return toConverter.FromKpc(normalized, outOptions);
+        var normalized = IrChartNormalizer.NormalizeAndValidateNoteEndBeats(_ir);
+        return toConverter.FromIr(normalized, outOptions);
     }
 }

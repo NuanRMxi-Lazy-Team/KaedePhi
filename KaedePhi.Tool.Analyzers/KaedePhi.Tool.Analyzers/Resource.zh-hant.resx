@@ -160,6 +160,6 @@
     <value>渲染設定屬性 {0} 的值 {1} 非法，允許範圍：{2}。</value>
   </data>
   <data name="kpte_0013_description" xml:space="preserve">
-    <value>KpcRenderOptions 的數值屬性超出執行時允許範圍，會在渲染前拋出參數例外。</value>
+    <value>IrRenderOptions 的數值屬性超出執行時允許範圍，會在渲染前拋出參數例外。</value>
   </data>
 </root>

@@ -1,13 +1,13 @@
-using KaedePhi.Core.Common;
-using KaedePhi.Core.PhiChain.v6;
-using KaedePhi.Core.Utils;
-using KpcNoteType = KaedePhi.Core.Common.NoteType;
-using PhiChainNoteType = KaedePhi.Core.PhiChain.v6.NoteType;
+using KaedePhi.Core.Primitives;
+using KaedePhi.Core.Formats.PhiChain.v6;
+using KaedePhi.Core.Primitives.Mathematics;
+using IrNoteType = KaedePhi.Core.Primitives.NoteType;
+using PhiChainNoteType = KaedePhi.Core.Formats.PhiChain.v6.NoteType;
 
 namespace KaedePhi.Tool.Converter.PhiChain.Utils;
 
 /// <summary>
-/// PhiChain 与 KPC 音符之间的双向转换工具。
+/// PhiChain 与 IR 音符之间的双向转换工具。
 /// </summary>
 public static class NoteBuilder
 {
@@ -15,21 +15,21 @@ public static class NoteBuilder
     private const int MaximumExpandedNotes = 1_000_000;
 
     /// <summary>
-    /// 将 PhiChain 音符转换为 KPC 音符。
+    /// 将 PhiChain 音符转换为 IR 音符。
     /// </summary>
     /// <param name="src">PhiChain 音符</param>
-    /// <returns>KPC 音符</returns>
-    public static Kpc.Note ConvertNote(Note src)
+    /// <returns>IR 音符</returns>
+    public static Ir.Note ConvertNote(Note src)
     {
         if (src.Type == PhiChainNoteType.Hold && src.HoldBeat <= new Beat(0))
             throw new FormatException("PhiChain Hold 音符缺少有效的持续拍。");
 
-        var kpcNote = new Kpc.Note
+        var irNote = new Ir.Note
         {
             Above = src.Above,
             StartBeat = new Beat((int[])src.Beat),
             EndBeat = new Beat((int[])src.Beat),
-            PositionX = Transform.TransformToKpcX(src.X),
+            PositionX = Transform.TransformToIrX(src.X),
             SpeedMultiplier = src.Speed,
             Type = ConvertNoteType(src.Type),
         };
@@ -37,18 +37,18 @@ public static class NoteBuilder
         // Hold 音符需要设置 EndBeat
         if (src.Type == PhiChainNoteType.Hold)
         {
-            kpcNote.EndBeat = new Beat((int[])src.Beat) + new Beat((int[])src.HoldBeat);
+            irNote.EndBeat = new Beat((int[])src.Beat) + new Beat((int[])src.HoldBeat);
         }
 
-        return kpcNote;
+        return irNote;
     }
 
     /// <summary>
-    /// 将 KPC 音符转换为 PhiChain 音符。
+    /// 将 IR 音符转换为 PhiChain 音符。
     /// </summary>
-    /// <param name="src">KPC 音符</param>
+    /// <param name="src">IR 音符</param>
     /// <returns>PhiChain 音符</returns>
-    public static Note ConvertNote(Kpc.Note src)
+    public static Note ConvertNote(Ir.Note src)
     {
         var note = new Note
         {
@@ -60,7 +60,7 @@ public static class NoteBuilder
         };
 
         // Hold 音符需要设置 HoldBeat
-        if (src.Type == KpcNoteType.Hold)
+        if (src.Type == IrNoteType.Hold)
         {
             note.HoldBeat = new Beat((int[])(src.EndBeat - src.StartBeat));
         }
@@ -69,16 +69,16 @@ public static class NoteBuilder
     }
 
     /// <summary>
-    /// 检查 KPC 音符字段是否会被 PhiChain 丢弃，发出警告。
+    /// 检查 IR 音符字段是否会被 PhiChain 丢弃，发出警告。
     /// </summary>
-    /// <param name="src">KPC 音符</param>
+    /// <param name="src">IR 音符</param>
     /// <param name="warn">警告回调</param>
-    public static void WarnIfUnsupportedNoteFields(Kpc.Note src, Action<string>? warn)
+    public static void WarnIfUnsupportedNoteFields(Ir.Note src, Action<string>? warn)
     {
         if (warn == null)
             return;
 
-        var defaults = new Kpc.Note();
+        var defaults = new Ir.Note();
         if (src.Alpha != defaults.Alpha)
             warn($"PhiChain 不支持 Note.Alpha（值={src.Alpha}）");
         if (src.IsFake)
@@ -110,14 +110,14 @@ public static class NoteBuilder
     /// <param name="fromNote">起始音符</param>
     /// <param name="toNote">结束音符</param>
     /// <returns>展开后的音符列表</returns>
-    public static List<Kpc.Note> ExpandCurveNoteTrack(
+    public static List<Ir.Note> ExpandCurveNoteTrack(
         CurveNoteTrack track,
         Note fromNote,
         Note toNote,
         CancellationToken ct = default
     )
     {
-        var notes = new List<Kpc.Note>();
+        var notes = new List<Ir.Note>();
         var density = track.Density;
         if (density == 0)
             density = 16;
@@ -134,7 +134,7 @@ public static class NoteBuilder
         var totalBeats = endBeatVal - startBeatVal;
         var noteType = ConvertNoteType(track.NoteType);
         if (
-            noteType == KpcNoteType.Hold
+            noteType == IrNoteType.Hold
             && (track.HoldBeat is null || track.HoldBeat <= new Beat(0))
         )
             throw new FormatException("PhiChain Hold 曲线音符缺少有效的持续拍。");
@@ -160,17 +160,17 @@ public static class NoteBuilder
             var x = fromNote.X + (toNote.X - fromNote.X) * (float)easedT;
             var noteBeat = new Beat(beat);
 
-            var note = new Kpc.Note
+            var note = new Ir.Note
             {
                 Above = fromNote.Above,
                 StartBeat = noteBeat,
                 EndBeat = new Beat((int[])noteBeat),
-                PositionX = Transform.TransformToKpcX(x),
+                PositionX = Transform.TransformToIrX(x),
                 SpeedMultiplier = fromNote.Speed,
                 Type = noteType,
             };
 
-            if (noteType == KpcNoteType.Hold)
+            if (noteType == IrNoteType.Hold)
             {
                 note.EndBeat = noteBeat + new Beat((int[])track.HoldBeat!);
             }
@@ -228,9 +228,9 @@ public static class NoteBuilder
     {
         try
         {
-            var easingNumber = EasingConverter.ConvertToKpcEasingNumber(curve);
-            var kpcEasing = new Kpc.Easing(easingNumber);
-            return kpcEasing.Interpolate(0f, 1f, 0.0, 1.0, t);
+            var easingNumber = EasingConverter.ConvertToIrEasingNumber(curve);
+            var irEasing = new Ir.Easing(easingNumber);
+            return irEasing.Interpolate(0f, 1f, 0.0, 1.0, t);
         }
         catch (EasingConverter.EasingNotSupportedException)
         {
@@ -242,29 +242,29 @@ public static class NoteBuilder
     /// <summary>
     /// 转换音符类型。
     /// </summary>
-    private static KpcNoteType ConvertNoteType(PhiChainNoteType src)
+    private static IrNoteType ConvertNoteType(PhiChainNoteType src)
     {
         return src switch
         {
-            PhiChainNoteType.Tap => KpcNoteType.Tap,
-            PhiChainNoteType.Drag => KpcNoteType.Drag,
-            PhiChainNoteType.Hold => KpcNoteType.Hold,
-            PhiChainNoteType.Flick => KpcNoteType.Flick,
-            _ => KpcNoteType.Tap,
+            PhiChainNoteType.Tap => IrNoteType.Tap,
+            PhiChainNoteType.Drag => IrNoteType.Drag,
+            PhiChainNoteType.Hold => IrNoteType.Hold,
+            PhiChainNoteType.Flick => IrNoteType.Flick,
+            _ => IrNoteType.Tap,
         };
     }
 
     /// <summary>
     /// 转换音符类型（反向）。
     /// </summary>
-    private static PhiChainNoteType ConvertNoteType(KpcNoteType src)
+    private static PhiChainNoteType ConvertNoteType(IrNoteType src)
     {
         return src switch
         {
-            KpcNoteType.Tap => PhiChainNoteType.Tap,
-            KpcNoteType.Drag => PhiChainNoteType.Drag,
-            KpcNoteType.Hold => PhiChainNoteType.Hold,
-            KpcNoteType.Flick => PhiChainNoteType.Flick,
+            IrNoteType.Tap => PhiChainNoteType.Tap,
+            IrNoteType.Drag => PhiChainNoteType.Drag,
+            IrNoteType.Hold => PhiChainNoteType.Hold,
+            IrNoteType.Flick => PhiChainNoteType.Flick,
             _ => PhiChainNoteType.Tap,
         };
     }

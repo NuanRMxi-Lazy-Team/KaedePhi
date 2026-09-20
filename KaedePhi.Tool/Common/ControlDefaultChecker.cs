@@ -16,7 +16,7 @@ public static class ControlDefaultChecker
     /// <param name="controls">要检查的 Control 列表</param>
     /// <returns>如果与默认值一致则返回 true</returns>
     public static bool IsDefaultControls<T>(List<T>? controls)
-        where T : KpcControls.ControlBase
+        where T : IrControls.ControlBase
     {
         var defaultControls = GetDefaultControls<T>();
         if (controls == null || controls.Count != defaultControls.Count)
@@ -37,7 +37,7 @@ public static class ControlDefaultChecker
     /// <typeparam name="T">Control 类型</typeparam>
     /// <returns>默认值列表</returns>
     private static List<T> GetDefaultControls<T>()
-        where T : KpcControls.ControlBase
+        where T : IrControls.ControlBase
     {
         var defaultProperty = typeof(T).GetProperty(
             "Default",
@@ -65,7 +65,7 @@ public static class ControlDefaultChecker
     /// <param name="b">第二个 Control</param>
     /// <returns>如果相等则返回 true</returns>
     private static bool AreControlsEqual<T>(T a, T b)
-        where T : KpcControls.ControlBase
+        where T : IrControls.ControlBase
     {
         // 比较基类属性
         if ((int)a.Easing != (int)b.Easing)
@@ -85,43 +85,43 @@ public static class ControlDefaultChecker
     /// <param name="b">第二个 Control</param>
     /// <returns>如果特定属性相等则返回 true</returns>
     private static bool AreDerivedPropertiesEqual<T>(T a, T b)
-        where T : KpcControls.ControlBase
+        where T : IrControls.ControlBase
     {
         var type = typeof(T);
 
         // 处理已知的 Control 类型
-        if (type == typeof(KpcControls.XControl))
+        if (type == typeof(IrControls.XControl))
         {
-            var xa = (KpcControls.XControl)(object)a;
-            var xb = (KpcControls.XControl)(object)b;
+            var xa = (IrControls.XControl)(object)a;
+            var xb = (IrControls.XControl)(object)b;
             return Math.Abs(xa.Pos - xb.Pos) <= Constants.FloatEpsilon;
         }
 
-        if (type == typeof(KpcControls.AlphaControl))
+        if (type == typeof(IrControls.AlphaControl))
         {
-            var aa = (KpcControls.AlphaControl)(object)a;
-            var ab = (KpcControls.AlphaControl)(object)b;
+            var aa = (IrControls.AlphaControl)(object)a;
+            var ab = (IrControls.AlphaControl)(object)b;
             return Math.Abs(aa.Alpha - ab.Alpha) <= Constants.FloatEpsilon;
         }
 
-        if (type == typeof(KpcControls.SizeControl))
+        if (type == typeof(IrControls.SizeControl))
         {
-            var sa = (KpcControls.SizeControl)(object)a;
-            var sb = (KpcControls.SizeControl)(object)b;
+            var sa = (IrControls.SizeControl)(object)a;
+            var sb = (IrControls.SizeControl)(object)b;
             return Math.Abs(sa.Size - sb.Size) <= Constants.FloatEpsilon;
         }
 
-        if (type == typeof(KpcControls.SkewControl))
+        if (type == typeof(IrControls.SkewControl))
         {
-            var ska = (KpcControls.SkewControl)(object)a;
-            var skb = (KpcControls.SkewControl)(object)b;
+            var ska = (IrControls.SkewControl)(object)a;
+            var skb = (IrControls.SkewControl)(object)b;
             return Math.Abs(ska.Skew - skb.Skew) <= Constants.FloatEpsilon;
         }
 
-        if (type == typeof(KpcControls.YControl))
+        if (type == typeof(IrControls.YControl))
         {
-            var ya = (KpcControls.YControl)(object)a;
-            var yb = (KpcControls.YControl)(object)b;
+            var ya = (IrControls.YControl)(object)a;
+            var yb = (IrControls.YControl)(object)b;
             return Math.Abs(ya.Y - yb.Y) <= Constants.FloatEpsilon;
         }
 

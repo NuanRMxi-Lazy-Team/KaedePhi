@@ -1,8 +1,8 @@
-using KaedePhi.Core.PhiEdit;
-using KaedePhi.Core.Phigros.v3;
+using KaedePhi.Core.Formats.PhiEdit;
+using KaedePhi.Core.Formats.Phigros.v3;
 using Newtonsoft.Json;
-using PhigrosEvent = KaedePhi.Core.Phigros.v3.Event;
-using PhigrosSpeedEvent = KaedePhi.Core.Phigros.v3.SpeedEvent;
+using PhigrosEvent = KaedePhi.Core.Formats.Phigros.v3.Event;
+using PhigrosSpeedEvent = KaedePhi.Core.Formats.Phigros.v3.SpeedEvent;
 
 namespace KaedePhi.Tests.Compatibility;
 

@@ -1,13 +1,13 @@
-using KaedePhi.Core.Common;
-using KaedePhi.Core.PhiFans;
-using KpcNoteType = KaedePhi.Core.Common.NoteType;
-using PfNoteType = KaedePhi.Core.PhiFans.NoteType;
+using KaedePhi.Core.Primitives;
+using KaedePhi.Core.Formats.PhiFans;
+using IrNoteType = KaedePhi.Core.Primitives.NoteType;
+using PfNoteType = KaedePhi.Core.Formats.PhiFans.NoteType;
 
 namespace KaedePhi.Tool.Converter.PhiFans.Utils;
 
 internal static class NoteBuilder
 {
-    internal static Kpc.Note ConvertToKpc(Note src)
+    internal static Ir.Note ConvertToIr(Note src)
     {
         if (
             src.Type == PfNoteType.Hold
@@ -15,9 +15,9 @@ internal static class NoteBuilder
         )
             throw new FormatException("PhiFans Hold 音符缺少有效的结束拍。");
 
-        return new Kpc.Note
+        return new Ir.Note
         {
-            Type = MapToKpc(src.Type),
+            Type = MapToIr(src.Type),
             StartBeat = new Beat((int[])src.Beat),
             PositionX = src.PositionX / 100.0,
             SpeedMultiplier = src.Speed,
@@ -26,10 +26,10 @@ internal static class NoteBuilder
         };
     }
 
-    internal static Note ConvertFromKpc(Kpc.Note src) =>
+    internal static Note ConvertFromIr(Ir.Note src) =>
         new()
         {
-            Type = MapFromKpc(src.Type),
+            Type = MapFromIr(src.Type),
             Beat = new Beat((int[])src.StartBeat),
             PositionX = (float)(src.PositionX * 100.0),
             Speed = src.SpeedMultiplier,
@@ -38,23 +38,23 @@ internal static class NoteBuilder
         };
 
     /// <summary>
-    /// 将 PhiFans NoteType (Tap=1, Drag=2, Hold=3, Flick=4) 映射为 KPC NoteType (Tap=1, Hold=2, Flick=3, Drag=4)。
+    /// 将 PhiFans NoteType (Tap=1, Drag=2, Hold=3, Flick=4) 映射为 IR NoteType (Tap=1, Hold=2, Flick=3, Drag=4)。
     /// </summary>
-    private static KpcNoteType MapToKpc(PfNoteType pfType) =>
+    private static IrNoteType MapToIr(PfNoteType pfType) =>
         pfType switch
         {
-            PfNoteType.Drag => KpcNoteType.Drag,
-            PfNoteType.Hold => KpcNoteType.Hold,
-            PfNoteType.Flick => KpcNoteType.Flick,
-            _ => KpcNoteType.Tap,
+            PfNoteType.Drag => IrNoteType.Drag,
+            PfNoteType.Hold => IrNoteType.Hold,
+            PfNoteType.Flick => IrNoteType.Flick,
+            _ => IrNoteType.Tap,
         };
 
-    private static PfNoteType MapFromKpc(KpcNoteType kpcType) =>
-        kpcType switch
+    private static PfNoteType MapFromIr(IrNoteType irType) =>
+        irType switch
         {
-            KpcNoteType.Drag => PfNoteType.Drag,
-            KpcNoteType.Hold => PfNoteType.Hold,
-            KpcNoteType.Flick => PfNoteType.Flick,
+            IrNoteType.Drag => PfNoteType.Drag,
+            IrNoteType.Hold => PfNoteType.Hold,
+            IrNoteType.Flick => PfNoteType.Flick,
             _ => PfNoteType.Tap,
         };
 }

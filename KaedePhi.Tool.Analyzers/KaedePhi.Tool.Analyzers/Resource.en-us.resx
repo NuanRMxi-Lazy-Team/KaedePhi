@@ -160,6 +160,6 @@
     <value>The render option property {0} has the invalid value {1}; allowed range: {2}.</value>
   </data>
   <data name="kpte_0013_description" xml:space="preserve">
-    <value>KpcRenderOptions numeric properties outside the allowed range throw before rendering.</value>
+    <value>IrRenderOptions numeric properties outside the allowed range throw before rendering.</value>
   </data>
 </root>

@@ -1,23 +1,23 @@
-using KaedePhi.Core.Common;
+using KaedePhi.Core.Primitives;
 using KaedePhi.Tool.Common;
 using KaedePhi.Tool.Converter.Phigros.v3.Model;
-using KaedePhi.Tool.JudgeLines.KaedePhi;
-using KaedePhi.Tool.Layer.KaedePhi;
-using KpcEventLayer = KaedePhi.Core.KaedePhi.Events.EventLayer;
-using KpcJudgeLine = KaedePhi.Core.KaedePhi.JudgeLine;
-using PhigrosEvent = KaedePhi.Core.Phigros.v3.Event;
-using PhigrosJudgeLine = KaedePhi.Core.Phigros.v3.JudgeLine;
+using KaedePhi.Tool.JudgeLines.Intermediate;
+using KaedePhi.Tool.Layer.Intermediate;
+using IrEventLayer = KaedePhi.Core.Intermediate.Events.EventLayer;
+using IrJudgeLine = KaedePhi.Core.Intermediate.JudgeLine;
+using PhigrosEvent = KaedePhi.Core.Formats.Phigros.v3.Event;
+using PhigrosJudgeLine = KaedePhi.Core.Formats.Phigros.v3.JudgeLine;
 
 namespace KaedePhi.Tool.Converter.Phigros.v3.Utils;
 
 /// <summary>
-/// KPC 判定线到 PhigrosV3 判定线的构建器。
+/// IR 判定线到 PhigrosV3 判定线的构建器。
 /// </summary>
 public class PhigrosV3JudgeLineBuilder
 {
     private const float PhigrosTimePerBeat = 32f;
 
-    private readonly KpcToPhigrosV3ConvertOptions _options;
+    private readonly IrToPhigrosV3ConvertOptions _options;
     private readonly PhigrosV3EventBuilder _phigrosV3EventBuilder;
     private readonly LayerProcessor _layerProcessor = new();
     private readonly float _globalBpm;
@@ -27,7 +27,7 @@ public class PhigrosV3JudgeLineBuilder
     private readonly Action<string>? _warnLogger;
 
     public PhigrosV3JudgeLineBuilder(
-        KpcToPhigrosV3ConvertOptions options,
+        IrToPhigrosV3ConvertOptions options,
         float globalBpm,
         float chartEndTime,
         Action<string>? warnLogger
@@ -42,7 +42,7 @@ public class PhigrosV3JudgeLineBuilder
         ) { }
 
     internal PhigrosV3JudgeLineBuilder(
-        KpcToPhigrosV3ConvertOptions options,
+        IrToPhigrosV3ConvertOptions options,
         PhigrosV3TimeMapper timeMapper,
         Beat chartEndBeat,
         Action<string>? warnLogger
@@ -50,7 +50,7 @@ public class PhigrosV3JudgeLineBuilder
         : this(options, PhigrosV3TimeMapper.TargetBpm, chartEndBeat, 0f, timeMapper, warnLogger) { }
 
     private PhigrosV3JudgeLineBuilder(
-        KpcToPhigrosV3ConvertOptions options,
+        IrToPhigrosV3ConvertOptions options,
         float globalBpm,
         Beat chartEndBeat,
         float chartEndTime,
@@ -68,12 +68,12 @@ public class PhigrosV3JudgeLineBuilder
     }
 
     /// <summary>
-    /// 将 KPC 判定线转换为 Phigros V3 判定线。
+    /// 将 IR 判定线转换为 Phigros V3 判定线。
     /// </summary>
-    /// <param name="src">待转换的 KPC 判定线</param>
+    /// <param name="src">待转换的 IR 判定线</param>
     /// <param name="allLine">用于解除父子绑定的原始判定线列表</param>
     /// <returns>转换后的 Phigros V3 判定线；匹配过滤条件时返回空值</returns>
-    public PhigrosJudgeLine? ConvertJudgeLine(KpcJudgeLine src, List<KpcJudgeLine> allLine)
+    public PhigrosJudgeLine? ConvertJudgeLine(IrJudgeLine src, List<IrJudgeLine> allLine)
     {
         WarnIfUnsupportedJudgeLineFields(src);
         WarnIfUnsupportedFloorPosition(src);
@@ -172,7 +172,7 @@ public class PhigrosV3JudgeLineBuilder
         return phigrosLine;
     }
 
-    private void WarnIfUnsupportedFloorPosition(KpcJudgeLine line)
+    private void WarnIfUnsupportedFloorPosition(IrJudgeLine line)
     {
         if (line.Notes.Any(note => note.FloorPosition != 0f || note.EndFloorPosition != 0f))
             Warn(
@@ -191,7 +191,7 @@ public class PhigrosV3JudgeLineBuilder
             Warn("PhigrosV3 不支持 Event.FloorPosition，将丢弃该字段并输出 0。");
     }
 
-    private static bool HasFloorPosition<T>(List<KpcEvents.Event<T>>? events)
+    private static bool HasFloorPosition<T>(List<IrEvents.Event<T>>? events)
         where T : notnull => events?.Any(evt => evt.FloorPosition != 0f) == true;
 
     #region 负不透明度段判定线抬高
@@ -200,7 +200,7 @@ public class PhigrosV3JudgeLineBuilder
     /// 对判定线中不透明度为负值的时间段，将判定线 Y 坐标抬高至屏幕外。
     /// 若判定线有旋转角度，则进行类父线解绑操作，保证抬高方向为屏幕上方（而非直接对 Y 轴做加法）。
     /// </summary>
-    private void ApplyNegativeAlphaElevation(KpcJudgeLine line)
+    private void ApplyNegativeAlphaElevation(IrJudgeLine line)
     {
         if (line.EventLayers is not { Count: > 0 })
             return;
@@ -219,12 +219,12 @@ public class PhigrosV3JudgeLineBuilder
             return;
 
         var angle = GetRepresentativeAngle(layer.RotateEvents);
-        var elevationKpcY = ComputeElevationKpcY(angle);
+        var elevationIrY = ComputeElevationIrY(angle);
         var renderProfile = _options.NegativeAlpha.RenderProfile;
         var fillLength = new Beat(1d / _options.MultiLayerMerge.Precision);
 
         Warn(
-            $"判定线存在 {negativeSegments.Count} 个负不透明度段，将抬高判定线至屏幕外（角度={angle:F1}°, ΔKPC_Y={elevationKpcY:F4}）"
+            $"判定线存在 {negativeSegments.Count} 个负不透明度段，将抬高判定线至屏幕外（角度={angle:F1}°, ΔIR_Y={elevationIrY:F4}）"
         );
 
         foreach (var (segStart, segEnd) in negativeSegments)
@@ -237,7 +237,7 @@ public class PhigrosV3JudgeLineBuilder
             var attempts = 0;
             while (IsOnScreen(screenPos.X, elevatedY, angle, renderProfile) && attempts < 100)
             {
-                elevatedY += elevationKpcY;
+                elevatedY += elevationIrY;
                 attempts++;
             }
 
@@ -256,7 +256,7 @@ public class PhigrosV3JudgeLineBuilder
     /// 跨零点事件会在零点处拆分，仅返回负值区间。
     /// </summary>
     private List<(Beat Start, Beat End)> CollectNegativeAlphaSegments(
-        List<KpcEvents.Event<int>> alphaEvents
+        List<IrEvents.Event<int>> alphaEvents
     )
     {
         if (alphaEvents.Count == 0)
@@ -350,7 +350,7 @@ public class PhigrosV3JudgeLineBuilder
     /// <summary>
     /// 根据事件实际插值计算 alpha 事件穿越零点的拍位置。
     /// </summary>
-    private static Beat FindZeroCrossingBeat(KpcEvents.Event<int> ev)
+    private static Beat FindZeroCrossingBeat(IrEvents.Event<int> ev)
     {
         var startBeat = (double)ev.StartBeat;
         var endBeat = (double)ev.EndBeat;
@@ -387,7 +387,7 @@ public class PhigrosV3JudgeLineBuilder
     /// <summary>
     /// 获取旋转事件中绝对值最大的角度（最坏情况估计）。
     /// </summary>
-    private static double GetRepresentativeAngle(List<KpcEvents.Event<double>>? rotateEvents)
+    private static double GetRepresentativeAngle(List<IrEvents.Event<double>>? rotateEvents)
     {
         if (rotateEvents is not { Count: > 0 })
             return 0;
@@ -407,17 +407,17 @@ public class PhigrosV3JudgeLineBuilder
     }
 
     /// <summary>
-    /// 计算抬高操作所需的 KPC Y 偏移量。
+    /// 计算抬高操作所需的 IR Y 偏移量。
     /// 无旋转时直接使用配置的抬高步长；有旋转时根据角度缩放，保证屏幕 Y 方向位移一致。
     /// </summary>
-    private double ComputeElevationKpcY(double angleDegrees)
+    private double ComputeElevationIrY(double angleDegrees)
     {
         var step = _options.NegativeAlpha.ElevationStep;
         if (Math.Abs(angleDegrees) < Constants.FloatEpsilon)
             return step;
 
         // 有旋转时，抬高方向在判定线局部坐标系的 +Y 方向；
-        // 屏幕 Y 位移 = ΔKPC_Y × cos(θ)，因此 ΔKPC_Y = step / cos(θ)
+        // 屏幕 Y 位移 = ΔIR_Y × cos(θ)，因此 ΔIR_Y = step / cos(θ)
         var rad = angleDegrees * (Math.PI / 180d);
         var cos = Math.Abs(Math.Cos(rad));
         if (cos < 1e-6)
@@ -429,7 +429,7 @@ public class PhigrosV3JudgeLineBuilder
     /// <summary>
     /// 获取指定拍点上判定线的屏幕坐标。
     /// </summary>
-    private static (double X, double Y) GetScreenPosition(KpcEventLayer layer, Beat beat)
+    private static (double X, double Y) GetScreenPosition(IrEventLayer layer, Beat beat)
     {
         var x = layer.MoveXEvents is { Count: > 0 }
             ? GetCurrentValueAtBeat(layer.MoveXEvents, beat)
@@ -441,25 +441,25 @@ public class PhigrosV3JudgeLineBuilder
     }
 
     /// <summary>
-    /// 判断 KPC 坐标点在考虑旋转后是否仍在屏幕内。
+    /// 判断 IR 坐标点在考虑旋转后是否仍在屏幕内。
     /// </summary>
     private static bool IsOnScreen(
-        double kpcX,
-        double kpcY,
+        double irX,
+        double irY,
         double angleDegrees,
         CoordinateProfile renderProfile
     )
     {
-        var (absoluteKpcX, absoluteKpcY) = CoordinateGeometry.GetKpcAbsolutePos(
+        var (absoluteIrX, absoluteIrY) = CoordinateGeometry.GetIrAbsolutePos(
             0,
             0,
             angleDegrees,
-            kpcX,
-            kpcY,
+            irX,
+            irY,
             renderProfile
         );
-        var renderX = CoordinateGeometry.ToTargetX(absoluteKpcX, renderProfile);
-        var renderY = CoordinateGeometry.ToTargetY(absoluteKpcY, renderProfile);
+        var renderX = CoordinateGeometry.ToTargetX(absoluteIrX, renderProfile);
+        var renderY = CoordinateGeometry.ToTargetY(absoluteIrY, renderProfile);
         return renderX >= renderProfile.MinX
             && renderX <= renderProfile.MaxX
             && renderY >= renderProfile.MinY
@@ -469,7 +469,7 @@ public class PhigrosV3JudgeLineBuilder
     /// <summary>
     /// 在指定拍点获取事件列表的当前值（二分查找）。
     /// </summary>
-    private static double GetCurrentValueAtBeat(List<KpcEvents.Event<double>>? events, Beat beat)
+    private static double GetCurrentValueAtBeat(List<IrEvents.Event<double>>? events, Beat beat)
     {
         if (events is not { Count: > 0 })
             return 0;
@@ -500,7 +500,7 @@ public class PhigrosV3JudgeLineBuilder
     /// 若段内无 MoveY 事件覆盖，则填充单个常量偏移事件。
     /// </summary>
     private static void ApplyYOffsetToLayer(
-        KpcEventLayer layer,
+        IrEventLayer layer,
         Beat segStart,
         Beat segEnd,
         double deltaY,
@@ -512,7 +512,7 @@ public class PhigrosV3JudgeLineBuilder
 
         if (layer.MoveYEvents is not { Count: > 0 })
         {
-            var events = new List<KpcEvents.Event<double>>
+            var events = new List<IrEvents.Event<double>>
             {
                 new()
                 {
@@ -525,7 +525,7 @@ public class PhigrosV3JudgeLineBuilder
             // 回正事件
             var resetEnd = segEnd + fillLength;
             events.Add(
-                new KpcEvents.Event<double>
+                new IrEvents.Event<double>
                 {
                     StartBeat = segEnd,
                     EndBeat = resetEnd,
@@ -538,7 +538,7 @@ public class PhigrosV3JudgeLineBuilder
         }
 
         var sourceEvents = layer.MoveYEvents.OrderBy(e => e.StartBeat).ToList();
-        var result = new List<KpcEvents.Event<double>>();
+        var result = new List<IrEvents.Event<double>>();
         foreach (var ev in sourceEvents)
         {
             // 事件与段无重叠 → 原样保留
@@ -552,7 +552,7 @@ public class PhigrosV3JudgeLineBuilder
             if (ev.StartBeat < segStart)
             {
                 result.Add(
-                    new KpcEvents.Event<double>
+                    new IrEvents.Event<double>
                     {
                         StartBeat = ev.StartBeat,
                         EndBeat = segStart,
@@ -573,7 +573,7 @@ public class PhigrosV3JudgeLineBuilder
             if (innerStart < innerEnd)
             {
                 result.Add(
-                    new KpcEvents.Event<double>
+                    new IrEvents.Event<double>
                     {
                         StartBeat = innerStart,
                         EndBeat = innerEnd,
@@ -592,7 +592,7 @@ public class PhigrosV3JudgeLineBuilder
             if (ev.EndBeat > segEnd)
             {
                 result.Add(
-                    new KpcEvents.Event<double>
+                    new IrEvents.Event<double>
                     {
                         StartBeat = segEnd,
                         EndBeat = ev.EndBeat,
@@ -619,7 +619,7 @@ public class PhigrosV3JudgeLineBuilder
         {
             var originalYAtEnd = GetCurrentValueAtBeat(sourceEvents, segEnd);
             result.Add(
-                new KpcEvents.Event<double>
+                new IrEvents.Event<double>
                 {
                     StartBeat = segEnd,
                     EndBeat = restoreEnd,
@@ -637,8 +637,8 @@ public class PhigrosV3JudgeLineBuilder
     /// 在指定范围内检测空隙，并填充叠加原始 Y 值后的常量偏移事件。
     /// </summary>
     private static void FillGapsInRange(
-        List<KpcEvents.Event<double>> events,
-        List<KpcEvents.Event<double>> sourceEvents,
+        List<IrEvents.Event<double>> events,
+        List<IrEvents.Event<double>> sourceEvents,
         Beat segStart,
         Beat segEnd,
         double deltaY
@@ -667,7 +667,7 @@ public class PhigrosV3JudgeLineBuilder
             {
                 var baseValue = GetCurrentValueAtBeat(sourceEvents, cursor) + deltaY;
                 events.Add(
-                    new KpcEvents.Event<double>
+                    new IrEvents.Event<double>
                     {
                         StartBeat = cursor,
                         EndBeat = s,
@@ -687,7 +687,7 @@ public class PhigrosV3JudgeLineBuilder
         {
             var baseValue = GetCurrentValueAtBeat(sourceEvents, cursor) + deltaY;
             events.Add(
-                new KpcEvents.Event<double>
+                new IrEvents.Event<double>
                 {
                     StartBeat = cursor,
                     EndBeat = segEnd,
@@ -704,7 +704,7 @@ public class PhigrosV3JudgeLineBuilder
 
     #endregion
 
-    private void WarnIfUnsupportedJudgeLineFields(KpcJudgeLine src)
+    private void WarnIfUnsupportedJudgeLineFields(IrJudgeLine src)
     {
         var textureRemoveHint = _options.LineFilter.RemoveTextureLine ? "判定线将被自动移除。" : "";
         var attachUiRemoveHint = _options.LineFilter.RemoveAttachUiLine
@@ -738,7 +738,7 @@ public class PhigrosV3JudgeLineBuilder
     /// <summary>
     /// 检查判定线中 PhigrosV3 不支持的控件字段，并逐项告警。
     /// </summary>
-    private void WarnIfUnsupportedControlFields(KpcJudgeLine src)
+    private void WarnIfUnsupportedControlFields(IrJudgeLine src)
     {
         if (HasNonDefaultExtendLayer(src.Extended))
             Warn("PhigrosV3 不支持 JudgeLine.Extended（包含非默认数据）");
@@ -754,7 +754,7 @@ public class PhigrosV3JudgeLineBuilder
             Warn("PhigrosV3 不支持 JudgeLine.YControls（包含非默认数据）");
     }
 
-    private static bool HasNonDefaultExtendLayer(KpcEvents.ExtendLayer? layer) =>
+    private static bool HasNonDefaultExtendLayer(IrEvents.ExtendLayer? layer) =>
         layer != null
         && (
             (layer.ColorEvents?.Count ?? 0) > 0

@@ -20,7 +20,7 @@ public sealed class ToleranceAnalyzerTests
             {
                 public static void Run()
                 {
-                    var fit = new KaedePhi.Tool.Event.KaedePhi.EventFit<double>();
+                    var fit = new KaedePhi.Tool.Event.Intermediate.EventFit<double>();
                     fit.FitEvents(new List<double>(), {|#0:101d|});
                 }
             }
@@ -33,7 +33,7 @@ public sealed class ToleranceAnalyzerTests
                 }
             }
 
-            namespace KaedePhi.Tool.Event.KaedePhi
+            namespace KaedePhi.Tool.Event.Intermediate
             {
                 public sealed class EventFit<T> : IEventFit<T>
                 {
@@ -60,7 +60,7 @@ public sealed class ToleranceAnalyzerTests
             {
                 public static void Run()
                 {
-                    var compressor = new KaedePhi.Tool.Event.KaedePhi.EventCompressor<double>();
+                    var compressor = new KaedePhi.Tool.Event.Intermediate.EventCompressor<double>();
                     compressor.EventListCompressSlope(new List<double>(), {|#0:-1d|});
                 }
             }
@@ -74,7 +74,7 @@ public sealed class ToleranceAnalyzerTests
                 }
             }
 
-            namespace KaedePhi.Tool.Event.KaedePhi
+            namespace KaedePhi.Tool.Event.Intermediate
             {
                 public sealed class EventCompressor<T> : IEventCompressor<T>
                 {
@@ -102,7 +102,7 @@ public sealed class ToleranceAnalyzerTests
             {
                 public static void Run()
                 {
-                    var processor = new KaedePhi.Tool.Layer.KaedePhi.LayerProcessor();
+                    var processor = new KaedePhi.Tool.Layer.Intermediate.LayerProcessor();
                     processor.LayerMergePlus(new List<object>(), 64d, {|#0:0d|});
                 }
             }
@@ -115,7 +115,7 @@ public sealed class ToleranceAnalyzerTests
                 }
             }
 
-            namespace KaedePhi.Tool.Layer.KaedePhi
+            namespace KaedePhi.Tool.Layer.Intermediate
             {
                 public sealed class LayerProcessor : ILayerProcessor<object>
                 {
@@ -142,7 +142,7 @@ public sealed class ToleranceAnalyzerTests
             {
                 public static void Run()
                 {
-                    var processor = new KaedePhi.Tool.Layer.KaedePhi.LayerProcessor();
+                    var processor = new KaedePhi.Tool.Layer.Intermediate.LayerProcessor();
                     processor.LayerEventsCompress(new object(), 0.5d);
                 }
             }
@@ -155,7 +155,7 @@ public sealed class ToleranceAnalyzerTests
                 }
             }
 
-            namespace KaedePhi.Tool.Layer.KaedePhi
+            namespace KaedePhi.Tool.Layer.Intermediate
             {
                 public sealed class LayerProcessor : ILayerProcessor<object>
                 {

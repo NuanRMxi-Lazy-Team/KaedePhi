@@ -21,7 +21,7 @@ public sealed class JudgeLineUnbinderAnalyzerTests
                 public static void Run()
                 {
                     KaedePhi.Tool.JudgeLines.IJudgeLineUnbinder<JudgeLine> unbinder =
-                        new KaedePhi.Tool.JudgeLines.KaedePhi.JudgeLineUnbinder();
+                        new KaedePhi.Tool.JudgeLines.Intermediate.JudgeLineUnbinder();
                     unbinder.FatherUnbindDynamic(0, new List<JudgeLine>(), 16d, 100d, 100d);
                 }
             }
@@ -44,7 +44,7 @@ public sealed class JudgeLineUnbinderAnalyzerTests
                 }
             }
 
-            namespace KaedePhi.Tool.JudgeLines.KaedePhi
+            namespace KaedePhi.Tool.JudgeLines.Intermediate
             {
                 public sealed class JudgeLineUnbinder : IJudgeLineUnbinder<global::JudgeLine>
                 {
@@ -82,7 +82,7 @@ public sealed class JudgeLineUnbinderAnalyzerTests
             {
                 public static void Run()
                 {
-                    var unbinder = new KaedePhi.Tool.JudgeLines.KaedePhi.JudgeLineUnbinder();
+                    var unbinder = new KaedePhi.Tool.JudgeLines.Intermediate.JudgeLineUnbinder();
                     unbinder.FatherUnbindDynamic(0, new List<JudgeLine>(), 16d, 100d, 5d);
                 }
             }
@@ -105,7 +105,7 @@ public sealed class JudgeLineUnbinderAnalyzerTests
                 }
             }
 
-            namespace KaedePhi.Tool.JudgeLines.KaedePhi
+            namespace KaedePhi.Tool.JudgeLines.Intermediate
             {
                 public sealed class JudgeLineUnbinder : IJudgeLineUnbinder<global::JudgeLine>
                 {
@@ -138,7 +138,7 @@ public sealed class JudgeLineUnbinderAnalyzerTests
             {
                 public static void Run()
                 {
-                    var unbinder = new KaedePhi.Tool.JudgeLines.KaedePhi.JudgeLineUnbinder();
+                    var unbinder = new KaedePhi.Tool.JudgeLines.Intermediate.JudgeLineUnbinder();
                     unbinder.FatherUnbindDynamic(0, new List<JudgeLine>(), 16d, 0.01d, 1d);
                 }
             }
@@ -161,7 +161,7 @@ public sealed class JudgeLineUnbinderAnalyzerTests
                 }
             }
 
-            namespace KaedePhi.Tool.JudgeLines.KaedePhi
+            namespace KaedePhi.Tool.JudgeLines.Intermediate
             {
                 public sealed class JudgeLineUnbinder : IJudgeLineUnbinder<global::JudgeLine>
                 {
@@ -189,7 +189,7 @@ public sealed class JudgeLineUnbinderAnalyzerTests
             {
                 public static void Run()
                 {
-                    var unbinder = new KaedePhi.Tool.JudgeLines.KaedePhi.JudgeLineUnbinder();
+                    var unbinder = new KaedePhi.Tool.JudgeLines.Intermediate.JudgeLineUnbinder();
                     unbinder.FatherUnbindDynamic(0, new List<JudgeLine>(), 16d, 0d, 0d);
                 }
             }
@@ -212,7 +212,7 @@ public sealed class JudgeLineUnbinderAnalyzerTests
                 }
             }
 
-            namespace KaedePhi.Tool.JudgeLines.KaedePhi
+            namespace KaedePhi.Tool.JudgeLines.Intermediate
             {
                 public sealed class JudgeLineUnbinder : IJudgeLineUnbinder<global::JudgeLine>
                 {
@@ -245,7 +245,7 @@ public sealed class JudgeLineUnbinderAnalyzerTests
             {
                 public static void Run()
                 {
-                    var unbinder = new KaedePhi.Tool.JudgeLines.KaedePhi.JudgeLineUnbinder();
+                    var unbinder = new KaedePhi.Tool.JudgeLines.Intermediate.JudgeLineUnbinder();
                     unbinder.FatherUnbindDynamic(0, new List<JudgeLine>(), 16d, 0.001d, 1d);
                 }
             }
@@ -268,7 +268,7 @@ public sealed class JudgeLineUnbinderAnalyzerTests
                 }
             }
 
-            namespace KaedePhi.Tool.JudgeLines.KaedePhi
+            namespace KaedePhi.Tool.JudgeLines.Intermediate
             {
                 public sealed class JudgeLineUnbinder : IJudgeLineUnbinder<global::JudgeLine>
                 {

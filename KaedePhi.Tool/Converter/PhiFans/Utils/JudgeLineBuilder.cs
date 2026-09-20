@@ -1,8 +1,8 @@
-using KaedePhi.Core.Common;
-using KaedePhi.Core.PhiFans;
+using KaedePhi.Core.Primitives;
+using KaedePhi.Core.Formats.PhiFans;
 using KaedePhi.Tool.Common;
 using KaedePhi.Tool.Converter.PhiFans.Model;
-using KaedePhi.Tool.Layer.KaedePhi;
+using KaedePhi.Tool.Layer.Intermediate;
 
 namespace KaedePhi.Tool.Converter.PhiFans.Utils;
 
@@ -11,11 +11,11 @@ internal static class JudgeLineBuilder
     // 此值为粗略估算，并非严谨计算后得出的内容，请知悉。
     private const float SpeedRatio = 7.15f;
 
-    internal static Kpc.JudgeLine ConvertToKpc(Line src)
+    internal static Ir.JudgeLine ConvertToIr(Line src)
     {
-        var line = new Kpc.JudgeLine { Notes = src.NoteList.ConvertAll(NoteBuilder.ConvertToKpc) };
+        var line = new Ir.JudgeLine { Notes = src.NoteList.ConvertAll(NoteBuilder.ConvertToIr) };
 
-        var layer = new KpcEvents.EventLayer();
+        var layer = new IrEvents.EventLayer();
         var props = src.Props;
 
         if (props.Speed.Count > 0)
@@ -39,7 +39,7 @@ internal static class JudgeLineBuilder
         if (props.Rotate.Count > 0)
             layer.RotateEvents = EventBuilder.ConvertPhiFansEventsToDouble(
                 props.Rotate,
-                v => CoordinateGeometry.ToKpcAngle(v, CoordinateProfile.PhiFansProfile)
+                v => CoordinateGeometry.ToIrAngle(v, CoordinateProfile.PhiFansProfile)
             );
 
         if (props.Alpha.Count > 0)
@@ -49,9 +49,9 @@ internal static class JudgeLineBuilder
         return line;
     }
 
-    internal static Line ConvertFromKpc(Kpc.JudgeLine src, KpcToPhiFansConvertOptions options)
+    internal static Line ConvertFromIr(Ir.JudgeLine src, IrToPhiFansConvertOptions options)
     {
-        var line = new Line { NoteList = src.Notes.ConvertAll(NoteBuilder.ConvertFromKpc) };
+        var line = new Line { NoteList = src.Notes.ConvertAll(NoteBuilder.ConvertFromIr) };
         var sourceLayers = src.EventLayers.ConvertAll(layer => layer.Clone());
         foreach (var sourceLayer in sourceLayers)
             sourceLayer.Sort();
@@ -59,7 +59,7 @@ internal static class JudgeLineBuilder
         foreach (var mergeLayer in layers)
             EventBuilder.RemoveInstantEvents(mergeLayer);
         var layerProcessor = new LayerProcessor();
-        KpcEvents.EventLayer layer;
+        IrEvents.EventLayer layer;
         if (options.MultiLayerMerge.ClassicMode)
         {
             layer = layerProcessor.LayerMerge(layers, options.MultiLayerMerge.Precision);
@@ -121,53 +121,53 @@ internal static class JudgeLineBuilder
             foreach (
                 var e in EventBuilder.ExpandUnsupportedEvents(layer.AlphaEvents, cutLength, false)
             )
-                EventBuilder.ConvertKpcEventToPhiFans(
+                EventBuilder.ConvertIrEventToPhiFans(
                     e,
                     line.Props.Alpha,
                     v => (float)v,
-                    EasingConverter.FromKpc
+                    EasingConverter.FromIr
                 );
 
         if (layer.MoveXEvents is not null)
             foreach (
                 var e in EventBuilder.ExpandUnsupportedEvents(layer.MoveXEvents, cutLength, false)
             )
-                EventBuilder.ConvertKpcEventToPhiFans(
+                EventBuilder.ConvertIrEventToPhiFans(
                     e,
                     line.Props.PositionX,
                     v => (float)(v * 100.0),
-                    EasingConverter.FromKpc
+                    EasingConverter.FromIr
                 );
 
         if (layer.MoveYEvents is not null)
             foreach (
                 var e in EventBuilder.ExpandUnsupportedEvents(layer.MoveYEvents, cutLength, false)
             )
-                EventBuilder.ConvertKpcEventToPhiFans(
+                EventBuilder.ConvertIrEventToPhiFans(
                     e,
                     line.Props.PositionY,
                     v => (float)(v * 100.0),
-                    EasingConverter.FromKpc
+                    EasingConverter.FromIr
                 );
 
         if (layer.RotateEvents is not null)
             foreach (
                 var e in EventBuilder.ExpandUnsupportedEvents(layer.RotateEvents, cutLength, false)
             )
-                EventBuilder.ConvertKpcEventToPhiFans(
+                EventBuilder.ConvertIrEventToPhiFans(
                     e,
                     line.Props.Rotate,
                     v =>
                         (float)
                             CoordinateGeometry.ToTargetAngle(v, CoordinateProfile.PhiFansProfile),
-                    EasingConverter.FromKpc
+                    EasingConverter.FromIr
                 );
 
         if (layer.SpeedEvents is not null)
             foreach (
                 var e in EventBuilder.ExpandUnsupportedEvents(layer.SpeedEvents, cutLength, true)
             )
-                EventBuilder.ConvertKpcEventToPhiFans(
+                EventBuilder.ConvertIrEventToPhiFans(
                     e,
                     line.Props.Speed,
                     v => v / SpeedRatio,

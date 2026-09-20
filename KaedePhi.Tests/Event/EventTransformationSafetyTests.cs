@@ -1,8 +1,8 @@
-using KaedePhi.Core.Common;
-using KaedePhi.Core.KaedePhi;
-using KaedePhi.Tool.Event.KaedePhi;
-using KaedePhi.Tool.Layer.KaedePhi;
-using KpcEvents = KaedePhi.Core.KaedePhi.Events;
+using KaedePhi.Core.Primitives;
+using KaedePhi.Core.Intermediate;
+using KaedePhi.Tool.Event.Intermediate;
+using KaedePhi.Tool.Layer.Intermediate;
+using IrEvents = KaedePhi.Core.Intermediate.Events;
 
 namespace KaedePhi.Tests.Event;
 
@@ -14,7 +14,7 @@ public class EventTransformationSafetyTests
     [Fact]
     public void CompressSqrt_ContinuousBezierEvents_PreservesBothEventsAndFields()
     {
-        var events = new List<KpcEvents.Event<double>>
+        var events = new List<IrEvents.Event<double>>
         {
             CreateEvent(0, 1, 0, 50, isBezier: true, bezierPoints: [0.1f, 0.2f, 0.3f, 0.4f]),
             CreateEvent(1, 2, 50, 100, isBezier: true, bezierPoints: [0.5f, 0.6f, 0.7f, 0.8f]),
@@ -32,7 +32,7 @@ public class EventTransformationSafetyTests
     [Fact]
     public void CompressSlope_ContinuousBezierEvents_PreservesBothEventsAndFields()
     {
-        var events = new List<KpcEvents.Event<double>>
+        var events = new List<IrEvents.Event<double>>
         {
             CreateEvent(0, 1, 0, 50, isBezier: true, bezierPoints: [0.1f, 0.2f, 0.3f, 0.4f]),
             CreateEvent(1, 2, 50, 100, isBezier: true, bezierPoints: [0.5f, 0.6f, 0.7f, 0.8f]),
@@ -48,7 +48,7 @@ public class EventTransformationSafetyTests
     [Fact]
     public void CompressSqrt_EventsWithAdditionalFields_PreservesBothEventsAndFields()
     {
-        var events = new List<KpcEvents.Event<double>>
+        var events = new List<IrEvents.Event<double>>
         {
             CreateEvent(
                 0,
@@ -83,7 +83,7 @@ public class EventTransformationSafetyTests
     [Fact]
     public void CompressSlope_CroppedLinearEasingEvents_CanMerge()
     {
-        var events = new List<KpcEvents.Event<double>>
+        var events = new List<IrEvents.Event<double>>
         {
             CreateEvent(0, 1, 0, 50, easingLeft: 0.1f),
             CreateEvent(1, 2, 50, 100, easingRight: 0.9f),
@@ -117,7 +117,7 @@ public class EventTransformationSafetyTests
     [Fact]
     public void FitEvents_BezierFollowedByLinearEvent_PreservesBezierEvent()
     {
-        var events = new List<KpcEvents.Event<double>>
+        var events = new List<IrEvents.Event<double>>
         {
             CreateEvent(0, 1, 0, 50, isBezier: true, bezierPoints: [0.1f, 0.2f, 0.3f, 0.4f]),
             CreateEvent(1, 2, 50, 100),
@@ -133,7 +133,7 @@ public class EventTransformationSafetyTests
     [Fact]
     public void FitEvents_EventsWithAdditionalFields_PreservesBothEventsAndFields()
     {
-        var events = new List<KpcEvents.Event<double>>
+        var events = new List<IrEvents.Event<double>>
         {
             CreateEvent(
                 0,
@@ -168,7 +168,7 @@ public class EventTransformationSafetyTests
     [Fact]
     public void FitEvents_CroppedLinearEasingEvents_CanMerge()
     {
-        var events = new List<KpcEvents.Event<double>>
+        var events = new List<IrEvents.Event<double>>
         {
             CreateEvent(0, 1, 0, 50, easingLeft: 0.1f),
             CreateEvent(1, 2, 50, 100, easingRight: 0.9f),
@@ -199,7 +199,7 @@ public class EventTransformationSafetyTests
     [Fact]
     public void EventFit_NonLinearEasingEvent_DoesNotFit()
     {
-        var events = new List<KpcEvents.Event<double>>
+        var events = new List<IrEvents.Event<double>>
         {
             CreateEvent(0, 1, 0, 50, easingId: 2),
             CreateEvent(1, 2, 50, 100),
@@ -222,7 +222,7 @@ public class EventTransformationSafetyTests
             isBezier: true,
             bezierPoints: [0.1f, 0.2f, 0.3f, 0.4f]
         );
-        var layer = new KpcEvents.EventLayer
+        var layer = new IrEvents.EventLayer
         {
             MoveXEvents = [firstX, CreateEvent(1, 2, 50, 100)],
             MoveYEvents = [CreateEvent(0, 1, 0, 50), CreateEvent(1, 2, 50, 100)],
@@ -239,7 +239,7 @@ public class EventTransformationSafetyTests
     [Fact]
     public void LayerEventsCompress_AlignedFontPositionEvents_PreservesBothAxes()
     {
-        var layer = new KpcEvents.EventLayer
+        var layer = new IrEvents.EventLayer
         {
             MoveXEvents = [CreateEvent(0, 1, 0, 50, font: "line.ttf"), CreateEvent(1, 2, 50, 100)],
             MoveYEvents = [CreateEvent(0, 1, 0, 50), CreateEvent(1, 2, 50, 100)],
@@ -255,7 +255,7 @@ public class EventTransformationSafetyTests
     [Fact]
     public void LayerEventsCompress_AlignedCleanLinearPositionEvents_CompressesBothAxes()
     {
-        var layer = new KpcEvents.EventLayer
+        var layer = new IrEvents.EventLayer
         {
             MoveXEvents = [CreateEvent(0, 1, 0, 50), CreateEvent(1, 2, 50, 100)],
             MoveYEvents = [CreateEvent(0, 1, 0, 25), CreateEvent(1, 2, 25, 50)],
@@ -278,7 +278,7 @@ public class EventTransformationSafetyTests
         string metadataName
     )
     {
-        var layer = new KpcEvents.EventLayer
+        var layer = new IrEvents.EventLayer
         {
             MoveXEvents =
             [
@@ -301,7 +301,7 @@ public class EventTransformationSafetyTests
     [Fact]
     public void LayerEventsCompress_AlignedNonLinearEasingEvent_PreservesBothAxes()
     {
-        var layer = new KpcEvents.EventLayer
+        var layer = new IrEvents.EventLayer
         {
             MoveXEvents = [CreateEvent(0, 1, 0, 50, easingId: 2), CreateEvent(1, 2, 50, 100)],
             MoveYEvents = [CreateEvent(0, 1, 0, 25), CreateEvent(1, 2, 25, 50)],
@@ -356,7 +356,7 @@ public class EventTransformationSafetyTests
         result[0].EndValue.Should().Be(50);
     }
 
-    private static KpcEvents.Event<double> CreateEvent(
+    private static IrEvents.Event<double> CreateEvent(
         double startBeat,
         double endBeat,
         double startValue,
@@ -372,7 +372,7 @@ public class EventTransformationSafetyTests
         int easingId = 1
     )
     {
-        return new KpcEvents.Event<double>
+        return new IrEvents.Event<double>
         {
             StartBeat = new Beat(startBeat),
             EndBeat = new Beat(endBeat),
@@ -390,7 +390,7 @@ public class EventTransformationSafetyTests
         };
     }
 
-    private static KpcEvents.Event<double> CreateEventWithNonBlockingMetadata(
+    private static IrEvents.Event<double> CreateEventWithNonBlockingMetadata(
         string metadataName,
         double startBeat = 0,
         double endBeat = 1,
@@ -421,7 +421,7 @@ public class EventTransformationSafetyTests
     }
 
     private static void AssertFields(
-        KpcEvents.Event<double> evt,
+        IrEvents.Event<double> evt,
         string? font,
         float startTime,
         float endTime,

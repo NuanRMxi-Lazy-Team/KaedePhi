@@ -1,7 +1,7 @@
-using KaedePhi.Core.Common;
-using KaedePhi.Core.KaedePhi;
-using KaedePhi.Tool.Event.KaedePhi;
-using KpcEvents = KaedePhi.Core.KaedePhi.Events;
+using KaedePhi.Core.Primitives;
+using KaedePhi.Core.Intermediate;
+using KaedePhi.Tool.Event.Intermediate;
+using IrEvents = KaedePhi.Core.Intermediate.Events;
 
 namespace KaedePhi.Tests.Event;
 
@@ -15,8 +15,8 @@ public class EventListMergerPlusOverlapTests
     [Fact]
     public void Merge_SameStartBeat_LaterIndexWins_InAdaptiveSampling()
     {
-        var toEvents = new List<KpcEvents.Event<double>> { CreateEvent(0, 10, 0, 100) };
-        var fromEvents = new List<KpcEvents.Event<double>> { CreateEvent(0, 5, 0, 200) };
+        var toEvents = new List<IrEvents.Event<double>> { CreateEvent(0, 10, 0, 100) };
+        var fromEvents = new List<IrEvents.Event<double>> { CreateEvent(0, 5, 0, 200) };
 
         var result = _merger.EventListMerge(toEvents, fromEvents, 4, 1.0);
 
@@ -35,8 +35,8 @@ public class EventListMergerPlusOverlapTests
     [Fact]
     public void Merge_NoOverlap_SimpleAddition()
     {
-        var toEvents = new List<KpcEvents.Event<double>> { CreateEvent(0, 5, 0, 100) };
-        var fromEvents = new List<KpcEvents.Event<double>> { CreateEvent(5, 10, 50, 150) };
+        var toEvents = new List<IrEvents.Event<double>> { CreateEvent(0, 5, 0, 100) };
+        var fromEvents = new List<IrEvents.Event<double>> { CreateEvent(5, 10, 50, 150) };
 
         var result = _merger.EventListMerge(toEvents, fromEvents, 4, 1.0);
 
@@ -52,8 +52,8 @@ public class EventListMergerPlusOverlapTests
     [Fact]
     public void Merge_PartialOverlap_LaterTruncatesCorrectly()
     {
-        var toEvents = new List<KpcEvents.Event<double>> { CreateEvent(0, 5, 0, 100) };
-        var fromEvents = new List<KpcEvents.Event<double>> { CreateEvent(3, 8, 0, 200) };
+        var toEvents = new List<IrEvents.Event<double>> { CreateEvent(0, 5, 0, 100) };
+        var fromEvents = new List<IrEvents.Event<double>> { CreateEvent(3, 8, 0, 200) };
 
         var result = _merger.EventListMerge(toEvents, fromEvents, 4, 1.0);
 
@@ -77,8 +77,8 @@ public class EventListMergerPlusOverlapTests
     public void Merge_CompletelySeparate_NoOverlap()
     {
         // A: [0,2], B: [5,8] — 无重叠
-        var to = new List<KpcEvents.Event<double>> { CreateEvent(0, 2, 0, 100) };
-        var from = new List<KpcEvents.Event<double>> { CreateEvent(5, 8, 0, 50) };
+        var to = new List<IrEvents.Event<double>> { CreateEvent(0, 2, 0, 100) };
+        var from = new List<IrEvents.Event<double>> { CreateEvent(5, 8, 0, 50) };
 
         var result = _basicMerger.EventListMerge(to, from, 64);
 
@@ -90,8 +90,8 @@ public class EventListMergerPlusOverlapTests
     public void Merge_Adjacent_NoOverlap()
     {
         // A: [0,5], B: [5,10] — 相邻但不重叠
-        var to = new List<KpcEvents.Event<double>> { CreateEvent(0, 5, 0, 100) };
-        var from = new List<KpcEvents.Event<double>> { CreateEvent(5, 10, 0, 50) };
+        var to = new List<IrEvents.Event<double>> { CreateEvent(0, 5, 0, 100) };
+        var from = new List<IrEvents.Event<double>> { CreateEvent(5, 10, 0, 50) };
 
         var result = _basicMerger.EventListMerge(to, from, 64);
 
@@ -103,8 +103,8 @@ public class EventListMergerPlusOverlapTests
     public void Merge_PartialOverlap_DetectsOverlap()
     {
         // A: [0,5], B: [3,8] — 部分重叠 [3,5]
-        var to = new List<KpcEvents.Event<double>> { CreateEvent(0, 5, 0, 100) };
-        var from = new List<KpcEvents.Event<double>> { CreateEvent(3, 8, 0, 50) };
+        var to = new List<IrEvents.Event<double>> { CreateEvent(0, 5, 0, 100) };
+        var from = new List<IrEvents.Event<double>> { CreateEvent(3, 8, 0, 50) };
 
         var result = _basicMerger.EventListMerge(to, from, 64);
 
@@ -117,8 +117,8 @@ public class EventListMergerPlusOverlapTests
     public void Merge_CompleteWrap_DetectsOverlap()
     {
         // A: [0,10], B: [3,6] — B 完全在 A 内
-        var to = new List<KpcEvents.Event<double>> { CreateEvent(0, 10, 0, 100) };
-        var from = new List<KpcEvents.Event<double>> { CreateEvent(3, 6, 0, 50) };
+        var to = new List<IrEvents.Event<double>> { CreateEvent(0, 10, 0, 100) };
+        var from = new List<IrEvents.Event<double>> { CreateEvent(3, 6, 0, 50) };
 
         var result = _basicMerger.EventListMerge(to, from, 64);
 
@@ -130,12 +130,12 @@ public class EventListMergerPlusOverlapTests
     public void Merge_MultipleOverlapIntervals_DetectsAll()
     {
         // A: [0,3], [6,9]  B: [2,7] — 两个重叠区间 [2,3] 和 [6,7]
-        var to = new List<KpcEvents.Event<double>>
+        var to = new List<IrEvents.Event<double>>
         {
             CreateEvent(0, 3, 0, 100),
             CreateEvent(6, 9, 0, 100),
         };
-        var from = new List<KpcEvents.Event<double>> { CreateEvent(2, 7, 0, 50) };
+        var from = new List<IrEvents.Event<double>> { CreateEvent(2, 7, 0, 50) };
 
         var result = _basicMerger.EventListMerge(to, from, 64);
 
@@ -145,8 +145,8 @@ public class EventListMergerPlusOverlapTests
     [Fact]
     public void Merge_EmptyToEvents_ReturnsFromClone()
     {
-        var to = new List<KpcEvents.Event<double>>();
-        var from = new List<KpcEvents.Event<double>> { CreateEvent(0, 5, 0, 100) };
+        var to = new List<IrEvents.Event<double>>();
+        var from = new List<IrEvents.Event<double>> { CreateEvent(0, 5, 0, 100) };
 
         var result = _basicMerger.EventListMerge(to, from, 64);
 
@@ -158,8 +158,8 @@ public class EventListMergerPlusOverlapTests
     [Fact]
     public void Merge_EmptyFromEvents_ReturnsToClone()
     {
-        var to = new List<KpcEvents.Event<double>> { CreateEvent(0, 5, 0, 100) };
-        var from = new List<KpcEvents.Event<double>>();
+        var to = new List<IrEvents.Event<double>> { CreateEvent(0, 5, 0, 100) };
+        var from = new List<IrEvents.Event<double>>();
 
         var result = _basicMerger.EventListMerge(to, from, 64);
 
@@ -169,12 +169,12 @@ public class EventListMergerPlusOverlapTests
     [Fact]
     public void Merge_UnsortedInputs_ReturnsEventsInStartBeatOrder()
     {
-        var to = new List<KpcEvents.Event<double>>
+        var to = new List<IrEvents.Event<double>>
         {
             CreateEvent(5, 7, 0, 20),
             CreateEvent(0, 2, 0, 10),
         };
-        var from = new List<KpcEvents.Event<double>> { CreateEvent(2, 4, 0, 30) };
+        var from = new List<IrEvents.Event<double>> { CreateEvent(2, 4, 0, 30) };
 
         var result = _basicMerger.EventListMerge(to, from, 64);
 
@@ -187,12 +187,12 @@ public class EventListMergerPlusOverlapTests
     [Fact]
     public void Merge_UnsortedOverlappingInputs_UsesSortedOffsetLookup()
     {
-        var to = new List<KpcEvents.Event<double>>
+        var to = new List<IrEvents.Event<double>>
         {
             CreateEvent(4, 6, 40, 60),
             CreateEvent(0, 3, 0, 30),
         };
-        var from = new List<KpcEvents.Event<double>> { CreateEvent(2, 5, 20, 50) };
+        var from = new List<IrEvents.Event<double>> { CreateEvent(2, 5, 20, 50) };
 
         var result = _basicMerger.EventListMerge(to, from, 64);
 
@@ -203,8 +203,8 @@ public class EventListMergerPlusOverlapTests
     public void Merge_BothEmpty_ReturnsEmpty()
     {
         var result = _basicMerger.EventListMerge(
-            new List<KpcEvents.Event<double>>(),
-            new List<KpcEvents.Event<double>>(),
+            new List<IrEvents.Event<double>>(),
+            new List<IrEvents.Event<double>>(),
             64
         );
 
@@ -218,8 +218,8 @@ public class EventListMergerPlusOverlapTests
     [Fact]
     public void AdaptiveMerge_NoOverlap_PreservesValues()
     {
-        var to = new List<KpcEvents.Event<double>> { CreateEvent(0, 5, 0, 100) };
-        var from = new List<KpcEvents.Event<double>> { CreateEvent(5, 10, 0, 50) };
+        var to = new List<IrEvents.Event<double>> { CreateEvent(0, 5, 0, 100) };
+        var from = new List<IrEvents.Event<double>> { CreateEvent(5, 10, 0, 50) };
 
         var result = _merger.EventListMerge(to, from, 64, 0.1);
 
@@ -229,8 +229,8 @@ public class EventListMergerPlusOverlapTests
     [Fact]
     public void AdaptiveMerge_PartialOverlap_MergesCorrectly()
     {
-        var to = new List<KpcEvents.Event<double>> { CreateEvent(0, 5, 0, 100) };
-        var from = new List<KpcEvents.Event<double>> { CreateEvent(3, 8, 0, 200) };
+        var to = new List<IrEvents.Event<double>> { CreateEvent(0, 5, 0, 100) };
+        var from = new List<IrEvents.Event<double>> { CreateEvent(3, 8, 0, 200) };
 
         var result = _merger.EventListMerge(to, from, 64, 0.1);
 
@@ -248,12 +248,12 @@ public class EventListMergerPlusOverlapTests
     [Fact]
     public void AdaptiveMerge_MultipleEvents_MergesCorrectly()
     {
-        var to = new List<KpcEvents.Event<double>>
+        var to = new List<IrEvents.Event<double>>
         {
             CreateEvent(0, 3, 0, 60),
             CreateEvent(3, 6, 60, 120),
         };
-        var from = new List<KpcEvents.Event<double>>
+        var from = new List<IrEvents.Event<double>>
         {
             CreateEvent(1, 4, 0, 30),
             CreateEvent(4, 7, 30, 60),
@@ -276,14 +276,14 @@ public class EventListMergerPlusOverlapTests
 
     #region Helper Methods
 
-    private static KpcEvents.Event<double> CreateEvent(
+    private static IrEvents.Event<double> CreateEvent(
         double startBeat,
         double endBeat,
         double startValue,
         double endValue
     )
     {
-        return new KpcEvents.Event<double>
+        return new IrEvents.Event<double>
         {
             StartBeat = new Beat(startBeat),
             EndBeat = new Beat(endBeat),
@@ -295,9 +295,9 @@ public class EventListMergerPlusOverlapTests
 
     private static Beat Beat(double value) => new(value);
 
-    private static double QueryResult(List<KpcEvents.Event<double>> events, Beat beat)
+    private static double QueryResult(List<IrEvents.Event<double>> events, Beat beat)
     {
-        return KpcEvents.EventLayer.GetValueAtBeat(events, beat);
+        return IrEvents.EventLayer.GetValueAtBeat(events, beat);
     }
 
     #endregion

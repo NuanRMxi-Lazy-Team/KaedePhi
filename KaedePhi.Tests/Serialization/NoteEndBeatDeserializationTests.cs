@@ -1,14 +1,14 @@
 using System.Reflection;
 using System.Text;
-using KaedePhi.Core.Common;
+using KaedePhi.Core.Primitives;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Kpc = KaedePhi.Core.KaedePhi;
-using Pc = KaedePhi.Core.PhiChain.v6;
-using Pe = KaedePhi.Core.PhiEdit;
-using Pf = KaedePhi.Core.PhiFans;
-using Ph = KaedePhi.Core.Phigros.v3;
-using Rpe = KaedePhi.Core.RePhiEdit;
+using Ir = KaedePhi.Core.Intermediate;
+using Pc = KaedePhi.Core.Formats.PhiChain.v6;
+using Pe = KaedePhi.Core.Formats.PhiEdit;
+using Pf = KaedePhi.Core.Formats.PhiFans;
+using Ph = KaedePhi.Core.Formats.Phigros.v3;
+using Rpe = KaedePhi.Core.Formats.RePhiEdit;
 
 namespace KaedePhi.Tests.Serialization;
 
@@ -82,9 +82,9 @@ public class NoteEndBeatDeserializationTests
     }
 
     [Fact]
-    public void KpcNote_EndBeatSetterRecordsExplicitMarker()
+    public void IrNote_EndBeatSetterRecordsExplicitMarker()
     {
-        var note = new Kpc.Note();
+        var note = new Ir.Note();
 
         ReadExplicitEndBeatMarker(note).Should().BeFalse();
         note.EndBeat = new Beat([2, 0, 1]);
@@ -98,10 +98,10 @@ public class NoteEndBeatDeserializationTests
     }
 
     [Fact]
-    public void KpcNoteClone_PreservesExplicitEndBeatMarker()
+    public void IrNoteClone_PreservesExplicitEndBeatMarker()
     {
-        var implicitEnd = new Kpc.Note();
-        var explicitEnd = new Kpc.Note { EndBeat = new Beat([2, 0, 1]) };
+        var implicitEnd = new Ir.Note();
+        var explicitEnd = new Ir.Note { EndBeat = new Beat([2, 0, 1]) };
 
         ReadExplicitEndBeatMarker(implicitEnd.Clone()).Should().BeFalse();
         ReadExplicitEndBeatMarker(explicitEnd.Clone()).Should().BeTrue();
@@ -299,9 +299,9 @@ public class NoteEndBeatDeserializationTests
 
     private static MemoryStream CreateStream(string value) => new(Encoding.UTF8.GetBytes(value));
 
-    private static bool ReadExplicitEndBeatMarker(Kpc.Note note)
+    private static bool ReadExplicitEndBeatMarker(Ir.Note note)
     {
-        var property = typeof(Kpc.Note).GetProperty(
+        var property = typeof(Ir.Note).GetProperty(
             "HasExplicitEndBeat",
             BindingFlags.Instance | BindingFlags.NonPublic
         );

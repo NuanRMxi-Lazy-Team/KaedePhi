@@ -20,7 +20,7 @@ public sealed class PrecisionAnalyzerTests
             {
                 public static void Run()
                 {
-                    var processor = new KaedePhi.Tool.Layer.KaedePhi.LayerProcessor();
+                    var processor = new KaedePhi.Tool.Layer.Intermediate.LayerProcessor();
                     processor.LayerMerge(new List<object>(), {|#0:0d|});
                 }
             }
@@ -33,7 +33,7 @@ public sealed class PrecisionAnalyzerTests
                 }
             }
 
-            namespace KaedePhi.Tool.Layer.KaedePhi
+            namespace KaedePhi.Tool.Layer.Intermediate
             {
                 public sealed class LayerProcessor : ILayerProcessor<object>
                 {
@@ -60,7 +60,7 @@ public sealed class PrecisionAnalyzerTests
             {
                 public static void Run()
                 {
-                    var unbinder = new KaedePhi.Tool.JudgeLines.KaedePhi.JudgeLineUnbinder();
+                    var unbinder = new KaedePhi.Tool.JudgeLines.Intermediate.JudgeLineUnbinder();
                     unbinder.FatherUnbindDynamic(0, new List<JudgeLine>(), {|#0:2048d|}, 0.1d, 0.1d);
                 }
             }
@@ -83,7 +83,7 @@ public sealed class PrecisionAnalyzerTests
                 }
             }
 
-            namespace KaedePhi.Tool.JudgeLines.KaedePhi
+            namespace KaedePhi.Tool.JudgeLines.Intermediate
             {
                 public sealed class JudgeLineUnbinder : IJudgeLineUnbinder<global::JudgeLine>
                 {
@@ -116,7 +116,7 @@ public sealed class PrecisionAnalyzerTests
             {
                 public static void Run()
                 {
-                    var unbinder = new KaedePhi.Tool.JudgeLines.KaedePhi.JudgeLineUnbinder();
+                    var unbinder = new KaedePhi.Tool.JudgeLines.Intermediate.JudgeLineUnbinder();
                     unbinder.FatherUnbind(0, new List<JudgeLine>(), {|#0:512d|});
                 }
             }
@@ -137,7 +137,7 @@ public sealed class PrecisionAnalyzerTests
                 }
             }
 
-            namespace KaedePhi.Tool.JudgeLines.KaedePhi
+            namespace KaedePhi.Tool.JudgeLines.Intermediate
             {
                 public sealed class JudgeLineUnbinder : IJudgeLineUnbinder<global::JudgeLine>
                 {
@@ -168,7 +168,7 @@ public sealed class PrecisionAnalyzerTests
             {
                 public static void Run()
                 {
-                    var merger = new KaedePhi.Tool.Event.KaedePhi.EventListMerger<double>();
+                    var merger = new KaedePhi.Tool.Event.Intermediate.EventListMerger<double>();
                     merger.EventListMerge(new List<double>(), new List<double>(), 64d);
                 }
             }
@@ -181,7 +181,7 @@ public sealed class PrecisionAnalyzerTests
                 }
             }
 
-            namespace KaedePhi.Tool.Event.KaedePhi
+            namespace KaedePhi.Tool.Event.Intermediate
             {
                 public sealed class EventListMerger<T> : IEventListMerger<T>
                 {

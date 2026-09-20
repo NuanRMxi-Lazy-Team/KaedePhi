@@ -18,14 +18,14 @@ public sealed class RenderOptionsAnalyzerTests
             {
                 public static void Run()
                 {
-                    var options = new KaedePhi.Tool.Render.KaedePhi.KpcRenderOptions();
+                    var options = new KaedePhi.Tool.Render.Intermediate.IrRenderOptions();
                     options.PixelsPerBeat = {|#0:0f|};
                 }
             }
 
-            namespace KaedePhi.Tool.Render.KaedePhi
+            namespace KaedePhi.Tool.Render.Intermediate
             {
-                public class KpcRenderOptions
+                public class IrRenderOptions
                 {
                     public float PixelsPerBeat { get; set; }
                     public int ChannelWidth { get; set; }
@@ -52,14 +52,14 @@ public sealed class RenderOptionsAnalyzerTests
             {
                 public static void Run()
                 {
-                    var options = new KaedePhi.Tool.Render.KaedePhi.KpcRenderOptions();
+                    var options = new KaedePhi.Tool.Render.Intermediate.IrRenderOptions();
                     options.ChannelWidth = {|#0:20000|};
                 }
             }
 
-            namespace KaedePhi.Tool.Render.KaedePhi
+            namespace KaedePhi.Tool.Render.Intermediate
             {
-                public class KpcRenderOptions
+                public class IrRenderOptions
                 {
                     public float PixelsPerBeat { get; set; }
                     public int ChannelWidth { get; set; }
@@ -86,14 +86,14 @@ public sealed class RenderOptionsAnalyzerTests
             {
                 public static void Run()
                 {
-                    var options = new KaedePhi.Tool.Render.KaedePhi.KpcRenderOptions();
+                    var options = new KaedePhi.Tool.Render.Intermediate.IrRenderOptions();
                     options.SamplesPerEvent = {|#0:-1|};
                 }
             }
 
-            namespace KaedePhi.Tool.Render.KaedePhi
+            namespace KaedePhi.Tool.Render.Intermediate
             {
-                public class KpcRenderOptions
+                public class IrRenderOptions
                 {
                     public float PixelsPerBeat { get; set; }
                     public int ChannelWidth { get; set; }
@@ -120,14 +120,14 @@ public sealed class RenderOptionsAnalyzerTests
             {
                 public static void Run()
                 {
-                    var options = new KaedePhi.Tool.Render.KaedePhi.KpcRenderOptions();
+                    var options = new KaedePhi.Tool.Render.Intermediate.IrRenderOptions();
                     options.SegmentGroupTolerance = {|#0:-1e-6|};
                 }
             }
 
-            namespace KaedePhi.Tool.Render.KaedePhi
+            namespace KaedePhi.Tool.Render.Intermediate
             {
-                public class KpcRenderOptions
+                public class IrRenderOptions
                 {
                     public float PixelsPerBeat { get; set; }
                     public int ChannelWidth { get; set; }
@@ -154,7 +154,7 @@ public sealed class RenderOptionsAnalyzerTests
             {
                 public static void Run()
                 {
-                    var options = new KaedePhi.Tool.Render.KaedePhi.KpcRenderOptions();
+                    var options = new KaedePhi.Tool.Render.Intermediate.IrRenderOptions();
                     options.PixelsPerBeat = 100f;
                     options.ChannelWidth = 150;
                     options.SamplesPerEvent = 64;
@@ -163,9 +163,9 @@ public sealed class RenderOptionsAnalyzerTests
                 }
             }
 
-            namespace KaedePhi.Tool.Render.KaedePhi
+            namespace KaedePhi.Tool.Render.Intermediate
             {
-                public class KpcRenderOptions
+                public class IrRenderOptions
                 {
                     public float PixelsPerBeat { get; set; }
                     public int ChannelWidth { get; set; }

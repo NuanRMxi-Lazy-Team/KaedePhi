@@ -1,11 +1,11 @@
 namespace KaedePhi.Tool.Converter.RePhiEdit.Utils;
 
 /// <summary>
-/// RPE 与 KPC 控制点之间的双向转换工具。
+/// RPE 与 IR 控制点之间的双向转换工具。
 /// </summary>
 public static class ControlBuilder
 {
-    public static KpcControls.XControl ConvertXControl(RpeControls.XControl src) =>
+    public static IrControls.XControl ConvertXControl(RpeControls.XControl src) =>
         new()
         {
             Easing = EasingConverter.ConvertEasing(src.Easing),
@@ -13,7 +13,7 @@ public static class ControlBuilder
             Pos = src.Pos,
         };
 
-    public static RpeControls.XControl ConvertXControl(KpcControls.XControl src) =>
+    public static RpeControls.XControl ConvertXControl(IrControls.XControl src) =>
         new()
         {
             Easing = EasingConverter.ConvertEasing(src.Easing),
@@ -21,7 +21,7 @@ public static class ControlBuilder
             Pos = src.Pos,
         };
 
-    public static KpcControls.AlphaControl ConvertAlphaControl(RpeControls.AlphaControl src) =>
+    public static IrControls.AlphaControl ConvertAlphaControl(RpeControls.AlphaControl src) =>
         new()
         {
             Easing = EasingConverter.ConvertEasing(src.Easing),
@@ -29,7 +29,7 @@ public static class ControlBuilder
             Alpha = src.Alpha,
         };
 
-    public static RpeControls.AlphaControl ConvertAlphaControl(KpcControls.AlphaControl src) =>
+    public static RpeControls.AlphaControl ConvertAlphaControl(IrControls.AlphaControl src) =>
         new()
         {
             Easing = EasingConverter.ConvertEasing(src.Easing),
@@ -37,7 +37,7 @@ public static class ControlBuilder
             Alpha = src.Alpha,
         };
 
-    public static KpcControls.SizeControl ConvertSizeControl(RpeControls.SizeControl src) =>
+    public static IrControls.SizeControl ConvertSizeControl(RpeControls.SizeControl src) =>
         new()
         {
             Easing = EasingConverter.ConvertEasing(src.Easing),
@@ -45,7 +45,7 @@ public static class ControlBuilder
             Size = src.Size,
         };
 
-    public static RpeControls.SizeControl ConvertSizeControl(KpcControls.SizeControl src) =>
+    public static RpeControls.SizeControl ConvertSizeControl(IrControls.SizeControl src) =>
         new()
         {
             Easing = EasingConverter.ConvertEasing(src.Easing),
@@ -53,7 +53,7 @@ public static class ControlBuilder
             Size = src.Size,
         };
 
-    public static KpcControls.SkewControl ConvertSkewControl(RpeControls.SkewControl src) =>
+    public static IrControls.SkewControl ConvertSkewControl(RpeControls.SkewControl src) =>
         new()
         {
             Easing = EasingConverter.ConvertEasing(src.Easing),
@@ -61,7 +61,7 @@ public static class ControlBuilder
             Skew = src.Skew,
         };
 
-    public static RpeControls.SkewControl ConvertSkewControl(KpcControls.SkewControl src) =>
+    public static RpeControls.SkewControl ConvertSkewControl(IrControls.SkewControl src) =>
         new()
         {
             Easing = EasingConverter.ConvertEasing(src.Easing),
@@ -69,7 +69,7 @@ public static class ControlBuilder
             Skew = src.Skew,
         };
 
-    public static KpcControls.YControl ConvertYControl(RpeControls.YControl src) =>
+    public static IrControls.YControl ConvertYControl(RpeControls.YControl src) =>
         new()
         {
             Easing = EasingConverter.ConvertEasing(src.Easing),
@@ -77,7 +77,7 @@ public static class ControlBuilder
             Y = src.Y,
         };
 
-    public static RpeControls.YControl ConvertYControl(KpcControls.YControl src) =>
+    public static RpeControls.YControl ConvertYControl(IrControls.YControl src) =>
         new()
         {
             Easing = EasingConverter.ConvertEasing(src.Easing),

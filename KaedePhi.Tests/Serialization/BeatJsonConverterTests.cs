@@ -1,4 +1,4 @@
-using KaedePhi.Core.Common;
+using KaedePhi.Core.Primitives;
 using Newtonsoft.Json;
 
 namespace KaedePhi.Tests.Serialization;

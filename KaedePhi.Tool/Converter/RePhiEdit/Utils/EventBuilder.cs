@@ -1,6 +1,6 @@
-using KaedePhi.Core.Common;
+using KaedePhi.Core.Primitives;
 using KaedePhi.Tool.Converter.RePhiEdit.Model;
-using KaedePhi.Tool.Event.KaedePhi;
+using KaedePhi.Tool.Event.Intermediate;
 
 namespace KaedePhi.Tool.Converter.RePhiEdit.Utils;
 
@@ -10,7 +10,7 @@ public static class EventBuilder
     private static readonly EventCutter<double> DoubleCutter = new();
     private static readonly EventCutter<int> IntCutter = new();
 
-    public static KpcEvents.Event<T> ConvertEvent<T>(
+    public static IrEvents.Event<T> ConvertEvent<T>(
         RpeEvents.Event<T> src,
         Func<T, T>? valueCopier = null,
         Func<T, T>? valueTransformer = null
@@ -19,7 +19,7 @@ public static class EventBuilder
     {
         valueCopier ??= v => v;
         valueTransformer ??= v => v;
-        return new KpcEvents.Event<T>
+        return new IrEvents.Event<T>
         {
             IsBezier = src.IsBezier,
             BezierPoints = [.. src.BezierPoints],
@@ -35,7 +35,7 @@ public static class EventBuilder
     }
 
     public static RpeEvents.Event<T> ConvertEvent<T>(
-        KpcEvents.Event<T> src,
+        IrEvents.Event<T> src,
         Func<T, T>? valueCopier = null,
         Func<T, T>? valueTransformer = null
     )
@@ -58,12 +58,12 @@ public static class EventBuilder
         };
     }
 
-    public static KpcEvents.Event<double> ConvertFloatToDoubleEvent(
+    public static IrEvents.Event<double> ConvertFloatToDoubleEvent(
         RpeEvents.Event<float> src,
         Func<float, double> valueTransformer
     )
     {
-        return new KpcEvents.Event<double>
+        return new IrEvents.Event<double>
         {
             IsBezier = src.IsBezier,
             BezierPoints = [.. src.BezierPoints],
@@ -78,38 +78,38 @@ public static class EventBuilder
         };
     }
 
-    public static KpcEvents.Event<float> ConvertFloatEvent(RpeEvents.Event<float> src)
+    public static IrEvents.Event<float> ConvertFloatEvent(RpeEvents.Event<float> src)
     {
         return ConvertEvent(src);
     }
 
-    public static KpcEvents.Event<int> ConvertIntEvent(RpeEvents.Event<int> src)
+    public static IrEvents.Event<int> ConvertIntEvent(RpeEvents.Event<int> src)
     {
         return ConvertEvent(src);
     }
 
-    public static KpcEvents.Event<string> ConvertStringEvent(RpeEvents.Event<string> src)
+    public static IrEvents.Event<string> ConvertStringEvent(RpeEvents.Event<string> src)
     {
         return ConvertEvent(src);
     }
 
-    public static RpeEvents.Event<string> ConvertStringEvent(KpcEvents.Event<string> src)
+    public static RpeEvents.Event<string> ConvertStringEvent(IrEvents.Event<string> src)
     {
         return ConvertEvent(src);
     }
 
-    public static KpcEvents.Event<byte[]> ConvertByteArrayEvent(RpeEvents.Event<byte[]> src)
+    public static IrEvents.Event<byte[]> ConvertByteArrayEvent(RpeEvents.Event<byte[]> src)
     {
         return ConvertEvent(src, v => [.. v]);
     }
 
-    public static RpeEvents.Event<byte[]> ConvertByteArrayEvent(KpcEvents.Event<byte[]> src)
+    public static RpeEvents.Event<byte[]> ConvertByteArrayEvent(IrEvents.Event<byte[]> src)
     {
         return ConvertEvent(src, v => [.. v]);
     }
 
     public static List<RpeEvents.Event<float>> ConvertFloatEventExpanding(
-        KpcEvents.Event<float> src,
+        IrEvents.Event<float> src,
         ConvertOption.CuttingOptions options
     )
     {
@@ -133,7 +133,7 @@ public static class EventBuilder
     }
 
     public static List<RpeEvents.Event<float>> ConvertDoubleEventExpanding(
-        KpcEvents.Event<double> src,
+        IrEvents.Event<double> src,
         ConvertOption.CuttingOptions options,
         Func<double, double>? valueTransformer = null
     )
@@ -174,7 +174,7 @@ public static class EventBuilder
     }
 
     public static List<RpeEvents.Event<int>> ConvertIntEventExpanding(
-        KpcEvents.Event<int> src,
+        IrEvents.Event<int> src,
         ConvertOption.CuttingOptions options
     )
     {

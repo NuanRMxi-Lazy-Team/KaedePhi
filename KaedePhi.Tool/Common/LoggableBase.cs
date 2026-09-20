@@ -60,13 +60,13 @@ public abstract class LoggableBase : ILoggable
     protected void LogDebug(string message) => OnDebug?.Invoke(message);
 
     /// <summary>
-    /// 检查 KPC Meta 中不被目标格式支持的字段，逐个发出警告。
+    /// 检查 IR Meta 中不被目标格式支持的字段，逐个发出警告。
     /// </summary>
     /// <param name="formatName">目标格式名称</param>
     /// <param name="src">源 Meta 对象</param>
-    protected void WarnIfUnsupportedMeta(string formatName, KaedePhi.Core.KaedePhi.Meta src)
+    protected void WarnIfUnsupportedMeta(string formatName, KaedePhi.Core.Intermediate.Meta src)
     {
-        var defaults = new KaedePhi.Core.KaedePhi.Meta();
+        var defaults = new KaedePhi.Core.Intermediate.Meta();
         if (src.Background != defaults.Background)
             LogWarning($"{formatName} 不支持 Meta.Background（值='{src.Background}'）");
         if (src.Author != defaults.Author)

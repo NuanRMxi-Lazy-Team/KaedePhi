@@ -3,7 +3,7 @@ using Microsoft.CodeAnalysis;
 namespace KaedePhi.Tool.Analyzers.Diagnostics;
 
 /// <summary>
-/// KpcRenderOptions 数值属性相关诊断规则的描述符集合。
+/// IrRenderOptions 数值属性相关诊断规则的描述符集合。
 /// </summary>
 internal static class RenderOptionsDiagnostic
 {

@@ -3,15 +3,15 @@ using KaedePhi.Tool.Common;
 namespace KaedePhi.Tool.Converter.RePhiEdit.Utils;
 
 /// <summary>
-/// RPE 坐标系与 KPC 坐标系之间的坐标变换工具。
+/// RPE 坐标系与 IR 坐标系之间的坐标变换工具。
 /// </summary>
 public static class Transform
 {
-    public static double TransformToKpcX(float x) => CoordinateGeometry.ToKpcX(x);
+    public static double TransformToIrX(float x) => CoordinateGeometry.ToIrX(x);
 
-    public static double TransformToKpcY(float y) => CoordinateGeometry.ToKpcY(y);
+    public static double TransformToIrY(float y) => CoordinateGeometry.ToIrY(y);
 
-    public static double TransformToKpcAngle(float angle) => CoordinateGeometry.ToKpcAngle(angle);
+    public static double TransformToIrAngle(float angle) => CoordinateGeometry.ToIrAngle(angle);
 
     public static double TransformToRpeX(double x) => CoordinateGeometry.ToRenderX(x);
 

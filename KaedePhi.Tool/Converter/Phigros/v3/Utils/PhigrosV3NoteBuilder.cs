@@ -1,28 +1,28 @@
-using KaedePhi.Core.Common;
+using KaedePhi.Core.Primitives;
 using KaedePhi.Tool.Common;
-using KpcEventLayer = KaedePhi.Core.KaedePhi.Events.EventLayer;
-using KpcNote = KaedePhi.Core.KaedePhi.Note;
-using KpcSpeedEvent = KaedePhi.Core.KaedePhi.Events.Event<float>;
-using PhigrosNote = KaedePhi.Core.Phigros.v3.Note;
-using PhigrosNoteType = KaedePhi.Core.Phigros.v3.NoteType;
+using IrEventLayer = KaedePhi.Core.Intermediate.Events.EventLayer;
+using IrNote = KaedePhi.Core.Intermediate.Note;
+using IrSpeedEvent = KaedePhi.Core.Intermediate.Events.Event<float>;
+using PhigrosNote = KaedePhi.Core.Formats.Phigros.v3.Note;
+using PhigrosNoteType = KaedePhi.Core.Formats.Phigros.v3.NoteType;
 
 namespace KaedePhi.Tool.Converter.Phigros.v3.Utils;
 
 /// <summary>
-/// KPC 音符到 PhigrosV3 音符的转换工具。
+/// IR 音符到 PhigrosV3 音符的转换工具。
 /// </summary>
 public static class PhigrosV3NoteBuilder
 {
     public static (List<PhigrosNote> above, List<PhigrosNote> below) ConvertNotes(
-        List<KpcNote>? notes,
-        List<KpcSpeedEvent>? speedEvents,
+        List<IrNote>? notes,
+        List<IrSpeedEvent>? speedEvents,
         Action<string>? warnLogger,
         bool filterFakeNotes = false
     ) => ConvertNotes(notes, speedEvents, warnLogger, filterFakeNotes, null, 1f);
 
     internal static (List<PhigrosNote> above, List<PhigrosNote> below) ConvertNotes(
-        List<KpcNote>? notes,
-        List<KpcSpeedEvent>? speedEvents,
+        List<IrNote>? notes,
+        List<IrSpeedEvent>? speedEvents,
         Action<string>? warnLogger,
         bool filterFakeNotes,
         PhigrosV3TimeMapper? timeMapper,
@@ -51,14 +51,14 @@ public static class PhigrosV3NoteBuilder
     }
 
     public static PhigrosNote ConvertNote(
-        KpcNote src,
-        List<KpcSpeedEvent>? speedEvents,
+        IrNote src,
+        List<IrSpeedEvent>? speedEvents,
         Action<string>? warnLogger
     ) => ConvertNote(src, speedEvents, warnLogger, null, 1f);
 
     internal static PhigrosNote ConvertNote(
-        KpcNote src,
-        List<KpcSpeedEvent>? speedEvents,
+        IrNote src,
+        List<IrSpeedEvent>? speedEvents,
         Action<string>? warnLogger,
         PhigrosV3TimeMapper? timeMapper,
         float bpmFactor
@@ -95,7 +95,7 @@ public static class PhigrosV3NoteBuilder
         };
     }
 
-    private static float GetSpeedAtBeat(List<KpcSpeedEvent>? speedEvents, double beat)
+    private static float GetSpeedAtBeat(List<IrSpeedEvent>? speedEvents, double beat)
     {
         if (speedEvents is not { Count: > 0 })
             return 1f;
@@ -104,7 +104,7 @@ public static class PhigrosV3NoteBuilder
         if (beatObj < speedEvents[0].StartBeat)
             return 1f;
 
-        var speed = KpcEventLayer.GetValueAtBeat(speedEvents, beatObj);
+        var speed = IrEventLayer.GetValueAtBeat(speedEvents, beatObj);
         return (float)(speed / Constants.SpeedValueRatio);
     }
 
@@ -118,7 +118,7 @@ public static class PhigrosV3NoteBuilder
             _ => PhigrosNoteType.Tap,
         };
 
-    private static void WarnIfUnsupportedNoteFields(KpcNote src, Action<string>? warnLogger)
+    private static void WarnIfUnsupportedNoteFields(IrNote src, Action<string>? warnLogger)
     {
         if (src.Alpha != 255)
             Warn($"PhigrosV3 不支持 Note.Alpha（值={src.Alpha}）");

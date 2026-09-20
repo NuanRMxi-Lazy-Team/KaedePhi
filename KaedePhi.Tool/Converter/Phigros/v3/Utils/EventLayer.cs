@@ -1,16 +1,16 @@
-using KaedePhi.Tool.Event.KaedePhi;
-using PhigrosJudgeLine = KaedePhi.Core.Phigros.v3.JudgeLine;
+using KaedePhi.Tool.Event.Intermediate;
+using PhigrosJudgeLine = KaedePhi.Core.Formats.Phigros.v3.JudgeLine;
 
 namespace KaedePhi.Tool.Converter.Phigros.v3.Utils;
 
 /// <summary>
-/// PhigrosV3 判定线到 KPC 事件层的构建器。
+/// PhigrosV3 判定线到 IR 事件层的构建器。
 /// </summary>
 public static class EventLayerBuilder
 {
-    public static KpcEvents.EventLayer ConvertEventLayer(PhigrosJudgeLine src, double horizonBeat)
+    public static IrEvents.EventLayer ConvertEventLayer(PhigrosJudgeLine src, double horizonBeat)
     {
-        var result = new KpcEvents.EventLayer();
+        var result = new IrEvents.EventLayer();
         var eventListCompress = new EventCompressor<double>();
 
         var moveX = EventBuilder.ConvertMoveAxisEvents(
@@ -18,7 +18,7 @@ public static class EventLayerBuilder
             horizonBeat,
             e => e.Start,
             e => e.End,
-            Transform.ToKpcX
+            Transform.ToIrX
         );
         if (moveX != null)
             result.MoveXEvents = eventListCompress.EventListCompressSqrt(moveX, 0d);
@@ -28,7 +28,7 @@ public static class EventLayerBuilder
             horizonBeat,
             e => e.Start2,
             e => e.End2,
-            Transform.ToKpcY
+            Transform.ToIrY
         );
         if (moveY != null)
             result.MoveYEvents = eventListCompress.EventListCompressSqrt(moveY, 0d);
@@ -36,7 +36,7 @@ public static class EventLayerBuilder
         result.RotateEvents = EventBuilder.ConvertEvents(
             src.JudgeLineRotateEvents,
             horizonBeat,
-            Transform.ToKpcAngle
+            Transform.ToIrAngle
         );
 
         result.AlphaEvents = EventBuilder.ConvertEvents(

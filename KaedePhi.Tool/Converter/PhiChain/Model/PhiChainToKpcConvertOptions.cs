@@ -1,12 +1,9 @@
 namespace KaedePhi.Tool.Converter.PhiChain.Model;
 
 /// <summary>
-/// Phichain 转 KPC 的转换选项。
+/// 已弃用的 PhiChain 转 IR 转换选项，行为与 <see cref="PhiChainToIrConvertOptions"/> 一致。
 /// </summary>
-public class PhiChainToKpcConvertOptions
+[Obsolete("已弃用：请迁移至 KaedePhi.Tool.Converter.PhiChain.Model.PhiChainToIrConvertOptions。")]
+public class PhiChainToKpcConvertOptions : PhiChainToIrConvertOptions
 {
-    /// <summary>
-    /// 不支持的缓动切段精度（每拍细分数量），默认 64。
-    /// </summary>
-    public int UnsupportedEasingPrecision { get; set; } = 64;
 }

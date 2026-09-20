@@ -1,20 +1,20 @@
-using KaedePhi.Core.Common;
+using KaedePhi.Core.Primitives;
 using KaedePhi.Tool.Common;
-using PhigrosEvent = KaedePhi.Core.Phigros.v3.Event;
-using PhigrosJudgeLine = KaedePhi.Core.Phigros.v3.JudgeLine;
-using PhigrosNoteType = KaedePhi.Core.Phigros.v3.NoteType;
-using PhigrosSpeedEvent = KaedePhi.Core.Phigros.v3.SpeedEvent;
+using PhigrosEvent = KaedePhi.Core.Formats.Phigros.v3.Event;
+using PhigrosJudgeLine = KaedePhi.Core.Formats.Phigros.v3.JudgeLine;
+using PhigrosNoteType = KaedePhi.Core.Formats.Phigros.v3.NoteType;
+using PhigrosSpeedEvent = KaedePhi.Core.Formats.Phigros.v3.SpeedEvent;
 
 namespace KaedePhi.Tool.Converter.Phigros.v3.Utils;
 
 /// <summary>
-/// PhigrosV3 事件到 KPC 事件的转换工具。
+/// PhigrosV3 事件到 IR 事件的转换工具。
 /// </summary>
 public static class EventBuilder
 {
     private const double TrailingBeatPadding = 1d / 64d;
 
-    public static List<KpcEvents.Event<T>>? ConvertEvents<T>(
+    public static List<IrEvents.Event<T>>? ConvertEvents<T>(
         List<PhigrosEvent>? events,
         double horizonBeat,
         Func<float, T> valueTransformer
@@ -25,7 +25,7 @@ public static class EventBuilder
             return null;
 
         var sorted = events.OrderBy(e => e.StartTime).ToList();
-        var result = new List<KpcEvents.Event<T>>();
+        var result = new List<IrEvents.Event<T>>();
 
         foreach (var ev in sorted)
         {
@@ -50,7 +50,7 @@ public static class EventBuilder
         return result;
     }
 
-    public static List<KpcEvents.Event<double>>? ConvertMoveAxisEvents(
+    public static List<IrEvents.Event<double>>? ConvertMoveAxisEvents(
         List<PhigrosEvent>? events,
         double horizonBeat,
         Func<PhigrosEvent, float> startSelector,
@@ -62,7 +62,7 @@ public static class EventBuilder
             return null;
 
         var sorted = events.OrderBy(e => e.StartTime).ToList();
-        var result = new List<KpcEvents.Event<double>>();
+        var result = new List<IrEvents.Event<double>>();
 
         foreach (var ev in sorted)
         {
@@ -87,7 +87,7 @@ public static class EventBuilder
         return result;
     }
 
-    public static List<KpcEvents.Event<float>>? ConvertSpeedEvents(
+    public static List<IrEvents.Event<float>>? ConvertSpeedEvents(
         List<PhigrosSpeedEvent>? events,
         double horizonBeat
     )
@@ -96,7 +96,7 @@ public static class EventBuilder
             return null;
 
         var sorted = events.OrderBy(e => e.StartTime).ToList();
-        var result = new List<KpcEvents.Event<float>>();
+        var result = new List<IrEvents.Event<float>>();
 
         foreach (var ev in sorted)
         {
@@ -186,7 +186,7 @@ public static class EventBuilder
         return maxBeat + TrailingBeatPadding;
     }
 
-    private static KpcEvents.Event<T> CreateLinearEvent<T>(
+    private static IrEvents.Event<T> CreateLinearEvent<T>(
         double startBeat,
         double endBeat,
         T startValue,
@@ -201,7 +201,7 @@ public static class EventBuilder
             EndValue = endValue,
         };
 
-    private static void AddTrailingEvent<T>(List<KpcEvents.Event<T>> events, double horizonBeat)
+    private static void AddTrailingEvent<T>(List<IrEvents.Event<T>> events, double horizonBeat)
         where T : notnull
     {
         var lastEnd = (double)events[^1].EndBeat;

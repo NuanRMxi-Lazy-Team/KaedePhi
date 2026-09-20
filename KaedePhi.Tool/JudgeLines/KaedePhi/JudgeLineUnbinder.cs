@@ -1,279 +1,256 @@
+#pragma warning disable CS0618
+
 using KaedePhi.Tool.Common;
-using KaedePhi.Tool.JudgeLines.KaedePhi.Utils;
-using JudgeLine = KaedePhi.Core.KaedePhi.JudgeLine;
+using KaedePhi.Tool.Compatibility;
+using Kpc = KaedePhi.Core.KaedePhi;
 
 namespace KaedePhi.Tool.JudgeLines.KaedePhi;
 
 /// <summary>
-/// KPC 谱面判定线父子解绑器。
-/// <para>不带 Dynamic 的方法使用等间隔采样；带 Dynamic 的方法使用自适应采样。</para>
+/// 已弃用的 KPC 判定线父子解绑器，行为与 <see cref="Intermediate.JudgeLineUnbinder"/> 一致。
 /// </summary>
-public class JudgeLineUnbinder : LoggableBase, IJudgeLineUnbinder<JudgeLine>
+[Obsolete("已弃用：请迁移至 KaedePhi.Tool.JudgeLines.Intermediate.JudgeLineUnbinder。")]
+public class JudgeLineUnbinder
+    : Intermediate.JudgeLineUnbinder,
+        IJudgeLineUnbinder<Kpc.JudgeLine>
 {
-    /// <inheritdoc/>
-    public (double X, double Y) GetLinePos(
-        double fatherLineX,
-        double fatherLineY,
-        double angleDegrees,
-        double lineX,
-        double lineY
-    ) => FatherUnbindHelpers.GetLinePos(fatherLineX, fatherLineY, angleDegrees, lineX, lineY);
-
-    /// <inheritdoc/>
-    public (double X, double Y) GetLinePos(
-        double fatherLineX,
-        double fatherLineY,
-        double angleDegrees,
-        double lineX,
-        double lineY,
-        CoordinateProfile renderProfile
-    )
-    {
-        using var profileScope = FatherUnbindHelpers.UseRenderProfile(renderProfile);
-        return FatherUnbindHelpers.GetLinePos(fatherLineX, fatherLineY, angleDegrees, lineX, lineY);
-    }
-
-    #region 处理器创建
-
-    private FatherUnbindProcessor CreateProcessor(List<JudgeLine> allJudgeLines) =>
-        new(
-            FatherUnbindHelpers.JudgeLineCacheTable.GetOrCreateValue(allJudgeLines),
-            LogInfo,
-            LogWarning,
-            LogError,
-            LogDebug
-        );
-
-    private FatherUnbindPlusProcessor CreatePlusProcessor(
-        List<JudgeLine> allJudgeLines,
-        double tolerance,
-        double mergeTolerance
-    ) =>
-        new(
-            FatherUnbindHelpers.JudgeLineCacheTable.GetOrCreateValue(allJudgeLines),
-            tolerance,
-            mergeTolerance,
-            LogInfo,
-            LogWarning,
-            LogError,
-            LogDebug
-        );
-
-    #endregion
-
-    #region 等间隔采样
-
-    /// <inheritdoc/>
-    public JudgeLine FatherUnbind(
+    /// <summary>
+    /// 使用等间隔采样将判定线与父判定线解绑。
+    /// </summary>
+    /// <param name="targetJudgeLineIndex">目标判定线在列表中的索引。</param>
+    /// <param name="allJudgeLines">当前谱面的全部判定线。</param>
+    /// <param name="precision">每拍内的采样步数。</param>
+    /// <param name="progress">进度回调。</param>
+    /// <returns>解绑后的判定线（已转换为绝对坐标）。</returns>
+    [Obsolete("已弃用：请迁移至 JudgeLineUnbinder.FatherUnbind。")]
+    public Kpc.JudgeLine FatherUnbind(
         int targetJudgeLineIndex,
-        List<JudgeLine> allJudgeLines,
+        List<Kpc.JudgeLine> allJudgeLines,
         double precision,
         IProgress<ToolProgress>? progress = null
     ) =>
-        UnbindEqualSpacing(
-            targetJudgeLineIndex,
-            allJudgeLines,
-            precision,
-            progress,
-            CancellationToken.None
-        );
-
-    /// <inheritdoc/>
-    public JudgeLine FatherUnbind(
-        int targetJudgeLineIndex,
-        List<JudgeLine> allJudgeLines,
-        double precision,
-        IProgress<ToolProgress>? progress,
-        CancellationToken cancellationToken
-    ) =>
-        UnbindEqualSpacing(
-            targetJudgeLineIndex,
-            allJudgeLines,
-            precision,
-            progress,
-            cancellationToken
-        );
-
-    /// <inheritdoc/>
-    public JudgeLine FatherUnbind(
-        int targetJudgeLineIndex,
-        List<JudgeLine> allJudgeLines,
-        CoordinateProfile renderProfile,
-        double precision,
-        IProgress<ToolProgress>? progress = null
-    ) =>
-        FatherUnbind(
-            targetJudgeLineIndex,
-            allJudgeLines,
-            renderProfile,
-            precision,
-            progress,
-            CancellationToken.None
-        );
-
-    /// <inheritdoc/>
-    public JudgeLine FatherUnbind(
-        int targetJudgeLineIndex,
-        List<JudgeLine> allJudgeLines,
-        CoordinateProfile renderProfile,
-        double precision,
-        IProgress<ToolProgress>? progress,
-        CancellationToken cancellationToken
-    )
-    {
-        using var profileScope = FatherUnbindHelpers.UseRenderProfile(renderProfile);
-        return UnbindEqualSpacing(
-            targetJudgeLineIndex,
-            allJudgeLines,
-            precision,
-            progress,
-            cancellationToken
-        );
-    }
-
-    private JudgeLine UnbindEqualSpacing(
-        int targetJudgeLineIndex,
-        List<JudgeLine> allJudgeLines,
-        double precision,
-        IProgress<ToolProgress>? progress,
-        CancellationToken cancellationToken
-    ) =>
-        ValidateInput(targetJudgeLineIndex, allJudgeLines, precision, null)
-            .CreateProcessor(allJudgeLines)
-            .FatherUnbind(
+        KpcCompatibilityMapper.ToKpc(
+            base.FatherUnbind(
                 targetJudgeLineIndex,
-                allJudgeLines,
+                KpcCompatibilityMapper.ToIntermediate(allJudgeLines),
+                precision,
+                progress
+            )
+        );
+
+    /// <summary>
+    /// 使用等间隔采样将判定线与父判定线解绑，并支持取消长时间采样。
+    /// </summary>
+    /// <param name="targetJudgeLineIndex">目标判定线在列表中的索引。</param>
+    /// <param name="allJudgeLines">当前谱面的全部判定线。</param>
+    /// <param name="precision">每拍内的采样步数。</param>
+    /// <param name="progress">进度回调。</param>
+    /// <param name="cancellationToken">取消解绑操作的令牌。</param>
+    /// <returns>解绑后的判定线（已转换为绝对坐标）。</returns>
+    [Obsolete("已弃用：请迁移至 JudgeLineUnbinder.FatherUnbind。")]
+    public Kpc.JudgeLine FatherUnbind(
+        int targetJudgeLineIndex,
+        List<Kpc.JudgeLine> allJudgeLines,
+        double precision,
+        IProgress<ToolProgress>? progress,
+        CancellationToken cancellationToken
+    ) =>
+        KpcCompatibilityMapper.ToKpc(
+            base.FatherUnbind(
+                targetJudgeLineIndex,
+                KpcCompatibilityMapper.ToIntermediate(allJudgeLines),
                 precision,
                 progress,
                 cancellationToken
-            );
-
-    #endregion
-
-    #region 自适应采样
-
-    /// <inheritdoc/>
-    public JudgeLine FatherUnbindDynamic(
-        int targetJudgeLineIndex,
-        List<JudgeLine> allJudgeLines,
-        double precision,
-        double tolerance,
-        double mergeTolerance,
-        IProgress<ToolProgress>? progress = null
-    ) =>
-        UnbindAdaptive(
-            targetJudgeLineIndex,
-            allJudgeLines,
-            precision,
-            tolerance,
-            mergeTolerance,
-            progress,
-            CancellationToken.None
+            )
         );
 
-    /// <inheritdoc/>
-    public JudgeLine FatherUnbindDynamic(
+    /// <summary>
+    /// 使用等间隔采样在指定渲染坐标系中解绑判定线。
+    /// </summary>
+    /// <param name="targetJudgeLineIndex">目标判定线在列表中的索引。</param>
+    /// <param name="allJudgeLines">当前谱面的全部判定线。</param>
+    /// <param name="renderProfile">渲染坐标系配置。</param>
+    /// <param name="precision">每拍内的采样步数。</param>
+    /// <param name="progress">进度回调。</param>
+    /// <returns>解绑后的判定线（已转换为绝对坐标）。</returns>
+    [Obsolete("已弃用：请迁移至 JudgeLineUnbinder.FatherUnbind。")]
+    public Kpc.JudgeLine FatherUnbind(
         int targetJudgeLineIndex,
-        List<JudgeLine> allJudgeLines,
-        double precision,
-        double tolerance,
-        double mergeTolerance,
-        IProgress<ToolProgress>? progress,
-        CancellationToken cancellationToken
-    ) =>
-        UnbindAdaptive(
-            targetJudgeLineIndex,
-            allJudgeLines,
-            precision,
-            tolerance,
-            mergeTolerance,
-            progress,
-            cancellationToken
-        );
-
-    /// <inheritdoc/>
-    public JudgeLine FatherUnbindDynamic(
-        int targetJudgeLineIndex,
-        List<JudgeLine> allJudgeLines,
+        List<Kpc.JudgeLine> allJudgeLines,
         CoordinateProfile renderProfile,
         double precision,
-        double tolerance,
-        double mergeTolerance,
         IProgress<ToolProgress>? progress = null
     ) =>
-        FatherUnbindDynamic(
-            targetJudgeLineIndex,
-            allJudgeLines,
-            renderProfile,
-            precision,
-            tolerance,
-            mergeTolerance,
-            progress,
-            CancellationToken.None
-        );
-
-    /// <inheritdoc/>
-    public JudgeLine FatherUnbindDynamic(
-        int targetJudgeLineIndex,
-        List<JudgeLine> allJudgeLines,
-        CoordinateProfile renderProfile,
-        double precision,
-        double tolerance,
-        double mergeTolerance,
-        IProgress<ToolProgress>? progress,
-        CancellationToken cancellationToken
-    )
-    {
-        using var profileScope = FatherUnbindHelpers.UseRenderProfile(renderProfile);
-        return UnbindAdaptive(
-            targetJudgeLineIndex,
-            allJudgeLines,
-            precision,
-            tolerance,
-            mergeTolerance,
-            progress,
-            cancellationToken
-        );
-    }
-
-    private JudgeLine UnbindAdaptive(
-        int targetJudgeLineIndex,
-        List<JudgeLine> allJudgeLines,
-        double precision,
-        double tolerance,
-        double mergeTolerance,
-        IProgress<ToolProgress>? progress,
-        CancellationToken cancellationToken
-    ) =>
-        ValidateInput(targetJudgeLineIndex, allJudgeLines, precision, tolerance, mergeTolerance)
-            .CreatePlusProcessor(allJudgeLines, tolerance, mergeTolerance)
-            .FatherUnbind(
+        KpcCompatibilityMapper.ToKpc(
+            base.FatherUnbind(
                 targetJudgeLineIndex,
-                allJudgeLines,
+                KpcCompatibilityMapper.ToIntermediate(allJudgeLines),
+                renderProfile,
+                precision,
+                progress
+            )
+        );
+
+    /// <summary>
+    /// 使用等间隔采样在指定渲染坐标系中解绑判定线，并支持取消长时间采样。
+    /// </summary>
+    /// <param name="targetJudgeLineIndex">目标判定线在列表中的索引。</param>
+    /// <param name="allJudgeLines">当前谱面的全部判定线。</param>
+    /// <param name="renderProfile">渲染坐标系配置。</param>
+    /// <param name="precision">每拍内的采样步数。</param>
+    /// <param name="progress">进度回调。</param>
+    /// <param name="cancellationToken">取消解绑操作的令牌。</param>
+    /// <returns>解绑后的判定线（已转换为绝对坐标）。</returns>
+    [Obsolete("已弃用：请迁移至 JudgeLineUnbinder.FatherUnbind。")]
+    public Kpc.JudgeLine FatherUnbind(
+        int targetJudgeLineIndex,
+        List<Kpc.JudgeLine> allJudgeLines,
+        CoordinateProfile renderProfile,
+        double precision,
+        IProgress<ToolProgress>? progress,
+        CancellationToken cancellationToken
+    ) =>
+        KpcCompatibilityMapper.ToKpc(
+            base.FatherUnbind(
+                targetJudgeLineIndex,
+                KpcCompatibilityMapper.ToIntermediate(allJudgeLines),
+                renderProfile,
                 precision,
                 progress,
                 cancellationToken
-            );
+            )
+        );
 
-    #endregion
-
-    private JudgeLineUnbinder ValidateInput(
+    /// <summary>
+    /// 使用自适应采样将判定线与父判定线解绑。
+    /// </summary>
+    /// <param name="targetJudgeLineIndex">目标判定线在列表中的索引。</param>
+    /// <param name="allJudgeLines">当前谱面的全部判定线。</param>
+    /// <param name="precision">每拍内的最大采样步数。</param>
+    /// <param name="tolerance">几何拟合容差百分比。</param>
+    /// <param name="mergeTolerance">事件通道合并容差百分比。</param>
+    /// <param name="progress">进度回调。</param>
+    /// <returns>解绑后的判定线（已转换为绝对坐标）。</returns>
+    [Obsolete("已弃用：请迁移至 JudgeLineUnbinder.FatherUnbindDynamic。")]
+    public Kpc.JudgeLine FatherUnbindDynamic(
         int targetJudgeLineIndex,
-        List<JudgeLine> allJudgeLines,
+        List<Kpc.JudgeLine> allJudgeLines,
         double precision,
-        double? tolerance,
-        double? mergeTolerance = null
-    )
-    {
-        ArgumentNullException.ThrowIfNull(allJudgeLines);
-        if (targetJudgeLineIndex < 0 || targetJudgeLineIndex >= allJudgeLines.Count)
-            throw new ArgumentOutOfRangeException(nameof(targetJudgeLineIndex));
-        NumericParameterValidator.ValidatePrecision(precision);
-        if (tolerance is not null)
-            NumericParameterValidator.ValidateTolerance(tolerance.Value);
-        if (mergeTolerance is not null)
-            NumericParameterValidator.ValidateTolerance(mergeTolerance.Value);
-        KpcChartValidator.ValidateJudgeLineHierarchy(allJudgeLines);
-        return this;
-    }
+        double tolerance,
+        double mergeTolerance,
+        IProgress<ToolProgress>? progress = null
+    ) =>
+        KpcCompatibilityMapper.ToKpc(
+            base.FatherUnbindDynamic(
+                targetJudgeLineIndex,
+                KpcCompatibilityMapper.ToIntermediate(allJudgeLines),
+                precision,
+                tolerance,
+                mergeTolerance,
+                progress
+            )
+        );
+
+    /// <summary>
+    /// 使用自适应采样将判定线与父判定线解绑，并支持取消长时间采样。
+    /// </summary>
+    /// <param name="targetJudgeLineIndex">目标判定线在列表中的索引。</param>
+    /// <param name="allJudgeLines">当前谱面的全部判定线。</param>
+    /// <param name="precision">每拍内的最大采样步数。</param>
+    /// <param name="tolerance">几何拟合容差百分比。</param>
+    /// <param name="mergeTolerance">事件通道合并容差百分比。</param>
+    /// <param name="progress">进度回调。</param>
+    /// <param name="cancellationToken">取消解绑操作的令牌。</param>
+    /// <returns>解绑后的判定线（已转换为绝对坐标）。</returns>
+    [Obsolete("已弃用：请迁移至 JudgeLineUnbinder.FatherUnbindDynamic。")]
+    public Kpc.JudgeLine FatherUnbindDynamic(
+        int targetJudgeLineIndex,
+        List<Kpc.JudgeLine> allJudgeLines,
+        double precision,
+        double tolerance,
+        double mergeTolerance,
+        IProgress<ToolProgress>? progress,
+        CancellationToken cancellationToken
+    ) =>
+        KpcCompatibilityMapper.ToKpc(
+            base.FatherUnbindDynamic(
+                targetJudgeLineIndex,
+                KpcCompatibilityMapper.ToIntermediate(allJudgeLines),
+                precision,
+                tolerance,
+                mergeTolerance,
+                progress,
+                cancellationToken
+            )
+        );
+
+    /// <summary>
+    /// 使用自适应采样在指定渲染坐标系中解绑判定线。
+    /// </summary>
+    /// <param name="targetJudgeLineIndex">目标判定线在列表中的索引。</param>
+    /// <param name="allJudgeLines">当前谱面的全部判定线。</param>
+    /// <param name="renderProfile">渲染坐标系配置。</param>
+    /// <param name="precision">每拍内的最大采样步数。</param>
+    /// <param name="tolerance">几何拟合容差百分比。</param>
+    /// <param name="mergeTolerance">事件通道合并容差百分比。</param>
+    /// <param name="progress">进度回调。</param>
+    /// <returns>解绑后的判定线（已转换为绝对坐标）。</returns>
+    [Obsolete("已弃用：请迁移至 JudgeLineUnbinder.FatherUnbindDynamic。")]
+    public Kpc.JudgeLine FatherUnbindDynamic(
+        int targetJudgeLineIndex,
+        List<Kpc.JudgeLine> allJudgeLines,
+        CoordinateProfile renderProfile,
+        double precision,
+        double tolerance,
+        double mergeTolerance,
+        IProgress<ToolProgress>? progress = null
+    ) =>
+        KpcCompatibilityMapper.ToKpc(
+            base.FatherUnbindDynamic(
+                targetJudgeLineIndex,
+                KpcCompatibilityMapper.ToIntermediate(allJudgeLines),
+                renderProfile,
+                precision,
+                tolerance,
+                mergeTolerance,
+                progress
+            )
+        );
+
+    /// <summary>
+    /// 使用自适应采样在指定渲染坐标系中解绑判定线，并支持取消长时间采样。
+    /// </summary>
+    /// <param name="targetJudgeLineIndex">目标判定线在列表中的索引。</param>
+    /// <param name="allJudgeLines">当前谱面的全部判定线。</param>
+    /// <param name="renderProfile">渲染坐标系配置。</param>
+    /// <param name="precision">每拍内的最大采样步数。</param>
+    /// <param name="tolerance">几何拟合容差百分比。</param>
+    /// <param name="mergeTolerance">事件通道合并容差百分比。</param>
+    /// <param name="progress">进度回调。</param>
+    /// <param name="cancellationToken">取消解绑操作的令牌。</param>
+    /// <returns>解绑后的判定线（已转换为绝对坐标）。</returns>
+    [Obsolete("已弃用：请迁移至 JudgeLineUnbinder.FatherUnbindDynamic。")]
+    public Kpc.JudgeLine FatherUnbindDynamic(
+        int targetJudgeLineIndex,
+        List<Kpc.JudgeLine> allJudgeLines,
+        CoordinateProfile renderProfile,
+        double precision,
+        double tolerance,
+        double mergeTolerance,
+        IProgress<ToolProgress>? progress,
+        CancellationToken cancellationToken
+    ) =>
+        KpcCompatibilityMapper.ToKpc(
+            base.FatherUnbindDynamic(
+                targetJudgeLineIndex,
+                KpcCompatibilityMapper.ToIntermediate(allJudgeLines),
+                renderProfile,
+                precision,
+                tolerance,
+                mergeTolerance,
+                progress,
+                cancellationToken
+            )
+        );
 }

@@ -9,7 +9,7 @@ using Microsoft.CodeAnalysis.Operations;
 namespace KaedePhi.Tool.Analyzers;
 
 /// <summary>
-/// 检查 KpcRenderOptions 数值属性在对象初始化或赋值时的常量越界值。
+/// 检查 IrRenderOptions 数值属性在对象初始化或赋值时的常量越界值。
 /// </summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class RenderOptionsAnalyzer : DiagnosticAnalyzer

@@ -1,12 +1,12 @@
-using KaedePhi.Core.PhiChain.v6;
+using KaedePhi.Core.Formats.PhiChain.v6;
 using KaedePhi.Tool.Converter.PhiChain.Model;
-using KaedePhi.Tool.JudgeLines.KaedePhi;
-using KaedePhi.Tool.Layer.KaedePhi;
+using KaedePhi.Tool.JudgeLines.Intermediate;
+using KaedePhi.Tool.Layer.Intermediate;
 
 namespace KaedePhi.Tool.Converter.PhiChain.Utils;
 
 /// <summary>
-/// PhiChain 与 KPC 判定线之间的双向转换工具。
+/// PhiChain 与 IR 判定线之间的双向转换工具。
 /// 处理树形线结构与扁平索引结构之间的转换。
 /// </summary>
 public static class JudgeLineBuilder
@@ -14,7 +14,7 @@ public static class JudgeLineBuilder
     private const int MaximumDepth = 256;
 
     /// <summary>
-    /// 将 PhiChain 树形线结构展开为 KPC 扁平判定线列表。
+    /// 将 PhiChain 树形线结构展开为 IR 扁平判定线列表。
     /// </summary>
     /// <param name="line">PhiChain 序列化线</param>
     /// <param name="fatherIndex">父级线索引，-1 表示无父级</param>
@@ -25,9 +25,9 @@ public static class JudgeLineBuilder
     public static void FlattenLine(
         SerializedLine line,
         int fatherIndex,
-        List<Kpc.JudgeLine> result,
+        List<Ir.JudgeLine> result,
         ref int currentIndex,
-        PhiChainToKpcConvertOptions options,
+        PhiChainToIrConvertOptions options,
         Action<string>? warn = null,
         CancellationToken ct = default,
         int depth = 0
@@ -37,8 +37,8 @@ public static class JudgeLineBuilder
         if (depth > MaximumDepth)
             throw new FormatException($"PhiChain 判定线嵌套深度超过安全上限 {MaximumDepth}。");
 
-        var kpcLine = ConvertLine(line, fatherIndex, currentIndex, options, warn, ct);
-        result.Add(kpcLine);
+        var irLine = ConvertLine(line, fatherIndex, currentIndex, options, warn, ct);
+        result.Add(irLine);
 
         var currentIdx = currentIndex;
         currentIndex++;
@@ -51,24 +51,24 @@ public static class JudgeLineBuilder
     }
 
     /// <summary>
-    /// 将 PhiChain 序列化线转换为 KPC 判定线。
+    /// 将 PhiChain 序列化线转换为 IR 判定线。
     /// </summary>
     /// <param name="src">PhiChain 序列化线</param>
     /// <param name="fatherIndex">父级线索引</param>
     /// <param name="lineIndex">当前线索引</param>
     /// <param name="options">转换选项</param>
     /// <param name="warn">警告回调</param>
-    /// <returns>KPC 判定线</returns>
-    public static Kpc.JudgeLine ConvertLine(
+    /// <returns>IR 判定线</returns>
+    public static Ir.JudgeLine ConvertLine(
         SerializedLine src,
         int fatherIndex,
         int lineIndex,
-        PhiChainToKpcConvertOptions options,
+        PhiChainToIrConvertOptions options,
         Action<string>? warn = null,
         CancellationToken ct = default
     )
     {
-        var kpcLine = new Kpc.JudgeLine
+        var irLine = new Ir.JudgeLine
         {
             Name = src.Name,
             Father = fatherIndex,
@@ -83,7 +83,7 @@ public static class JudgeLineBuilder
             if (EasingConverter.NeedsLinearSlicing(evt.Value.Easing))
             {
                 warn?.Invoke(
-                    $"PhiChain 的 {evt.Value.Easing.EasingType} 缓动在 KPC 中不支持，已切段为线性近似"
+                    $"PhiChain 的 {evt.Value.Easing.EasingType} 缓动在 IR 中不支持，已切段为线性近似"
                 );
                 allEvents.AddRange(
                     EventBuilder.SliceUnsupportedEasing(evt, options.UnsupportedEasingPrecision, ct)
@@ -96,7 +96,7 @@ public static class JudgeLineBuilder
         }
 
         var eventLayer = EventBuilder.ConvertEvents(allEvents);
-        kpcLine.EventLayers.Add(eventLayer);
+        irLine.EventLayers.Add(eventLayer);
 
         // 转换普通音符
         var notes = src.Notes.ConvertAll(NoteBuilder.ConvertNote);
@@ -109,9 +109,9 @@ public static class JudgeLineBuilder
             notes.AddRange(expandedNotes);
         }
 
-        kpcLine.Notes = notes;
+        irLine.Notes = notes;
 
-        return kpcLine;
+        return irLine;
     }
 
     /// <summary>
@@ -120,9 +120,9 @@ public static class JudgeLineBuilder
     /// <param name="src">PhiChain 序列化线</param>
     /// <param name="ct">取消令牌</param>
     /// <returns>展开后的音符列表</returns>
-    private static List<Kpc.Note> ExpandCurveNoteTracks(SerializedLine src, CancellationToken ct)
+    private static List<Ir.Note> ExpandCurveNoteTracks(SerializedLine src, CancellationToken ct)
     {
-        var notes = new List<Kpc.Note>();
+        var notes = new List<Ir.Note>();
 
         foreach (
             var expanded in from track in src.CurveNoteTracks
@@ -140,21 +140,21 @@ public static class JudgeLineBuilder
     }
 
     /// <summary>
-    /// 将 KPC 扁平判定线列表构建为 PhiChain 树形线结构。
+    /// 将 IR 扁平判定线列表构建为 PhiChain 树形线结构。
     /// </summary>
-    /// <param name="kpcLines">KPC 判定线列表</param>
+    /// <param name="irLines">IR 判定线列表</param>
     /// <param name="options">转换选项</param>
     /// <param name="warn">警告回调</param>
     /// <returns>PhiChain 序列化线列表</returns>
     public static List<SerializedLine> BuildLineTree(
-        List<Kpc.JudgeLine> kpcLines,
-        KpcToPhiChainConvertOptions options,
+        List<Ir.JudgeLine> irLines,
+        IrToPhiChainConvertOptions options,
         Action<string>? warn = null,
         CancellationToken ct = default
     )
     {
         // 预处理：解绑 rotateWithFather 为 false 的子线
-        var processedLines = PreprocessLines(kpcLines, options, ct);
+        var processedLines = PreprocessLines(irLines, options, ct);
 
         var result = new List<SerializedLine>();
         var childMap = new Dictionary<int, List<int>>();
@@ -185,17 +185,17 @@ public static class JudgeLineBuilder
     /// <summary>
     /// 预处理判定线列表：解绑 rotateWithFather 为 false 的子线。
     /// </summary>
-    private static List<Kpc.JudgeLine> PreprocessLines(
-        List<Kpc.JudgeLine> kpcLines,
-        KpcToPhiChainConvertOptions options,
+    private static List<Ir.JudgeLine> PreprocessLines(
+        List<Ir.JudgeLine> irLines,
+        IrToPhiChainConvertOptions options,
         CancellationToken ct
     )
     {
         if (!options.UnbindNonRotatingChildren)
-            return kpcLines;
+            return irLines;
 
         var unbinder = new JudgeLineUnbinder();
-        var result = kpcLines.Select(l => l.Clone()).ToList();
+        var result = irLines.Select(l => l.Clone()).ToList();
 
         // 找出所有需要解绑的子线（rotateWithFather 为 false）
         var linesToUnbind = new List<int>();
@@ -212,7 +212,7 @@ public static class JudgeLineBuilder
         foreach (var lineIndex in linesToUnbind)
         {
             ct.ThrowIfCancellationRequested();
-            Kpc.JudgeLine unboundLine;
+            Ir.JudgeLine unboundLine;
             if (options.UnbindClassicMode)
             {
                 unboundLine = unbinder.FatherUnbind(lineIndex, result, options.UnbindPrecision);
@@ -244,10 +244,10 @@ public static class JudgeLineBuilder
     /// 递归构建子树。
     /// </summary>
     private static SerializedLine BuildLineSubtree(
-        List<Kpc.JudgeLine> kpcLines,
+        List<Ir.JudgeLine> irLines,
         int lineIndex,
         Dictionary<int, List<int>> childMap,
-        KpcToPhiChainConvertOptions options,
+        IrToPhiChainConvertOptions options,
         Action<string>? warn = null,
         CancellationToken ct = default,
         int depth = 0
@@ -257,8 +257,8 @@ public static class JudgeLineBuilder
         if (depth > MaximumDepth)
             throw new FormatException($"PhiChain 判定线嵌套深度超过安全上限 {MaximumDepth}。");
 
-        var kpcLine = kpcLines[lineIndex];
-        var serializedLine = ConvertLineToPhiChain(kpcLine, options, warn, ct);
+        var irLine = irLines[lineIndex];
+        var serializedLine = ConvertLineToPhiChain(irLine, options, warn, ct);
 
         // 递归处理子线
         if (!childMap.TryGetValue(lineIndex, out var children))
@@ -266,7 +266,7 @@ public static class JudgeLineBuilder
         foreach (var childIndex in children)
         {
             serializedLine.Children.Add(
-                BuildLineSubtree(kpcLines, childIndex, childMap, options, warn, ct, depth + 1)
+                BuildLineSubtree(irLines, childIndex, childMap, options, warn, ct, depth + 1)
             );
         }
 
@@ -274,15 +274,15 @@ public static class JudgeLineBuilder
     }
 
     /// <summary>
-    /// 将 KPC 判定线转换为 PhiChain 序列化线。
+    /// 将 IR 判定线转换为 PhiChain 序列化线。
     /// </summary>
-    /// <param name="src">KPC 判定线</param>
+    /// <param name="src">IR 判定线</param>
     /// <param name="options">转换选项</param>
     /// <param name="warn">警告回调</param>
     /// <returns>PhiChain 序列化线</returns>
     private static SerializedLine ConvertLineToPhiChain(
-        Kpc.JudgeLine src,
-        KpcToPhiChainConvertOptions options,
+        Ir.JudgeLine src,
+        IrToPhiChainConvertOptions options,
         Action<string>? warn = null,
         CancellationToken ct = default
     )
@@ -304,7 +304,7 @@ public static class JudgeLineBuilder
                 );
 
             var processor = new LayerProcessor();
-            KpcEvents.EventLayer mergedLayer;
+            IrEvents.EventLayer mergedLayer;
 
             if (options.MultiLayerMergeClassicMode)
             {
@@ -341,16 +341,16 @@ public static class JudgeLineBuilder
     }
 
     /// <summary>
-    /// 检查 KPC 判定线字段是否会被 PhiChain 丢弃，发出警告。
+    /// 检查 IR 判定线字段是否会被 PhiChain 丢弃，发出警告。
     /// </summary>
-    /// <param name="src">KPC 判定线</param>
+    /// <param name="src">IR 判定线</param>
     /// <param name="warn">警告回调</param>
-    private static void WarnIfUnsupportedLineFields(Kpc.JudgeLine src, Action<string>? warn)
+    private static void WarnIfUnsupportedLineFields(Ir.JudgeLine src, Action<string>? warn)
     {
         if (warn == null)
             return;
 
-        var defaults = new Kpc.JudgeLine();
+        var defaults = new Ir.JudgeLine();
         if (src.Texture != defaults.Texture)
             warn($"PhiChain 不支持 JudgeLine.Texture（值='{src.Texture}'）");
         if (

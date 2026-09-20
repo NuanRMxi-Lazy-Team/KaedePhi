@@ -18,14 +18,14 @@ public sealed class ConvertOptionsAnalyzerTests
             {
                 public static void Run()
                 {
-                    var options = new KaedePhi.Tool.Converter.PhiEdit.Model.KpcToPhiEditConvertOptions();
+                    var options = new KaedePhi.Tool.Converter.PhiEdit.Model.IrToPhiEditConvertOptions();
                     options.Cutting.UnsupportedEasingPrecision = {|#0:-1|};
                 }
             }
 
             namespace KaedePhi.Tool.Converter.PhiEdit.Model
             {
-                public class KpcToPhiEditConvertOptions
+                public class IrToPhiEditConvertOptions
                 {
                     public CuttingOptions Cutting { get; set; } = new();
                     public double TrailingBeatPadding { get; set; }
@@ -55,14 +55,14 @@ public sealed class ConvertOptionsAnalyzerTests
             {
                 public static void Run()
                 {
-                    var options = new KaedePhi.Tool.Converter.PhiEdit.Model.KpcToPhiEditConvertOptions();
+                    var options = new KaedePhi.Tool.Converter.PhiEdit.Model.IrToPhiEditConvertOptions();
                     options.Cutting.CutTolerance = {|#0:101d|};
                 }
             }
 
             namespace KaedePhi.Tool.Converter.PhiEdit.Model
             {
-                public class KpcToPhiEditConvertOptions
+                public class IrToPhiEditConvertOptions
                 {
                     public CuttingOptions Cutting { get; set; } = new();
                     public double TrailingBeatPadding { get; set; }
@@ -92,14 +92,14 @@ public sealed class ConvertOptionsAnalyzerTests
             {
                 public static void Run()
                 {
-                    var options = new KaedePhi.Tool.Converter.PhiEdit.Model.KpcToPhiEditConvertOptions();
+                    var options = new KaedePhi.Tool.Converter.PhiEdit.Model.IrToPhiEditConvertOptions();
                     options.TrailingBeatPadding = {|#0:-0.5|};
                 }
             }
 
             namespace KaedePhi.Tool.Converter.PhiEdit.Model
             {
-                public class KpcToPhiEditConvertOptions
+                public class IrToPhiEditConvertOptions
                 {
                     public CuttingOptions Cutting { get; set; } = new();
                     public double TrailingBeatPadding { get; set; }
@@ -129,7 +129,7 @@ public sealed class ConvertOptionsAnalyzerTests
             {
                 public static void Run()
                 {
-                    var options = new KaedePhi.Tool.Converter.PhiEdit.Model.KpcToPhiEditConvertOptions
+                    var options = new KaedePhi.Tool.Converter.PhiEdit.Model.IrToPhiEditConvertOptions
                     {
                         Cutting = new() { UnsupportedEasingPrecision = {|#0:-1|} },
                     };
@@ -138,7 +138,7 @@ public sealed class ConvertOptionsAnalyzerTests
 
             namespace KaedePhi.Tool.Converter.PhiEdit.Model
             {
-                public class KpcToPhiEditConvertOptions
+                public class IrToPhiEditConvertOptions
                 {
                     public CuttingOptions Cutting { get; set; } = new();
                     public double TrailingBeatPadding { get; set; }
@@ -168,7 +168,7 @@ public sealed class ConvertOptionsAnalyzerTests
             {
                 public static void Run()
                 {
-                    var options = new KaedePhi.Tool.Converter.PhiEdit.Model.KpcToPhiEditConvertOptions();
+                    var options = new KaedePhi.Tool.Converter.PhiEdit.Model.IrToPhiEditConvertOptions();
                     options.Cutting.UnsupportedEasingPrecision = 64;
                     options.Cutting.CutTolerance = 0.1;
                     options.TrailingBeatPadding = 0;
@@ -177,7 +177,7 @@ public sealed class ConvertOptionsAnalyzerTests
 
             namespace KaedePhi.Tool.Converter.PhiEdit.Model
             {
-                public class KpcToPhiEditConvertOptions
+                public class IrToPhiEditConvertOptions
                 {
                     public CuttingOptions Cutting { get; set; } = new();
                     public double TrailingBeatPadding { get; set; }

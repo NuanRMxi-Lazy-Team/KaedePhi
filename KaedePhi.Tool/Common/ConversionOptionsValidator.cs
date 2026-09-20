@@ -8,14 +8,14 @@ namespace KaedePhi.Tool.Common;
 
 internal static class ConversionOptionsValidator
 {
-    public static void Validate(PhiEditToKpcConvertOptions options)
+    public static void Validate(PhiEditToIrConvertOptions options)
     {
         ArgumentNullException.ThrowIfNull(options);
         ValidatePositive(options.FrameDurationBeat, nameof(options.FrameDurationBeat));
         ValidateNonNegative(options.TrailingBeatPadding, nameof(options.TrailingBeatPadding));
     }
 
-    public static void Validate(KpcToPhiEditConvertOptions options)
+    public static void Validate(IrToPhiEditConvertOptions options)
     {
         ArgumentNullException.ThrowIfNull(options);
         ValidatePositive(options.Cutting.UnsupportedEasingPrecision, "UnsupportedEasingPrecision");
@@ -41,7 +41,7 @@ internal static class ConversionOptionsValidator
             throw new ArgumentOutOfRangeException(nameof(options));
     }
 
-    public static void Validate(KpcToPhiFansConvertOptions options)
+    public static void Validate(IrToPhiFansConvertOptions options)
     {
         ArgumentNullException.ThrowIfNull(options);
         ArgumentNullException.ThrowIfNull(options.MultiLayerMerge);
@@ -58,7 +58,7 @@ internal static class ConversionOptionsValidator
             );
     }
 
-    public static void Validate(KpcToPhigrosV3ConvertOptions options)
+    public static void Validate(IrToPhigrosV3ConvertOptions options)
     {
         ArgumentNullException.ThrowIfNull(options);
         ValidatePositive(options.DefaultBpm, nameof(options.DefaultBpm));
@@ -80,7 +80,7 @@ internal static class ConversionOptionsValidator
         ValidatePositive(options.NegativeAlpha.ElevationStep, "NegativeAlpha.ElevationStep");
     }
 
-    public static void Validate(KpcToPhiChainConvertOptions options)
+    public static void Validate(IrToPhiChainConvertOptions options)
     {
         ArgumentNullException.ThrowIfNull(options);
         ValidatePositive(options.UnbindPrecision, nameof(options.UnbindPrecision));
@@ -97,7 +97,7 @@ internal static class ConversionOptionsValidator
         );
     }
 
-    public static void Validate(PhiChainToKpcConvertOptions options)
+    public static void Validate(PhiChainToIrConvertOptions options)
     {
         ArgumentNullException.ThrowIfNull(options);
         if (
