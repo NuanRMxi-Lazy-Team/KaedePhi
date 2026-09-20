@@ -69,7 +69,7 @@ dotnet run --project KaedePhi.Tool.App -- --help
 配置文件由 CLI 和 GUI 共享。工作区只保存名为 `chart.json` 的原始谱面文件，工作区 ID 只允许字母、数字、下划线和连字符。
 
 ## 构建与测试
-仓库固定使用的 .NET SDK 版本由根目录 `global.json` 约束。
+根目录 `global.json` 将 `dotnet test` 的测试运行器配置为 Microsoft.Testing.Platform。
 
 ```bash
 dotnet restore KaedePhi.sln

@@ -1,0 +1,44 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+  # 供发版流程复用同一份测试门禁
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7.0.1
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v6.0.0
+        with:
+          dotnet-version: '10.0.400'
+
+      - name: Restore dependencies
+        run: dotnet restore KaedePhi.sln --locked-mode
+
+      - name: Build solution
+        run: dotnet build KaedePhi.sln --configuration Release --no-restore
+
+      # 所有测试项目都引用了 Microsoft.Testing.Extensions.CodeCoverage，--coverage 才能生效
+      - name: Run tests
+        run: dotnet test --solution KaedePhi.sln --configuration Release --no-build --coverage --coverage-output-format cobertura --results-directory TestResults
+
+      - name: Upload coverage
+        uses: actions/upload-artifact@v7.0.1
+        with:
+          name: test-results
+          path: TestResults
+          if-no-files-found: error
+          retention-days: 7
