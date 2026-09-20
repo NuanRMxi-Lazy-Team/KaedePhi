@@ -4,6 +4,7 @@ using Newtonsoft.Json;
 
 namespace KaedePhi.Core.PhiChain.v6
 {
+    [System.Obsolete("已弃用：请迁移至 KaedePhi.Core.Formats.PhiChain.v6 命名空间下的同名类型。")]
     public sealed partial class Chart
     {
         [JsonProperty("format")]

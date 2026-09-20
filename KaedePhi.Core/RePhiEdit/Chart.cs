@@ -3,6 +3,7 @@ using Newtonsoft.Json;
 
 namespace KaedePhi.Core.RePhiEdit
 {
+    [System.Obsolete("已弃用：请迁移至 KaedePhi.Core.Formats.RePhiEdit 命名空间下的同名类型。")]
     public partial class Chart
     {
         /// <summary>
