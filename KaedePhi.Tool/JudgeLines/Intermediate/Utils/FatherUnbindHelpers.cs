@@ -4,8 +4,8 @@ using System.Runtime.CompilerServices;
 using KaedePhi.Core.Primitives;
 using KaedePhi.Tool.Common;
 using KaedePhi.Tool.Event.Intermediate;
-using EventLayer = KaedePhi.Core.Intermediate.Events.EventLayer;
-using JudgeLine = KaedePhi.Core.Intermediate.JudgeLine;
+using EventLayer = KaedePhi.Core.Intermediate.Model.Events.EventLayer;
+using JudgeLine = KaedePhi.Core.Intermediate.Model.JudgeLine;
 
 namespace KaedePhi.Tool.JudgeLines.Intermediate.Utils;
 

@@ -1,4 +1,5 @@
 using System;
+using KaedePhi.Core.Formats.RePhiEdit.Model;
 using Newtonsoft.Json;
 
 namespace KaedePhi.Core.Formats.RePhiEdit.Serialization.JsonConverter

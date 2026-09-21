@@ -2,9 +2,9 @@ using KaedePhi.Core.Primitives;
 using KaedePhi.Tool.Common;
 using KaedePhi.Tool.Converter.Phigros.v3.Model;
 using KaedePhi.Tool.Converter.Phigros.v3.Utils;
-using IrMeta = KaedePhi.Core.Intermediate.Meta;
-using PhigrosChart = KaedePhi.Core.Formats.Phigros.v3.Chart;
-using PhigrosJudgeLine = KaedePhi.Core.Formats.Phigros.v3.JudgeLine;
+using IrMeta = KaedePhi.Core.Intermediate.Model.Meta;
+using PhigrosChart = KaedePhi.Core.Formats.Phigros.v3.Model.Chart;
+using PhigrosJudgeLine = KaedePhi.Core.Formats.Phigros.v3.Model.JudgeLine;
 
 namespace KaedePhi.Tool.Converter.Phigros.v3;
 

@@ -2,7 +2,7 @@ using System.Linq;
 using KaedePhi.Core.Primitives;
 using Newtonsoft.Json;
 
-namespace KaedePhi.Core.Intermediate
+namespace KaedePhi.Core.Intermediate.Model
 {
     public class Note
     {
@@ -42,8 +42,7 @@ namespace KaedePhi.Core.Intermediate
             }
         }
 
-        [JsonIgnore]
-        internal bool HasExplicitEndBeat => _hasExplicitEndBeat;
+        [JsonIgnore] internal bool HasExplicitEndBeat => _hasExplicitEndBeat;
 
         /// <summary>
         /// 模拟器保留字段

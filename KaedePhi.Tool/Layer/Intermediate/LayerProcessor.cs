@@ -2,7 +2,7 @@ using KaedePhi.Core.Primitives;
 using KaedePhi.Tool.Common;
 using KaedePhi.Tool.Event.Intermediate;
 using KaedePhi.Tool.JudgeLines.Intermediate.Utils;
-using EventLayer = KaedePhi.Core.Intermediate.Events.EventLayer;
+using EventLayer = KaedePhi.Core.Intermediate.Model.Events.EventLayer;
 
 namespace KaedePhi.Tool.Layer.Intermediate;
 

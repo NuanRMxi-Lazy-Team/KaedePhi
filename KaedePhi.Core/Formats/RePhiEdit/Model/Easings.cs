@@ -1,6 +1,6 @@
 using static KaedePhi.Core.Primitives.Mathematics.Easings;
 
-namespace KaedePhi.Core.Formats.RePhiEdit
+namespace KaedePhi.Core.Formats.RePhiEdit.Model
 {
     public static class Easings
     {
@@ -25,7 +25,7 @@ namespace KaedePhi.Core.Formats.RePhiEdit
         /// <returns>归一化后的缓动进度。</returns>
         public static double Evaluate(int easingType, double start, double end, double t)
         {
-            return Evaluate(PhiEdit.Easings.GetFunction(easingType), start, end, t);
+            return Evaluate(PhiEdit.Model.Easings.GetFunction(easingType), start, end, t);
         }
     }
 }

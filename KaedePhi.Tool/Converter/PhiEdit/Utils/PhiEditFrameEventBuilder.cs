@@ -1,6 +1,6 @@
 using KaedePhi.Core.Primitives;
 using KaedePhi.Tool.Converter.PhiEdit.Model;
-using IrEasing = KaedePhi.Core.Intermediate.Easing;
+using IrEasing = KaedePhi.Core.Intermediate.Model.Easing;
 
 namespace KaedePhi.Tool.Converter.PhiEdit.Utils;
 

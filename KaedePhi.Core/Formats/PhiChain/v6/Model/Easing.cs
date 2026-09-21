@@ -1,7 +1,7 @@
 using KaedePhi.Core.Formats.PhiChain.v6.Serialization.JsonConverter;
 using Newtonsoft.Json;
 
-namespace KaedePhi.Core.Formats.PhiChain.v6
+namespace KaedePhi.Core.Formats.PhiChain.v6.Model
 {
     public enum EasingKind
     {

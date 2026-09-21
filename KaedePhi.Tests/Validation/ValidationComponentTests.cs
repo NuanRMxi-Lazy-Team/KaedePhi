@@ -1,6 +1,6 @@
 using System.Reflection;
 using KaedePhi.Core.Primitives;
-using KaedePhi.Core.Intermediate;
+using KaedePhi.Core.Intermediate.Model;
 using KaedePhi.Tool.Common;
 using KaedePhi.Tool.Converter.Intermediate;
 using KaedePhi.Tool.Render.Intermediate;

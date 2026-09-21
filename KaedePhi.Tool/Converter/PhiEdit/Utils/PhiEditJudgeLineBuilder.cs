@@ -3,8 +3,8 @@ using KaedePhi.Tool.Common;
 using KaedePhi.Tool.Converter.PhiEdit.Model;
 using KaedePhi.Tool.JudgeLines.Intermediate;
 using KaedePhi.Tool.Layer.Intermediate;
-using ExtendLayer = KaedePhi.Core.Intermediate.Events.ExtendLayer;
-using IrJudgeLine = KaedePhi.Core.Intermediate.JudgeLine;
+using ExtendLayer = KaedePhi.Core.Intermediate.Model.Events.ExtendLayer;
+using IrJudgeLine = KaedePhi.Core.Intermediate.Model.JudgeLine;
 
 namespace KaedePhi.Tool.Converter.PhiEdit.Utils;
 

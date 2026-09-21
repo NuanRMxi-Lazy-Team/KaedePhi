@@ -1,7 +1,7 @@
 using KaedePhi.Core.Primitives;
 using KaedePhi.Tool.Common;
-using PhigrosNote = KaedePhi.Core.Formats.Phigros.v3.Note;
-using PhigrosNoteType = KaedePhi.Core.Formats.Phigros.v3.NoteType;
+using PhigrosNote = KaedePhi.Core.Formats.Phigros.v3.Model.Note;
+using PhigrosNoteType = KaedePhi.Core.Formats.Phigros.v3.Model.NoteType;
 
 namespace KaedePhi.Tool.Converter.Phigros.v3.Utils;
 

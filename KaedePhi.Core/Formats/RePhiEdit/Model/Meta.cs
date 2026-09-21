@@ -1,7 +1,7 @@
 using JetBrains.Annotations;
 using Newtonsoft.Json;
 
-namespace KaedePhi.Core.Formats.RePhiEdit
+namespace KaedePhi.Core.Formats.RePhiEdit.Model
 {
     /// <summary>
     /// 谱面元数据

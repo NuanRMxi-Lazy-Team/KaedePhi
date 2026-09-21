@@ -1,6 +1,6 @@
 using static KaedePhi.Core.Primitives.Mathematics.Easings;
 
-namespace KaedePhi.Core.Intermediate
+namespace KaedePhi.Core.Intermediate.Model
 {
     public static class Easings
     {

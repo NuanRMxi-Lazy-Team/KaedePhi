@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using KaedePhi.Core.Primitives;
 
-namespace KaedePhi.Core.Intermediate
+namespace KaedePhi.Core.Intermediate.Model
 {
     public class JudgeLine
     {

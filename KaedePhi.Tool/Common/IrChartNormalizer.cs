@@ -1,5 +1,5 @@
 using KaedePhi.Core.Primitives;
-using KaedePhi.Core.Intermediate;
+using KaedePhi.Core.Intermediate.Model;
 
 namespace KaedePhi.Tool.Common;
 

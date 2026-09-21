@@ -1,9 +1,9 @@
 using KaedePhi.Core.Primitives;
 using KaedePhi.Tool.Common;
-using PhigrosEvent = KaedePhi.Core.Formats.Phigros.v3.Event;
-using PhigrosJudgeLine = KaedePhi.Core.Formats.Phigros.v3.JudgeLine;
-using PhigrosNoteType = KaedePhi.Core.Formats.Phigros.v3.NoteType;
-using PhigrosSpeedEvent = KaedePhi.Core.Formats.Phigros.v3.SpeedEvent;
+using PhigrosEvent = KaedePhi.Core.Formats.Phigros.v3.Model.Event;
+using PhigrosJudgeLine = KaedePhi.Core.Formats.Phigros.v3.Model.JudgeLine;
+using PhigrosNoteType = KaedePhi.Core.Formats.Phigros.v3.Model.NoteType;
+using PhigrosSpeedEvent = KaedePhi.Core.Formats.Phigros.v3.Model.SpeedEvent;
 
 namespace KaedePhi.Tool.Converter.Phigros.v3.Utils;
 

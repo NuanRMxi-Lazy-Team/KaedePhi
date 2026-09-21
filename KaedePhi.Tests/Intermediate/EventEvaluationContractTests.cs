@@ -1,6 +1,6 @@
 using KaedePhi.Core.Primitives;
-using Ir = KaedePhi.Core.Intermediate;
-using IrEvents = KaedePhi.Core.Intermediate.Events;
+using Ir = KaedePhi.Core.Intermediate.Model;
+using IrEvents = KaedePhi.Core.Intermediate.Model.Events;
 
 namespace KaedePhi.Tests.Intermediate;
 

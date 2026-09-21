@@ -1,6 +1,6 @@
 using System.Globalization;
 
-namespace KaedePhi.Core.Formats.PhiEdit
+namespace KaedePhi.Core.Formats.PhiEdit.Model
 {
     /// <summary>
     /// 移动帧（瞬时事件），描述某一拍点上的判定线位置。

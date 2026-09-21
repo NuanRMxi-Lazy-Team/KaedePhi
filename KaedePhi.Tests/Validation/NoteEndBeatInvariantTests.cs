@@ -13,12 +13,12 @@ using KaedePhi.Tool.Converter.Phigros.v3;
 using KaedePhi.Tool.Converter.Phigros.v3.Model;
 using KaedePhi.Tool.Converter.RePhiEdit;
 using KaedePhi.Tool.Converter.RePhiEdit.Model;
-using Ir = KaedePhi.Core.Intermediate;
-using Pc = KaedePhi.Core.Formats.PhiChain.v6;
-using Pe = KaedePhi.Core.Formats.PhiEdit;
-using Pf = KaedePhi.Core.Formats.PhiFans;
-using Phigros = KaedePhi.Core.Formats.Phigros.v3;
-using Rpe = KaedePhi.Core.Formats.RePhiEdit;
+using Ir = KaedePhi.Core.Intermediate.Model;
+using Pc = KaedePhi.Core.Formats.PhiChain.v6.Model;
+using Pe = KaedePhi.Core.Formats.PhiEdit.Model;
+using Pf = KaedePhi.Core.Formats.PhiFans.Model;
+using Phigros = KaedePhi.Core.Formats.Phigros.v3.Model;
+using Rpe = KaedePhi.Core.Formats.RePhiEdit.Model;
 
 namespace KaedePhi.Tests.Validation;
 

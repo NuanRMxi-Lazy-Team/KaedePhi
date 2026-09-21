@@ -3,7 +3,7 @@ using Newtonsoft.Json;
 
 namespace KaedePhi.Core.Phigros.v3
 {
-    [System.Obsolete("已弃用：请迁移至 KaedePhi.Core.Formats.Phigros.v3 命名空间下的同名类型。")]
+    [System.Obsolete("已弃用：请迁移至 KaedePhi.Core.Formats.Phigros.v3.Model 命名空间下的同名类型。")]
     public partial class Chart
     {
         /// <summary>

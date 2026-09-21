@@ -1,5 +1,5 @@
 using KaedePhi.Core.Primitives;
-using KaedePhi.Core.Formats.PhiFans;
+using KaedePhi.Core.Formats.PhiFans.Model;
 using KaedePhi.Tool.Common;
 using KaedePhi.Tool.Converter.PhiFans.Model;
 using KaedePhi.Tool.Converter.PhiFans.Utils;

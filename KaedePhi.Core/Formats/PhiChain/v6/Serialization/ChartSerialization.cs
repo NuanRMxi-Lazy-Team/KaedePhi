@@ -2,15 +2,16 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using KaedePhi.Core.Primitives;
+using KaedePhi.Core.Formats.PhiChain.v6.Model;
+using KaedePhi.Core.Primitives.Serialization;
 using Newtonsoft.Json;
 
-namespace KaedePhi.Core.Formats.PhiChain.v6
+namespace KaedePhi.Core.Formats.PhiChain.v6.Serialization
 {
     /// <summary>
-    /// PhiChain v6 Chart 扩展方法，提供 JSON 的序列化与反序列化功能
+    /// 提供 PhiChain v6 谱面 JSON 的序列化与反序列化功能。
     /// </summary>
-    public partial class Chart
+    public static class ChartSerialization
     {
         /// <summary>
         /// 从 JSON 字符串反序列化为 Chart 对象
@@ -104,13 +105,14 @@ namespace KaedePhi.Core.Formats.PhiChain.v6
         /// <summary>
         /// 序列化 Chart 为 JSON 字符串
         /// </summary>
+        /// <param name="chart">待序列化的谱面。</param>
         /// <param name="format">是否格式化输出</param>
         /// <returns>JSON 字符串</returns>
         [PublicAPI]
-        public string ExportToJson(bool format = false)
+        public static string ExportToJson(this Chart chart, bool format = false)
         {
             return JsonConvert.SerializeObject(
-                this,
+                chart,
                 format ? Formatting.Indented : Formatting.None
             );
         }
@@ -118,18 +120,20 @@ namespace KaedePhi.Core.Formats.PhiChain.v6
         /// <summary>
         /// 异步序列化 Chart 为 JSON 字符串
         /// </summary>
+        /// <param name="chart">待序列化的谱面。</param>
         /// <param name="format">是否格式化输出</param>
         /// <returns>JSON 字符串</returns>
         [PublicAPI]
-        public Task<string> ExportToJsonAsync(bool format = false) =>
-            Task.FromResult(ExportToJson(format));
+        public static Task<string> ExportToJsonAsync(this Chart chart, bool format = false) =>
+            Task.FromResult(chart.ExportToJson(format));
 
         /// <summary>
         /// 序列化 Chart 为 JSON 并写入流
         /// </summary>
+        /// <param name="chart">待序列化的谱面。</param>
         /// <param name="stream">目标流</param>
         /// <param name="format">是否格式化输出</param>
-        public void ExportToJsonStream(Stream stream, bool format = false)
+        public static void ExportToJsonStream(this Chart chart, Stream stream, bool format = false)
         {
             using var streamWriter = new StreamWriter(
                 stream,
@@ -142,7 +146,7 @@ namespace KaedePhi.Core.Formats.PhiChain.v6
             );
 
             using var jsonWriter = new JsonTextWriter(streamWriter) { CloseOutput = false };
-            serializer.Serialize(jsonWriter, this);
+            serializer.Serialize(jsonWriter, chart);
             jsonWriter.Flush();
             streamWriter.Flush();
         }
@@ -150,9 +154,14 @@ namespace KaedePhi.Core.Formats.PhiChain.v6
         /// <summary>
         /// 异步序列化 Chart 为 JSON 并写入流
         /// </summary>
+        /// <param name="chart">待序列化的谱面。</param>
         /// <param name="stream">目标流</param>
         /// <param name="format">是否格式化输出</param>
-        public async Task ExportToJsonStreamAsync(Stream stream, bool format = false)
+        public static async Task ExportToJsonStreamAsync(
+            this Chart chart,
+            Stream stream,
+            bool format = false
+        )
         {
             await using var streamWriter = new StreamWriter(
                 stream,
@@ -164,7 +173,7 @@ namespace KaedePhi.Core.Formats.PhiChain.v6
                 format ? Formatting.Indented : Formatting.None
             );
             using var jsonWriter = new JsonTextWriter(streamWriter) { CloseOutput = false };
-            serializer.Serialize(jsonWriter, this);
+            serializer.Serialize(jsonWriter, chart);
             jsonWriter.Flush();
             await streamWriter.FlushAsync();
         }

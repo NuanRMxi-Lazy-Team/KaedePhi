@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.Text;
-using KaedePhi.Core.Formats.PhiEdit;
+using KaedePhi.Core.Formats.PhiEdit.Model;
+using KaedePhi.Core.Formats.PhiEdit.Serialization;
 
 namespace KaedePhi.Tests.PhiEdit;
 
@@ -14,7 +15,7 @@ public class ChartExtensionTests
         {
             CultureInfo.CurrentCulture = new CultureInfo("de-DE");
 
-            var chart = Chart.Load(
+            var chart = ChartSerialization.Load(
                 "0\r\n  bp\t0.5   120.5\r"
                 + "cv\t0\t1.5\t2.5\n"
                 + "n1\t0\t2.5\t0.25\t1\t0\n"
@@ -40,7 +41,7 @@ public class ChartExtensionTests
     {
         await using var stream = new MemoryStream(Encoding.UTF8.GetBytes("0\nbp 1.25 90.5\n"));
 
-        var chart = await Chart.LoadStreamAsync(stream);
+        var chart = await ChartSerialization.LoadStreamAsync(stream);
 
         chart.BpmList[0].StartBeat.Should().Be(1.25f);
         chart.BpmList[0].Bpm.Should().Be(90.5f);
@@ -49,7 +50,7 @@ public class ChartExtensionTests
     [Fact]
     public void Load_ParsesBelowSideFlag()
     {
-        var chart = Chart.Load("0\nn1 0 1 0.25 2 0\n# 1\n& 1");
+        var chart = ChartSerialization.Load("0\nn1 0 1 0.25 2 0\n# 1\n& 1");
 
         chart.JudgeLineList[0].NoteList[0].Above.Should().BeFalse();
     }
@@ -57,7 +58,7 @@ public class ChartExtensionTests
     [Fact]
     public void Load_WithInvalidNumericField_ThrowsFormatException()
     {
-        var act = () => Chart.Load("0\ncv 0 invalid 1");
+        var act = () => ChartSerialization.Load("0\ncv 0 invalid 1");
 
         act.Should().Throw<FormatException>();
     }
@@ -82,11 +83,11 @@ public class ChartExtensionTests
             + "n1 1 1 200 2 1 # 2 & 0.75\n"
             + "extension 1 ignored\n";
 
-        var fromText = Chart.Load(pec);
+        var fromText = ChartSerialization.Load(pec);
         await using var asyncStream = new MemoryStream(Encoding.UTF8.GetBytes(pec));
-        var fromAsyncStream = await Chart.LoadStreamAsync(asyncStream);
+        var fromAsyncStream = await ChartSerialization.LoadStreamAsync(asyncStream);
         await using var syncStream = new MemoryStream(Encoding.UTF8.GetBytes(pec));
-        var fromSyncStream = Chart.LoadStream(syncStream);
+        var fromSyncStream = ChartSerialization.LoadStream(syncStream);
 
         fromText.Export().Should().Be(fromAsyncStream.Export());
         fromText.Export().Should().Be(fromSyncStream.Export());
@@ -102,10 +103,11 @@ public class ChartExtensionTests
     {
         const string pec = "0\nn1 0 1 100 1 0\n# 1";
 
-        var textAction = () => Chart.Load(pec);
-        var syncAction = () => Chart.LoadStream(new MemoryStream(Encoding.UTF8.GetBytes(pec)));
+        var textAction = () => ChartSerialization.Load(pec);
+        var syncAction = () =>
+            ChartSerialization.LoadStream(new MemoryStream(Encoding.UTF8.GetBytes(pec)));
         var asyncAction = () =>
-            Chart.LoadStreamAsync(new MemoryStream(Encoding.UTF8.GetBytes(pec)));
+            ChartSerialization.LoadStreamAsync(new MemoryStream(Encoding.UTF8.GetBytes(pec)));
 
         textAction.Should().Throw<FormatException>();
         syncAction.Should().Throw<FormatException>();
@@ -115,8 +117,8 @@ public class ChartExtensionTests
     [Fact]
     public async Task StreamApis_RejectInvalidOwnershipArguments()
     {
-        var loadAction = () => Chart.LoadStream(null!);
-        var loadAsyncAction = () => Chart.LoadStreamAsync(null!);
+        var loadAction = () => ChartSerialization.LoadStream(null!);
+        var loadAsyncAction = () => ChartSerialization.LoadStreamAsync(null!);
         var chart = new Chart();
         var exportAction = () => chart.ExportToStream(null!);
         var exportAsyncAction = () => chart.ExportToStreamAsync(null!);

@@ -64,9 +64,9 @@ public abstract class LoggableBase : ILoggable
     /// </summary>
     /// <param name="formatName">目标格式名称</param>
     /// <param name="src">源 Meta 对象</param>
-    protected void WarnIfUnsupportedMeta(string formatName, KaedePhi.Core.Intermediate.Meta src)
+    protected void WarnIfUnsupportedMeta(string formatName, KaedePhi.Core.Intermediate.Model.Meta src)
     {
-        var defaults = new KaedePhi.Core.Intermediate.Meta();
+        var defaults = new KaedePhi.Core.Intermediate.Model.Meta();
         if (src.Background != defaults.Background)
             LogWarning($"{formatName} 不支持 Meta.Background（值='{src.Background}'）");
         if (src.Author != defaults.Author)

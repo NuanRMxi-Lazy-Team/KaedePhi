@@ -3,7 +3,7 @@ using System.Linq;
 using KaedePhi.Core.Primitives;
 using Newtonsoft.Json;
 
-namespace KaedePhi.Core.Formats.RePhiEdit.Events
+namespace KaedePhi.Core.Formats.RePhiEdit.Model.Events
 {
     public class EventLayer
     {

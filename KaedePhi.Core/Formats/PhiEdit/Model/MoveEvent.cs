@@ -1,6 +1,6 @@
 using System.Globalization;
 
-namespace KaedePhi.Core.Formats.PhiEdit
+namespace KaedePhi.Core.Formats.PhiEdit.Model
 {
     public class MoveEvent
     {

@@ -1,4 +1,5 @@
 using System;
+using KaedePhi.Core.Formats.PhiChain.v6.Model;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 

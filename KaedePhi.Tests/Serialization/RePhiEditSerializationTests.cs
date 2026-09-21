@@ -1,7 +1,8 @@
 using KaedePhi.Core.Primitives;
-using KaedePhi.Core.Formats.RePhiEdit;
-using KaedePhi.Core.Formats.RePhiEdit.Controls;
-using KaedePhi.Core.Formats.RePhiEdit.Events;
+using KaedePhi.Core.Formats.RePhiEdit.Model;
+using KaedePhi.Core.Formats.RePhiEdit.Model.Controls;
+using KaedePhi.Core.Formats.RePhiEdit.Model.Events;
+using KaedePhi.Core.Formats.RePhiEdit.Serialization;
 
 namespace KaedePhi.Tests.Serialization;
 
@@ -14,7 +15,7 @@ public class RePhiEditSerializationTests
     {
         var json = CreateMinimalJson();
 
-        var chart = Chart.LoadFromJson(json);
+        var chart = ChartSerialization.LoadFromJson(json);
 
         chart.Should().NotBeNull();
         chart.BpmList.Should().NotBeNull();
@@ -27,7 +28,7 @@ public class RePhiEditSerializationTests
     {
         var json = CreateMinimalJson();
 
-        var chart = Chart.LoadFromJson(json);
+        var chart = ChartSerialization.LoadFromJson(json);
 
         chart.BpmList.Should().HaveCount(1);
         chart.BpmList[0].Bpm.Should().Be(120);
@@ -38,7 +39,7 @@ public class RePhiEditSerializationTests
     {
         var json = CreateMinimalJson();
 
-        var chart = Chart.LoadFromJson(json);
+        var chart = ChartSerialization.LoadFromJson(json);
 
         chart.Meta.Should().NotBeNull();
         chart.Meta.Name.Should().Be("Test Chart");
@@ -49,7 +50,7 @@ public class RePhiEditSerializationTests
     {
         var json = CreateMinimalJson();
 
-        var chart = Chart.LoadFromJson(json);
+        var chart = ChartSerialization.LoadFromJson(json);
 
         chart.JudgeLineList.Should().HaveCount(1);
     }
@@ -57,7 +58,7 @@ public class RePhiEditSerializationTests
     [Fact]
     public void LoadFromJson_NullJson_ThrowsInvalidOperationException()
     {
-        var act = () => Chart.LoadFromJson("null");
+        var act = () => ChartSerialization.LoadFromJson("null");
 
         act.Should().Throw<InvalidOperationException>();
     }
@@ -65,7 +66,7 @@ public class RePhiEditSerializationTests
     [Fact]
     public void LoadFromJson_InvalidJson_ThrowsException()
     {
-        var act = () => Chart.LoadFromJson("{ invalid json }");
+        var act = () => ChartSerialization.LoadFromJson("{ invalid json }");
 
         act.Should().Throw<Exception>();
     }
@@ -73,7 +74,7 @@ public class RePhiEditSerializationTests
     [Fact]
     public void LoadFromJson_EmptyJson_ThrowsException()
     {
-        var act = () => Chart.LoadFromJson("");
+        var act = () => ChartSerialization.LoadFromJson("");
 
         act.Should().Throw<Exception>();
     }
@@ -90,7 +91,7 @@ public class RePhiEditSerializationTests
         var json = chart.ExportToJson(false);
 
         json.Should().NotBeNullOrEmpty();
-        var deserialized = Chart.LoadFromJson(json);
+        var deserialized = ChartSerialization.LoadFromJson(json);
         deserialized.Should().NotBeNull();
     }
 
@@ -126,7 +127,7 @@ public class RePhiEditSerializationTests
         var original = CreateMinimalChart();
 
         var json = original.ExportToJson(false);
-        var deserialized = Chart.LoadFromJson(json);
+        var deserialized = ChartSerialization.LoadFromJson(json);
 
         deserialized.BpmList.Should().HaveCount(original.BpmList.Count);
         deserialized.JudgeLineList.Should().HaveCount(original.JudgeLineList.Count);
@@ -139,7 +140,7 @@ public class RePhiEditSerializationTests
         var original = CreateMinimalChart();
 
         var json = original.ExportToJson(false);
-        var deserialized = Chart.LoadFromJson(json);
+        var deserialized = ChartSerialization.LoadFromJson(json);
 
         deserialized.BpmList[0].Bpm.Should().Be(original.BpmList[0].Bpm);
     }
@@ -150,7 +151,7 @@ public class RePhiEditSerializationTests
         var original = CreateChartWithMultipleLines();
 
         var json = original.ExportToJson(false);
-        var deserialized = Chart.LoadFromJson(json);
+        var deserialized = ChartSerialization.LoadFromJson(json);
 
         deserialized.JudgeLineList.Should().HaveCount(3);
     }
@@ -165,7 +166,7 @@ public class RePhiEditSerializationTests
         var json = CreateMinimalJson();
         using var stream = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(json));
 
-        var chart = Chart.LoadFromStream(stream);
+        var chart = ChartSerialization.LoadFromStream(stream);
 
         chart.Should().NotBeNull();
         chart.BpmList.Should().NotBeNull();
@@ -183,7 +184,7 @@ public class RePhiEditSerializationTests
         var json = System.Text.Encoding.UTF8.GetString(stream.ToArray());
         json.Should().NotBeNullOrEmpty();
 
-        var deserialized = Chart.LoadFromJson(json);
+        var deserialized = ChartSerialization.LoadFromJson(json);
         deserialized.Should().NotBeNull();
     }
 
@@ -205,7 +206,7 @@ public class RePhiEditSerializationTests
     {
         var json = CreateMinimalJson();
 
-        var chart = await Chart.LoadFromJsonAsync(json);
+        var chart = await ChartSerialization.LoadFromJsonAsync(json);
 
         chart.Should().NotBeNull();
         chart.BpmList.Should().NotBeNull();
@@ -312,26 +313,26 @@ public class RePhiEditSerializationTests
     private static string CreateMinimalJson()
     {
         return """
-            {
-                "BPMList": [{"bpm": 120, "startTime": [0, 0, 1]}],
-                "META": {"name": "Test Chart", "composer": "Test", "charter": "Test", "level": "HD"},
-                "judgeLineList": [{
-                    "Group": 0,
-                    "Name": "",
-                    "Texture": "line.png",
-                    "isCover": 1,
-                    "eventLayers": null,
-                    "father": -1,
-                    "zOrder": 0
-                }],
-                "chartTime": 60,
-                "judgeLineGroup": ["Default"],
-                "multiLineString": "1",
-                "multiScale": 1.0,
-                "timeTags": [],
-                "xybind": true
-            }
-            """;
+               {
+                   "BPMList": [{"bpm": 120, "startTime": [0, 0, 1]}],
+                   "META": {"name": "Test Chart", "composer": "Test", "charter": "Test", "level": "HD"},
+                   "judgeLineList": [{
+                       "Group": 0,
+                       "Name": "",
+                       "Texture": "line.png",
+                       "isCover": 1,
+                       "eventLayers": null,
+                       "father": -1,
+                       "zOrder": 0
+                   }],
+                   "chartTime": 60,
+                   "judgeLineGroup": ["Default"],
+                   "multiLineString": "1",
+                   "multiScale": 1.0,
+                   "timeTags": [],
+                   "xybind": true
+               }
+               """;
     }
 
     private static Chart CreateMinimalChart()

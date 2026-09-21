@@ -1,4 +1,4 @@
-using KaedePhi.Core.Formats.PhiFans;
+using KaedePhi.Core.Formats.PhiFans.Model;
 using Newtonsoft.Json;
 
 namespace KaedePhi.Tests.PhiFans;

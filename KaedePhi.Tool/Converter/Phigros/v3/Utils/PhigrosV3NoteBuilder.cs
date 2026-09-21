@@ -1,10 +1,10 @@
 using KaedePhi.Core.Primitives;
 using KaedePhi.Tool.Common;
-using IrEventLayer = KaedePhi.Core.Intermediate.Events.EventLayer;
-using IrNote = KaedePhi.Core.Intermediate.Note;
-using IrSpeedEvent = KaedePhi.Core.Intermediate.Events.Event<float>;
-using PhigrosNote = KaedePhi.Core.Formats.Phigros.v3.Note;
-using PhigrosNoteType = KaedePhi.Core.Formats.Phigros.v3.NoteType;
+using IrEventLayer = KaedePhi.Core.Intermediate.Model.Events.EventLayer;
+using IrNote = KaedePhi.Core.Intermediate.Model.Note;
+using IrSpeedEvent = KaedePhi.Core.Intermediate.Model.Events.Event<float>;
+using PhigrosNote = KaedePhi.Core.Formats.Phigros.v3.Model.Note;
+using PhigrosNoteType = KaedePhi.Core.Formats.Phigros.v3.Model.NoteType;
 
 namespace KaedePhi.Tool.Converter.Phigros.v3.Utils;
 

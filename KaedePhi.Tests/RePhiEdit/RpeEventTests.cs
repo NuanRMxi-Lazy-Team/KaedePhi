@@ -1,6 +1,6 @@
 using KaedePhi.Core.Primitives;
-using Rpe = KaedePhi.Core.Formats.RePhiEdit;
-using RpeEvents = KaedePhi.Core.Formats.RePhiEdit.Events;
+using Rpe = KaedePhi.Core.Formats.RePhiEdit.Model;
+using RpeEvents = KaedePhi.Core.Formats.RePhiEdit.Model.Events;
 
 namespace KaedePhi.Tests.RePhiEdit;
 

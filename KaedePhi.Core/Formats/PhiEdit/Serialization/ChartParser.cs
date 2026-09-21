@@ -2,10 +2,14 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using KaedePhi.Core.Formats.PhiEdit.Model;
 
-namespace KaedePhi.Core.Formats.PhiEdit
+namespace KaedePhi.Core.Formats.PhiEdit.Serialization
 {
-    public partial class Chart
+    /// <summary>
+    /// PhiEdit 文本格式的解析辅助方法。
+    /// </summary>
+    internal static class ChartParser
     {
         private readonly struct NotePart
         {
@@ -19,7 +23,7 @@ namespace KaedePhi.Core.Formats.PhiEdit
             public string Value { get; }
         }
 
-        private readonly struct PendingNote
+        internal readonly struct PendingNote
         {
             public PendingNote(string[] commandParts, int judgeLineIndex)
             {
@@ -39,7 +43,7 @@ namespace KaedePhi.Core.Formats.PhiEdit
         /// <param name="judgeDict">判定线暂存字典。</param>
         /// <returns>需要继续读取两行参数的 Note；其他指令返回 <see langword="null"/>。</returns>
         /// <exception cref="FormatException">指令字段数不足或字段格式错误。</exception>
-        private static PendingNote? ParseChartLineCore(
+        internal static PendingNote? ParseChartLineCore(
             string line,
             Chart chart,
             Dictionary<int, JudgeLine> judgeDict
@@ -89,7 +93,7 @@ namespace KaedePhi.Core.Formats.PhiEdit
         /// <param name="judgeDict">判定线暂存字典。</param>
         /// <param name="missingLinesMessage">续行缺失时使用的错误消息。</param>
         /// <exception cref="FormatException">续行缺失或字段格式错误。</exception>
-        private static void CompletePendingNote(
+        internal static void CompletePendingNote(
             PendingNote pending,
             string? speedLine,
             string? widthLine,
@@ -453,7 +457,7 @@ namespace KaedePhi.Core.Formats.PhiEdit
         /// <param name="firstLine">谱面首行。</param>
         /// <returns>初始化后的谱面和判定线字典。</returns>
         /// <exception cref="FormatException">首行偏移量格式错误。</exception>
-        private static (Chart chart, Dictionary<int, JudgeLine> judgeDict) InitializeChart(
+        internal static (Chart chart, Dictionary<int, JudgeLine> judgeDict) InitializeChart(
             string? firstLine
         )
         {
@@ -470,7 +474,7 @@ namespace KaedePhi.Core.Formats.PhiEdit
         /// </summary>
         /// <param name="chart">待完善的谱面对象。</param>
         /// <param name="judgeDict">解析阶段积累的判定线暂存字典。</param>
-        private static void SortAndBuild(Chart chart, Dictionary<int, JudgeLine> judgeDict)
+        internal static void SortAndBuild(Chart chart, Dictionary<int, JudgeLine> judgeDict)
         {
             chart.BpmList = SortByBeat(chart.BpmList, static bpm => bpm.StartBeat);
             foreach (var judgeLine in judgeDict.Values)

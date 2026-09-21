@@ -2,12 +2,12 @@ using KaedePhi.Core.Primitives;
 using KaedePhi.Tool.Converter.PhiEdit;
 using KaedePhi.Tool.Converter.PhiEdit.Model;
 using KaedePhi.Tool.Converter.PhiEdit.Utils;
-using IrSpeedEvent = KaedePhi.Core.Intermediate.Events.Event<float>;
-using PeChart = KaedePhi.Core.Formats.PhiEdit.Chart;
-using PeEvent = KaedePhi.Core.Formats.PhiEdit.Event;
-using PeFrame = KaedePhi.Core.Formats.PhiEdit.Frame;
-using PeJudgeLine = KaedePhi.Core.Formats.PhiEdit.JudgeLine;
-using PeMoveEvent = KaedePhi.Core.Formats.PhiEdit.MoveEvent;
+using IrSpeedEvent = KaedePhi.Core.Intermediate.Model.Events.Event<float>;
+using PeChart = KaedePhi.Core.Formats.PhiEdit.Model.Chart;
+using PeEvent = KaedePhi.Core.Formats.PhiEdit.Model.Event;
+using PeFrame = KaedePhi.Core.Formats.PhiEdit.Model.Frame;
+using PeJudgeLine = KaedePhi.Core.Formats.PhiEdit.Model.JudgeLine;
+using PeMoveEvent = KaedePhi.Core.Formats.PhiEdit.Model.MoveEvent;
 
 namespace KaedePhi.Tests.Converter;
 

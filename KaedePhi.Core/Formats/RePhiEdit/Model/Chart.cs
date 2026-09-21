@@ -1,7 +1,9 @@
 using System.Collections.Generic;
+using System.Linq;
+using JetBrains.Annotations;
 using Newtonsoft.Json;
 
-namespace KaedePhi.Core.Formats.RePhiEdit
+namespace KaedePhi.Core.Formats.RePhiEdit.Model
 {
     public partial class Chart
     {
@@ -71,5 +73,89 @@ namespace KaedePhi.Core.Formats.RePhiEdit
         // ReSharper disable once StringLiteralTypo
         [JsonProperty("xybind")]
         public bool XyBind { get; set; } = true;
+
+        /// <summary>
+        /// 对判定线及其事件层级进行预处理。
+        /// </summary>
+        [PublicAPI]
+        public void Anticipation()
+        {
+            foreach (var judgeLine in JudgeLineList)
+            {
+                // 如果这个判定线层级上有null层级，移除它们
+                judgeLine.EventLayers.RemoveAll(layer => (object?)layer is null);
+                // 对所有判定线的所有事件层级执行Anticipation()方法
+                foreach (var eventLayer in judgeLine.EventLayers)
+                {
+                    eventLayer.Anticipation();
+                    eventLayer.Sort();
+                }
+
+                judgeLine.Extended.Anticipation();
+
+                // 如果判定线上有任何类型的Control组为空或null，则设定一个默认值
+                if (
+                    ControlsIsNullOrEmpty(
+                        judgeLine.AlphaControls.Cast<Controls.ControlBase>().ToList()
+                    )
+                )
+                    judgeLine.AlphaControls = Controls.AlphaControl.Default;
+                if (
+                    ControlsIsNullOrEmpty(
+                        judgeLine.PositionControls.Cast<Controls.ControlBase>().ToList()
+                    )
+                )
+                    judgeLine.PositionControls = Controls.XControl.Default;
+                if (
+                    ControlsIsNullOrEmpty(
+                        judgeLine.SizeControls.Cast<Controls.ControlBase>().ToList()
+                    )
+                )
+                    judgeLine.SizeControls = Controls.SizeControl.Default;
+                if (
+                    ControlsIsNullOrEmpty(
+                        judgeLine.SkewControls.Cast<Controls.ControlBase>().ToList()
+                    )
+                )
+                    judgeLine.SkewControls = Controls.SkewControl.Default;
+                if (
+                    ControlsIsNullOrEmpty(judgeLine.YControls.Cast<Controls.ControlBase>().ToList())
+                )
+                    judgeLine.YControls = Controls.YControl.Default;
+
+                // 如果判定线没有任何音符，则将音符列表设置为null
+                if (judgeLine.Notes?.Count == 0)
+                    judgeLine.Notes = null;
+            }
+        }
+
+        private static bool ControlsIsNullOrEmpty(List<Controls.ControlBase>? controls)
+        {
+            return controls is null || controls.Count == 0;
+        }
+
+        /// <summary>
+        /// 深拷贝当前谱面及其可变子对象。
+        /// </summary>
+        /// <returns>与当前谱面数据一致且相互独立的副本</returns>
+        public Chart Clone()
+        {
+            return new Chart
+            {
+                BpmList = BpmList.ConvertAll(bpm => bpm.Clone()),
+                Meta = Meta.Clone(),
+                JudgeLineList = JudgeLineList.ConvertAll(judgeLine => judgeLine.Clone()),
+                ChartTime = ChartTime,
+                JudgeLineGroup = JudgeLineGroup.ToArray(),
+                MultiLineString = MultiLineString,
+                MultiScale = MultiScale,
+                BeatTags = BeatTags.ConvertAll(tag => new BeatTag
+                {
+                    Name = tag.Name,
+                    Time = tag.Time,
+                }),
+                XyBind = XyBind,
+            };
+        }
     }
 }

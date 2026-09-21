@@ -1,10 +1,10 @@
 using System.Linq;
 using System.Runtime.Serialization;
-using KaedePhi.Core.Primitives;
 using KaedePhi.Core.Formats.RePhiEdit.Serialization.JsonConverter;
+using KaedePhi.Core.Primitives;
 using Newtonsoft.Json;
 
-namespace KaedePhi.Core.Formats.RePhiEdit
+namespace KaedePhi.Core.Formats.RePhiEdit.Model
 {
     public class Note
     {

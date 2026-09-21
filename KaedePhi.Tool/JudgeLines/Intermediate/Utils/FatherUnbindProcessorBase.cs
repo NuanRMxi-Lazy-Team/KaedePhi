@@ -1,5 +1,5 @@
 using System.Collections.Concurrent;
-using JudgeLine = KaedePhi.Core.Intermediate.JudgeLine;
+using JudgeLine = KaedePhi.Core.Intermediate.Model.JudgeLine;
 
 namespace KaedePhi.Tool.JudgeLines.Intermediate.Utils;
 

@@ -1,9 +1,9 @@
 using KaedePhi.Core.Primitives;
-using KaedePhi.Core.Formats.PhiChain.v6;
+using KaedePhi.Core.Formats.PhiChain.v6.Model;
 using KaedePhi.Tool.Converter.PhiChain.Model;
 using KaedePhi.Tool.Event.Intermediate;
-using PhichainEventType = KaedePhi.Core.Formats.PhiChain.v6.LineEventType;
-using PhichainEventValueType = KaedePhi.Core.Formats.PhiChain.v6.LineEventValueType;
+using PhichainEventType = KaedePhi.Core.Formats.PhiChain.v6.Model.LineEventType;
+using PhichainEventValueType = KaedePhi.Core.Formats.PhiChain.v6.Model.LineEventValueType;
 
 namespace KaedePhi.Tool.Converter.PhiChain.Utils;
 

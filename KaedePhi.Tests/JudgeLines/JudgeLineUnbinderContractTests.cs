@@ -2,8 +2,8 @@ using KaedePhi.Core.Primitives;
 using KaedePhi.Tool.Common;
 using KaedePhi.Tool.JudgeLines;
 using KaedePhi.Tool.JudgeLines.Intermediate;
-using JudgeLine = KaedePhi.Core.Intermediate.JudgeLine;
-using IrEvents = KaedePhi.Core.Intermediate.Events;
+using JudgeLine = KaedePhi.Core.Intermediate.Model.JudgeLine;
+using IrEvents = KaedePhi.Core.Intermediate.Model.Events;
 
 namespace KaedePhi.Tests.JudgeLines;
 

@@ -1,8 +1,8 @@
-using KaedePhi.Core.Formats.PhiChain.v6;
+using KaedePhi.Core.Formats.PhiChain.v6.Model;
 using KaedePhi.Tool.Common;
 using KaedePhi.Tool.Converter.PhiChain.Model;
 using KaedePhi.Tool.Converter.PhiChain.Utils;
-using PhiChainChart = KaedePhi.Core.Formats.PhiChain.v6.Chart;
+using PhiChainChart = KaedePhi.Core.Formats.PhiChain.v6.Model.Chart;
 
 namespace KaedePhi.Tool.Converter.PhiChain;
 

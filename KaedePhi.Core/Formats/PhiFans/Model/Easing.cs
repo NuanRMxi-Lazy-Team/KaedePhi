@@ -1,7 +1,7 @@
 using KaedePhi.Core.Formats.PhiFans.Serialization.JsonConverter;
 using Newtonsoft.Json;
 
-namespace KaedePhi.Core.Formats.PhiFans
+namespace KaedePhi.Core.Formats.PhiFans.Model
 {
     /// <summary>
     /// 缓动类型封装，编号范围 0-30。

@@ -1,7 +1,7 @@
 using KaedePhi.Core.Primitives;
-using KaedePhi.Core.Formats.PhiFans;
+using KaedePhi.Core.Formats.PhiFans.Model;
 using IrNoteType = KaedePhi.Core.Primitives.NoteType;
-using PfNoteType = KaedePhi.Core.Formats.PhiFans.NoteType;
+using PfNoteType = KaedePhi.Core.Formats.PhiFans.Model.NoteType;
 
 namespace KaedePhi.Tool.Converter.PhiFans.Utils;
 

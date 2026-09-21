@@ -1,7 +1,10 @@
 using System.Collections.ObjectModel;
 using KpcChart = KaedePhi.Core.KaedePhi.Chart;
-using PhigrosChart = KaedePhi.Core.Formats.Phigros.v3.Chart;
-using PhiFansChart = KaedePhi.Core.Formats.PhiFans.Chart;
+using KaedePhi.Core.Formats.PhiChain.v6.Serialization;
+using KaedePhi.Core.Formats.PhiEdit.Serialization;
+using KaedePhi.Core.Formats.PhiFans.Serialization;
+using KaedePhi.Core.Formats.Phigros.v3.Serialization;
+using KaedePhi.Core.Formats.RePhiEdit.Serialization;
 using KaedePhi.Tool.Common;
 using KaedePhi.Tool.Converter.PhiChain;
 using KaedePhi.Tool.Converter.PhiChain.Model;
@@ -32,13 +35,13 @@ public static class ChartFormatRegistry
                 Importer = async (text, _, log, ct) =>
                 {
                     var converter = Prepare(new RePhiEditConverter(), log, ct);
-                    var source = await Rpe.Chart.LoadFromJsonAsync(text);
+                    var source = await RpeSerialization.LoadFromJsonAsync(text);
                     return converter.ToIr(source, null);
                 },
                 StreamImporter = async (stream, _, log, ct) =>
                 {
                     var converter = Prepare(new RePhiEditConverter(), log, ct);
-                    var source = await Rpe.Chart.LoadFromStreamAsync(stream);
+                    var source = await RpeSerialization.LoadFromStreamAsync(stream);
                     return converter.ToIr(source, null);
                 },
                 Exporter = async (chart, path, write, options, log, ct) =>
@@ -67,7 +70,7 @@ public static class ChartFormatRegistry
                 Importer = async (text, options, log, ct) =>
                 {
                     var converter = Prepare(new PhiEditConverter(), log, ct);
-                    var source = await Pe.Chart.LoadAsync(text);
+                    var source = await PeSerialization.LoadAsync(text);
                     return converter.ToIr(
                         source,
                         Coerce(options, () => new PhiEditToIrConvertOptions())
@@ -76,7 +79,7 @@ public static class ChartFormatRegistry
                 StreamImporter = async (stream, options, log, ct) =>
                 {
                     var converter = Prepare(new PhiEditConverter(), log, ct);
-                    var source = await Pe.Chart.LoadStreamAsync(stream);
+                    var source = await PeSerialization.LoadStreamAsync(stream);
                     return converter.ToIr(
                         source,
                         Coerce(options, () => new PhiEditToIrConvertOptions())
@@ -107,13 +110,13 @@ public static class ChartFormatRegistry
                 Importer = async (text, _, log, ct) =>
                 {
                     var converter = Prepare(new PhigrosV3Converter(), log, ct);
-                    var source = await PhigrosChart.LoadFromJsonAsync(text);
+                    var source = await PhigrosSerialization.LoadFromJsonAsync(text);
                     return converter.ToIr(source, null);
                 },
                 StreamImporter = async (stream, _, log, ct) =>
                 {
                     var converter = Prepare(new PhigrosV3Converter(), log, ct);
-                    var source = await PhigrosChart.LoadFromStreamAsync(stream);
+                    var source = await PhigrosSerialization.LoadFromStreamAsync(stream);
                     return converter.ToIr(source, null);
                 },
                 Exporter = async (chart, path, write, options, log, ct) =>
@@ -142,7 +145,7 @@ public static class ChartFormatRegistry
                 Importer = async (text, options, log, ct) =>
                 {
                     var converter = Prepare(new PhiChainConverter(), log, ct);
-                    var source = await Phichain.Chart.LoadFromJsonAsync(text);
+                    var source = await PhichainSerialization.LoadFromJsonAsync(text);
                     return converter.ToIr(
                         source,
                         Coerce(options, () => new PhiChainToIrConvertOptions())
@@ -151,7 +154,7 @@ public static class ChartFormatRegistry
                 StreamImporter = async (stream, options, log, ct) =>
                 {
                     var converter = Prepare(new PhiChainConverter(), log, ct);
-                    var source = await Phichain.Chart.LoadFromJsonStreamAsync(stream);
+                    var source = await PhichainSerialization.LoadFromJsonStreamAsync(stream);
                     return converter.ToIr(
                         source,
                         Coerce(options, () => new PhiChainToIrConvertOptions())
@@ -182,13 +185,13 @@ public static class ChartFormatRegistry
                 Importer = async (text, _, log, ct) =>
                 {
                     var converter = Prepare(new PhiFansConverter(), log, ct);
-                    var source = await PhiFansChart.LoadFromJsonAsync(text);
+                    var source = await PhiFansSerialization.LoadFromJsonAsync(text);
                     return converter.ToIr(source, null);
                 },
                 StreamImporter = async (stream, _, log, ct) =>
                 {
                     var converter = Prepare(new PhiFansConverter(), log, ct);
-                    var source = await PhiFansChart.LoadFromStreamAsync(stream);
+                    var source = await PhiFansSerialization.LoadFromStreamAsync(stream);
                     return converter.ToIr(source, null);
                 },
                 Exporter = async (chart, path, write, options, log, ct) =>

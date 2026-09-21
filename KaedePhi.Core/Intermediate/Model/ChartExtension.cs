@@ -1,4 +1,4 @@
-namespace KaedePhi.Core.Intermediate
+namespace KaedePhi.Core.Intermediate.Model
 {
     public partial class Chart
     {

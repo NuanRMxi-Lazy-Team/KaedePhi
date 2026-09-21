@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json;
 
-namespace KaedePhi.Core.Formats.PhiChain.v6
+namespace KaedePhi.Core.Formats.PhiChain.v6.Model
 {
     public sealed partial class Chart
     {

@@ -1,7 +1,7 @@
 using KaedePhi.Core.Primitives;
 using KaedePhi.Tool.Common;
 using SkiaSharp;
-using EventLayer = KaedePhi.Core.Intermediate.Events.EventLayer;
+using EventLayer = KaedePhi.Core.Intermediate.Model.Events.EventLayer;
 
 namespace KaedePhi.Tool.Render.Intermediate;
 

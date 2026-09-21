@@ -1,6 +1,6 @@
-using Chart = KaedePhi.Core.Intermediate.Chart;
-using PhichainChart = KaedePhi.Core.Formats.PhiChain.v6.Chart;
-using PhiFansChart = KaedePhi.Core.Formats.PhiFans.Chart;
+using Chart = KaedePhi.Core.Intermediate.Model.Chart;
+using PhichainChart = KaedePhi.Core.Formats.PhiChain.v6.Model.Chart;
+using PhiFansChart = KaedePhi.Core.Formats.PhiFans.Model.Chart;
 
 namespace KaedePhi.Tool.Common;
 

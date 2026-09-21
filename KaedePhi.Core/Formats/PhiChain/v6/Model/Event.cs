@@ -1,10 +1,10 @@
 using System.Runtime.Serialization;
-using KaedePhi.Core.Primitives;
 using KaedePhi.Core.Formats.PhiChain.v6.Serialization.JsonConverter;
+using KaedePhi.Core.Primitives;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
-namespace KaedePhi.Core.Formats.PhiChain.v6
+namespace KaedePhi.Core.Formats.PhiChain.v6.Model
 {
     [JsonConverter(typeof(StringEnumConverter))]
     public enum LineEventType

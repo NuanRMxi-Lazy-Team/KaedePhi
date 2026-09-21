@@ -1,7 +1,7 @@
 #pragma warning disable CS0618
 
 using KaedePhi.Tool.Compatibility;
-using KaedePhi.Core.Formats.Phigros.v3;
+using KaedePhi.Core.Formats.Phigros.v3.Model;
 using Kpc = KaedePhi.Core.KaedePhi;
 
 namespace KaedePhi.Tool.Converter.Phigros.v3.Utils;

@@ -1,6 +1,6 @@
 using Newtonsoft.Json;
 
-namespace KaedePhi.Core.Formats.PhiChain.v6
+namespace KaedePhi.Core.Formats.PhiChain.v6.Model
 {
     public sealed class Line
     {

@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using KaedePhi.Core.Primitives;
 
-namespace KaedePhi.Core.Intermediate.Events
+namespace KaedePhi.Core.Intermediate.Model.Events
 {
     /// <summary>
     /// 事件层，包含判定线的所有事件通道。

@@ -1,9 +1,9 @@
 using System.ComponentModel;
 using Newtonsoft.Json;
 
-namespace KaedePhi.Core.Formats.PhiZonePlayerExtended
+namespace KaedePhi.Core.Formats.PhiZonePlayerExtended.Model
 {
-    public class Note : global::KaedePhi.Core.Formats.RePhiEdit.Note
+    public class Note : global::KaedePhi.Core.Formats.RePhiEdit.Model.Note
     {
         /// <summary>
         /// 可以更好地控制音符应显示在哪一层。

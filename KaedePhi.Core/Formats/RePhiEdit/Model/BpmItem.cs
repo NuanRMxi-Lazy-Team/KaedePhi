@@ -1,7 +1,7 @@
 using KaedePhi.Core.Primitives;
 using Newtonsoft.Json;
 
-namespace KaedePhi.Core.Formats.RePhiEdit
+namespace KaedePhi.Core.Formats.RePhiEdit.Model
 {
     public class BpmItem
     {

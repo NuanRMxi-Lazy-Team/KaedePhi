@@ -1,4 +1,4 @@
-using KaedePhi.Core.Formats.PhiChain.v6;
+using KaedePhi.Core.Formats.PhiChain.v6.Model;
 using KaedePhi.Tool.Converter.PhiChain.Model;
 using KaedePhi.Tool.JudgeLines.Intermediate;
 using KaedePhi.Tool.Layer.Intermediate;

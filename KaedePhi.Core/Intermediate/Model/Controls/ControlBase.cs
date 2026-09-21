@@ -1,4 +1,4 @@
-namespace KaedePhi.Core.Intermediate.Controls
+namespace KaedePhi.Core.Intermediate.Model.Controls
 {
     /// <summary>
     /// 控制点基类。

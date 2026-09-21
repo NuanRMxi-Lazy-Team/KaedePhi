@@ -1,7 +1,7 @@
 using JetBrains.Annotations;
 using static KaedePhi.Core.Primitives.Mathematics.Easings;
 
-namespace KaedePhi.Core.Formats.PhiFans
+namespace KaedePhi.Core.Formats.PhiFans.Model
 {
     public static class Easings
     {

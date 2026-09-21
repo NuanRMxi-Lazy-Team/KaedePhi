@@ -1,10 +1,10 @@
 using System.ComponentModel;
-using KaedePhi.Core.Formats.PhiZonePlayerExtended.JudgeLines;
+using KaedePhi.Core.Formats.PhiZonePlayerExtended.Model.JudgeLines;
 using Newtonsoft.Json;
 
-namespace KaedePhi.Core.Formats.PhiZonePlayerExtended
+namespace KaedePhi.Core.Formats.PhiZonePlayerExtended.Model
 {
-    public class JudgeLine : global::KaedePhi.Core.Formats.RePhiEdit.JudgeLine
+    public class JudgeLine : global::KaedePhi.Core.Formats.RePhiEdit.Model.JudgeLine
     {
         /// <summary>
         /// 用于决定判定线的ScaleX事件对判定线上音符的影响，默认不影响

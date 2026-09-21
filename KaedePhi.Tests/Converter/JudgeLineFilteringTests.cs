@@ -3,7 +3,7 @@ using KaedePhi.Tool.Converter.PhiEdit;
 using KaedePhi.Tool.Converter.PhiEdit.Model;
 using KaedePhi.Tool.Converter.Phigros.v3;
 using KaedePhi.Tool.Converter.Phigros.v3.Model;
-using Ir = KaedePhi.Core.Intermediate;
+using Ir = KaedePhi.Core.Intermediate.Model;
 
 namespace KaedePhi.Tests.Converter;
 

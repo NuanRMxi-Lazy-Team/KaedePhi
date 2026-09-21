@@ -3,7 +3,7 @@ using JetBrains.Annotations;
 using KaedePhi.Core.Primitives;
 using KaedePhi.Core.Primitives.Mathematics;
 
-namespace KaedePhi.Core.Intermediate.Events
+namespace KaedePhi.Core.Intermediate.Model.Events
 {
     public class Event<T> : EventBase<T>
         where T : notnull

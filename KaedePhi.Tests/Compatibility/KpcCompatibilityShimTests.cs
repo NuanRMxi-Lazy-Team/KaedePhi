@@ -1,6 +1,6 @@
 #pragma warning disable CS0618
 
-using KaedePhi.Core.Intermediate;
+using KaedePhi.Core.Intermediate.Model;
 using KaedePhi.Tool.Common;
 using KaedePhi.Tool.Converter;
 using KaedePhi.Tool.Converter.RePhiEdit.Model;
@@ -9,8 +9,8 @@ using Kpc = KaedePhi.Core.KaedePhi;
 using KpcCommon = KaedePhi.Core.Common;
 using KpcControls = KaedePhi.Core.KaedePhi.Controls;
 using KpcEvents = KaedePhi.Core.KaedePhi.Events;
-using IrChart = KaedePhi.Core.Intermediate.Chart;
-using IrEvents = KaedePhi.Core.Intermediate.Events;
+using IrChart = KaedePhi.Core.Intermediate.Model.Chart;
+using IrEvents = KaedePhi.Core.Intermediate.Model.Events;
 
 namespace KaedePhi.Tests.Compatibility;
 

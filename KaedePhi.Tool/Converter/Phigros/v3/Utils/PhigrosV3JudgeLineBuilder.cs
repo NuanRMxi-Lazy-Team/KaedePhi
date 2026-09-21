@@ -3,10 +3,10 @@ using KaedePhi.Tool.Common;
 using KaedePhi.Tool.Converter.Phigros.v3.Model;
 using KaedePhi.Tool.JudgeLines.Intermediate;
 using KaedePhi.Tool.Layer.Intermediate;
-using IrEventLayer = KaedePhi.Core.Intermediate.Events.EventLayer;
-using IrJudgeLine = KaedePhi.Core.Intermediate.JudgeLine;
-using PhigrosEvent = KaedePhi.Core.Formats.Phigros.v3.Event;
-using PhigrosJudgeLine = KaedePhi.Core.Formats.Phigros.v3.JudgeLine;
+using IrEventLayer = KaedePhi.Core.Intermediate.Model.Events.EventLayer;
+using IrJudgeLine = KaedePhi.Core.Intermediate.Model.JudgeLine;
+using PhigrosEvent = KaedePhi.Core.Formats.Phigros.v3.Model.Event;
+using PhigrosJudgeLine = KaedePhi.Core.Formats.Phigros.v3.Model.JudgeLine;
 
 namespace KaedePhi.Tool.Converter.Phigros.v3.Utils;
 

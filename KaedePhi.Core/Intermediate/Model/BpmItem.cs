@@ -2,7 +2,7 @@ using System;
 using JetBrains.Annotations;
 using KaedePhi.Core.Primitives;
 
-namespace KaedePhi.Core.Intermediate
+namespace KaedePhi.Core.Intermediate.Model
 {
     /// <summary>
     /// BPM 节点，定义某一拍点的 BPM 值。

@@ -1,5 +1,5 @@
-using PhiChainEasing = KaedePhi.Core.Formats.PhiChain.v6.Easing;
-using PhiChainEasingKind = KaedePhi.Core.Formats.PhiChain.v6.EasingKind;
+using PhiChainEasing = KaedePhi.Core.Formats.PhiChain.v6.Model.Easing;
+using PhiChainEasingKind = KaedePhi.Core.Formats.PhiChain.v6.Model.EasingKind;
 
 namespace KaedePhi.Tool.Converter.PhiChain.Utils;
 

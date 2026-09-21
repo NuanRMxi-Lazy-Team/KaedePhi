@@ -1,7 +1,7 @@
 using System.Text;
 using Newtonsoft.Json;
 
-namespace KaedePhi.Core.Primitives
+namespace KaedePhi.Core.Primitives.Serialization
 {
     /// <summary>
     /// 共享的 JSON 序列化配置，避免每次调用重复创建无状态对象。

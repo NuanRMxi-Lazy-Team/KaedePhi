@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace KaedePhi.Core.PhiEdit
 {
-    [System.Obsolete("已弃用：请迁移至 KaedePhi.Core.Formats.PhiEdit 命名空间下的同名类型。")]
+    [System.Obsolete("已弃用：请迁移至 KaedePhi.Core.Formats.PhiEdit.Model 命名空间下的同名类型。")]
     public partial class Chart
     {
         /// <summary>

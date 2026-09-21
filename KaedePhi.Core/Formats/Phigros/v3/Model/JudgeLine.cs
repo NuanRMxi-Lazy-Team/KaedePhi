@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using Newtonsoft.Json;
 
-namespace KaedePhi.Core.Formats.Phigros.v3
+namespace KaedePhi.Core.Formats.Phigros.v3.Model
 {
     public class JudgeLine
     {

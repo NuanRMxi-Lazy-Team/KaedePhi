@@ -1,4 +1,5 @@
 using System;
+using KaedePhi.Core.Formats.PhiFans.Model;
 using Newtonsoft.Json;
 
 namespace KaedePhi.Core.Formats.PhiFans.Serialization.JsonConverter

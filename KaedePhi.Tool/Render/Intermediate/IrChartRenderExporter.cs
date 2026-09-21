@@ -1,6 +1,6 @@
 using KaedePhi.Tool.Common;
 using SkiaSharp;
-using Chart = KaedePhi.Core.Intermediate.Chart;
+using Chart = KaedePhi.Core.Intermediate.Model.Chart;
 
 namespace KaedePhi.Tool.Render.Intermediate;
 

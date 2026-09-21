@@ -7,7 +7,7 @@ namespace KaedePhi.Tool.Event.Intermediate;
 /// 事件列表合并器（自适应采样）。
 /// <para>
 /// 继承 <see cref="EventListMerger{TPayload}"/> 的共享基础设施与固定采样合并，
-/// 新增自适应采样合并入口 <see cref="EventListMerge(System.Collections.Generic.List{global::KaedePhi.Core.Intermediate.Events.Event{TPayload}},System.Collections.Generic.List{global::KaedePhi.Core.Intermediate.Events.Event{TPayload}},double,double)"/>：
+/// 新增自适应采样合并入口 <see cref="EventListMerge(System.Collections.Generic.List{global::KaedePhi.Core.Intermediate.Model.Events.Event{TPayload}},System.Collections.Generic.List{global::KaedePhi.Core.Intermediate.Model.Events.Event{TPayload}},double,double)"/>：
 /// 仅在两轨道的事件边界处或叠加值偏离线性近似超过容差时才插入新分段，
 /// 在保证精度的前提下减少冗余事件数量。
 /// </para>

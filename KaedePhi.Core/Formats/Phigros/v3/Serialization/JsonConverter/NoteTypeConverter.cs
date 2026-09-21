@@ -1,4 +1,5 @@
 using System;
+using KaedePhi.Core.Formats.Phigros.v3.Model;
 using Newtonsoft.Json;
 
 namespace KaedePhi.Core.Formats.Phigros.v3.Serialization.JsonConverter

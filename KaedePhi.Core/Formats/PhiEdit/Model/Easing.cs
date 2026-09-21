@@ -1,6 +1,6 @@
 using JetBrains.Annotations;
 
-namespace KaedePhi.Core.Formats.PhiEdit
+namespace KaedePhi.Core.Formats.PhiEdit.Model
 {
     public class Easing
     {

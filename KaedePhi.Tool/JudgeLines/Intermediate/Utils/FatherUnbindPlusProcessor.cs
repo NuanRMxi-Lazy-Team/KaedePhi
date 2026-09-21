@@ -2,7 +2,7 @@ using System.Collections.Concurrent;
 using KaedePhi.Core.Primitives;
 using KaedePhi.Tool.Common;
 using KaedePhi.Tool.Event.Intermediate;
-using JudgeLine = KaedePhi.Core.Intermediate.JudgeLine;
+using JudgeLine = KaedePhi.Core.Intermediate.Model.JudgeLine;
 
 namespace KaedePhi.Tool.JudgeLines.Intermediate.Utils;
 

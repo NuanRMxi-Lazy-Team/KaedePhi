@@ -1,6 +1,6 @@
 using KaedePhi.Tool.Common;
 using KaedePhi.Tool.JudgeLines.Intermediate.Utils;
-using JudgeLine = KaedePhi.Core.Intermediate.JudgeLine;
+using JudgeLine = KaedePhi.Core.Intermediate.Model.JudgeLine;
 
 namespace KaedePhi.Tool.JudgeLines.Intermediate;
 

@@ -3,8 +3,8 @@ using KaedePhi.Tool.Common;
 using KaedePhi.Tool.Converter.PhiEdit.Model;
 using KaedePhi.Tool.Event.Intermediate;
 using KaedePhi.Tool.Layer.Intermediate;
-using IrEasing = KaedePhi.Core.Intermediate.Easing;
-using IrEventLayer = KaedePhi.Core.Intermediate.Events.EventLayer;
+using IrEasing = KaedePhi.Core.Intermediate.Model.Easing;
+using IrEventLayer = KaedePhi.Core.Intermediate.Model.Events.EventLayer;
 
 namespace KaedePhi.Tool.Converter.PhiEdit.Utils;
 

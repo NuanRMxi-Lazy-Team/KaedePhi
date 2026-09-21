@@ -1,7 +1,7 @@
 using System;
 using System.Globalization;
 
-namespace KaedePhi.Core.Formats.PhiEdit
+namespace KaedePhi.Core.Formats.PhiEdit.Model
 {
     /// <summary>
     /// 单个BPM变化点

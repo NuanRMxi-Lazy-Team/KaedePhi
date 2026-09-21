@@ -1,6 +1,6 @@
 using Newtonsoft.Json;
 
-namespace KaedePhi.Core.Formats.Phigros.v3
+namespace KaedePhi.Core.Formats.Phigros.v3.Model
 {
     /// <summary>
     /// 速度事件，描述一段时间的速度变化。

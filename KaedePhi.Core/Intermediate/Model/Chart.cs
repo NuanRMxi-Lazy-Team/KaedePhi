@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace KaedePhi.Core.Intermediate
+namespace KaedePhi.Core.Intermediate.Model
 {
     /// <summary>
     /// 用于内部跨格式转换的谱面中间表示（IR），也可供开发者直接使用和扩展。

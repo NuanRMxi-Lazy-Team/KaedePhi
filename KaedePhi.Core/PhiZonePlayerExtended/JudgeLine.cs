@@ -4,7 +4,7 @@ using Newtonsoft.Json;
 
 namespace KaedePhi.Core.PhiZonePlayerExtended
 {
-    [System.Obsolete("已弃用：请迁移至 KaedePhi.Core.Formats.PhiZonePlayerExtended 命名空间下的同名类型。")]
+    [System.Obsolete("已弃用：请迁移至 KaedePhi.Core.Formats.PhiZonePlayerExtended.Model 命名空间下的同名类型。")]
     public class JudgeLine : RePhiEdit.JudgeLine
     {
         /// <summary>

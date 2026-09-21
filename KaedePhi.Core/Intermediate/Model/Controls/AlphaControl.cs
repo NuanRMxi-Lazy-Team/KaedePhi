@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace KaedePhi.Core.Intermediate.Controls
+namespace KaedePhi.Core.Intermediate.Model.Controls
 {
     /// <summary>
     /// 不透明度控制点。

@@ -1,7 +1,9 @@
 using System;
+using KaedePhi.Core.Formats.PhiChain.v6.Model;
 using KaedePhi.Core.Primitives;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using NoteType = KaedePhi.Core.Formats.PhiChain.v6.Model.NoteType;
 
 namespace KaedePhi.Core.Formats.PhiChain.v6.Serialization.JsonConverter
 {

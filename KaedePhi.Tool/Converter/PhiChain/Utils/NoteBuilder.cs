@@ -1,8 +1,8 @@
 using KaedePhi.Core.Primitives;
-using KaedePhi.Core.Formats.PhiChain.v6;
+using KaedePhi.Core.Formats.PhiChain.v6.Model;
 using KaedePhi.Core.Primitives.Mathematics;
 using IrNoteType = KaedePhi.Core.Primitives.NoteType;
-using PhiChainNoteType = KaedePhi.Core.Formats.PhiChain.v6.NoteType;
+using PhiChainNoteType = KaedePhi.Core.Formats.PhiChain.v6.Model.NoteType;
 
 namespace KaedePhi.Tool.Converter.PhiChain.Utils;
 

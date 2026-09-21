@@ -1,11 +1,11 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
-using KaedePhi.Core.Primitives;
 using KaedePhi.Core.Formats.RePhiEdit.Serialization.JsonConverter;
+using KaedePhi.Core.Primitives;
 using KaedePhi.Core.Primitives.Mathematics;
 using Newtonsoft.Json;
 
-namespace KaedePhi.Core.Formats.RePhiEdit.Events
+namespace KaedePhi.Core.Formats.RePhiEdit.Model.Events
 {
     public class Event<T> : EventBase<T>
         where T : notnull

@@ -1,5 +1,5 @@
 using KaedePhi.Tool.Common;
-using PhigrosV3 = KaedePhi.Core.Formats.Phigros.v3.Chart;
+using PhigrosV3 = KaedePhi.Core.Formats.Phigros.v3.Model.Chart;
 
 namespace KaedePhi.Tool.Converter.Phigros.v3.Utils;
 

@@ -1,6 +1,6 @@
 using Newtonsoft.Json;
 
-namespace KaedePhi.Core.Formats.Phigros.v3
+namespace KaedePhi.Core.Formats.Phigros.v3.Model
 {
     /// <summary>
     /// 判定线事件，描述一段时间内判定线属性（移动、旋转、透明度）的变化。

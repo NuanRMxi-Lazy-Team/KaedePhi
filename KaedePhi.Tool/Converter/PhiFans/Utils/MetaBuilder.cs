@@ -1,4 +1,4 @@
-using KaedePhi.Core.Formats.PhiFans;
+using KaedePhi.Core.Formats.PhiFans.Model;
 
 namespace KaedePhi.Tool.Converter.PhiFans.Utils;
 

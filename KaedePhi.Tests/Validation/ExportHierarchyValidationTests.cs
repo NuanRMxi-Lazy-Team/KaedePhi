@@ -13,7 +13,7 @@ using KaedePhi.Tool.Converter.Phigros.v3.Model;
 using KaedePhi.Tool.Converter.RePhiEdit;
 using KaedePhi.Tool.Converter.RePhiEdit.Model;
 using KaedePhi.Tool.Render.Intermediate;
-using Ir = KaedePhi.Core.Intermediate;
+using Ir = KaedePhi.Core.Intermediate.Model;
 
 namespace KaedePhi.Tests.Validation;
 

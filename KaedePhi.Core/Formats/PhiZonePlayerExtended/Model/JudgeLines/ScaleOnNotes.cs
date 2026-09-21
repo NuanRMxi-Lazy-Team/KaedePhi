@@ -1,4 +1,4 @@
-namespace KaedePhi.Core.Formats.PhiZonePlayerExtended.JudgeLines
+namespace KaedePhi.Core.Formats.PhiZonePlayerExtended.Model.JudgeLines
 {
     /// <summary>
     /// 用于决定判定线的ScaleX事件对判定线上音符的影响

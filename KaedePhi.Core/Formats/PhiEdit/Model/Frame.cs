@@ -1,7 +1,7 @@
 using System;
 using System.Globalization;
 
-namespace KaedePhi.Core.Formats.PhiEdit
+namespace KaedePhi.Core.Formats.PhiEdit.Model
 {
     /// <summary>
     /// 帧（瞬时事件），描述某一拍点的标量值。

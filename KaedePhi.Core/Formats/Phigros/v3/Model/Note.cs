@@ -3,7 +3,7 @@ using System.Runtime.Serialization;
 using KaedePhi.Core.Formats.Phigros.v3.Serialization.JsonConverter;
 using Newtonsoft.Json;
 
-namespace KaedePhi.Core.Formats.Phigros.v3
+namespace KaedePhi.Core.Formats.Phigros.v3.Model
 {
     public class Note
     {

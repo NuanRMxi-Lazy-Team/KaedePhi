@@ -1,5 +1,5 @@
 using KaedePhi.Core.Primitives;
-using IrBpmItem = KaedePhi.Core.Intermediate.BpmItem;
+using IrBpmItem = KaedePhi.Core.Intermediate.Model.BpmItem;
 
 namespace KaedePhi.Tool.Converter.Phigros.v3.Utils;
 

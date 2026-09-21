@@ -2,7 +2,7 @@ using System.Runtime.Serialization;
 using KaedePhi.Core.Primitives;
 using Newtonsoft.Json;
 
-namespace KaedePhi.Core.Formats.PhiFans
+namespace KaedePhi.Core.Formats.PhiFans.Model
 {
     public class Note
     {

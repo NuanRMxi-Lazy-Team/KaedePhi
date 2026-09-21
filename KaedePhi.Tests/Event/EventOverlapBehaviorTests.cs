@@ -1,7 +1,7 @@
 using System.Linq;
 using KaedePhi.Core.Primitives;
-using KaedePhi.Core.Intermediate;
-using IrEvents = KaedePhi.Core.Intermediate.Events;
+using KaedePhi.Core.Intermediate.Model;
+using IrEvents = KaedePhi.Core.Intermediate.Model.Events;
 
 namespace KaedePhi.Tests.Event;
 

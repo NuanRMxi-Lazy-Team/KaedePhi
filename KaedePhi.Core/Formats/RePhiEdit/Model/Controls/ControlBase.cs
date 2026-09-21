@@ -1,6 +1,6 @@
 using Newtonsoft.Json;
 
-namespace KaedePhi.Core.Formats.RePhiEdit.Controls
+namespace KaedePhi.Core.Formats.RePhiEdit.Model.Controls
 {
     public abstract class ControlBase
     {

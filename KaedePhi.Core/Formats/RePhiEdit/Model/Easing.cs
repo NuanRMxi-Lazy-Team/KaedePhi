@@ -1,7 +1,7 @@
 using KaedePhi.Core.Formats.RePhiEdit.Serialization.JsonConverter;
 using Newtonsoft.Json;
 
-namespace KaedePhi.Core.Formats.RePhiEdit
+namespace KaedePhi.Core.Formats.RePhiEdit.Model
 {
     [JsonConverter(typeof(EasingJsonConverter))]
     public class Easing

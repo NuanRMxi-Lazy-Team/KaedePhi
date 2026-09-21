@@ -1,9 +1,9 @@
 using KaedePhi.Core.Primitives;
 using KaedePhi.Tool.Converter.PhiFans;
 using KaedePhi.Tool.Converter.PhiFans.Model;
-using Ir = KaedePhi.Core.Intermediate;
-using IrEvents = KaedePhi.Core.Intermediate.Events;
-using Pf = KaedePhi.Core.Formats.PhiFans;
+using Ir = KaedePhi.Core.Intermediate.Model;
+using IrEvents = KaedePhi.Core.Intermediate.Model.Events;
+using Pf = KaedePhi.Core.Formats.PhiFans.Model;
 
 namespace KaedePhi.Tests.Converter;
 

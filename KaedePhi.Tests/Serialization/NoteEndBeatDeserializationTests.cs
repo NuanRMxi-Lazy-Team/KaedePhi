@@ -3,12 +3,17 @@ using System.Text;
 using KaedePhi.Core.Primitives;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Ir = KaedePhi.Core.Intermediate;
-using Pc = KaedePhi.Core.Formats.PhiChain.v6;
-using Pe = KaedePhi.Core.Formats.PhiEdit;
-using Pf = KaedePhi.Core.Formats.PhiFans;
-using Ph = KaedePhi.Core.Formats.Phigros.v3;
-using Rpe = KaedePhi.Core.Formats.RePhiEdit;
+using Ir = KaedePhi.Core.Intermediate.Model;
+using Pc = KaedePhi.Core.Formats.PhiChain.v6.Model;
+using Pe = KaedePhi.Core.Formats.PhiEdit.Model;
+using Pf = KaedePhi.Core.Formats.PhiFans.Model;
+using Ph = KaedePhi.Core.Formats.Phigros.v3.Model;
+using Rpe = KaedePhi.Core.Formats.RePhiEdit.Model;
+using PcSerialization = KaedePhi.Core.Formats.PhiChain.v6.Serialization.ChartSerialization;
+using PeSerialization = KaedePhi.Core.Formats.PhiEdit.Serialization.ChartSerialization;
+using PfSerialization = KaedePhi.Core.Formats.PhiFans.Serialization.ChartSerialization;
+using PhSerialization = KaedePhi.Core.Formats.Phigros.v3.Serialization.ChartSerialization;
+using RpeSerialization = KaedePhi.Core.Formats.RePhiEdit.Serialization.ChartSerialization;
 
 namespace KaedePhi.Tests.Serialization;
 
@@ -76,7 +81,7 @@ public class NoteEndBeatDeserializationTests
     [InlineData("0\nn2 0 1 0 0 1 0\n# 1\n& 1")]
     public void PhiEditHold_WithMissingEqualOrReversedEnd_Throws(string pec)
     {
-        var act = () => Pe.Chart.Load(pec);
+        var act = () => PeSerialization.Load(pec);
 
         act.Should().Throw<FormatException>();
     }
@@ -116,8 +121,8 @@ public class NoteEndBeatDeserializationTests
             "{\"info\":{},\"offset\":0,\"bpm\":[],\"lines\":[{\"props\":{},\"notes\":[{\"type\":3,\"beat\":[0,0,1]}]}]}";
         using var stream = CreateStream(json);
         Action act = useStream
-            ? () => Pf.Chart.LoadFromStream(stream)
-            : () => Pf.Chart.LoadFromJson(json);
+            ? () => PfSerialization.LoadFromStream(stream)
+            : () => PfSerialization.LoadFromJson(json);
 
         ShouldThrowCallbackJsonException(act);
     }
@@ -131,8 +136,8 @@ public class NoteEndBeatDeserializationTests
             "{\"formatVersion\":3,\"offset\":0,\"judgeLineList\":[{\"bpm\":120,\"notesAbove\":[{\"type\":3,\"time\":0}],\"notesBelow\":[],\"speedEvents\":[],\"judgeLineMoveEvents\":[],\"judgeLineRotateEvents\":[],\"judgeLineDisappearEvents\":[]}]}";
         using var stream = CreateStream(json);
         Action act = useStream
-            ? () => Ph.Chart.LoadFromStream(stream)
-            : () => Ph.Chart.LoadFromJson(json);
+            ? () => PhSerialization.LoadFromStream(stream)
+            : () => PhSerialization.LoadFromJson(json);
 
         ShouldThrowCallbackJsonException(act);
     }
@@ -146,8 +151,8 @@ public class NoteEndBeatDeserializationTests
             "{\"BPMList\":[],\"META\":{},\"judgeLineList\":[{\"eventLayers\":[],\"notes\":[{\"type\":2,\"startTime\":[0,0,1]}]}],\"chartTime\":0,\"judgeLineGroup\":[\"Default\"],\"multiLineString\":\"1\",\"multiScale\":1,\"timeTags\":[],\"xybind\":true}";
         using var stream = CreateStream(json);
         Action act = useStream
-            ? () => Rpe.Chart.LoadFromStream(stream)
-            : () => Rpe.Chart.LoadFromJson(json);
+            ? () => RpeSerialization.LoadFromStream(stream)
+            : () => RpeSerialization.LoadFromJson(json);
 
         ShouldThrowCallbackJsonException(act);
     }
@@ -161,8 +166,8 @@ public class NoteEndBeatDeserializationTests
             "{\"format\":6,\"offset\":0,\"bpm_list\":[{\"beat\":[0,0,1],\"bpm\":120}],\"lines\":[{\"name\":\"line\",\"notes\":[{\"kind\":\"hold\",\"beat\":[0,0,1]}],\"events\":[],\"children\":[],\"curve_note_tracks\":[]}]}";
         using var stream = CreateStream(json);
         Action act = useStream
-            ? () => Pc.Chart.LoadFromJsonStream(stream)
-            : () => Pc.Chart.LoadFromJson(json);
+            ? () => PcSerialization.LoadFromJsonStream(stream)
+            : () => PcSerialization.LoadFromJson(json);
 
         act.Should()
             .Throw<InvalidOperationException>()
@@ -177,7 +182,9 @@ public class NoteEndBeatDeserializationTests
     {
         const string pec = "0\nn2 0 1 0 1 0\n# 1\n& 1";
         using var stream = CreateStream(pec);
-        Action act = useStream ? () => Pe.Chart.LoadStream(stream) : () => Pe.Chart.Load(pec);
+        Action act = useStream
+            ? () => PeSerialization.LoadStream(stream)
+            : () => PeSerialization.Load(pec);
 
         act.Should().Throw<FormatException>();
     }
@@ -209,7 +216,7 @@ public class NoteEndBeatDeserializationTests
     {
         const string pec = "0\nn1 0 2 10 1 0\n# 1\n& 1";
 
-        var note = Pe.Chart.Load(pec).JudgeLineList.Single().NoteList.Single();
+        var note = PeSerialization.Load(pec).JudgeLineList.Single().NoteList.Single();
 
         note.EndBeat.Should().Be(2f);
     }
@@ -242,8 +249,8 @@ public class NoteEndBeatDeserializationTests
             .HoldBeat.Should()
             .Be(new Beat([1, 0, 1]));
 
-        var phiEditNote = Pe
-            .Chart.Load("0\nn2 0 1 2 0 1 0\n# 1\n& 1")
+        var phiEditNote = PeSerialization
+            .Load("0\nn2 0 1 2 0 1 0\n# 1\n& 1")
             .JudgeLineList.Single()
             .NoteList.Single();
         phiEditNote.EndBeat.Should().Be(2f);

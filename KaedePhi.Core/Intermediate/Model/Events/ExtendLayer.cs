@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace KaedePhi.Core.Intermediate.Events
+namespace KaedePhi.Core.Intermediate.Model.Events
 {
     /// <summary>
     /// 扩展事件层（故事板），包含判定线的视觉效果事件。

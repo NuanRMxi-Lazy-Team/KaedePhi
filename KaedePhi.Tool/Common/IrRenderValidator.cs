@@ -1,4 +1,4 @@
-using KaedePhi.Core.Intermediate;
+using KaedePhi.Core.Intermediate.Model;
 using KaedePhi.Tool.Render.Intermediate;
 
 namespace KaedePhi.Tool.Common;

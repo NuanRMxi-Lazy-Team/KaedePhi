@@ -1,6 +1,6 @@
 using KaedePhi.Tool.Common;
 using KaedePhi.Tool.Converter.PhiEdit.Model;
-using Meta = KaedePhi.Core.Intermediate.Meta;
+using Meta = KaedePhi.Core.Intermediate.Model.Meta;
 
 namespace KaedePhi.Tool.Converter.PhiEdit;
 
