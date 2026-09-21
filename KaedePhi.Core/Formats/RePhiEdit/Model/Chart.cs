@@ -8,14 +8,14 @@ namespace KaedePhi.Core.Formats.RePhiEdit
         /// <summary>
         /// 坐标系边界
         /// </summary>
-        public static class CoordinateSystem
+        public static Common.CoordinateSystem CoordinateSystemInstance { get; } = new()
         {
-            public const float MaxX = 675f;
-            public const float MinX = -675f;
-            public const float MaxY = 450f;
-            public const float MinY = -450f;
-            public const bool ClockwiseRotation = true;
-        }
+            MaxX = 675f,
+            MinX = -675f,
+            MaxY = 450f,
+            MinY = -450f,
+            ClockwiseRotation = true,
+        };
 
         /// <summary>
         /// BPM列表

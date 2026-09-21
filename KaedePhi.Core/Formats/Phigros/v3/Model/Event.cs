@@ -70,38 +70,5 @@ namespace KaedePhi.Core.Formats.Phigros.v3
             Start2 = start2;
             End2 = end2;
         }
-
-#pragma warning disable CS0618
-        /// <summary>
-        /// 将旧版事件类自动映射为结构体。
-        /// </summary>
-        /// <param name="legacy">旧版事件实例</param>
-        /// <returns>映射后的结构体</returns>
-        public static implicit operator Event(LegacyEvent legacy) =>
-            new(
-                legacy.StartTime,
-                legacy.EndTime,
-                legacy.Start,
-                legacy.End,
-                legacy.Start2,
-                legacy.End2
-            );
-
-        /// <summary>
-        /// 将结构体映射回旧版事件类（仅供旧接口调用）。
-        /// </summary>
-        /// <param name="evt">结构体事件</param>
-        /// <returns>旧版事件实例</returns>
-        public static implicit operator LegacyEvent(Event evt) =>
-            new()
-            {
-                StartTime = evt.StartTime,
-                EndTime = evt.EndTime,
-                Start = evt.Start,
-                End = evt.End,
-                Start2 = evt.Start2,
-                End2 = evt.End2,
-            };
-#pragma warning restore CS0618
     }
 }

@@ -6,7 +6,6 @@ namespace KaedePhi.Core.Formats.PhiEdit
     /// <summary>
     /// 帧（瞬时事件），描述某一拍点的标量值。
     /// 已由引用类型改为结构体，降低谱面处理时的内存开销与 GC 压力；
-    /// 旧的 <see cref="LegacyFrame"/> 类仍保留兼容，可通过隐式转换自动映射到本结构体。
     /// </summary>
     public readonly struct Frame
     {
@@ -63,22 +62,5 @@ namespace KaedePhi.Core.Formats.PhiEdit
                     Value
                 );
         }
-
-#pragma warning disable CS0618
-        /// <summary>
-        /// 将旧版帧类自动映射为结构体。
-        /// </summary>
-        /// <param name="legacy">旧版帧实例</param>
-        /// <returns>映射后的结构体</returns>
-        public static implicit operator Frame(LegacyFrame legacy) => new(legacy.Beat, legacy.Value);
-
-        /// <summary>
-        /// 将结构体映射回旧版帧类（仅供旧接口调用）。
-        /// </summary>
-        /// <param name="frame">结构体帧</param>
-        /// <returns>旧版帧实例</returns>
-        public static implicit operator LegacyFrame(Frame frame) =>
-            new() { Beat = frame.Beat, Value = frame.Value };
-#pragma warning restore CS0618
     }
 }

@@ -10,23 +10,14 @@ namespace KaedePhi.Core.Intermediate
         /// <summary>
         /// 坐标系边界
         /// </summary>
-        public static class CoordinateSystem
+        public static Common.CoordinateSystem CoordinateSystem { get; } = new()
         {
-            /// <summary>X 轴最大值</summary>
-            public const float MaxX = 1f;
-
-            /// <summary>X 轴最小值</summary>
-            public const float MinX = -1f;
-
-            /// <summary>Y 轴最大值</summary>
-            public const float MaxY = 1f;
-
-            /// <summary>Y 轴最小值</summary>
-            public const float MinY = -1f;
-
-            /// <summary>旋转方向是否为顺时针</summary>
-            public const bool ClockwiseRotation = false;
-        }
+            MaxX = 1f,
+            MinX = -1f,
+            MaxY = 1f,
+            MinY = -1f,
+            ClockwiseRotation = false
+        };
 
         /// <summary>
         /// BPM列表

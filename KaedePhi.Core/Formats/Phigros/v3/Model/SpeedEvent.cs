@@ -39,28 +39,5 @@ namespace KaedePhi.Core.Formats.Phigros.v3
             EndTime = endTime;
             Value = value;
         }
-
-#pragma warning disable CS0618
-        /// <summary>
-        /// 将旧版速度事件类自动映射为结构体。
-        /// </summary>
-        /// <param name="legacy">旧版速度事件实例</param>
-        /// <returns>映射后的结构体</returns>
-        public static implicit operator SpeedEvent(LegacySpeedEvent legacy) =>
-            new(legacy.StartTime, legacy.EndTime, legacy.Value);
-
-        /// <summary>
-        /// 将结构体映射回旧版速度事件类（仅供旧接口调用）。
-        /// </summary>
-        /// <param name="speedEvent">结构体速度事件</param>
-        /// <returns>旧版速度事件实例</returns>
-        public static implicit operator LegacySpeedEvent(SpeedEvent speedEvent) =>
-            new()
-            {
-                StartTime = speedEvent.StartTime,
-                EndTime = speedEvent.EndTime,
-                Value = speedEvent.Value,
-            };
-#pragma warning restore CS0618
     }
 }

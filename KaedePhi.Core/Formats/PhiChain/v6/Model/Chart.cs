@@ -6,29 +6,25 @@ namespace KaedePhi.Core.Formats.PhiChain.v6
 {
     public sealed partial class Chart
     {
-        [JsonProperty("format")]
-        public ulong Format { get; set; } = Constants.CurrentFormat;
+        [JsonProperty("format")] public ulong Format { get; set; } = Constants.CurrentFormat;
 
-        [JsonProperty("offset")]
-        public float Offset { get; set; }
+        [JsonProperty("offset")] public float Offset { get; set; }
 
-        [JsonProperty("bpm_list")]
-        public BpmList BpmList { get; set; } = new();
+        [JsonProperty("bpm_list")] public BpmList BpmList { get; set; } = new();
 
-        [JsonProperty("lines")]
-        public List<SerializedLine> Lines { get; set; } = new();
+        [JsonProperty("lines")] public List<SerializedLine> Lines { get; set; } = new();
 
         /// <summary>
         /// 坐标系边界
         /// </summary>
-        public static class CoordinateSystem
+        public static Common.CoordinateSystem CoordinateSystem { get; } = new()
         {
-            public const float MaxX = 675f;
-            public const float MinX = -675f;
-            public const float MaxY = 450f;
-            public const float MinY = -450f;
-            public const bool ClockwiseRotation = false;
-        }
+            MaxX = 675f,
+            MinX = -675f,
+            MaxY = 450f,
+            MinY = -450f,
+            ClockwiseRotation = false,
+        };
 
         /// <summary>
         /// 深克隆当前 Chart 对象

@@ -26,13 +26,13 @@ namespace KaedePhi.Core.Formats.Phigros.v3
         /// <summary>
         /// 坐标系边界
         /// </summary>
-        public static class CoordinateSystem
+        public static Common.CoordinateSystem CoordinateSystem { get; } = new()
         {
-            public const bool ClockwiseRotation = false;
-            public const float MaxX = 1f;
-            public const float MinX = 0f;
-            public const float MaxY = 1f;
-            public const float MinY = 0f;
-        }
+            MaxX = 1f,
+            MinX = 0f,
+            MaxY = 1f,
+            MinY = 0f,
+            ClockwiseRotation = false
+        };
     }
 }
