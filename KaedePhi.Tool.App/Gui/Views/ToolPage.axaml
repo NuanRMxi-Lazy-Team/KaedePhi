@@ -6,7 +6,7 @@
              x:Class="KaedePhi.Tool.App.Gui.Views.ToolPage"
              x:DataType="vm:ToolViewModel">
 
-    <Grid RowDefinitions="Auto,Auto,*,Auto,Auto">
+    <Grid RowDefinitions="Auto,Auto,*,Auto,Auto,Auto">
         <!-- 标题：文件信息 -->
         <Border Grid.Row="0" Background="{DynamicResource SystemAccentColor}" Padding="16,10">
             <StackPanel Orientation="Horizontal" Spacing="16">
@@ -192,8 +192,24 @@
             <TextBlock Text="{Binding StatusText}" FontSize="12" Opacity="0.7" />
         </Border>
 
+        <!-- 行为不明确内容警告 -->
+        <Border Grid.Row="4" Margin="16,0,16,8" Padding="12,10"
+                CornerRadius="8"
+                Background="{DynamicResource WarningBannerBackground}"
+                BorderBrush="{DynamicResource WarningBannerBorder}"
+                BorderThickness="1"
+                IsVisible="{Binding HasUnclearContent}">
+            <StackPanel Orientation="Horizontal" Spacing="10">
+                <TextBlock Text="&#xf071;" Classes="fa-icon" FontSize="16"
+                           Foreground="{DynamicResource WarningBannerForeground}" />
+                <TextBlock Text="{x:Static loc:GuiLocalizationString.tool_unclear_content_warning}"
+                           FontSize="12" TextWrapping="Wrap"
+                           Foreground="{DynamicResource WarningBannerForeground}" />
+            </StackPanel>
+        </Border>
+
         <!-- 底部按钮 -->
-        <Border Grid.Row="4" Padding="16,12"
+        <Border Grid.Row="5" Padding="16,12"
                 Background="{DynamicResource CardBackgroundFillColorDefaultBrush}">
             <Grid ColumnDefinitions="Auto,*">
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="8">

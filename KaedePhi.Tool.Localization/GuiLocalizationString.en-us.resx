@@ -487,6 +487,9 @@
   <data name="tool_error_title" xml:space="preserve">
     <value>Tool Failed</value>
   </data>
+  <data name="tool_unclear_content_warning" xml:space="preserve">
+    <value>The imported chart contains content whose behavior is not yet clear. Until its behavior is determined, this content cannot be processed in any way.</value>
+  </data>
   <data name="export_success_title" xml:space="preserve">
     <value>Export Completed</value>
   </data>

@@ -22,9 +22,15 @@
             <ResourceDictionary.ThemeDictionaries>
                 <ResourceDictionary x:Key="Light">
                     <SolidColorBrush x:Key="VersionLabelForeground" Color="#B34700" />
+                    <SolidColorBrush x:Key="WarningBannerBackground" Color="#FFF4CE" />
+                    <SolidColorBrush x:Key="WarningBannerBorder" Color="#F0C36D" />
+                    <SolidColorBrush x:Key="WarningBannerForeground" Color="#7A5900" />
                 </ResourceDictionary>
                 <ResourceDictionary x:Key="Dark">
                     <SolidColorBrush x:Key="VersionLabelForeground" Color="Yellow" />
+                    <SolidColorBrush x:Key="WarningBannerBackground" Color="#433519" />
+                    <SolidColorBrush x:Key="WarningBannerBorder" Color="#8A7333" />
+                    <SolidColorBrush x:Key="WarningBannerForeground" Color="#FFE08A" />
                 </ResourceDictionary>
             </ResourceDictionary.ThemeDictionaries>
         </ResourceDictionary>

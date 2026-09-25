@@ -264,6 +264,19 @@ public sealed class ToolViewModel : INotifyPropertyChanged
         }
     }
 
+    /// <summary>
+    /// 当前谱面是否含有行为暂不明确、无法处理的内容
+    /// </summary>
+    public bool HasUnclearContent
+    {
+        get;
+        set
+        {
+            field = value;
+            OnPropertyChanged();
+        }
+    }
+
     public bool ShowPrecision => SelectedTool?.HasPrecision == true;
     public bool ShowTolerance => SelectedTool?.HasTolerance == true;
     public bool ShowMergeTolerance => SelectedTool?.HasMergeTolerance == true;

@@ -40,6 +40,11 @@ public sealed class GuiChartService
     public bool IsLoaded => CurrentChart != null;
 
     /// <summary>
+    /// 导入的源谱面是否含有行为暂不明确的内容
+    /// </summary>
+    public bool HasUnclearContent { get; private set; }
+
+    /// <summary>
     /// 检测文件的图表格式类型
     /// </summary>
     public ChartType DetectChartType(string filePath, bool stream)
@@ -144,9 +149,14 @@ public sealed class GuiChartService
             kpcChart = await descriptor.ImportAsync(text, importOptions, CreateLogSink(), ct);
         }
 
+        var hasUnclearContent =
+            detectedType == ChartType.PhigrosV3
+            && await PhigrosV3UnclearFieldDetector.HasNonDefaultBlockAreaListAsync(filePath, ct);
+
         CurrentChart = kpcChart;
         SourceFormat = detectedType;
         SourceFilePath = filePath;
+        HasUnclearContent = hasUnclearContent;
     }
 
     /// <summary>
@@ -186,6 +196,7 @@ public sealed class GuiChartService
         CurrentChart = null;
         SourceFormat = default;
         SourceFilePath = null;
+        HasUnclearContent = false;
         _detectedFilePath = null;
         _detectedType = null;
     }

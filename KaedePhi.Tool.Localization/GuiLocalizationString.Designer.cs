@@ -1534,5 +1534,14 @@ namespace KaedePhi.Tool.Localization {
                 return ResourceManager.GetString("tool_unbind_name", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 您导入的谱面有到目前为止暂时尚不明确行为的内容，这些内容在行为明确之前，暂时无法进行任何处理。.
+        /// </summary>
+        public static string tool_unclear_content_warning {
+            get {
+                return ResourceManager.GetString("tool_unclear_content_warning", resourceCulture);
+            }
+        }
     }
 }

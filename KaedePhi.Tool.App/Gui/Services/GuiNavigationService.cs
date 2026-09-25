@@ -53,6 +53,7 @@ internal sealed class GuiNavigationService
     public void ShowTool()
     {
         Tool.StatusText = string.Empty;
+        Tool.HasUnclearContent = _chart.HasUnclearContent;
         _main.CurrentPage = Tool;
     }
 

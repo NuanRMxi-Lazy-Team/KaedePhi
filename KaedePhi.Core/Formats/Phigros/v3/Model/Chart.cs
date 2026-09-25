@@ -22,6 +22,11 @@ namespace KaedePhi.Core.Formats.Phigros.v3.Model
         /// </summary>
         [JsonProperty("judgeLineList")]
         public List<JudgeLine> JudgeLineList { get; set; } = new();
+        
+        /// <summary>
+        /// 尚不明确的字段，在行为确定之前，无任何有效注解可以提供
+        /// </summary>
+        public List<BlockArea> BlockAreaList { get; set; } = new();
 
         /// <summary>
         /// 坐标系边界

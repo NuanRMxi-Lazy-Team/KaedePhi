@@ -484,6 +484,9 @@
   <data name="tool_error_title" xml:space="preserve">
     <value>工具執行失敗</value>
   </data>
+  <data name="tool_unclear_content_warning" xml:space="preserve">
+    <value>您匯入的譜面有截至目前暫時尚不明確行為的內容，這些內容在行為明確之前，暫時無法進行任何處理。</value>
+  </data>
   <data name="export_success_title" xml:space="preserve">
     <value>匯出成功</value>
   </data>
