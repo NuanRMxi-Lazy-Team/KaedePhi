@@ -11,6 +11,9 @@ public class EventFit<TPayload> : LoggableBase, IEventFit<IrEvents.Event<TPayloa
 {
     private static readonly int[] AllEasingIds = [.. Enumerable.Range(1, 31)];
 
+    // 每个原始事件内部额外采样的点数，避免候选缓动只在事件边界处匹配
+    private const int InteriorSamplesPerEvent = 3;
+
     /// <inheritdoc/>
     public List<IrEvents.Event<TPayload>> FitEvents(
         List<IrEvents.Event<TPayload>>? events,
@@ -159,7 +162,7 @@ public class EventFit<TPayload> : LoggableBase, IEventFit<IrEvents.Event<TPayloa
     }
 
     /// <summary>
-    /// 遍历所有支持的缓动函数，返回第一个在容差范围内能覆盖所有事件边界的拟合结果；
+    /// 遍历所有支持的缓动函数，返回第一个在容差范围内与整段原始折线吻合的拟合结果；
     /// 无法拟合时返回 null。使用索引范围避免 List 分配。
     /// </summary>
     private static IrEvents.Event<TPayload>? TryFitEasing(
@@ -200,7 +203,8 @@ public class EventFit<TPayload> : LoggableBase, IEventFit<IrEvents.Event<TPayloa
     }
 
     /// <summary>
-    /// 在所有原始事件的起止边界处采样候选缓动，验证每处的相对误差百分比均不超过容差。
+    /// 在所有原始事件的起止边界及其内部采样候选缓动，验证每处的相对误差百分比均不超过容差。
+    /// 内部采样用于防止候选缓动仅穿过事件边界却在中途严重偏离原始折线。
     /// 相对误差（%）= 绝对偏差 / 整段值域跨度 × 100。使用索引范围避免 List 分配。
     /// </summary>
     private static bool FitsWithinTolerance(
@@ -235,22 +239,71 @@ public class EventFit<TPayload> : LoggableBase, IEventFit<IrEvents.Event<TPayloa
             var normStart = (evtStart - segStartBeat) / segSpan;
             var normEnd = (evtEnd - segStartBeat) / segSpan;
 
-            var easedStart =
-                segStartValue + valueDelta * GetEasingValue(candidate.Easing, normStart);
-            var easedEnd = segStartValue + valueDelta * GetEasingValue(candidate.Easing, normEnd);
-
             var srcStartVal = evt.GetStartValueAsDouble();
             var srcEndVal = evt.GetEndValueAsDouble();
 
-            // 相对误差（%）：绝对偏差 / 值域 × 100 与容差百分比比较
             if (
-                Math.Abs(easedStart - srcStartVal) / valueRange * 100.0 > tolerance
-                || Math.Abs(easedEnd - srcEndVal) / valueRange * 100.0 > tolerance
+                !SampleWithinTolerance(
+                    candidate.Easing,
+                    normStart,
+                    srcStartVal,
+                    segStartValue,
+                    valueDelta,
+                    valueRange,
+                    tolerance
+                )
+                || !SampleWithinTolerance(
+                    candidate.Easing,
+                    normEnd,
+                    srcEndVal,
+                    segStartValue,
+                    valueDelta,
+                    valueRange,
+                    tolerance
+                )
             )
                 return false;
+
+            // 原始事件在内部保持线性，候选缓动必须同步覆盖这些中间点
+            for (var sample = 1; sample <= InteriorSamplesPerEvent; sample++)
+            {
+                var local = (double)sample / (InteriorSamplesPerEvent + 1);
+                var norm = normStart + (normEnd - normStart) * local;
+                var srcValue = srcStartVal + (srcEndVal - srcStartVal) * local;
+
+                if (
+                    !SampleWithinTolerance(
+                        candidate.Easing,
+                        norm,
+                        srcValue,
+                        segStartValue,
+                        valueDelta,
+                        valueRange,
+                        tolerance
+                    )
+                )
+                    return false;
+            }
         }
 
         return true;
+    }
+
+    /// <summary>
+    /// 校验候选缓动在归一化位置处的输出值与原始值的相对误差是否在容差内。
+    /// </summary>
+    private static bool SampleWithinTolerance(
+        Ir.Easing easing,
+        double norm,
+        double sourceValue,
+        double segStartValue,
+        double valueDelta,
+        double valueRange,
+        double tolerance
+    )
+    {
+        var easedValue = segStartValue + valueDelta * GetEasingValue(easing, norm);
+        return Math.Abs(easedValue - sourceValue) / valueRange * 100.0 <= tolerance;
     }
 
     /// <summary>

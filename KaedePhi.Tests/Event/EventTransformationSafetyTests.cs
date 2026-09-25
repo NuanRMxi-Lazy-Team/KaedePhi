@@ -212,6 +212,29 @@ public class EventTransformationSafetyTests
     }
 
     [Fact]
+    public void FitEvents_ContinuousRampsWithSlopeBreak_PreservesAllEvents()
+    {
+        // 两段斜率略有差异的连续线性事件，连接点恰为 EaseInOutBounce 的中心，
+        // 仅采样事件边界会误选弹跳缓动并严重扭曲曲线
+        var events = new List<IrEvents.Event<double>>
+        {
+            CreateEvent(236, 240, 0, 337.5),
+            CreateEvent(240, 243.96875, 337.5, 675),
+            CreateEvent(243.96875, 244, 675, 675),
+            CreateEvent(244, 248, 0, 337.5),
+            CreateEvent(248, 249.015625, 337.5, 337.5),
+        };
+
+        var result = _fit.FitEvents(events, 0.1);
+
+        result.Should().HaveCount(5);
+        result.Should().OnlyContain(e => (int)e.Easing == 1);
+        result[0].StartBeat.Should().Be(new Beat(236));
+        result[2].StartBeat.Should().Be(new Beat(243.96875));
+        result[4].EndBeat.Should().Be(new Beat(249.015625));
+    }
+
+    [Fact]
     public void LayerEventsCompress_AlignedBezierPositionEvents_PreservesBothAxes()
     {
         var firstX = CreateEvent(
