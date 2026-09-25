@@ -1,5 +1,5 @@
 # KaedePhi
-即使身处无人角落，我仍要继续向前，直到我无法前进。
+我知晓，那无边的旅途。
 
 ## 前言
 NuanR_Star Ciallo Team（以下简称“我们”）KaedePhi（以下简称“本软件”）其源码遵循[GNU LESSER GENERAL PUBLIC LICENSE 3.0](https://www.gnu.org/licenses/lgpl-3.0.html)开源协议发布，
@@ -16,14 +16,11 @@ NuanR_Star Ciallo Team（以下简称“我们”）KaedePhi（以下简称“�
 - Linux：安装 [.NET 10 Runtime](https://dotnet.microsoft.com/download/dotnet/10.0)，解压 `linux-x64` 便携版后运行 `KaedePhi.Tool.App`。
 - 正式应用产物仅发布 `net10.0` 的 `win-x64` 和 `linux-x64` FDD 包；安装版仅适用于 Windows x64。
 
-> [!WARNING]
-> <span style="color:yellow">**注意：此项目仍然处于早期阶段，字段名称与行为随时有可能更改，请斟酌后再使用！**</span>
-
+## 注意事项
 > [!CAUTION]
-> <span style="color:red">**如果您使用本软件进行低质量创作，本软件将对您进行道德谴责，受限于开源协议，项目维护者无权阻止您的任何行为！**</span>
+> <span style="color:red">**如果您使用本软件进行低质量创作，本软件将对您进行道德谴责，受限于开源协议，项目维护者无权阻止您的任何行为！**</span>  
 
-> [!CAUTION]
-> <span style="color:red">**本项目自0.4.1版本进行了大量架构重写，请自行检查对旧项目的兼容性，部分API被直接破坏，部分API改名并标记为了废弃。**</span>
+> **本项目自1.2.0版本行为趋于稳定，欢迎各位开发者提出意见，但是在跨大版本更新时，仍然可能存在破坏性更改的可能。**
 
 ## CLI 使用
 发布包中的 `KaedePhi.Tool.App` 同时提供 CLI 和 GUI。传入命令或 `--cli` 时使用 CLI，传入 `--gui` 时启动 GUI；交互式终端中直接运行也会进入 CLI。
