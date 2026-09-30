@@ -67,6 +67,9 @@ project.lock.json
 project.fragment.lock.json
 artifacts/
 
+# 夜间构建写入的版本文件
+nightly-version.txt
+
 # ASP.NET Scaffolding
 ScaffoldingReadMe.txt
 

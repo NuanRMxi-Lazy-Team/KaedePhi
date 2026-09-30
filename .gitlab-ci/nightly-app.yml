@@ -47,6 +47,7 @@ nightly-app-build:
           -f net10.0 \
           -r "$runtime" \
           --self-contained false \
+          --no-restore \
           -o "$output_dir/net10.0-$runtime"
 
         cd "$output_dir/net10.0-$runtime"

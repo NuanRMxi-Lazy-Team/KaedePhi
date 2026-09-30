@@ -48,7 +48,7 @@ jobs:
           dotnet restore KaedePhi.Core/KaedePhi.Core.csproj --locked-mode
           CSPROJ="KaedePhi.Core/KaedePhi.Core.csproj"
           mkdir -p ./artifacts
-          dotnet build "$CSPROJ" -c Release
+          dotnet build "$CSPROJ" -c Release --no-restore
           dotnet pack "$CSPROJ" -c Release --no-build -o ./artifacts
 
       - name: Upload build artifacts
