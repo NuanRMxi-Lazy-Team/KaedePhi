@@ -14,7 +14,14 @@ public class EventFit<TPayload> : LoggableBase, IEventFit<IrEvents.Event<TPayloa
     // 每个原始事件内部额外采样的点数，避免候选缓动只在事件边界处匹配
     private const int InteriorSamplesPerEvent = 3;
 
+    // int 载荷的最小量化单位：运行时按截断取整数，源事件的取整误差无法靠整数拟合结果消除，
+    // 因此按量化值比较并额外放宽一个单位
+    private static readonly double PayloadQuantum = typeof(TPayload) == typeof(int) ? 1d : 0d;
+
     /// <inheritdoc/>
+    /// <remarks>
+    /// int 载荷按截断后的整数比较偏差，并额外允许一个最小量化单位。
+    /// </remarks>
     public List<IrEvents.Event<TPayload>> FitEvents(
         List<IrEvents.Event<TPayload>>? events,
         double tolerance
@@ -206,6 +213,7 @@ public class EventFit<TPayload> : LoggableBase, IEventFit<IrEvents.Event<TPayloa
     /// 在所有原始事件的起止边界及其内部采样候选缓动，验证每处的相对误差百分比均不超过容差。
     /// 内部采样用于防止候选缓动仅穿过事件边界却在中途严重偏离原始折线。
     /// 相对误差（%）= 绝对偏差 / 整段值域跨度 × 100。使用索引范围避免 List 分配。
+    /// int 载荷改为比较截断后的整数值，并额外允许一个最小量化单位。
     /// </summary>
     private static bool FitsWithinTolerance(
         IrEvents.Event<TPayload> candidate,
@@ -290,7 +298,8 @@ public class EventFit<TPayload> : LoggableBase, IEventFit<IrEvents.Event<TPayloa
     }
 
     /// <summary>
-    /// 校验候选缓动在归一化位置处的输出值与原始值的相对误差是否在容差内。
+    /// 校验候选缓动在归一化位置处的输出值与原始值的偏差是否在容差内。
+    /// int 载荷按运行时的截断取值比较量化后的整数偏差，并额外允许一个最小量化单位。
     /// </summary>
     private static bool SampleWithinTolerance(
         Ir.Easing easing,
@@ -303,6 +312,15 @@ public class EventFit<TPayload> : LoggableBase, IEventFit<IrEvents.Event<TPayloa
     )
     {
         var easedValue = segStartValue + valueDelta * GetEasingValue(easing, norm);
+
+        if (PayloadQuantum > 0)
+        {
+            var quantizedDeviation = Math.Abs(
+                Math.Truncate(easedValue) - Math.Truncate(sourceValue)
+            );
+            return quantizedDeviation <= valueRange * tolerance / 100.0 + PayloadQuantum;
+        }
+
         return Math.Abs(easedValue - sourceValue) / valueRange * 100.0 <= tolerance;
     }
 

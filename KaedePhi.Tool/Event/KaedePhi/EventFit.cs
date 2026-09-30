@@ -19,7 +19,9 @@ public class EventFit<TPayload>
     /// 将 KPC 事件列表中连续的线性事件序列拟合为带缓动函数的事件。
     /// </summary>
     /// <param name="events">待处理的事件列表，允许为 null 或空列表。</param>
-    /// <param name="tolerance">容差百分比，取值范围 [0, 100]。</param>
+    /// <param name="tolerance">
+    /// 容差百分比，取值范围 [0, 100]。int 类型载荷按截断后的整数比较，并额外允许一个最小量化单位（1）。
+    /// </param>
     /// <returns>拟合后的事件列表。</returns>
     [Obsolete("已弃用：请迁移至 EventFit{TPayload}.FitEvents。")]
     public List<KpcEvents.Event<TPayload>> FitEvents(

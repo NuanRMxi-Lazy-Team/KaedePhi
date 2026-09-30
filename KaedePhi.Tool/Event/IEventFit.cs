@@ -15,6 +15,7 @@ public interface IEventFit<TEvent> : ILoggable
     /// <param name="tolerance">
     /// 容差百分比，取值范围 [0, 100]。
     /// 例如 0.1 表示允许每个采样点的偏差不超过整段值变化量的 0.1%。
+    /// int 类型载荷按截断后的整数比较，并额外允许一个最小量化单位（1）。
     /// </param>
     /// <returns>拟合后的事件列表。</returns>
     List<TEvent> FitEvents(List<TEvent>? events, double tolerance);
