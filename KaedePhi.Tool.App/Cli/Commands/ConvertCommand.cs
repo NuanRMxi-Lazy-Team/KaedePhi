@@ -238,12 +238,12 @@ public static partial class ConvertCommand
         var disableUnbindCompress = result.GetValue(NoUnbindCompressOpt);
         var disableMergeCompress = result.GetValue(NoMergeCompressOpt);
 
-        var peOptions = new KpcToPhiEditConvertOptions
+        var peOptions = new IrToPhiEditConvertOptions
         {
             TrailingBeatPadding =
                 SharedOptions.GetIfSpecified(result, PeTrailingPaddingOpt)
                 ?? c.PeTrailingBeatPadding,
-            Cutting = new KpcToPhiEditConvertOptions.CuttingOptions
+            Cutting = new IrToPhiEditConvertOptions.CuttingOptions
             {
                 UnsupportedEasingPrecision =
                     SharedOptions.GetIfSpecified(result, PeEasingPrecisionOpt)
@@ -252,7 +252,7 @@ public static partial class ConvertCommand
                     SharedOptions.GetIfSpecified(result, PeXyPrecisionOpt)
                     ?? c.PeMisalignedXyEventPrecision,
             },
-            Alpha = new KpcToPhiEditConvertOptions.AlphaOptions
+            Alpha = new IrToPhiEditConvertOptions.AlphaOptions
             {
                 CutPrecision =
                     SharedOptions.GetIfSpecified(result, PeAlphaPrecisionOpt)
@@ -262,13 +262,13 @@ public static partial class ConvertCommand
                     SharedOptions.GetIfSpecified(result, PeAlphaToleranceOpt)
                     ?? c.PeAlphaCutTolerance,
             },
-            Speed = new KpcToPhiEditConvertOptions.SpeedOptions
+            Speed = new IrToPhiEditConvertOptions.SpeedOptions
             {
                 CutPrecision =
                     SharedOptions.GetIfSpecified(result, PeSpeedPrecisionOpt)
                     ?? c.PeSpeedCutPrecision,
             },
-            FatherLineUnbind = new KpcToPhiEditConvertOptions.FatherLineUnbindOptions
+            FatherLineUnbind = new IrToPhiEditConvertOptions.FatherLineUnbindOptions
             {
                 Precision =
                     SharedOptions.GetIfSpecified(result, UnbindPrecisionOpt)
@@ -287,7 +287,7 @@ public static partial class ConvertCommand
                     ?? c.UnbindClassicMode,
                 Compress = !disableUnbindCompress,
             },
-            MultiLayerMerge = new KpcToPhiEditConvertOptions.MultiLayerMergeOptions
+            MultiLayerMerge = new IrToPhiEditConvertOptions.MultiLayerMergeOptions
             {
                 Precision =
                     SharedOptions.GetIfSpecified(result, MergePrecisionOpt)
@@ -300,17 +300,17 @@ public static partial class ConvertCommand
                     ?? c.MultiLayerMergeClassicMode,
                 Compress = !disableMergeCompress,
             },
-            LineFilter = new KpcToPhiEditConvertOptions.LineFilterOptions
+            LineFilter = new IrToPhiEditConvertOptions.LineFilterOptions
             {
                 RemoveAttachUiLine = result.GetValue(RemoveAttachUiOpt),
                 RemoveTextureLine = result.GetValue(RemoveTextureOpt),
             },
         };
 
-        var phigrosOptions = new KpcToPhigrosV3ConvertOptions
+        var phigrosOptions = new IrToPhigrosV3ConvertOptions
         {
             DefaultBpm = SharedOptions.GetIfSpecified(result, PhigrosBpmOpt) ?? c.PhigrosDefaultBpm,
-            Cutting = new KpcToPhigrosV3ConvertOptions.CuttingOptions
+            Cutting = new IrToPhigrosV3ConvertOptions.CuttingOptions
             {
                 EasingPrecision =
                     SharedOptions.GetIfSpecified(result, PhigrosEasingPrecisionOpt)
@@ -319,19 +319,19 @@ public static partial class ConvertCommand
                     SharedOptions.GetIfSpecified(result, PhigrosXyPrecisionOpt)
                     ?? c.PhigrosMisalignedXyEventPrecision,
             },
-            Alpha = new KpcToPhigrosV3ConvertOptions.AlphaOptions
+            Alpha = new IrToPhigrosV3ConvertOptions.AlphaOptions
             {
                 CutPrecision =
                     SharedOptions.GetIfSpecified(result, PhigrosAlphaPrecisionOpt)
                     ?? c.PhigrosAlphaCutPrecision,
             },
-            Speed = new KpcToPhigrosV3ConvertOptions.SpeedOptions
+            Speed = new IrToPhigrosV3ConvertOptions.SpeedOptions
             {
                 CutPrecision =
                     SharedOptions.GetIfSpecified(result, PhigrosSpeedPrecisionOpt)
                     ?? c.PhigrosSpeedCutPrecision,
             },
-            FatherLineUnbind = new KpcToPhigrosV3ConvertOptions.FatherLineUnbindOptions
+            FatherLineUnbind = new IrToPhigrosV3ConvertOptions.FatherLineUnbindOptions
             {
                 Precision =
                     SharedOptions.GetIfSpecified(result, UnbindPrecisionOpt)
@@ -350,7 +350,7 @@ public static partial class ConvertCommand
                     ?? c.UnbindClassicMode,
                 Compress = !disableUnbindCompress,
             },
-            MultiLayerMerge = new KpcToPhigrosV3ConvertOptions.MultiLayerMergeOptions
+            MultiLayerMerge = new IrToPhigrosV3ConvertOptions.MultiLayerMergeOptions
             {
                 Precision =
                     SharedOptions.GetIfSpecified(result, MergePrecisionOpt)
@@ -363,18 +363,18 @@ public static partial class ConvertCommand
                     ?? c.MultiLayerMergeClassicMode,
                 Compress = !disableMergeCompress,
             },
-            LineFilter = new KpcToPhigrosV3ConvertOptions.LineFilterOptions
+            LineFilter = new IrToPhigrosV3ConvertOptions.LineFilterOptions
             {
                 RemoveAttachUiLine = result.GetValue(RemoveAttachUiOpt),
                 RemoveTextureLine = result.GetValue(RemoveTextureOpt),
             },
-            NoteFilter = new KpcToPhigrosV3ConvertOptions.NoteFilterOptions
+            NoteFilter = new IrToPhigrosV3ConvertOptions.NoteFilterOptions
             {
                 FilterFakeNotes =
                     SharedOptions.GetIfSpecified(result, FilterFakeNotesOpt)
                     ?? c.PhigrosFilterFakeNotes,
             },
-            NegativeAlpha = new KpcToPhigrosV3ConvertOptions.NegativeAlphaOptions
+            NegativeAlpha = new IrToPhigrosV3ConvertOptions.NegativeAlphaOptions
             {
                 Enabled =
                     SharedOptions.GetIfSpecified(result, NegativeAlphaElevationOpt)
@@ -385,9 +385,9 @@ public static partial class ConvertCommand
             },
         };
 
-        var phiFansOptions = new KpcToPhiFansConvertOptions
+        var phiFansOptions = new IrToPhiFansConvertOptions
         {
-            Cutting = new KpcToPhiFansConvertOptions.CuttingOptions
+            Cutting = new IrToPhiFansConvertOptions.CuttingOptions
             {
                 UnsupportedEasingPrecision =
                     SharedOptions.GetIfSpecified(result, PhiFansEasingPrecisionOpt)
@@ -396,7 +396,7 @@ public static partial class ConvertCommand
             DiscontinuityBeatPrecision =
                 SharedOptions.GetIfSpecified(result, PhiFansDiscontinuityPrecisionOpt)
                 ?? c.PhiFansDiscontinuityBeatPrecision,
-            MultiLayerMerge = new KpcToPhiFansConvertOptions.MultiLayerMergeOptions
+            MultiLayerMerge = new IrToPhiFansConvertOptions.MultiLayerMergeOptions
             {
                 Precision =
                     SharedOptions.GetIfSpecified(result, MergePrecisionOpt)

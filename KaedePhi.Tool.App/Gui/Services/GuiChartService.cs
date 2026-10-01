@@ -1,10 +1,10 @@
 using KaedePhi.Tool.App.Shared;
 using KaedePhi.Tool.Common;
 using KaedePhi.Tool.Converter;
-using KaedePhi.Tool.Render.KaedePhi;
+using KaedePhi.Tool.Render.Intermediate;
 using Serilog;
 using static KaedePhi.Tool.Localization.GuiLocalizationString;
-using Chart = KaedePhi.Core.KaedePhi.Chart;
+using Chart = KaedePhi.Core.Intermediate.Model.Chart;
 
 namespace KaedePhi.Tool.App.Gui.Services;
 
@@ -136,7 +136,7 @@ public sealed class GuiChartService
                 65536,
                 useAsync: true
             );
-            kpcChart = await descriptor.ImportStreamAsync(
+            kpcChart = await descriptor.ImportStreamIrAsync(
                 inputStream,
                 importOptions,
                 CreateLogSink(),
@@ -146,7 +146,7 @@ public sealed class GuiChartService
         else
         {
             var text = await File.ReadAllTextAsync(filePath, ct);
-            kpcChart = await descriptor.ImportAsync(text, importOptions, CreateLogSink(), ct);
+            kpcChart = await descriptor.ImportIrAsync(text, importOptions, CreateLogSink(), ct);
         }
 
         var hasUnclearContent =
@@ -324,7 +324,7 @@ public sealed class GuiChartService
     public IReadOnlyList<string> RunRender(
         Chart chart,
         string outputDir,
-        KpcRenderOptions options,
+        IrRenderOptions options,
         IProgress<ToolProgress>? progress = null,
         CancellationToken ct = default
     )

@@ -157,7 +157,7 @@
                                     <TextBlock Text="{x:Static loc:GuiLocalizationString.option_render_output_dir}" />
                                     <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
                                         <TextBox Grid.Column="0" Text="{Binding RenderOutputDir}"
-                                                 Watermark="{x:Static loc:GuiLocalizationString.option_render_output_dir_hint}" />
+                                                 PlaceholderText="{x:Static loc:GuiLocalizationString.option_render_output_dir_hint}" />
                                         <Button Grid.Column="1" Classes="secondary" Content="{x:Static loc:GuiLocalizationString.btn_browse}"
                                                 Click="OnBrowseOutputDirClick" />
                                     </Grid>

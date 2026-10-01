@@ -557,7 +557,7 @@ public class NoteEndBeatInvariantTests
             )
         );
 
-        var imported = await descriptor.ImportAsync(
+        var imported = await descriptor.ImportIrAsync(
             "ignored",
             ct: TestContext.Current.CancellationToken
         );
@@ -581,7 +581,7 @@ public class NoteEndBeatInvariantTests
         );
         await using var stream = new MemoryStream();
 
-        var imported = await descriptor.ImportStreamAsync(
+        var imported = await descriptor.ImportStreamIrAsync(
             stream,
             ct: TestContext.Current.CancellationToken
         );

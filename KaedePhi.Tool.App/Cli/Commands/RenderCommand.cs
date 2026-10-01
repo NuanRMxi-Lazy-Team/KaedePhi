@@ -1,7 +1,7 @@
 using KaedePhi.Tool.App.Cli.Infrastructure;
 using KaedePhi.Tool.App.Config;
 using KaedePhi.Tool.App.Shared;
-using KaedePhi.Tool.Render.KaedePhi;
+using KaedePhi.Tool.Render.Intermediate;
 
 namespace KaedePhi.Tool.App.Cli.Commands;
 
@@ -114,7 +114,7 @@ public static partial class RenderCommand
 
         ConsoleWriter.Info(string.Format(CliLocalizationString.render_msg_start, outputDir));
 
-        var opts = new KpcRenderOptions
+        var opts = new IrRenderOptions
         {
             PixelsPerBeat =
                 SharedOptions.GetIfSpecified(result, PixelsPerBeatOpt) ?? c.PixelsPerBeat,

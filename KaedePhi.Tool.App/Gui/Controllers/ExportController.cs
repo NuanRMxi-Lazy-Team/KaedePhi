@@ -202,24 +202,24 @@ internal sealed class ExportController
         };
     }
 
-    private static KpcToPhigrosV3ConvertOptions BuildPhigrosV3Options(ExportViewModel vm) =>
+    private static IrToPhigrosV3ConvertOptions BuildPhigrosV3Options(ExportViewModel vm) =>
         new()
         {
             DefaultBpm = vm.PhigrosDefaultBpm,
-            Cutting = new KpcToPhigrosV3ConvertOptions.CuttingOptions
+            Cutting = new IrToPhigrosV3ConvertOptions.CuttingOptions
             {
                 EasingPrecision = vm.PhigrosEasingPrecision,
                 MisalignedXyEventPrecision = vm.PhigrosMisalignedXyEventPrecision,
             },
-            Alpha = new KpcToPhigrosV3ConvertOptions.AlphaOptions
+            Alpha = new IrToPhigrosV3ConvertOptions.AlphaOptions
             {
                 CutPrecision = vm.PhigrosAlphaCutPrecision,
             },
-            Speed = new KpcToPhigrosV3ConvertOptions.SpeedOptions
+            Speed = new IrToPhigrosV3ConvertOptions.SpeedOptions
             {
                 CutPrecision = vm.PhigrosSpeedCutPrecision,
             },
-            FatherLineUnbind = new KpcToPhigrosV3ConvertOptions.FatherLineUnbindOptions
+            FatherLineUnbind = new IrToPhigrosV3ConvertOptions.FatherLineUnbindOptions
             {
                 Precision = vm.UnbindPrecision,
                 Tolerance = vm.UnbindTolerance,
@@ -227,48 +227,48 @@ internal sealed class ExportController
                 ClassicMode = vm.UnbindClassicMode,
                 Compress = vm.UnbindCompress,
             },
-            MultiLayerMerge = new KpcToPhigrosV3ConvertOptions.MultiLayerMergeOptions
+            MultiLayerMerge = new IrToPhigrosV3ConvertOptions.MultiLayerMergeOptions
             {
                 Precision = vm.MultiLayerMergePrecision,
                 Tolerance = vm.MultiLayerMergeTolerance,
                 ClassicMode = vm.MultiLayerMergeClassicMode,
                 Compress = vm.MultiLayerMergeCompress,
             },
-            LineFilter = new KpcToPhigrosV3ConvertOptions.LineFilterOptions
+            LineFilter = new IrToPhigrosV3ConvertOptions.LineFilterOptions
             {
                 RemoveAttachUiLine = vm.RemoveAttachUiLine,
                 RemoveTextureLine = vm.RemoveTextureLine,
             },
-            NoteFilter = new KpcToPhigrosV3ConvertOptions.NoteFilterOptions
+            NoteFilter = new IrToPhigrosV3ConvertOptions.NoteFilterOptions
             {
                 FilterFakeNotes = vm.FilterFakeNotes,
             },
-            NegativeAlpha = new KpcToPhigrosV3ConvertOptions.NegativeAlphaOptions
+            NegativeAlpha = new IrToPhigrosV3ConvertOptions.NegativeAlphaOptions
             {
                 Enabled = vm.NegativeAlphaElevation,
                 ElevationStep = vm.NegativeAlphaStep,
             },
         };
 
-    private static KpcToPhiEditConvertOptions BuildPhiEditOptions(ExportViewModel vm) =>
+    private static IrToPhiEditConvertOptions BuildPhiEditOptions(ExportViewModel vm) =>
         new()
         {
             TrailingBeatPadding = vm.PeTrailingBeatPadding,
-            Cutting = new KpcToPhiEditConvertOptions.CuttingOptions
+            Cutting = new IrToPhiEditConvertOptions.CuttingOptions
             {
                 UnsupportedEasingPrecision = vm.PeUnsupportedEasingPrecision,
                 MisalignedXyEventPrecision = vm.PeMisalignedXyEventPrecision,
             },
-            Alpha = new KpcToPhiEditConvertOptions.AlphaOptions
+            Alpha = new IrToPhiEditConvertOptions.AlphaOptions
             {
                 CutPrecision = vm.PeAlphaCutPrecision,
                 CutTolerance = vm.PeAlphaCutTolerance,
             },
-            Speed = new KpcToPhiEditConvertOptions.SpeedOptions
+            Speed = new IrToPhiEditConvertOptions.SpeedOptions
             {
                 CutPrecision = vm.PeSpeedCutPrecision,
             },
-            FatherLineUnbind = new KpcToPhiEditConvertOptions.FatherLineUnbindOptions
+            FatherLineUnbind = new IrToPhiEditConvertOptions.FatherLineUnbindOptions
             {
                 Precision = vm.UnbindPrecision,
                 Tolerance = vm.UnbindTolerance,
@@ -276,21 +276,21 @@ internal sealed class ExportController
                 ClassicMode = vm.UnbindClassicMode,
                 Compress = vm.UnbindCompress,
             },
-            MultiLayerMerge = new KpcToPhiEditConvertOptions.MultiLayerMergeOptions
+            MultiLayerMerge = new IrToPhiEditConvertOptions.MultiLayerMergeOptions
             {
                 Precision = vm.MultiLayerMergePrecision,
                 Tolerance = vm.MultiLayerMergeTolerance,
                 ClassicMode = vm.MultiLayerMergeClassicMode,
                 Compress = vm.MultiLayerMergeCompress,
             },
-            LineFilter = new KpcToPhiEditConvertOptions.LineFilterOptions
+            LineFilter = new IrToPhiEditConvertOptions.LineFilterOptions
             {
                 RemoveAttachUiLine = vm.RemoveAttachUiLine,
                 RemoveTextureLine = vm.RemoveTextureLine,
             },
         };
 
-    private static KpcToPhiChainConvertOptions BuildPhiChainOptions(ExportViewModel vm) =>
+    private static IrToPhiChainConvertOptions BuildPhiChainOptions(ExportViewModel vm) =>
         new()
         {
             UnbindNonRotatingChildren = vm.PhiChainUnbindNonRotatingChildren,
@@ -313,15 +313,15 @@ internal sealed class ExportController
             },
         };
 
-    private static KpcToPhiFansConvertOptions BuildPhiFansOptions(ExportViewModel vm) =>
+    private static IrToPhiFansConvertOptions BuildPhiFansOptions(ExportViewModel vm) =>
         new()
         {
-            Cutting = new KpcToPhiFansConvertOptions.CuttingOptions
+            Cutting = new IrToPhiFansConvertOptions.CuttingOptions
             {
                 UnsupportedEasingPrecision = vm.PhiFansUnsupportedEasingPrecision,
             },
             DiscontinuityBeatPrecision = vm.PhiFansDiscontinuityBeatPrecision,
-            MultiLayerMerge = new KpcToPhiFansConvertOptions.MultiLayerMergeOptions
+            MultiLayerMerge = new IrToPhiFansConvertOptions.MultiLayerMergeOptions
             {
                 Precision = vm.MultiLayerMergePrecision,
                 Tolerance = vm.MultiLayerMergeTolerance,

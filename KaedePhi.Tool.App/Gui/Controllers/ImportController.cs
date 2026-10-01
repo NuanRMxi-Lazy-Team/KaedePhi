@@ -184,12 +184,12 @@ internal sealed class ImportController
         var vm = _navigation.ImportOptions;
         return detectedType switch
         {
-            ChartType.PhiEdit => new PhiEditToKpcConvertOptions
+            ChartType.PhiEdit => new PhiEditToIrConvertOptions
             {
                 FrameDurationBeat = 1d / vm.PeFrameDurationBeat,
                 TrailingBeatPadding = 1d / vm.PeTrailingBeatPadding,
             },
-            ChartType.PhiChain => new PhiChainToKpcConvertOptions
+            ChartType.PhiChain => new PhiChainToIrConvertOptions
             {
                 UnsupportedEasingPrecision = vm.PhiChainUnsupportedEasingPrecision,
             },

@@ -1,10 +1,10 @@
-using KaedePhi.Core.KaedePhi.Events;
+using KaedePhi.Core.Intermediate.Model.Events;
 using KaedePhi.Tool.Common;
-using KaedePhi.Tool.Event.KaedePhi;
-using KaedePhi.Tool.JudgeLines.KaedePhi;
-using KaedePhi.Tool.Layer.KaedePhi;
-using KaedePhi.Tool.Render.KaedePhi;
-using Chart = KaedePhi.Core.KaedePhi.Chart;
+using KaedePhi.Tool.Event.Intermediate;
+using KaedePhi.Tool.JudgeLines.Intermediate;
+using KaedePhi.Tool.Layer.Intermediate;
+using KaedePhi.Tool.Render.Intermediate;
+using Chart = KaedePhi.Core.Intermediate.Model.Chart;
 
 namespace KaedePhi.Tool.App.Shared;
 
@@ -28,7 +28,7 @@ public static class ChartProcessor
         NumericParameterValidator.ValidatePrecision(precision);
         NumericParameterValidator.ValidateTolerance(tolerance);
         NumericParameterValidator.ValidateTolerance(mergeTolerance);
-        KpcChartValidator.ValidateJudgeLineHierarchy(chart.JudgeLineList);
+        IrChartValidator.ValidateJudgeLineHierarchy(chart.JudgeLineList);
 
         var unbinder = new JudgeLineUnbinder();
         if (info != null || warning != null || error != null || debug != null)
@@ -267,7 +267,7 @@ public static class ChartProcessor
     public static IReadOnlyList<string> Render(
         Chart chart,
         string outputDir,
-        KpcRenderOptions options,
+        IrRenderOptions options,
         int? lineIndex = null,
         int? layerIndex = null,
         Action<string>? info = null,
@@ -278,8 +278,8 @@ public static class ChartProcessor
         CancellationToken ct = default
     )
     {
-        KpcRenderValidator.Validate(chart, options, lineIndex, layerIndex);
-        var exporter = new KpcChartRenderExporter();
+        IrRenderValidator.Validate(chart, options, lineIndex, layerIndex);
+        var exporter = new IrChartRenderExporter();
         if (info != null || warning != null || error != null || debug != null)
             exporter.SubscribeLog(info, warning, error, debug);
         return exporter.ExportChart(chart, outputDir, options, lineIndex, layerIndex, progress, ct);

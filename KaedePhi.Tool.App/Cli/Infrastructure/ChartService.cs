@@ -4,7 +4,7 @@ using KaedePhi.Tool.Converter.PhiEdit.Model;
 using KaedePhi.Tool.Converter.PhiFans.Model;
 using KaedePhi.Tool.Converter.Phigros.v3.Model;
 using KaedePhi.Tool.Converter.RePhiEdit.Model;
-using Chart = KaedePhi.Core.KaedePhi.Chart;
+using Chart = KaedePhi.Core.Intermediate.Model.Chart;
 
 namespace KaedePhi.Tool.App.Cli.Infrastructure;
 
@@ -23,13 +23,13 @@ public sealed record SaveAsOptions
     public bool DryRun { get; init; }
 
     /// <summary>PhiEdit 转换选项（仅 <see cref="ChartType.PhiEdit"/> 时生效）。</summary>
-    public KpcToPhiEditConvertOptions? PhiEditOptions { get; init; }
+    public IrToPhiEditConvertOptions? PhiEditOptions { get; init; }
 
     /// <summary>Phigros v3 转换选项（仅 <see cref="ChartType.PhigrosV3"/> 时生效）。</summary>
-    public KpcToPhigrosV3ConvertOptions? PhigrosOptions { get; init; }
+    public IrToPhigrosV3ConvertOptions? PhigrosOptions { get; init; }
 
     /// <summary>PhiFans 转换选项（仅 <see cref="ChartType.PhiFans"/> 时生效）。</summary>
-    public KpcToPhiFansConvertOptions? PhiFansOptions { get; init; }
+    public IrToPhiFansConvertOptions? PhiFansOptions { get; init; }
 
     /// <summary>其他格式的转换选项，按目标格式自行匹配类型。</summary>
     public object? ExportOptions { get; init; }
@@ -107,11 +107,11 @@ public sealed class ChartService
                 65536,
                 useAsync: true
             );
-            return await descriptor.ImportStreamAsync(inputStream, ct: ct);
+            return await descriptor.ImportStreamIrAsync(inputStream, ct: ct);
         }
 
         var text = await File.ReadAllTextAsync(path, ct);
-        return await descriptor.ImportAsync(text, ct: ct);
+        return await descriptor.ImportIrAsync(text, ct: ct);
     }
 
     private string ResolveInputPath(string? input, string? workspace)

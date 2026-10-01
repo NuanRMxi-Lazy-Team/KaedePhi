@@ -1,6 +1,6 @@
 using KaedePhi.Tool.App.Cli.Infrastructure;
 #if Debug
-using KaedePhi.Core.PhiEdit;
+using KaedePhi.Core.Formats.PhiEdit.Serialization;
 #endif
 
 namespace KaedePhi.Tool.App.Cli.Commands.Test;
@@ -30,7 +30,7 @@ public static class OnlyStreamLoadCommand
                 }
 
                 await using var stream = File.OpenRead(input);
-                var chart = await Chart.LoadStreamAsync(stream);
+                var chart = await ChartSerialization.LoadStreamAsync(stream);
                 ConsoleWriter.Info(chart.Offset.ToString());
 #else
                 ConsoleWriter.Warn("This command can only be executed on Debug builds.");

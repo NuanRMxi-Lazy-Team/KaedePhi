@@ -5,7 +5,7 @@ using KaedePhi.Tool.App.Gui.Services;
 using KaedePhi.Tool.App.Gui.ViewModels;
 using KaedePhi.Tool.App.Gui.Views;
 using KaedePhi.Tool.Common;
-using KaedePhi.Tool.Render.KaedePhi;
+using KaedePhi.Tool.Render.Intermediate;
 using Serilog;
 using static KaedePhi.Tool.Localization.GuiLocalizationString;
 
@@ -99,7 +99,7 @@ internal sealed class ToolController
             // 校验并提交：变更型工具完成后校验副本，通过后才替换当前谱面
             if (!isRender)
             {
-                KpcChartValidator.ValidateJudgeLineHierarchy(kpcChart.JudgeLineList);
+                IrChartValidator.ValidateJudgeLineHierarchy(kpcChart.JudgeLineList);
                 _chart.CommitChart(kpcChart);
             }
 
@@ -140,7 +140,7 @@ internal sealed class ToolController
 
     private void RunTool(
         string toolId,
-        KaedePhi.Core.KaedePhi.Chart chart,
+        KaedePhi.Core.Intermediate.Model.Chart chart,
         IProgress<ToolProgress> progress,
         CancellationToken ct
     )
@@ -188,7 +188,7 @@ internal sealed class ToolController
                 var renderPaths = _chart.RunRender(
                     chart,
                     toolVm.RenderOutputDir,
-                    new KpcRenderOptions
+                    new IrRenderOptions
                     {
                         PixelsPerBeat = toolVm.PixelsPerBeat,
                         ChannelWidth = toolVm.ChannelWidth,
