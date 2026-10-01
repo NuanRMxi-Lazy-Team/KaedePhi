@@ -157,6 +157,8 @@ public partial class MainWindow : Window
                 * (1 - Math.Pow(1 - progress, 3));
             circle.RadiusX = radius;
             circle.RadiusY = radius;
+            // 几何体属性变更不会自动触发重绘，需显式使揭示层失效
+            BackgroundRevealLayer.InvalidateVisual();
             if (progress >= 1)
                 completion.TrySetResult();
         };

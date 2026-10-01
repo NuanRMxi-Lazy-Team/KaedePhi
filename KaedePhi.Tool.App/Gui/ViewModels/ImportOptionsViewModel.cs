@@ -7,8 +7,6 @@ namespace KaedePhi.Tool.App.Gui.ViewModels;
 public sealed class ImportOptionsViewModel : INotifyPropertyChanged
 {
     private ChartType _detectedFormat;
-    private string _fileName = string.Empty;
-    private bool _isLoading;
 
     /// <summary>
     /// 检测到的源文件格式
@@ -31,23 +29,23 @@ public sealed class ImportOptionsViewModel : INotifyPropertyChanged
     /// </summary>
     public string FileName
     {
-        get => _fileName;
+        get;
         set
         {
-            _fileName = value;
+            field = value;
             OnPropertyChanged();
         }
-    }
+    } = string.Empty;
 
     /// <summary>
     /// 是否正在加载
     /// </summary>
     public bool IsLoading
     {
-        get => _isLoading;
+        get;
         set
         {
-            _isLoading = value;
+            field = value;
             OnPropertyChanged();
         }
     }
