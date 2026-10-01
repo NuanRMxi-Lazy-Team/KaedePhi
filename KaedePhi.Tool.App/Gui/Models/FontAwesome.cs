@@ -1,13 +1,13 @@
 namespace KaedePhi.Tool.App.Gui.Models;
 
 /// <summary>
-/// Font Awesome 6 Free (Solid) Unicode 常量
+/// Font Awesome 7 Free (Solid) Unicode 常量
 /// </summary>
 public static class FontAwesome
 {
     // 字体族 URI
     public const string FontFamily =
-        "avares://KaedePhi.Tool.App/Assets/Fonts/fa-solid-900.ttf#Font Awesome 6 Free";
+        "avares://KaedePhi.Tool.App/Assets/Fonts/fa-7-solid-900.otf#Font Awesome 7 Free";
 
     #region 文件操作
 

@@ -62,6 +62,6 @@
 
   <ItemGroup>
     <AvaloniaResource Include="..\KaedePhiIcon.png" Link="Assets\KaedePhiIcon.png" />
-    <AvaloniaResource Include="Assets\Fonts\fa-solid-900.ttf" />
+    <AvaloniaResource Include="Assets\Fonts\fa-7-solid-900.otf" />
   </ItemGroup>
 </Project>

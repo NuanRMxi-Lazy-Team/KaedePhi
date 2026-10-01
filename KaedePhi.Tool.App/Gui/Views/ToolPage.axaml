@@ -55,7 +55,7 @@
                                     <Border Width="32" Height="32" CornerRadius="9"
                                             Background="{DynamicResource SurfaceStrongBrush}">
                                         <TextBlock Text="{Binding IconGlyph}"
-                                                   FontFamily="avares://KaedePhi.Tool.App/Assets/Fonts/fa-solid-900.ttf#Font Awesome 6 Free"
+                                                   FontFamily="avares://KaedePhi.Tool.App/Assets/Fonts/fa-7-solid-900.otf#Font Awesome 7 Free"
                                                    FontWeight="Bold" FontSize="15"
                                                    Foreground="{DynamicResource AccentBrush}"
                                                    HorizontalAlignment="Center" VerticalAlignment="Center" />
