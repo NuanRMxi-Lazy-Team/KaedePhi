@@ -9,9 +9,7 @@ namespace KaedePhi.Tool.Converter.PhiEdit.Utils;
 /// <summary>
 /// 已弃用的 PE 判定线到 KPC 判定线的构建器，行为与 <see cref="IntermediateJudgeLineBuilder"/> 一致。
 /// </summary>
-[Obsolete(
-    "已弃用：请迁移至 KaedePhi.Tool.Converter.PhiEdit.Utils.IntermediateJudgeLineBuilder。"
-)]
+[Obsolete("已弃用：请迁移至 KaedePhi.Tool.Converter.PhiEdit.Utils.IntermediateJudgeLineBuilder。")]
 public class KaedePhiJudgeLineBuilder
 {
     private readonly IntermediateJudgeLineBuilder _builder;

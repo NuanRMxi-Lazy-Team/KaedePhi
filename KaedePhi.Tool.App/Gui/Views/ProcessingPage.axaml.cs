@@ -16,4 +16,16 @@ public partial class ProcessingPage : UserControl
         if (DataContext is ProcessingViewModel vm)
             vm.OnCancelClicked();
     }
+
+    private void OnReturnToToolsClick(object? sender, RoutedEventArgs e)
+    {
+        if (DataContext is ProcessingViewModel vm)
+            vm.OnReturnToToolsClicked();
+    }
+
+    private void OnGoToExportClick(object? sender, RoutedEventArgs e)
+    {
+        if (DataContext is ProcessingViewModel vm)
+            vm.OnGoToExportClicked();
+    }
 }

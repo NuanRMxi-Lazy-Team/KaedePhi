@@ -26,7 +26,7 @@ namespace KaedePhi.Core.Formats.Phigros.v3.Model
         [JsonIgnore]
         public float TimeAsBeat
         {
-            get => (float)Time / 32;
+            get => Time / 32f;
             set
             {
                 var time = value * 32d;

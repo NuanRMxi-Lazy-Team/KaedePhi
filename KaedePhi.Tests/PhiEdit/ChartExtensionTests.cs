@@ -17,10 +17,10 @@ public class ChartExtensionTests
 
             var chart = ChartSerialization.Load(
                 "0\r\n  bp\t0.5   120.5\r"
-                + "cv\t0\t1.5\t2.5\n"
-                + "n1\t0\t2.5\t0.25\t1\t0\n"
-                + "#\t1.5\n"
-                + "&\t0.75"
+                    + "cv\t0\t1.5\t2.5\n"
+                    + "n1\t0\t2.5\t0.25\t1\t0\n"
+                    + "#\t1.5\n"
+                    + "&\t0.75"
             );
 
             chart.BpmList[0].StartBeat.Should().Be(0.5f);

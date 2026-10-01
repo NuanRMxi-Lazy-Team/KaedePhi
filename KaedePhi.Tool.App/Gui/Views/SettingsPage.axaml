@@ -5,10 +5,28 @@
              x:Class="KaedePhi.Tool.App.Gui.Views.SettingsPage"
              x:DataType="vm:SettingsViewModel">
 
-    <Grid RowDefinitions="*,Auto,Auto">
-        <Border Grid.Row="0" Padding="24">
-            <ScrollViewer VerticalScrollBarVisibility="Auto">
-                <StackPanel Spacing="24" Width="560" HorizontalAlignment="Left">
+    <Grid Margin="34,26" ColumnDefinitions="240,*" RowDefinitions="*,Auto,Auto" ColumnSpacing="24">
+        <StackPanel Grid.RowSpan="3" Grid.Column="0" Spacing="16">
+            <TextBlock Text="{x:Static loc:GuiUiText.ui_settings_eyebrow}" Classes="eyebrow" />
+            <TextBlock Text="{x:Static loc:GuiLocalizationString.settings_title}" Classes="page-title" FontSize="27" />
+            <TextBlock Text="{x:Static loc:GuiUiText.ui_settings_desc}"
+                       Classes="muted" FontSize="12" TextWrapping="Wrap" />
+            <Border Classes="card" Padding="16" Margin="0,8,0,0">
+                <StackPanel Spacing="11">
+                    <TextBlock Text="{x:Static loc:GuiUiText.ui_settings_hint_title}" Classes="section-title" />
+                    <TextBlock Text="{x:Static loc:GuiUiText.ui_settings_hint_desc}"
+                               Classes="muted" FontSize="11" TextWrapping="Wrap" />
+                    <Border Background="{DynamicResource AccentDimBrush}" CornerRadius="0" Padding="10">
+                        <TextBlock Text="{x:Static loc:GuiUiText.ui_settings_hint_saved}"
+                                   Classes="muted" FontSize="11" TextWrapping="Wrap" />
+                    </Border>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+
+        <Border Grid.Row="0" Grid.Column="1" Classes="card" Padding="22">
+            <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                <StackPanel Spacing="16" HorizontalAlignment="Stretch">
                     <!-- 标题 -->
                     <StackPanel Orientation="Horizontal" Spacing="10">
                         <TextBlock Text="&#xf013;" Classes="fa-icon"
@@ -303,28 +321,28 @@
         </Border>
 
         <!-- 状态栏 -->
-        <Border Grid.Row="1" Padding="16,8"
-                Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
-                BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
+        <Border Grid.Row="1" Grid.Column="1" Padding="16,8"
+                Background="{DynamicResource SurfaceBrush}"
+                BorderBrush="{DynamicResource DividerBrush}"
                 BorderThickness="0,1,0,0">
             <TextBlock Text="{Binding StatusText}" FontSize="12" Opacity="0.7" />
         </Border>
 
         <!-- 底部按钮 -->
-        <Border Grid.Row="2" Padding="16,12"
-                Background="{DynamicResource CardBackgroundFillColorDefaultBrush}">
+        <Border Grid.Row="2" Grid.Column="1" Padding="16,12"
+                Background="{DynamicResource SurfaceBrush}">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="12">
-                <Button Padding="20,8" Click="OnReturnClick">
+                <Button Classes="secondary" Click="OnReturnClick">
                     <StackPanel Orientation="Horizontal" Spacing="6">
                         <TextBlock Text="&#xf060;" Classes="fa-icon"
                                    FontSize="13" VerticalAlignment="Center" />
                         <TextBlock Text="{x:Static loc:GuiLocalizationString.btn_back}" />
                     </StackPanel>
                 </Button>
-                <Button Padding="20,8" Click="OnResetClick">
+                <Button Classes="secondary" Click="OnResetClick">
                     <TextBlock Text="{x:Static loc:GuiLocalizationString.btn_reset_defaults}" />
                 </Button>
-                <Button Classes="accent" Padding="24,8" FontSize="14" Click="OnSaveClick">
+                <Button Classes="primary" FontSize="14" Click="OnSaveClick">
                     <TextBlock Text="{x:Static loc:GuiLocalizationString.btn_save_settings}" />
                 </Button>
             </StackPanel>

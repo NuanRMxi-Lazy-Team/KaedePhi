@@ -66,7 +66,9 @@ public sealed class PrecisionAnalyzer : DiagnosticAnalyzer
         {
             <= 0 => PrecisionDiagnostic.Rule,
             > PrecisionThresholds.MaximumPrecision => PrecisionDiagnostic.ExcessiveRule,
-            _ => value > PrecisionThresholds.HighPrecisionThreshold ? PrecisionDiagnostic.HighPrecisionRule : null
+            _ => value > PrecisionThresholds.HighPrecisionThreshold
+                ? PrecisionDiagnostic.HighPrecisionRule
+                : null,
         };
         if (diagnostic is null)
             return;

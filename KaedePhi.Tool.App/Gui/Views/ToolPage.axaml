@@ -6,243 +6,205 @@
              x:Class="KaedePhi.Tool.App.Gui.Views.ToolPage"
              x:DataType="vm:ToolViewModel">
 
-    <Grid RowDefinitions="Auto,Auto,*,Auto,Auto,Auto">
-        <!-- 标题：文件信息 -->
-        <Border Grid.Row="0" Background="{DynamicResource SystemAccentColor}" Padding="16,10">
-            <StackPanel Orientation="Horizontal" Spacing="16">
-                <TextBlock Text="&#xf07c;" Classes="fa-icon" FontSize="18"
-                           VerticalAlignment="Center" Foreground="White" />
-                <StackPanel Orientation="Horizontal" Spacing="6">
-                    <TextBlock Text="{x:Static loc:GuiLocalizationString.header_file}" Foreground="White" Opacity="0.8"
-                               VerticalAlignment="Center" />
-                    <TextBlock Text="{Binding CurrentFileName}" FontWeight="SemiBold"
-                               Foreground="White" VerticalAlignment="Center" />
-                </StackPanel>
-                <Border Background="White" Opacity="0.2" Width="1" Margin="4,2" />
-                <StackPanel Orientation="Horizontal" Spacing="6">
-                    <TextBlock Text="{x:Static loc:GuiLocalizationString.header_format}" Foreground="White"
-                               Opacity="0.8" VerticalAlignment="Center" />
-                    <TextBlock Text="{Binding DetectedFormat}" FontWeight="SemiBold"
-                               Foreground="White" VerticalAlignment="Center" />
-                </StackPanel>
-            </StackPanel>
-        </Border>
-
-        <!-- 工具卡片 -->
-        <Border Grid.Row="1" Padding="16,12,16,0">
-            <StackPanel Spacing="8">
-                <TextBlock Text="{x:Static loc:GuiLocalizationString.tool_select_title}" FontSize="18"
-                           FontWeight="SemiBold" />
-
-                <ListBox ItemsSource="{Binding Tools}" SelectedItem="{Binding SelectedTool}"
-                         SelectionMode="Single" Background="Transparent" BorderThickness="0" Padding="0">
-                    <ListBox.Styles>
-                        <Style Selector="ListBoxItem">
-                            <Setter Property="Background" Value="{DynamicResource CardBackgroundFillColorDefaultBrush}" />
-                            <Setter Property="BorderBrush" Value="{DynamicResource CardStrokeColorDefaultBrush}" />
-                            <Setter Property="BorderThickness" Value="2" />
-                            <Setter Property="CornerRadius" Value="8" />
-                            <Setter Property="Padding" Value="16,12" />
-                            <Setter Property="Margin" Value="4" />
-                            <Setter Property="MinWidth" Value="220" />
-                            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-                        </Style>
-                        <Style Selector="ListBoxItem:selected">
-                            <Setter Property="BorderBrush" Value="{DynamicResource SystemAccentColor}" />
-                        </Style>
-                        <Style Selector="ListBoxItem:pointerover">
-                            <Setter Property="BorderBrush" Value="{DynamicResource SystemAccentColor}" />
-                        </Style>
-                    </ListBox.Styles>
-                    <ListBox.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <WrapPanel Orientation="Horizontal" />
-                        </ItemsPanelTemplate>
-                    </ListBox.ItemsPanel>
-                    <ListBox.ItemTemplate>
-                        <DataTemplate x:DataType="m:ToolOption">
-                            <StackPanel Spacing="6">
-                                <StackPanel Orientation="Horizontal" Spacing="8">
-                                    <TextBlock Text="{Binding IconGlyph}"
-                                               FontFamily="avares://KaedePhi.Tool.App/Assets/Fonts/fa-solid-900.ttf#Font Awesome 6 Free"
-                                               FontWeight="Bold"
-                                               FontSize="20" VerticalAlignment="Center" />
-                                    <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="14"
-                                               VerticalAlignment="Center" />
-                                </StackPanel>
-                                <TextBlock Text="{Binding Description}" FontSize="12" Opacity="0.6"
-                                           TextWrapping="Wrap" MaxWidth="220" />
-                            </StackPanel>
-                        </DataTemplate>
-                    </ListBox.ItemTemplate>
-                </ListBox>
-            </StackPanel>
-        </Border>
-
-        <!-- 工具选项（可滚动） -->
-        <Border Grid.Row="2" Padding="16,8"
-                IsVisible="{Binding SelectedTool, Converter={x:Static ObjectConverters.IsNotNull}}">
-            <ScrollViewer VerticalScrollBarVisibility="Auto">
-                <Border Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
-                        BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
-                        BorderThickness="1" CornerRadius="8" Padding="16,12">
-                    <StackPanel Spacing="8">
-                        <StackPanel Orientation="Horizontal" Spacing="8">
-                            <TextBlock Text="&#xf1de;" Classes="fa-icon"
-                                       FontSize="16" VerticalAlignment="Center" />
-                            <TextBlock Text="{x:Static loc:GuiLocalizationString.tool_options_title}"
-                                       FontWeight="SemiBold" FontSize="14" />
-                        </StackPanel>
-
-                        <!-- 精度 -->
-                        <StackPanel IsVisible="{Binding ShowPrecision}" Spacing="4">
-                            <TextBlock Text="{x:Static loc:GuiLocalizationString.option_precision}" FontSize="12"
-                                       Opacity="0.7" />
-                            <NumericUpDown Value="{Binding Precision}" Minimum="1" Maximum="4096"
-                                           Increment="1" FormatString="F0" Width="200"
-                                           HorizontalAlignment="Left" />
-                        </StackPanel>
-
-                        <!-- 容差 -->
-                        <StackPanel IsVisible="{Binding ShowTolerance}" Spacing="4">
-                            <TextBlock Text="{x:Static loc:GuiLocalizationString.option_tolerance}" FontSize="12"
-                                       Opacity="0.7" />
-                            <NumericUpDown Value="{Binding Tolerance}" Minimum="0" Maximum="100"
-                                           Increment="0.1" FormatString="F2" Width="200"
-                                           HorizontalAlignment="Left" />
-                        </StackPanel>
-
-                        <!-- 父子线事件通道合并容差 -->
-                        <StackPanel IsVisible="{Binding ShowMergeTolerance}" Spacing="4">
-                            <TextBlock Text="{x:Static loc:GuiLocalizationString.option_unbind_merge_tolerance}"
-                                       FontSize="12" Opacity="0.7" />
-                            <NumericUpDown Value="{Binding MergeTolerance}" Minimum="0" Maximum="100"
-                                           Increment="0.1" FormatString="F2" Width="200"
-                                           HorizontalAlignment="Left" />
-                        </StackPanel>
-
-                        <!-- 经典模式 -->
-                        <CheckBox IsVisible="{Binding ShowClassicMode}"
-                                  Content="{x:Static loc:GuiLocalizationString.option_classic_mode}"
-                                  IsChecked="{Binding ClassicMode}" />
-
-                        <!-- 禁用压缩 -->
-                        <CheckBox IsVisible="{Binding ShowDisableCompress}"
-                                  IsEnabled="{Binding DisableCompressEnabled}"
-                                  Content="{x:Static loc:GuiLocalizationString.option_disable_compress}"
-                                  IsChecked="{Binding DisableCompress}"
-                                  ToolTip.Tip="{x:Static loc:GuiLocalizationString.option_disable_compress_hint}" />
-
-                        <!-- 渲染选项 -->
-                        <StackPanel IsVisible="{Binding ShowRenderOptions}" Spacing="8">
-                            <StackPanel Orientation="Horizontal" Spacing="16">
-                                <StackPanel Spacing="4">
-                                    <TextBlock Text="{x:Static loc:GuiLocalizationString.option_pixels_per_beat}"
-                                               FontSize="12" Opacity="0.7" />
-                                    <NumericUpDown Value="{Binding PixelsPerBeat}" Minimum="10" Maximum="1000"
-                                                   Increment="10" FormatString="F0" Width="140" />
-                                </StackPanel>
-                                <StackPanel Spacing="4">
-                                    <TextBlock Text="{x:Static loc:GuiLocalizationString.option_channel_width}"
-                                               FontSize="12" Opacity="0.7" />
-                                    <NumericUpDown Value="{Binding ChannelWidth}" Minimum="50" Maximum="1000"
-                                                   Increment="10" FormatString="F0" Width="140" />
-                                </StackPanel>
-                            </StackPanel>
-                            <StackPanel Orientation="Horizontal" Spacing="16">
-                                <StackPanel Spacing="4">
-                                    <TextBlock Text="{x:Static loc:GuiLocalizationString.option_samples_per_event}"
-                                               FontSize="12" Opacity="0.7" />
-                                    <NumericUpDown Value="{Binding SamplesPerEvent}" Minimum="4" Maximum="1024"
-                                                   Increment="4" FormatString="F0" Width="140" />
-                                </StackPanel>
-                                <StackPanel Spacing="4">
-                                    <TextBlock Text="{x:Static loc:GuiLocalizationString.option_beat_subdivisions}"
-                                               FontSize="12" Opacity="0.7" />
-                                    <NumericUpDown Value="{Binding BeatSubdivisions}" Minimum="1" Maximum="16"
-                                                   Increment="1" FormatString="F0" Width="140" />
-                                </StackPanel>
-                            </StackPanel>
-                            <StackPanel Spacing="4">
-                                <TextBlock Text="{x:Static loc:GuiLocalizationString.option_render_output_dir}"
-                                           FontSize="12" Opacity="0.7" />
-                                <Grid ColumnDefinitions="*,Auto">
-                                    <TextBox Grid.Column="0" Text="{Binding RenderOutputDir}"
-                                             PlaceholderText="{x:Static loc:GuiLocalizationString.option_render_output_dir_hint}" />
-                                    <Button Grid.Column="1" Margin="8,0,0,0" Padding="12,6"
-                                            Content="{x:Static loc:GuiLocalizationString.btn_browse}"
-                                            Click="OnBrowseOutputDirClick" />
-                                </Grid>
-                            </StackPanel>
-                        </StackPanel>
-
-                        <!-- 拟合选项 -->
-                        <StackPanel IsVisible="{Binding ShowFitOptions}" Spacing="8">
-                        </StackPanel>
+    <Grid Margin="34,26" RowDefinitions="*,Auto" RowSpacing="18">
+        <Grid Grid.Row="0" ColumnDefinitions="310,*" ColumnSpacing="22">
+            <Border Grid.Column="0" Classes="card" Padding="16">
+                <Grid RowDefinitions="Auto,Auto,*">
+                    <StackPanel Grid.Row="0" Spacing="4" Margin="4,2,4,16">
+                        <TextBlock Text="{x:Static loc:GuiUiText.ui_tool_eyebrow}" Classes="eyebrow" />
+                        <TextBlock Text="{x:Static loc:GuiUiText.ui_tool_page_title}" Classes="section-title" FontSize="19" />
+                        <TextBlock Text="{x:Static loc:GuiUiText.ui_tool_page_desc}"
+                                   Classes="muted" FontSize="12" />
                     </StackPanel>
-                </Border>
-            </ScrollViewer>
-        </Border>
+                    <Border Grid.Row="1" Background="{DynamicResource AccentDimBrush}"
+                            CornerRadius="0" Padding="11" Margin="0,0,0,12">
+                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
+                            <TextBlock Text="&#xf1c0;" Classes="fa-icon" FontSize="16"
+                                       Foreground="{DynamicResource AccentBrush}" />
+                            <StackPanel Grid.Column="1" Spacing="2">
+                                <TextBlock Text="{Binding CurrentFileName}" FontWeight="SemiBold"
+                                           TextWrapping="Wrap" MaxHeight="36" />
+                                <TextBlock Text="{Binding DetectedFormat}" Classes="muted" FontSize="11" />
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+                    <ListBox Grid.Row="2" ItemsSource="{Binding Tools}" SelectedItem="{Binding SelectedTool}"
+                             SelectionMode="Single" Background="Transparent" BorderThickness="0"
+                             Padding="0">
+                        <ListBox.Styles>
+                            <Style Selector="ListBoxItem">
+                                <Setter Property="Background" Value="Transparent" />
+                                <Setter Property="BorderBrush" Value="{DynamicResource DividerBrush}" />
+                                <Setter Property="BorderThickness" Value="1" />
+                                <Setter Property="CornerRadius" Value="10" />
+                                <Setter Property="Padding" Value="12" />
+                                <Setter Property="Margin" Value="0,0,0,8" />
+                                <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                            </Style>
+                            <Style Selector="ListBoxItem:pointerover">
+                                <Setter Property="Background" Value="{DynamicResource SurfaceStrongBrush}" />
+                            </Style>
+                            <Style Selector="ListBoxItem:selected">
+                                <Setter Property="Background" Value="{DynamicResource AccentDimBrush}" />
+                                <Setter Property="BorderBrush" Value="{DynamicResource AccentOutlineBrush}" />
+                            </Style>
+                        </ListBox.Styles>
+                        <ListBox.ItemTemplate>
+                            <DataTemplate x:DataType="m:ToolOption">
+                                <Grid ColumnDefinitions="34,*" ColumnSpacing="10">
+                                    <Border Width="32" Height="32" CornerRadius="9"
+                                            Background="{DynamicResource SurfaceStrongBrush}">
+                                        <TextBlock Text="{Binding IconGlyph}"
+                                                   FontFamily="avares://KaedePhi.Tool.App/Assets/Fonts/fa-solid-900.ttf#Font Awesome 6 Free"
+                                                   FontWeight="Bold" FontSize="15"
+                                                   Foreground="{DynamicResource AccentBrush}"
+                                                   HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                    </Border>
+                                    <StackPanel Grid.Column="1" Spacing="3">
+                                        <TextBlock Text="{Binding Name}" FontWeight="SemiBold" />
+                                        <TextBlock Text="{Binding Description}" Classes="muted" FontSize="11"
+                                                   TextWrapping="Wrap" MaxHeight="32" />
+                                    </StackPanel>
+                                </Grid>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </Grid>
+            </Border>
 
-        <!-- 状态栏 -->
-        <Border Grid.Row="3" Padding="16,8"
-                Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
-                BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
-                BorderThickness="0,1,0,0">
-            <TextBlock Text="{Binding StatusText}" FontSize="12" Opacity="0.7" />
-        </Border>
+            <Border Grid.Column="1" Classes="card" Padding="22">
+                <Grid RowDefinitions="Auto,*,Auto">
+                    <StackPanel Grid.Row="0" Spacing="4" Margin="0,2,0,18">
+                        <TextBlock Text="{x:Static loc:GuiUiText.ui_tool_options_eyebrow}" Classes="eyebrow" />
+                        <TextBlock Text="{x:Static loc:GuiLocalizationString.tool_options_title}" Classes="section-title" FontSize="19" />
+                        <TextBlock Text="{x:Static loc:GuiUiText.ui_tool_options_desc}"
+                                   Classes="muted" FontSize="12" />
+                    </StackPanel>
 
-        <!-- 行为不明确内容警告 -->
-        <Border Grid.Row="4" Margin="16,0,16,8" Padding="12,10"
-                CornerRadius="8"
-                Background="{DynamicResource WarningBannerBackground}"
-                BorderBrush="{DynamicResource WarningBannerBorder}"
-                BorderThickness="1"
-                IsVisible="{Binding HasUnclearContent}">
-            <StackPanel Orientation="Horizontal" Spacing="10">
-                <TextBlock Text="&#xf071;" Classes="fa-icon" FontSize="16"
-                           Foreground="{DynamicResource WarningBannerForeground}" />
-                <TextBlock Text="{x:Static loc:GuiLocalizationString.tool_unclear_content_warning}"
-                           FontSize="12" TextWrapping="Wrap"
-                           Foreground="{DynamicResource WarningBannerForeground}" />
+                    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                        <StackPanel Spacing="16" IsVisible="{Binding SelectedTool, Converter={x:Static ObjectConverters.IsNotNull}}">
+                             <Border Background="{DynamicResource SurfaceStrongBrush}" CornerRadius="0" Padding="14">
+                                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                                    <TextBlock Text="&#xf05a;" Classes="fa-icon" FontSize="16"
+                                               Foreground="{DynamicResource AccentBrush}" />
+                                    <TextBlock Grid.Column="1" Text="{x:Static loc:GuiUiText.ui_tool_file_tip}"
+                                               Classes="muted" FontSize="12" TextWrapping="Wrap" />
+                                </Grid>
+                            </Border>
+
+                            <Grid ColumnDefinitions="*,170" RowDefinitions="Auto,Auto,Auto" RowSpacing="12"
+                                  IsVisible="{Binding ShowGeneralOptions}">
+                                <StackPanel Grid.Row="0" Spacing="3" IsVisible="{Binding ShowPrecision}">
+                                    <TextBlock Text="{x:Static loc:GuiLocalizationString.option_precision}" />
+                                    <TextBlock Text="{x:Static loc:GuiUiText.ui_tool_precision_desc}" Classes="muted" FontSize="11" />
+                                </StackPanel>
+                                <NumericUpDown Grid.Row="0" Grid.Column="1" Value="{Binding Precision}"
+                                               Minimum="1" Maximum="4096" Increment="1" FormatString="F0"
+                                               IsVisible="{Binding ShowPrecision}" />
+                                <StackPanel Grid.Row="1" Spacing="3" IsVisible="{Binding ShowTolerance}">
+                                    <TextBlock Text="{x:Static loc:GuiLocalizationString.option_tolerance}" />
+                                    <TextBlock Text="{x:Static loc:GuiUiText.ui_tool_tolerance_desc}" Classes="muted" FontSize="11" />
+                                </StackPanel>
+                                <NumericUpDown Grid.Row="1" Grid.Column="1" Value="{Binding Tolerance}"
+                                               Minimum="0" Maximum="100" Increment="0.1" FormatString="F2"
+                                               IsVisible="{Binding ShowTolerance}" />
+                                <StackPanel Grid.Row="2" Spacing="3" IsVisible="{Binding ShowMergeTolerance}">
+                                    <TextBlock Text="{x:Static loc:GuiLocalizationString.option_unbind_merge_tolerance}" />
+                                    <TextBlock Text="{x:Static loc:GuiUiText.ui_tool_merge_tolerance_desc}" Classes="muted" FontSize="11" />
+                                </StackPanel>
+                                <NumericUpDown Grid.Row="2" Grid.Column="1" Value="{Binding MergeTolerance}"
+                                               Minimum="0" Maximum="100" Increment="0.1" FormatString="F2"
+                                               IsVisible="{Binding ShowMergeTolerance}" />
+                            </Grid>
+
+                            <StackPanel Spacing="9" IsVisible="{Binding ShowGeneralOptions}">
+                                <CheckBox IsVisible="{Binding ShowClassicMode}"
+                                          Content="{x:Static loc:GuiLocalizationString.option_classic_mode}"
+                                          IsChecked="{Binding ClassicMode}" />
+                                <CheckBox IsVisible="{Binding ShowDisableCompress}"
+                                          IsEnabled="{Binding DisableCompressEnabled}"
+                                          Content="{x:Static loc:GuiLocalizationString.option_disable_compress}"
+                                          IsChecked="{Binding DisableCompress}"
+                                          ToolTip.Tip="{x:Static loc:GuiLocalizationString.option_disable_compress_hint}" />
+                            </StackPanel>
+
+                            <StackPanel IsVisible="{Binding ShowRenderOptions}" Spacing="14">
+                                <Border Height="1" Background="{DynamicResource DividerBrush}" />
+                                <TextBlock Text="{x:Static loc:GuiUiText.ui_tool_render_title}" Classes="section-title" />
+                                <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto" ColumnSpacing="14" RowSpacing="12">
+                                    <StackPanel Grid.Row="0" Spacing="3">
+                                        <TextBlock Text="{x:Static loc:GuiLocalizationString.option_pixels_per_beat}" />
+                                        <NumericUpDown Value="{Binding PixelsPerBeat}" Minimum="10" Maximum="1000"
+                                                       Increment="10" FormatString="F0" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Row="0" Grid.Column="1" Spacing="3">
+                                        <TextBlock Text="{x:Static loc:GuiLocalizationString.option_channel_width}" />
+                                        <NumericUpDown Value="{Binding ChannelWidth}" Minimum="50" Maximum="1000"
+                                                       Increment="10" FormatString="F0" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Row="1" Spacing="3">
+                                        <TextBlock Text="{x:Static loc:GuiLocalizationString.option_samples_per_event}" />
+                                        <NumericUpDown Value="{Binding SamplesPerEvent}" Minimum="4" Maximum="1024"
+                                                       Increment="4" FormatString="F0" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Row="1" Grid.Column="1" Spacing="3">
+                                        <TextBlock Text="{x:Static loc:GuiLocalizationString.option_beat_subdivisions}" />
+                                        <NumericUpDown Value="{Binding BeatSubdivisions}" Minimum="1" Maximum="16"
+                                                       Increment="1" FormatString="F0" />
+                                    </StackPanel>
+                                </Grid>
+                                <StackPanel Spacing="5">
+                                    <TextBlock Text="{x:Static loc:GuiLocalizationString.option_render_output_dir}" />
+                                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                                        <TextBox Grid.Column="0" Text="{Binding RenderOutputDir}"
+                                                 Watermark="{x:Static loc:GuiLocalizationString.option_render_output_dir_hint}" />
+                                        <Button Grid.Column="1" Classes="secondary" Content="{x:Static loc:GuiLocalizationString.btn_browse}"
+                                                Click="OnBrowseOutputDirClick" />
+                                    </Grid>
+                                </StackPanel>
+                            </StackPanel>
+                        </StackPanel>
+                    </ScrollViewer>
+
+                    <Border Grid.Row="2" Background="{DynamicResource WarningBannerBackground}"
+                            BorderBrush="{DynamicResource WarningBannerBorder}" BorderThickness="1"
+                             CornerRadius="0" Padding="12" Margin="0,16,0,0"
+                            IsVisible="{Binding HasUnclearContent}">
+                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
+                            <TextBlock Text="&#xf071;" Classes="fa-icon" FontSize="15"
+                                       Foreground="{DynamicResource WarningBannerForeground}" />
+                            <TextBlock Grid.Column="1" Text="{x:Static loc:GuiLocalizationString.tool_unclear_content_warning}"
+                                       FontSize="11" TextWrapping="Wrap"
+                                       Foreground="{DynamicResource WarningBannerForeground}" />
+                        </Grid>
+                    </Border>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <Grid Grid.Row="1" ColumnDefinitions="*,Auto" VerticalAlignment="Center">
+            <TextBlock Text="{Binding StatusText}" Classes="muted" FontSize="12"
+                       VerticalAlignment="Center" />
+            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="10">
+                <Button Classes="ghost" Click="OnReturnClick" IsEnabled="{Binding !IsProcessing}">
+                    <StackPanel Orientation="Horizontal" Spacing="7">
+                        <TextBlock Text="&#xf060;" Classes="fa-icon" FontSize="12" />
+                        <TextBlock Text="{x:Static loc:GuiLocalizationString.btn_back_to_import}" />
+                    </StackPanel>
+                </Button>
+                <Button Classes="secondary" Click="OnExportClick" IsEnabled="{Binding !IsProcessing}">
+                    <StackPanel Orientation="Horizontal" Spacing="7">
+                        <TextBlock Text="&#xf56e;" Classes="fa-icon" FontSize="13" />
+                        <TextBlock Text="{x:Static loc:GuiLocalizationString.btn_export_chart}" />
+                    </StackPanel>
+                </Button>
+                <Button Classes="primary" Click="OnRunClick" IsEnabled="{Binding CanRun}">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <TextBlock Text="&#xf04b;" Classes="fa-icon" FontSize="12" />
+                        <TextBlock Text="{x:Static loc:GuiLocalizationString.btn_run_tool}" />
+                    </StackPanel>
+                </Button>
             </StackPanel>
-        </Border>
-
-        <!-- 底部按钮 -->
-        <Border Grid.Row="5" Padding="16,12"
-                Background="{DynamicResource CardBackgroundFillColorDefaultBrush}">
-            <Grid ColumnDefinitions="Auto,*">
-                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="8">
-                    <Button Padding="12,8" Click="OnReturnClick"
-                            IsEnabled="{Binding !IsProcessing}">
-                        <StackPanel Orientation="Horizontal" Spacing="6">
-                            <TextBlock Text="&#xf060;" Classes="fa-icon"
-                                       FontSize="13" VerticalAlignment="Center" />
-                            <TextBlock Text="{x:Static loc:GuiLocalizationString.btn_back_to_import}"
-                                       VerticalAlignment="Center" />
-                        </StackPanel>
-                    </Button>
-                    <Button Padding="12,8" Click="OnSettingsClick"
-                            IsEnabled="{Binding !IsProcessing}">
-                        <StackPanel Orientation="Horizontal" Spacing="6">
-                            <TextBlock Text="&#xf013;" Classes="fa-icon"
-                                       FontSize="14" VerticalAlignment="Center" />
-                            <TextBlock Text="{x:Static loc:GuiLocalizationString.btn_settings}"
-                                       VerticalAlignment="Center" />
-                        </StackPanel>
-                    </Button>
-                </StackPanel>
-                <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="12">
-                    <Button Content="{x:Static loc:GuiLocalizationString.btn_run_tool}" Classes="accent" Padding="24,8"
-                            FontSize="14"
-                            Click="OnRunClick"
-                            IsEnabled="{Binding CanRun}" />
-                    <Button Content="{x:Static loc:GuiLocalizationString.btn_export_chart}" Padding="24,8"
-                            FontSize="14"
-                            Click="OnExportClick"
-                            IsEnabled="{Binding !IsProcessing}" />
-                </StackPanel>
-            </Grid>
-        </Border>
+        </Grid>
     </Grid>
 </UserControl>

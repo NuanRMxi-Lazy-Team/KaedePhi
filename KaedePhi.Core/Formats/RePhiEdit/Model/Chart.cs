@@ -10,14 +10,15 @@ namespace KaedePhi.Core.Formats.RePhiEdit.Model
         /// <summary>
         /// 坐标系边界
         /// </summary>
-        public static Common.CoordinateSystem CoordinateSystemInstance { get; } = new()
-        {
-            MaxX = 675f,
-            MinX = -675f,
-            MaxY = 450f,
-            MinY = -450f,
-            ClockwiseRotation = true,
-        };
+        public static Common.CoordinateSystem CoordinateSystemInstance { get; } =
+            new()
+            {
+                MaxX = 675f,
+                MinX = -675f,
+                MaxY = 450f,
+                MinY = -450f,
+                ClockwiseRotation = true,
+            };
 
         /// <summary>
         /// BPM列表

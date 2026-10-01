@@ -7,8 +7,7 @@ public static class MetaBuilder
 {
     private const int OffsetOffset = 175;
 
-    public static Ir.Meta ConvertMeta(Pe.Chart src) =>
-        new() { Offset = src.Offset - OffsetOffset };
+    public static Ir.Meta ConvertMeta(Pe.Chart src) => new() { Offset = src.Offset - OffsetOffset };
 
     public static int GetPeOffset(Ir.Meta src) => src.Offset + OffsetOffset;
 }

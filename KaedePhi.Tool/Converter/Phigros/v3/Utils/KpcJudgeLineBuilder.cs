@@ -1,7 +1,7 @@
 #pragma warning disable CS0618
 
-using KaedePhi.Tool.Compatibility;
 using KaedePhi.Core.Formats.Phigros.v3.Model;
+using KaedePhi.Tool.Compatibility;
 using Kpc = KaedePhi.Core.KaedePhi;
 
 namespace KaedePhi.Tool.Converter.Phigros.v3.Utils;
@@ -20,9 +20,6 @@ public static class KpcJudgeLineBuilder
     /// <param name="defaultBpm">默认 BPM。</param>
     /// <returns>转换后的旧 KPC 判定线。</returns>
     [Obsolete("已弃用：请迁移至 IrJudgeLineBuilder.ConvertJudgeLine。")]
-    public static Kpc.JudgeLine ConvertJudgeLine(
-        JudgeLine src,
-        int index,
-        float defaultBpm
-    ) => KpcCompatibilityMapper.ToKpc(IrJudgeLineBuilder.ConvertJudgeLine(src, index, defaultBpm));
+    public static Kpc.JudgeLine ConvertJudgeLine(JudgeLine src, int index, float defaultBpm) =>
+        KpcCompatibilityMapper.ToKpc(IrJudgeLineBuilder.ConvertJudgeLine(src, index, defaultBpm));
 }

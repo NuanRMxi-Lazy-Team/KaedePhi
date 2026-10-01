@@ -1,5 +1,5 @@
-using KaedePhi.Core.Primitives;
 using KaedePhi.Core.Formats.PhiChain.v6.Model;
+using KaedePhi.Core.Primitives;
 using KaedePhi.Tool.Converter.PhiChain.Model;
 using KaedePhi.Tool.Event.Intermediate;
 using PhichainEventType = KaedePhi.Core.Formats.PhiChain.v6.Model.LineEventType;

@@ -98,9 +98,9 @@ namespace KaedePhi.Core.Formats.PhiFans.Serialization
         public static Chart LoadFromJson(string json)
         {
             return JsonConvert.DeserializeObject<Chart>(json, JsonDefaults.DeserializeSettings)
-                   ?? throw new InvalidOperationException(
-                       "Failed to deserialize PhiFans Chart from JSON."
-                   );
+                ?? throw new InvalidOperationException(
+                    "Failed to deserialize PhiFans Chart from JSON."
+                );
         }
 
         /// <summary>
@@ -129,9 +129,9 @@ namespace KaedePhi.Core.Formats.PhiFans.Serialization
             using var jsonReader = new JsonTextReader(streamReader);
             var serializer = JsonDefaults.CreateSerializer(Formatting.None);
             return serializer.Deserialize<Chart>(jsonReader)
-                   ?? throw new InvalidOperationException(
-                       "Failed to deserialize PhiFans Chart from stream."
-                   );
+                ?? throw new InvalidOperationException(
+                    "Failed to deserialize PhiFans Chart from stream."
+                );
         }
 
         /// <summary>

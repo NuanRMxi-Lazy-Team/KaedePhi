@@ -1,23 +1,178 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:KaedePhi.Tool.App.Gui.ViewModels"
+        xmlns:loc="using:KaedePhi.Tool.Localization"
         x:Class="KaedePhi.Tool.App.MainWindow"
         x:DataType="vm:MainViewModel"
-        Title="KaedePhi"
-        Width="900" Height="640"
-        MinWidth="700" MinHeight="500"
+        Title="{x:Static loc:GuiLocalizationString.app_title}"
+        Width="1180" Height="780"
+        MinWidth="980" MinHeight="620"
         WindowStartupLocation="CenterScreen"
         Icon="/Assets/KaedePhiIcon.png">
 
-    <Grid>
-        <ContentControl Content="{Binding CurrentPage}" />
-        <TextBlock x:Name="VersionLabel"
-                   Foreground="{DynamicResource VersionLabelForeground}"
-                   HorizontalAlignment="Right"
-                   VerticalAlignment="Bottom"
-                   Margin="0,0,8,4"
-                   FontSize="11"
-                   Opacity="0.45"
-                   IsHitTestVisible="False" />
+    <Grid x:Name="BackgroundCanvas" Background="{DynamicResource AppBackgroundBrush}" ClipToBounds="True">
+        <Image Source="{Binding BackgroundImage}" IsVisible="{Binding HasBackgroundImage}"
+               Stretch="UniformToFill" IsHitTestVisible="False" />
+        <Border Background="{DynamicResource SceneVeilBrush}" IsVisible="{Binding HasBackgroundImage}"
+                IsHitTestVisible="False" />
+        <Grid x:Name="BackgroundRevealLayer" IsVisible="{Binding HasPendingBackgroundImage}"
+              IsHitTestVisible="False">
+            <Grid.Clip>
+                <EllipseGeometry RadiusX="0" RadiusY="0" />
+            </Grid.Clip>
+            <Image Source="{Binding PendingBackgroundImage}" Stretch="UniformToFill" />
+            <Border Background="{DynamicResource SceneVeilBrush}" />
+        </Grid>
+
+        <Grid ColumnDefinitions="Auto,*">
+            <Border x:Name="Sidebar" Width="{Binding SidebarWidth}"
+                    Background="{DynamicResource SidebarBackgroundBrush}"
+                    BorderBrush="{DynamicResource DividerBrush}" BorderThickness="0,0,1,0">
+                <Grid>
+                    <Grid RowDefinitions="Auto,*,Auto" Margin="12,18,12,16">
+                        <StackPanel Spacing="14">
+                            <Grid ColumnDefinitions="44,*" Height="44">
+                                <Image Source="avares://KaedePhi.Tool.App/Assets/KaedePhiIcon.png"
+                                       Width="34" Height="34" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                <StackPanel Grid.Column="1" Margin="10,0,0,0" Spacing="2"
+                                            VerticalAlignment="Center" IsVisible="{Binding IsSidebarExpanded}">
+                                    <TextBlock Text="{x:Static loc:GuiLocalizationString.app_title}"
+                                               FontSize="18" FontWeight="Bold" />
+                                    <TextBlock Text="{x:Static loc:GuiLocalizationString.app_subtitle}"
+                                               Classes="muted" FontSize="10" TextWrapping="Wrap" />
+                                </StackPanel>
+                            </Grid>
+                            <Border Height="1" Background="{DynamicResource DividerBrush}" />
+                        </StackPanel>
+
+                        <StackPanel Grid.Row="1" Margin="0,22,0,0" Spacing="6">
+                            <TextBlock Text="{x:Static loc:GuiUiText.ui_workspace}" Classes="eyebrow"
+                                       Margin="10,0,0,8" IsVisible="{Binding IsSidebarExpanded}" />
+                            <Button x:Name="ImportNavigation" Classes="nav-item"
+                                    Classes.active="{Binding IsImportActive}"
+                                    Classes.collapsed="{Binding !IsSidebarExpanded}" Click="OnImportNavigationClick"
+                                    ToolTip.Tip="{x:Static loc:GuiUiText.ui_nav_import_title}"
+                                    AutomationProperties.Name="{x:Static loc:GuiUiText.ui_nav_import_title}">
+                                <Grid ColumnDefinitions="Auto,Auto">
+                                    <Border Width="44" Height="44">
+                                        <TextBlock Text="&#xf093;" Classes="fa-icon" FontSize="16"
+                                                   HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                    </Border>
+                                    <StackPanel Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center"
+                                                Spacing="3"
+                                                IsVisible="{Binding IsSidebarExpanded}">
+                                        <TextBlock Text="{x:Static loc:GuiUiText.ui_nav_import_title}"
+                                                   FontWeight="SemiBold" />
+                                        <TextBlock Text="{x:Static loc:GuiUiText.ui_nav_import_desc}"
+                                                   Classes="nav-description" FontSize="11" />
+                                    </StackPanel>
+                                </Grid>
+                            </Button>
+                            <Button x:Name="ToolsNavigation" Classes="nav-item" Classes.active="{Binding IsToolActive}"
+                                    Classes.collapsed="{Binding !IsSidebarExpanded}" Click="OnToolsNavigationClick"
+                                    IsEnabled="{Binding CanOpenTools}"
+                                    ToolTip.Tip="{x:Static loc:GuiUiText.ui_nav_tool_title}"
+                                    AutomationProperties.Name="{x:Static loc:GuiUiText.ui_nav_tool_title}">
+                                <Grid ColumnDefinitions="Auto,Auto">
+                                    <Border Width="44" Height="44">
+                                        <TextBlock Text="&#xf0ad;" Classes="fa-icon" FontSize="16"
+                                                   HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                    </Border>
+                                    <StackPanel Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center"
+                                                Spacing="3"
+                                                IsVisible="{Binding IsSidebarExpanded}">
+                                        <TextBlock Text="{x:Static loc:GuiUiText.ui_nav_tool_title}"
+                                                   FontWeight="SemiBold" />
+                                        <TextBlock Text="{x:Static loc:GuiUiText.ui_nav_tool_desc}"
+                                                   Classes="nav-description" FontSize="11" />
+                                    </StackPanel>
+                                </Grid>
+                            </Button>
+                            <Button x:Name="ExportNavigation" Classes="nav-item"
+                                    Classes.active="{Binding IsExportActive}"
+                                    Classes.collapsed="{Binding !IsSidebarExpanded}" Click="OnExportNavigationClick"
+                                    IsEnabled="{Binding CanOpenExport}"
+                                    ToolTip.Tip="{x:Static loc:GuiUiText.ui_nav_export_title}"
+                                    AutomationProperties.Name="{x:Static loc:GuiUiText.ui_nav_export_title}">
+                                <Grid ColumnDefinitions="Auto,Auto">
+                                    <Border Width="44" Height="44">
+                                        <TextBlock Text="&#xf56e;" Classes="fa-icon" FontSize="16"
+                                                   HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                    </Border>
+                                    <StackPanel Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center"
+                                                Spacing="3"
+                                                IsVisible="{Binding IsSidebarExpanded}">
+                                        <TextBlock Text="{x:Static loc:GuiUiText.ui_nav_export_title}"
+                                                   FontWeight="SemiBold" />
+                                        <TextBlock Text="{x:Static loc:GuiUiText.ui_nav_export_desc}"
+                                                   Classes="nav-description" FontSize="11" />
+                                    </StackPanel>
+                                </Grid>
+                            </Button>
+                        </StackPanel>
+
+                        <StackPanel Grid.Row="2" Spacing="12">
+                            <Button x:Name="SettingsNavigation" Classes="nav-item"
+                                    Classes.active="{Binding IsSettingsActive}"
+                                    Classes.collapsed="{Binding !IsSidebarExpanded}" Click="OnSettingsNavigationClick"
+                                    ToolTip.Tip="{x:Static loc:GuiLocalizationString.settings_title}"
+                                    AutomationProperties.Name="{x:Static loc:GuiLocalizationString.settings_title}">
+                                <Grid ColumnDefinitions="Auto,Auto">
+                                    <Border Width="44" Height="44">
+                                        <TextBlock Text="&#xf013;" Classes="fa-icon" FontSize="16"
+                                                   HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                    </Border>
+                                    <TextBlock Grid.Column="1"
+                                               Text="{x:Static loc:GuiLocalizationString.settings_title}"
+                                               FontWeight="SemiBold" Margin="10,0,0,0" VerticalAlignment="Center"
+                                               IsVisible="{Binding IsSidebarExpanded}" />
+                                </Grid>
+                            </Button>
+                            <StackPanel IsVisible="{Binding IsSidebarExpanded}">
+                                <Border Classes="context-card" IsVisible="{Binding HasChart}">
+                                    <StackPanel Spacing="6">
+                                        <TextBlock Text="{x:Static loc:GuiUiText.ui_current_chart}" Classes="eyebrow" />
+                                        <TextBlock Text="{Binding CurrentFileName}" FontWeight="SemiBold"
+                                                   TextTrimming="CharacterEllipsis"
+                                                   ToolTip.Tip="{Binding CurrentFileName}" />
+                                        <TextBlock Text="{Binding CurrentFormat}" Classes="muted" FontSize="11" />
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+                            <TextBlock x:Name="VersionLabel" Classes="muted" FontSize="10" Margin="10,0,0,0"
+                                       IsVisible="{Binding IsSidebarExpanded}" TextTrimming="CharacterEllipsis" />
+                        </StackPanel>
+                    </Grid>
+                    <Button x:Name="SidebarToggle" Classes="sidebar-toggle" Click="OnSidebarToggleClick"
+                            ToolTip.Tip="{Binding SidebarToggleDescription}"
+                            AutomationProperties.Name="{Binding SidebarToggleDescription}" />
+                </Grid>
+            </Border>
+
+            <Grid Grid.Column="1" RowDefinitions="72,*">
+                <Border Background="{DynamicResource HeaderBackgroundBrush}"
+                        BorderBrush="{DynamicResource DividerBrush}" BorderThickness="0,0,0,1" Padding="28,0">
+                    <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="14" VerticalAlignment="Center">
+                        <StackPanel Spacing="4">
+                            <TextBlock Text="{Binding CurrentPageTitle}" Classes="page-header" />
+                            <TextBlock Text="{Binding CurrentPageDescription}" Classes="muted" FontSize="12" />
+                        </StackPanel>
+                        <TextBlock Grid.Column="1" Text="{Binding BackgroundMessage}" Classes="muted"
+                                   IsVisible="{Binding HasBackgroundMessage}" FontSize="11" MaxWidth="280"
+                                   TextTrimming="CharacterEllipsis" VerticalAlignment="Center"
+                                   ToolTip.Tip="{Binding BackgroundMessage}" />
+                        <Button x:Name="BackgroundRefreshButton" Grid.Column="2" Classes="background-refresh"
+                                Classes.busy="{Binding IsRefreshingBackground}" IsEnabled="{Binding !IsRefreshingBackground}"
+                                Click="OnBackgroundRefreshClick" ToolTip.Tip="{x:Static loc:GuiUiText.ui_background_refresh_hint}"
+                                AutomationProperties.Name="{x:Static loc:GuiUiText.ui_background_refresh}">
+                            <TextBlock Text="&#xf2f1;" Classes="fa-icon" FontSize="16"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Button>
+                    </Grid>
+                </Border>
+                <ContentControl x:Name="PageContent" Grid.Row="1" Content="{Binding CurrentPage}"
+                                MaxWidth="1320" HorizontalAlignment="Stretch" />
+            </Grid>
+        </Grid>
     </Grid>
 </Window>

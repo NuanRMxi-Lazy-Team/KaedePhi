@@ -1,5 +1,5 @@
-using KaedePhi.Core.Primitives;
 using KaedePhi.Core.Formats.PhiChain.v6.Model;
+using KaedePhi.Core.Primitives;
 
 namespace KaedePhi.Tool.Converter.PhiChain.Utils;
 

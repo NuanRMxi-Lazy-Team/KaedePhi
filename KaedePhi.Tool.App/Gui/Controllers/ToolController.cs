@@ -40,7 +40,6 @@ internal sealed class ToolController
 
         _navigation.Tool.RequestRun += OnToolRun;
         _navigation.Tool.RequestExport += _navigation.ShowExport;
-        _navigation.Tool.RequestSettings += _navigation.ShowSettings;
         _navigation.Tool.RequestReturnToImport += returnToImport;
         _navigation.Tool.PropertyChanged += OnToolVmPropertyChanged;
         _navigation.Processing.RequestReturnToTools += _navigation.ShowTool;

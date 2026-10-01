@@ -187,9 +187,7 @@ public class EventCompressor<TPayload> : LoggableBase, IEventCompressor<IrEvents
     /// <summary>
     /// 移除无用事件（起始值和结束值都为默认值的事件）。
     /// </summary>
-    public List<IrEvents.Event<TPayload>> RemoveUselessEvent(
-        List<IrEvents.Event<TPayload>>? events
-    )
+    public List<IrEvents.Event<TPayload>> RemoveUselessEvent(List<IrEvents.Event<TPayload>>? events)
     {
         if (events == null || events.Count == 0)
             return [];

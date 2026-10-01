@@ -176,9 +176,7 @@ public class ExportHierarchyValidationTests
     public void ValidateJudgeLineHierarchy_RejectsSelfReferencingJudgeLine()
     {
         Action act = () =>
-            IrChartValidator.ValidateJudgeLineHierarchy(
-                CreateSelfReferencingChart().JudgeLineList
-            );
+            IrChartValidator.ValidateJudgeLineHierarchy(CreateSelfReferencingChart().JudgeLineList);
 
         act.Should().Throw<FormatException>();
     }

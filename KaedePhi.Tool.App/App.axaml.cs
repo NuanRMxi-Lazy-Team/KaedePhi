@@ -48,6 +48,7 @@ public class App : Application
             desktop.Exit += (_, _) =>
             {
                 Log.ForContext<App>().Information(log_shutdown);
+                mainVm.StopBackgroundRefresh();
                 ChartService.Clear();
                 LogService.Dispose();
             };

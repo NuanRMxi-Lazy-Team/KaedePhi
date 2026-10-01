@@ -2,20 +2,24 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:loc="using:KaedePhi.Tool.Localization"
         x:Class="KaedePhi.Tool.App.Gui.Views.MessageDialog"
-        Title="KaedePhi"
-        Width="400" MinHeight="180"
+        Title="{x:Static loc:GuiLocalizationString.app_title}"
+        Width="450" MinHeight="210"
         SizeToContent="Height"
         WindowStartupLocation="CenterOwner"
         CanResize="False"
         ShowInTaskbar="False">
 
-    <Grid RowDefinitions="*,Auto">
-        <Border Grid.Row="0" Padding="24,20">
+    <Grid RowDefinitions="*,Auto" Background="{DynamicResource AppBackgroundBrush}">
+        <Border Grid.Row="0" Padding="28,24">
             <StackPanel Spacing="12">
                 <StackPanel Orientation="Horizontal" Spacing="10">
-                    <TextBlock x:Name="IconText" FontSize="24"
+                    <Border Width="42" Height="42" CornerRadius="13"
+                            Background="{DynamicResource AccentDimBrush}">
+                        <TextBlock x:Name="IconText" FontSize="20"
                                FontFamily="avares://KaedePhi.Tool.App/Assets/Fonts/fa-solid-900.ttf#Font Awesome 6 Free"
-                               FontWeight="Bold" VerticalAlignment="Center" />
+                               FontWeight="Bold" VerticalAlignment="Center"
+                               HorizontalAlignment="Center" />
+                    </Border>
                     <TextBlock x:Name="TitleText" FontSize="18" FontWeight="SemiBold"
                                VerticalAlignment="Center" />
                 </StackPanel>
@@ -24,10 +28,10 @@
             </StackPanel>
         </Border>
 
-        <Border Grid.Row="1" Padding="16,12"
-                Background="{DynamicResource CardBackgroundFillColorDefaultBrush}">
+        <Border Grid.Row="1" Padding="18,14"
+                Background="{DynamicResource SurfaceBrush}">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
-                <Button x:Name="OkButton" Content="{x:Static loc:GuiLocalizationString.btn_ok}" Classes="accent"
+                <Button x:Name="OkButton" Content="{x:Static loc:GuiLocalizationString.btn_ok}" Classes="primary"
                         Padding="24,6" MinWidth="80"
                         Click="OnOkClick" />
             </StackPanel>

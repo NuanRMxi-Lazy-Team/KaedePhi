@@ -157,9 +157,7 @@ internal static class CoordinateGeometry
     /// 当目标坐标系旋转方向与 Ir 一致时返回原值；否则取反，以适配不同旋转正方向约定。
     /// </returns>
     private static double ToTargetAngleCore(double irAngleDegrees, CoordinateProfile target) =>
-        target.ClockwiseRotation == IrProfile.ClockwiseRotation
-            ? irAngleDegrees
-            : -irAngleDegrees;
+        target.ClockwiseRotation == IrProfile.ClockwiseRotation ? irAngleDegrees : -irAngleDegrees;
 
     /// <summary>
     /// 将源坐标系角度转换到 Ir 角度（内部实现）。

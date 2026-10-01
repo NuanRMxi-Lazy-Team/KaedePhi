@@ -266,29 +266,31 @@ namespace KaedePhi.Core.Formats.PhiEdit.Serialization
                 case "cp":
                 {
                     EnsureMinParts(parts, 5, "cp");
-                    GetOrCreateJudgeLine(judgeLineIndex, judgeDict).MoveFrames.Add(
-                        new MoveFrame
-                        {
-                            Beat = ParseFloat(parts[2], "cp 拍数"),
-                            XValue = ParseFloat(parts[3], "cp X 数值"),
-                            YValue = ParseFloat(parts[4], "cp Y 数值"),
-                        }
-                    );
+                    GetOrCreateJudgeLine(judgeLineIndex, judgeDict)
+                        .MoveFrames.Add(
+                            new MoveFrame
+                            {
+                                Beat = ParseFloat(parts[2], "cp 拍数"),
+                                XValue = ParseFloat(parts[3], "cp X 数值"),
+                                YValue = ParseFloat(parts[4], "cp Y 数值"),
+                            }
+                        );
                     break;
                 }
                 case "cm":
                 {
                     EnsureMinParts(parts, 7, "cm");
-                    GetOrCreateJudgeLine(judgeLineIndex, judgeDict).MoveEvents.Add(
-                        new MoveEvent
-                        {
-                            StartBeat = ParseFloat(parts[2], "cm 起始拍"),
-                            EndBeat = ParseFloat(parts[3], "cm 结束拍"),
-                            EndXValue = ParseFloat(parts[4], "cm X 数值"),
-                            EndYValue = ParseFloat(parts[5], "cm Y 数值"),
-                            EasingType = Easing.Get(ParseInteger(parts[6], "cm 缓动类型")),
-                        }
-                    );
+                    GetOrCreateJudgeLine(judgeLineIndex, judgeDict)
+                        .MoveEvents.Add(
+                            new MoveEvent
+                            {
+                                StartBeat = ParseFloat(parts[2], "cm 起始拍"),
+                                EndBeat = ParseFloat(parts[3], "cm 结束拍"),
+                                EndXValue = ParseFloat(parts[4], "cm X 数值"),
+                                EndYValue = ParseFloat(parts[5], "cm Y 数值"),
+                                EasingType = Easing.Get(ParseInteger(parts[6], "cm 缓动类型")),
+                            }
+                        );
                     break;
                 }
                 case "cr":
@@ -483,10 +485,7 @@ namespace KaedePhi.Core.Formats.PhiEdit.Serialization
                     judgeLine.SpeedFrames,
                     static frame => frame.Beat
                 );
-                judgeLine.MoveFrames = SortByBeat(
-                    judgeLine.MoveFrames,
-                    static frame => frame.Beat
-                );
+                judgeLine.MoveFrames = SortByBeat(judgeLine.MoveFrames, static frame => frame.Beat);
                 judgeLine.RotateFrames = SortByBeat(
                     judgeLine.RotateFrames,
                     static frame => frame.Beat
@@ -507,10 +506,7 @@ namespace KaedePhi.Core.Formats.PhiEdit.Serialization
                     judgeLine.AlphaEvents,
                     static eventValue => eventValue.StartBeat
                 );
-                judgeLine.NoteList = SortByBeat(
-                    judgeLine.NoteList,
-                    static note => note.StartBeat
-                );
+                judgeLine.NoteList = SortByBeat(judgeLine.NoteList, static note => note.StartBeat);
             }
 
             chart.JudgeLineList = judgeDict

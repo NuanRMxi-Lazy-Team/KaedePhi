@@ -553,4 +553,102 @@
   <data name="btn_cancel" xml:space="preserve">
     <value>Cancel</value>
   </data>
+  <data name="ui_workspace" xml:space="preserve"><value>Workspace</value></data>
+  <data name="ui_nav_import_title" xml:space="preserve"><value>Import Chart</value></data>
+  <data name="ui_nav_import_desc" xml:space="preserve"><value>Select and detect a file</value></data>
+  <data name="ui_nav_tool_title" xml:space="preserve"><value>Process Tools</value></data>
+  <data name="ui_nav_tool_desc" xml:space="preserve"><value>Choose an operation and run it</value></data>
+  <data name="ui_nav_export_title" xml:space="preserve"><value>Export Result</value></data>
+  <data name="ui_nav_export_desc" xml:space="preserve"><value>Choose the target format</value></data>
+  <data name="ui_current_chart" xml:space="preserve"><value>Current chart</value></data>
+  <data name="ui_chart_loaded" xml:space="preserve"><value>Chart loaded</value></data>
+  <data name="ui_import_eyebrow" xml:space="preserve"><value>STEP 01  /  START</value></data>
+  <data name="ui_import_hero_title" xml:space="preserve"><value>Import a chart and start processing</value></data>
+  <data name="ui_import_hero_desc" xml:space="preserve"><value>KaedePhi detects the format and organizes the next actions into a clear workflow.</value></data>
+  <data name="ui_import_drop_title" xml:space="preserve"><value>Drop a chart file here</value></data>
+  <data name="ui_import_file_picker_desc" xml:space="preserve"><value>or open a local file with the file picker</value></data>
+  <data name="ui_import_recommended_title" xml:space="preserve"><value>Recommended flow</value></data>
+  <data name="ui_import_recommended_desc" xml:space="preserve"><value>Check the format after importing, then choose a tool or export directly. All parameters stay in the current session.</value></data>
+  <data name="ui_import_flow_title" xml:space="preserve"><value>Workflow</value></data>
+  <data name="ui_import_flow_desc" xml:space="preserve"><value>From file to result in three steps</value></data>
+  <data name="ui_import_flow_import_title" xml:space="preserve"><value>Import and detect</value></data>
+  <data name="ui_import_flow_import_desc" xml:space="preserve"><value>Detect the chart format automatically</value></data>
+  <data name="ui_import_flow_tool_title" xml:space="preserve"><value>Process chart</value></data>
+  <data name="ui_import_flow_tool_desc" xml:space="preserve"><value>Choose a tool and adjust parameters</value></data>
+  <data name="ui_import_flow_export_title" xml:space="preserve"><value>Export result</value></data>
+  <data name="ui_import_flow_export_desc" xml:space="preserve"><value>Save in the target format</value></data>
+  <data name="ui_import_load_mode_title" xml:space="preserve"><value>Loading mode</value></data>
+  <data name="ui_import_load_mode_desc" xml:space="preserve"><value>Enable stream loading for large files to reduce peak memory usage.</value></data>
+  <data name="ui_options_eyebrow" xml:space="preserve"><value>READY TO IMPORT</value></data>
+  <data name="ui_options_summary_title" xml:space="preserve"><value>Check file information</value></data>
+  <data name="ui_options_summary_desc" xml:space="preserve"><value>Confirm the detected format and import parameters before creating an editable intermediate chart.</value></data>
+  <data name="ui_options_detected_format" xml:space="preserve"><value>Detected format</value></data>
+  <data name="ui_options_file" xml:space="preserve"><value>File</value></data>
+  <data name="ui_options_detected_ready" xml:space="preserve"><value>Format detection finished. You can continue.</value></data>
+  <data name="ui_options_hint" xml:space="preserve"><value>The recommended values work for most files. Adjust them only when you need precise conversion control.</value></data>
+  <data name="ui_import_pe_title" xml:space="preserve"><value>PhiEdit import</value></data>
+  <data name="ui_import_pe_desc" xml:space="preserve"><value>Sampling precision used when converting frame data into events.</value></data>
+  <data name="ui_import_frame_duration" xml:space="preserve"><value>Frame to event duration</value></data>
+  <data name="ui_import_frame_duration_desc" xml:space="preserve"><value>Larger values create fewer events</value></data>
+  <data name="ui_import_trailing_padding" xml:space="preserve"><value>Trailing beat padding</value></data>
+  <data name="ui_import_trailing_padding_desc" xml:space="preserve"><value>Prevents the end of the chart from being cut off</value></data>
+  <data name="ui_import_phichain_title" xml:space="preserve"><value>PhiChain import</value></data>
+  <data name="ui_import_phichain_desc" xml:space="preserve"><value>Uses sampled cutting when the source format does not support an easing.</value></data>
+  <data name="ui_recommended_64" xml:space="preserve"><value>Recommended: 64</value></data>
+  <data name="ui_tool_eyebrow" xml:space="preserve"><value>STEP 02  /  PROCESS</value></data>
+  <data name="ui_tool_page_title" xml:space="preserve"><value>Choose a processing tool</value></data>
+  <data name="ui_tool_page_desc" xml:space="preserve"><value>Choose a target first, then adjust parameters as needed.</value></data>
+  <data name="ui_tool_file_tip" xml:space="preserve"><value>Finer parameters create more events. Start with the recommended values, then tune the result.</value></data>
+  <data name="ui_tool_options_eyebrow" xml:space="preserve"><value>PARAMETERS</value></data>
+  <data name="ui_tool_options_desc" xml:space="preserve"><value>Defaults work for most charts; changes only affect this run.</value></data>
+  <data name="ui_tool_precision_desc" xml:space="preserve"><value>Precision used for sampling and cutting</value></data>
+  <data name="ui_tool_tolerance_desc" xml:space="preserve"><value>Allowed relative error range</value></data>
+  <data name="ui_tool_merge_tolerance_desc" xml:space="preserve"><value>Threshold for merging adjacent event layers</value></data>
+  <data name="ui_tool_render_title" xml:space="preserve"><value>Render settings</value></data>
+  <data name="ui_export_eyebrow" xml:space="preserve"><value>STEP 03  /  OUTPUT</value></data>
+  <data name="ui_export_result_title" xml:space="preserve"><value>Export your result</value></data>
+  <data name="ui_export_result_desc" xml:space="preserve"><value>Choose a target format and KaedePhi will apply its conversion rules before saving.</value></data>
+  <data name="ui_export_source_format" xml:space="preserve"><value>Source format</value></data>
+  <data name="ui_export_saved_hint" xml:space="preserve"><value>The file extension required by the target format is added automatically.</value></data>
+  <data name="ui_export_advanced_title" xml:space="preserve"><value>Advanced conversion parameters</value></data>
+  <data name="ui_export_advanced_desc" xml:space="preserve"><value>Options appear for the selected target format. Keep the defaults for a regular export.</value></data>
+  <data name="ui_export_pe_title" xml:space="preserve"><value>PhiEdit conversion</value></data>
+  <data name="ui_export_pe_desc" xml:space="preserve"><value>Control cutting for easing, alpha, and speed events.</value></data>
+  <data name="ui_export_phigros_title" xml:space="preserve"><value>Phigros V3 conversion</value></data>
+  <data name="ui_export_phigros_desc" xml:space="preserve"><value>Uses the fallback value when the target format has no BPM.</value></data>
+  <data name="ui_export_rephiedit_title" xml:space="preserve"><value>RePhiEdit conversion</value></data>
+  <data name="ui_export_phichain_title" xml:space="preserve"><value>PhiChain conversion</value></data>
+  <data name="ui_export_phichain_desc" xml:space="preserve"><value>Control parent-child unbinding, multi-layer merging, and easing cutting by stage.</value></data>
+  <data name="ui_export_phifans_title" xml:space="preserve"><value>PhiFans conversion</value></data>
+  <data name="ui_export_common_title" xml:space="preserve"><value>Common processing</value></data>
+  <data name="ui_export_common_desc" xml:space="preserve"><value>Parent-child and layer merging options shared by multiple target formats.</value></data>
+  <data name="ui_export_precision" xml:space="preserve"><value>Precision</value></data>
+  <data name="ui_export_tolerance" xml:space="preserve"><value>Tolerance</value></data>
+  <data name="ui_export_merge_tolerance" xml:space="preserve"><value>Merge tolerance</value></data>
+  <data name="ui_export_xy_precision" xml:space="preserve"><value>XY event cut precision</value></data>
+  <data name="ui_export_alpha_precision" xml:space="preserve"><value>Alpha event cut precision</value></data>
+  <data name="ui_export_alpha_tolerance" xml:space="preserve"><value>Alpha tolerance (%)</value></data>
+  <data name="ui_export_speed_precision" xml:space="preserve"><value>Speed event cut precision</value></data>
+  <data name="ui_export_fallback_bpm" xml:space="preserve"><value>Fallback BPM</value></data>
+  <data name="ui_export_negative_step" xml:space="preserve"><value>Negative alpha elevation step</value></data>
+  <data name="ui_export_discontinuity_precision" xml:space="preserve"><value>Discontinuous node beat precision</value></data>
+  <data name="ui_export_multi_merge" xml:space="preserve"><value>Multi-layer merge</value></data>
+  <data name="ui_export_unbind" xml:space="preserve"><value>Parent-child unbind</value></data>
+  <data name="ui_export_easing_cut_precision" xml:space="preserve"><value>Easing cut precision</value></data>
+  <data name="ui_processing_keep_open" xml:space="preserve"><value>Keep this window open to continue when processing is complete.</value></data>
+  <data name="ui_processing_completed" xml:space="preserve"><value>Processing completed</value></data>
+  <data name="ui_settings_eyebrow" xml:space="preserve"><value>SETTINGS  /  DEFAULTS</value></data>
+  <data name="ui_settings_desc" xml:space="preserve"><value>Keep common parameters here. After saving, they become the starting point for the next run.</value></data>
+  <data name="ui_settings_hint_title" xml:space="preserve"><value>Configuration tip</value></data>
+  <data name="ui_settings_hint_desc" xml:space="preserve"><value>Parameters are grouped by task. Adjust the parts you understand and keep the rest at their defaults.</value></data>
+  <data name="ui_settings_hint_saved" xml:space="preserve"><value>Changes take effect after you save the settings.</value></data>
+  <data name="ui_sidebar_collapse" xml:space="preserve"><value>Collapse sidebar</value></data>
+  <data name="ui_sidebar_expand" xml:space="preserve"><value>Expand sidebar</value></data>
+  <data name="ui_background_refresh" xml:space="preserve"><value>Refresh background</value></data>
+  <data name="ui_background_refresh_hint" xml:space="preserve"><value>Refresh background</value></data>
+  <data name="ui_background_refreshing" xml:space="preserve"><value>Fetching a new background…</value></data>
+  <data name="ui_background_refresh_failed" xml:space="preserve"><value>Unable to refresh the background. Please try again later.</value></data>
+  <data name="ui_background_saved" xml:space="preserve"><value>Background saved: {0}</value></data>
+  <data name="ui_background_save_failed" xml:space="preserve"><value>Unable to save the background. Check that your Pictures folder is writable.</value></data>
+  <data name="ui_background_unavailable" xml:space="preserve"><value>There is no background image to save yet.</value></data>
 </root>

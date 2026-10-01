@@ -1,5 +1,5 @@
-using KaedePhi.Core.Primitives;
 using KaedePhi.Core.Intermediate.Model;
+using KaedePhi.Core.Primitives;
 using IrEvents = KaedePhi.Core.Intermediate.Model.Events;
 
 namespace KaedePhi.Tests.Intermediate;

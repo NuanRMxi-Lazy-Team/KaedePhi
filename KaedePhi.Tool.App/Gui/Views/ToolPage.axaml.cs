@@ -25,12 +25,6 @@ public partial class ToolPage : UserControl
             vm.OnExportClicked();
     }
 
-    private void OnSettingsClick(object? sender, RoutedEventArgs e)
-    {
-        if (DataContext is ToolViewModel vm)
-            vm.OnSettingsClicked();
-    }
-
     private async void OnBrowseOutputDirClick(object? sender, RoutedEventArgs e)
     {
         if (DataContext is not ToolViewModel vm)

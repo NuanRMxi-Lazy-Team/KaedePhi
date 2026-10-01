@@ -10,9 +10,7 @@ namespace KaedePhi.Tool.Layer.KaedePhi;
 /// 已弃用的 KPC 谱面事件层处理器，行为与 <see cref="Intermediate.LayerProcessor"/> 一致。
 /// </summary>
 [Obsolete("已弃用：请迁移至 KaedePhi.Tool.Layer.Intermediate.LayerProcessor。")]
-public class LayerProcessor
-    : Intermediate.LayerProcessor,
-        ILayerProcessor<KpcEvents.EventLayer>
+public class LayerProcessor : Intermediate.LayerProcessor, ILayerProcessor<KpcEvents.EventLayer>
 {
     /// <summary>
     /// 将多个事件层合并为单层（固定采样）。
@@ -90,11 +88,7 @@ public class LayerProcessor
         IProgress<ToolProgress>? progress = null
     ) =>
         KpcCompatibilityMapper.ToKpc(
-            base.CutLayerEvents(
-                KpcCompatibilityMapper.ToIntermediate(layers),
-                precision,
-                progress
-            )
+            base.CutLayerEvents(KpcCompatibilityMapper.ToIntermediate(layers), precision, progress)
         );
 
     /// <summary>

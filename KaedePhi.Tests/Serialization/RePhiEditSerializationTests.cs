@@ -1,8 +1,8 @@
-using KaedePhi.Core.Primitives;
 using KaedePhi.Core.Formats.RePhiEdit.Model;
 using KaedePhi.Core.Formats.RePhiEdit.Model.Controls;
 using KaedePhi.Core.Formats.RePhiEdit.Model.Events;
 using KaedePhi.Core.Formats.RePhiEdit.Serialization;
+using KaedePhi.Core.Primitives;
 
 namespace KaedePhi.Tests.Serialization;
 
@@ -313,26 +313,26 @@ public class RePhiEditSerializationTests
     private static string CreateMinimalJson()
     {
         return """
-               {
-                   "BPMList": [{"bpm": 120, "startTime": [0, 0, 1]}],
-                   "META": {"name": "Test Chart", "composer": "Test", "charter": "Test", "level": "HD"},
-                   "judgeLineList": [{
-                       "Group": 0,
-                       "Name": "",
-                       "Texture": "line.png",
-                       "isCover": 1,
-                       "eventLayers": null,
-                       "father": -1,
-                       "zOrder": 0
-                   }],
-                   "chartTime": 60,
-                   "judgeLineGroup": ["Default"],
-                   "multiLineString": "1",
-                   "multiScale": 1.0,
-                   "timeTags": [],
-                   "xybind": true
-               }
-               """;
+            {
+                "BPMList": [{"bpm": 120, "startTime": [0, 0, 1]}],
+                "META": {"name": "Test Chart", "composer": "Test", "charter": "Test", "level": "HD"},
+                "judgeLineList": [{
+                    "Group": 0,
+                    "Name": "",
+                    "Texture": "line.png",
+                    "isCover": 1,
+                    "eventLayers": null,
+                    "father": -1,
+                    "zOrder": 0
+                }],
+                "chartTime": 60,
+                "judgeLineGroup": ["Default"],
+                "multiLineString": "1",
+                "multiScale": 1.0,
+                "timeTags": [],
+                "xybind": true
+            }
+            """;
     }
 
     private static Chart CreateMinimalChart()

@@ -6,7 +6,7 @@ namespace KaedePhi.Core.Formats.Phigros.v3.Model
     {
         [JsonProperty("x")]
         public float X { get; set; }
-        
+
         [JsonProperty("y")]
         public float Y { get; set; }
     }

@@ -38,7 +38,9 @@ internal sealed class GuiNavigationService
     public void ShowImport()
     {
         _chart.Clear();
+        _main.ClearChartContext();
         Import.UseStream = false;
+        _main.SetShellState("import", import_button, app_subtitle, 1);
         _main.CurrentPage = Import;
         _log.Information(log_navigate_import);
     }
@@ -47,6 +49,15 @@ internal sealed class GuiNavigationService
     {
         ImportOptions.DetectedFormat = detectedType;
         ImportOptions.FileName = fileName;
+        _main.SetShellState(
+            "options",
+            import_options_title,
+            import_options_title,
+            1,
+            fileName,
+            detectedType.ToString(),
+            false
+        );
         _main.CurrentPage = ImportOptions;
     }
 
@@ -54,6 +65,7 @@ internal sealed class GuiNavigationService
     {
         Tool.StatusText = string.Empty;
         Tool.HasUnclearContent = _chart.HasUnclearContent;
+        _main.SetShellState("tool", tool_select_title, tool_options_title, 2);
         _main.CurrentPage = Tool;
     }
 
@@ -62,6 +74,15 @@ internal sealed class GuiNavigationService
         Tool.CurrentFileName = Path.GetFileName(filePath);
         Tool.DetectedFormat = detectedType.ToString();
         Tool.SourceChartType = detectedType;
+        _main.SetShellState(
+            "tool",
+            tool_select_title,
+            tool_options_title,
+            2,
+            Path.GetFileName(filePath),
+            detectedType.ToString(),
+            true
+        );
         Tool.RenderOutputDir = Path.Combine(
             Path.GetDirectoryName(filePath) ?? string.Empty,
             "RenderLayer"
@@ -79,6 +100,7 @@ internal sealed class GuiNavigationService
         Export.StatusText = string.Empty;
         Export.IsExporting = false;
         Export.ApplyConversionDefaults(_config.Config.Convert);
+        _main.SetShellState("export", export_title, export_output_format, 3);
         _main.CurrentPage = Export;
     }
 
@@ -91,18 +113,23 @@ internal sealed class GuiNavigationService
         Processing.HasError = false;
         Processing.ErrorMessage = string.Empty;
         Processing.LogFilePath = string.Empty;
+        _main.SetShellState("processing", processing_title, status_processing, 2);
         _main.CurrentPage = Processing;
     }
 
     public void ShowSettings()
     {
         Settings.StatusText = string.Empty;
+        _main.SetShellState("settings", settings_title, settings_title, 0);
         _main.CurrentPage = Settings;
     }
 
     public void ReturnFromSettings()
     {
         Tool.ApplyConfigDefaults(_config.Config);
-        ShowTool();
+        if (_chart.IsLoaded)
+            ShowTool();
+        else
+            ShowImport();
     }
 }

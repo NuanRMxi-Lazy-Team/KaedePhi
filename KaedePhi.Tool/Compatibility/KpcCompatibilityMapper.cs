@@ -1,9 +1,9 @@
 #pragma warning disable CS0618
 
 using Kpc = KaedePhi.Core.KaedePhi;
+using KpcCommon = KaedePhi.Core.Common;
 using KpcControls = KaedePhi.Core.KaedePhi.Controls;
 using KpcEvents = KaedePhi.Core.KaedePhi.Events;
-using KpcCommon = KaedePhi.Core.Common;
 using Primitives = KaedePhi.Core.Primitives;
 
 namespace KaedePhi.Tool.Compatibility;
@@ -53,9 +53,7 @@ internal static class KpcCompatibilityMapper
     internal static List<KpcEvents.EventLayer> ToKpc(List<IrEvents.EventLayer> layers) =>
         MapList(layers, ToKpc)!;
 
-    internal static List<IrEvents.Event<T>>? ToIntermediate<T>(
-        List<KpcEvents.Event<T>>? events
-    )
+    internal static List<IrEvents.Event<T>>? ToIntermediate<T>(List<KpcEvents.Event<T>>? events)
         where T : notnull => MapList(events, ToIntermediate)!;
 
     internal static List<KpcEvents.Event<T>>? ToKpc<T>(List<IrEvents.Event<T>>? events)
@@ -138,9 +136,7 @@ internal static class KpcCompatibilityMapper
             Father = line.Father,
             IsCover = line.IsCover,
             ZOrder = line.ZOrder,
-            AttachUi = line.AttachUi is null
-                ? null
-                : (Primitives.AttachUi)(int)line.AttachUi.Value,
+            AttachUi = line.AttachUi is null ? null : (Primitives.AttachUi)(int)line.AttachUi.Value,
             IsGif = line.IsGif,
             BpmFactor = line.BpmFactor,
             RotateWithFather = line.RotateWithFather,
@@ -405,5 +401,6 @@ internal static class KpcCompatibilityMapper
         return result;
     }
 
-    private static T CloneValue<T>(T value) => value is byte[] bytes ? (T)(object)(byte[])bytes.Clone() : value;
+    private static T CloneValue<T>(T value) =>
+        value is byte[] bytes ? (T)(object)(byte[])bytes.Clone() : value;
 }

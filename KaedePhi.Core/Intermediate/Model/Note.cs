@@ -42,7 +42,8 @@ namespace KaedePhi.Core.Intermediate.Model
             }
         }
 
-        [JsonIgnore] internal bool HasExplicitEndBeat => _hasExplicitEndBeat;
+        [JsonIgnore]
+        internal bool HasExplicitEndBeat => _hasExplicitEndBeat;
 
         /// <summary>
         /// 模拟器保留字段

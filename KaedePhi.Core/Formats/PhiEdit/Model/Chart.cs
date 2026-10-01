@@ -13,14 +13,15 @@ namespace KaedePhi.Core.Formats.PhiEdit.Model
         /// <summary>
         /// 坐标系边界
         /// </summary>
-        public static Common.CoordinateSystem CoordinateSystem { get; } = new()
-        {
-            MaxX = 2048f,
-            MinX = 0f,
-            MaxY = 1400f,
-            MinY = 0f,
-            ClockwiseRotation = true,
-        };
+        public static Common.CoordinateSystem CoordinateSystem { get; } =
+            new()
+            {
+                MaxX = 2048f,
+                MinX = 0f,
+                MaxY = 1400f,
+                MinY = 0f,
+                ClockwiseRotation = true,
+            };
 
         /// <summary>
         /// 判定线列表

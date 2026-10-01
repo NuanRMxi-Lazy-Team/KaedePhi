@@ -1,5 +1,4 @@
 using System.Collections.ObjectModel;
-using KpcChart = KaedePhi.Core.KaedePhi.Chart;
 using KaedePhi.Core.Formats.PhiChain.v6.Serialization;
 using KaedePhi.Core.Formats.PhiEdit.Serialization;
 using KaedePhi.Core.Formats.PhiFans.Serialization;
@@ -16,6 +15,7 @@ using KaedePhi.Tool.Converter.Phigros.v3;
 using KaedePhi.Tool.Converter.Phigros.v3.Model;
 using KaedePhi.Tool.Converter.RePhiEdit;
 using KaedePhi.Tool.Converter.RePhiEdit.Model;
+using KpcChart = KaedePhi.Core.KaedePhi.Chart;
 
 namespace KaedePhi.Tool.Converter;
 
@@ -272,11 +272,12 @@ public static class ChartFormatRegistry
     /// <param name="ct">取消令牌</param>
     /// <returns>检测到的格式与转换结果</returns>
     [Obsolete("已弃用：请迁移至 ImportIrAsync。")]
-    public static async Task<(
-        ChartType DetectedType,
-        KpcChart Chart
-        )> ImportAsync(string text, object? importOptions = null, ChartLogSink? log = null,
-        CancellationToken ct = default)
+    public static async Task<(ChartType DetectedType, KpcChart Chart)> ImportAsync(
+        string text,
+        object? importOptions = null,
+        ChartLogSink? log = null,
+        CancellationToken ct = default
+    )
     {
         var (detectedType, chart) = await ImportIrAsync(text, importOptions, log, ct);
         return (detectedType, Compatibility.KpcCompatibilityMapper.ToKpc(chart));
@@ -339,7 +340,7 @@ public static class ChartFormatRegistry
                 var temporaryPath = fullPath + "." + Guid.NewGuid().ToString("N") + ".tmp";
                 Directory.CreateDirectory(
                     Path.GetDirectoryName(fullPath)
-                    ?? throw new InvalidOperationException("Invalid output path")
+                        ?? throw new InvalidOperationException("Invalid output path")
                 );
                 try
                 {
@@ -376,7 +377,7 @@ public static class ChartFormatRegistry
                 var temporaryPath = fullPath + "." + Guid.NewGuid().ToString("N") + ".tmp";
                 Directory.CreateDirectory(
                     Path.GetDirectoryName(fullPath)
-                    ?? throw new InvalidOperationException("Invalid output path")
+                        ?? throw new InvalidOperationException("Invalid output path")
                 );
                 try
                 {

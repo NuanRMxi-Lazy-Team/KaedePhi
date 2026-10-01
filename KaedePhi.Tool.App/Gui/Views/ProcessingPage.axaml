@@ -5,59 +5,92 @@
              x:Class="KaedePhi.Tool.App.Gui.Views.ProcessingPage"
              x:DataType="vm:ProcessingViewModel">
 
-    <Grid Background="#80000000">
-        <Border HorizontalAlignment="Center" VerticalAlignment="Center"
-                Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
-                BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
-                BorderThickness="1" CornerRadius="12" Padding="48,36" MinWidth="360">
-            <StackPanel Spacing="20">
-
-                <!-- 标题与旋转加载图标 -->
-                <StackPanel Orientation="Horizontal" Spacing="12" HorizontalAlignment="Center">
-                    <TextBlock Text="&#xf110;" Classes="fa-icon"
-                               FontSize="28" VerticalAlignment="Center"
-                               Foreground="{DynamicResource SystemAccentColor}">
-                        <TextBlock.Styles>
-                            <Style Selector="TextBlock">
-                                <Style.Animations>
-                                    <Animation Duration="0:0:1" IterationCount="Infinite">
-                                        <KeyFrame Cue="0%">
-                                            <Setter Property="RotateTransform.Angle" Value="0" />
-                                        </KeyFrame>
-                                        <KeyFrame Cue="100%">
-                                            <Setter Property="RotateTransform.Angle" Value="360" />
-                                        </KeyFrame>
-                                    </Animation>
-                                </Style.Animations>
-                            </Style>
-                        </TextBlock.Styles>
-                    </TextBlock>
-                    <TextBlock Text="{x:Static loc:GuiLocalizationString.processing_title}"
-                               FontSize="20" FontWeight="SemiBold"
-                               VerticalAlignment="Center" />
+    <Grid Background="{DynamicResource OverlayBrush}">
+        <Border Classes="card" HorizontalAlignment="Center" VerticalAlignment="Center"
+                MinWidth="470" MaxWidth="600" Padding="30">
+            <Grid RowDefinitions="Auto,Auto,Auto,Auto" RowSpacing="22">
+                <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="13">
+                    <Border Width="42" Height="42" CornerRadius="13"
+                            Background="{DynamicResource AccentDimBrush}">
+                        <TextBlock Text="&#xf110;" Classes="fa-icon" FontSize="19"
+                                   Foreground="{DynamicResource AccentBrush}"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center">
+                            <TextBlock.Styles>
+                                <Style Selector="TextBlock">
+                                    <Style.Animations>
+                                        <Animation Duration="0:0:1" IterationCount="Infinite">
+                                            <KeyFrame Cue="0%">
+                                                <Setter Property="RotateTransform.Angle" Value="0" />
+                                            </KeyFrame>
+                                            <KeyFrame Cue="100%">
+                                                <Setter Property="RotateTransform.Angle" Value="360" />
+                                            </KeyFrame>
+                                        </Animation>
+                                    </Style.Animations>
+                                </Style>
+                            </TextBlock.Styles>
+                        </TextBlock>
+                    </Border>
+                    <StackPanel Spacing="3" VerticalAlignment="Center">
+                        <TextBlock Text="{x:Static loc:GuiLocalizationString.processing_title}"
+                                   FontSize="20" FontWeight="SemiBold" />
+                        <TextBlock Text="{x:Static loc:GuiUiText.ui_processing_keep_open}"
+                                   Classes="muted" FontSize="12" />
+                    </StackPanel>
                 </StackPanel>
 
-                <!-- 进度条 -->
-                <ProgressBar Value="{Binding Progress}" Maximum="100" Height="6"
-                             CornerRadius="3" />
-
-                <!-- 工具子进度条 -->
-                <ProgressBar Value="{Binding ToolProgressValue}" Maximum="100" Height="3"
-                             CornerRadius="1" Opacity="0.7" />
-
-                <!-- 当前步骤 -->
-                <StackPanel Spacing="4" HorizontalAlignment="Center">
-                    <TextBlock Text="{Binding CurrentStep}" FontWeight="SemiBold" FontSize="14"
-                               HorizontalAlignment="Center" />
-                    <TextBlock Text="{Binding StatusMessage}" FontSize="12" Opacity="0.6"
-                               HorizontalAlignment="Center" />
+                <StackPanel Grid.Row="1" Spacing="8" IsVisible="{Binding !IsCompleted}">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <TextBlock Text="{Binding CurrentStep}" FontWeight="SemiBold" />
+                        <TextBlock Grid.Column="1" Text="{Binding Progress, StringFormat='{}{0:0}%'}"
+                                   Classes="muted" FontSize="12" />
+                    </Grid>
+                    <ProgressBar Value="{Binding Progress}" Maximum="100" Height="7" />
+                    <ProgressBar Value="{Binding ToolProgressValue}" Maximum="100" Height="3"
+                                 Opacity="0.65" />
+                    <TextBlock Text="{Binding StatusMessage}" Classes="muted" FontSize="12"
+                               TextWrapping="Wrap" />
                 </StackPanel>
 
-                <!-- 取消当前处理 -->
-                <Button Content="{x:Static loc:GuiLocalizationString.btn_cancel}"
-                        Click="OnCancelClick" Padding="24,8" FontSize="14"
-                        HorizontalAlignment="Center" />
-            </StackPanel>
+                <Border Grid.Row="1" Background="{DynamicResource AccentDimBrush}" CornerRadius="0"
+                        Padding="16" IsVisible="{Binding ShowSuccessIcon}">
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                        <TextBlock Text="&#xf058;" Classes="fa-icon" FontSize="25"
+                                   Foreground="{DynamicResource SuccessBrush}" />
+                        <StackPanel Grid.Column="1" Spacing="4">
+                            <TextBlock Text="{x:Static loc:GuiUiText.ui_processing_completed}" FontWeight="SemiBold" />
+                            <TextBlock Text="{Binding StatusMessage}" Classes="muted" FontSize="12"
+                                       TextWrapping="Wrap" />
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+                <Border Grid.Row="1" Background="{DynamicResource DangerDimBrush}" BorderBrush="{DynamicResource DangerBrush}"
+                        BorderThickness="1" CornerRadius="0" Padding="16"
+                        IsVisible="{Binding HasError}">
+                    <StackPanel Spacing="8">
+                        <StackPanel Orientation="Horizontal" Spacing="10">
+                            <TextBlock Text="&#xf071;" Classes="fa-icon" FontSize="18"
+                                       Foreground="{DynamicResource DangerBrush}" />
+                            <TextBlock Text="{x:Static loc:GuiLocalizationString.processing_error}"
+                                       FontWeight="SemiBold" />
+                        </StackPanel>
+                        <TextBlock Text="{Binding ErrorMessage}" Classes="muted" FontSize="12"
+                                   TextWrapping="Wrap" />
+                        <TextBlock Text="{Binding LogFilePath}" Classes="muted" FontSize="11"
+                                   TextWrapping="Wrap" />
+                    </StackPanel>
+                </Border>
+
+                <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="10">
+                    <Button Classes="secondary" Content="{x:Static loc:GuiLocalizationString.btn_cancel}"
+                            Click="OnCancelClick" IsVisible="{Binding !IsCompleted}" />
+                    <Button Classes="ghost" Content="{x:Static loc:GuiLocalizationString.btn_back_to_tools}"
+                            Click="OnReturnToToolsClick" IsVisible="{Binding IsCompleted}" />
+                    <Button Classes="primary" Content="{x:Static loc:GuiLocalizationString.btn_export_chart}"
+                            Click="OnGoToExportClick" IsVisible="{Binding ShowSuccessIcon}" />
+                </StackPanel>
+            </Grid>
         </Border>
     </Grid>
 </UserControl>

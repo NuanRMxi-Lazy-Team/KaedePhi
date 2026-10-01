@@ -5,137 +5,111 @@
              x:Class="KaedePhi.Tool.App.Gui.Views.ImportOptionsPage"
              x:DataType="vm:ImportOptionsViewModel">
 
-    <Grid RowDefinitions="*,Auto">
-        <!-- 主内容 -->
-        <Border Grid.Row="0" Padding="24">
-            <ScrollViewer VerticalScrollBarVisibility="Auto">
-                <StackPanel Spacing="20" Width="500" HorizontalAlignment="Left"
-                            IsVisible="{Binding !IsLoading}">
-                    <StackPanel Orientation="Horizontal" Spacing="10">
-                        <TextBlock Text="&#xf013;" Classes="fa-icon"
-                                   FontSize="24" VerticalAlignment="Center" />
-                        <TextBlock Text="{x:Static loc:GuiLocalizationString.import_options_title}" FontSize="22"
-                                   FontWeight="SemiBold" />
+    <Grid Margin="34,30">
+        <Grid IsVisible="{Binding !IsLoading}" ColumnDefinitions="300,*" ColumnSpacing="24">
+            <StackPanel Grid.Column="0" Spacing="14">
+                <Border Classes="card" Padding="20">
+                    <StackPanel Spacing="16">
+                        <TextBlock Text="{x:Static loc:GuiUiText.ui_options_eyebrow}" Classes="eyebrow" />
+                        <TextBlock Text="{x:Static loc:GuiUiText.ui_options_summary_title}" Classes="page-title" FontSize="27" />
+                        <TextBlock Text="{x:Static loc:GuiUiText.ui_options_summary_desc}"
+                                   Classes="muted" FontSize="12" TextWrapping="Wrap" />
+                        <Border Background="{DynamicResource AccentDimBrush}" CornerRadius="0" Padding="12">
+                            <StackPanel Spacing="5">
+                                <TextBlock Text="{x:Static loc:GuiUiText.ui_options_detected_format}" Classes="muted" FontSize="11" />
+                                <TextBlock Text="{Binding FormatName}" FontWeight="SemiBold" />
+                            </StackPanel>
+                        </Border>
                     </StackPanel>
-
-                    <StackPanel Spacing="4">
-                        <TextBlock Text="{x:Static loc:GuiLocalizationString.import_options_file}" FontSize="13"
-                                   Opacity="0.7" />
-                        <TextBlock Text="{Binding FileName}" FontSize="14" FontWeight="SemiBold" />
+                </Border>
+                <Border Classes="card" Padding="20">
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="{x:Static loc:GuiUiText.ui_options_file}" Classes="muted" FontSize="11" />
+                        <TextBlock Text="{Binding FileName}" FontWeight="SemiBold" TextWrapping="Wrap" />
+                        <TextBlock Text="{x:Static loc:GuiUiText.ui_options_detected_ready}" Classes="muted" FontSize="11" />
                     </StackPanel>
+                </Border>
+            </StackPanel>
 
-                    <StackPanel Spacing="4">
-                        <TextBlock Text="{x:Static loc:GuiLocalizationString.import_options_format}" FontSize="13"
-                                   Opacity="0.7" />
-                        <TextBlock Text="{Binding FormatName}" FontSize="14" FontWeight="SemiBold" />
-                    </StackPanel>
+            <Grid Grid.Column="1" RowDefinitions="Auto,*,Auto">
+                <StackPanel Grid.Row="0" Spacing="5" Margin="0,2,0,18">
+                    <TextBlock Text="{x:Static loc:GuiLocalizationString.import_options_title}" Classes="section-title" />
+                    <TextBlock Text="{x:Static loc:GuiUiText.ui_options_hint}"
+                               Classes="muted" FontSize="12" />
+                </StackPanel>
 
-                    <!-- 转换选项面板 -->
-                    <Border Background="{DynamicResource CardBackgroundFillColorSecondaryBrush}"
-                            BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
-                            BorderThickness="1" CornerRadius="8" Padding="16,12">
-                        <StackPanel Spacing="12">
-                            <TextBlock Text="{x:Static loc:GuiLocalizationString.import_convert_options}" FontSize="14"
-                                       FontWeight="SemiBold" />
-
-                            <!-- PhiEdit 导入选项 -->
-                            <StackPanel Spacing="8" IsVisible="{Binding ShowPeOptions}">
-                                <TextBlock Text="{x:Static loc:GuiLocalizationString.convert_pe_options}" FontSize="12"
-                                           Opacity="0.7" />
-                                <StackPanel Spacing="6">
-                                    <StackPanel Spacing="4">
-                                        <TextBlock
-                                            Text="{x:Static loc:GuiLocalizationString.convert_frame_duration_beat}"
-                                            FontSize="12" Opacity="0.7" />
-                                        <NumericUpDown Value="{Binding PeFrameDurationBeat}" Minimum="1" Maximum="4096"
-                                                       Increment="1" FormatString="F0" Width="140"
-                                                       HorizontalAlignment="Left" />
-                                    </StackPanel>
-                                    <StackPanel Spacing="4">
-                                        <TextBlock
-                                            Text="{x:Static loc:GuiLocalizationString.convert_trailing_beat_padding}"
-                                            FontSize="12" Opacity="0.7" />
-                                        <NumericUpDown Value="{Binding PeTrailingBeatPadding}" Minimum="1"
-                                                       Maximum="4096"
-                                                       Increment="1" FormatString="F0" Width="140"
-                                                       HorizontalAlignment="Left" />
-                                    </StackPanel>
+                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                    <Border Classes="card" Padding="22">
+                        <StackPanel Spacing="18">
+                            <StackPanel IsVisible="{Binding ShowPeOptions}" Spacing="13">
+                                <StackPanel Spacing="3">
+                                    <TextBlock Text="{x:Static loc:GuiUiText.ui_import_pe_title}" Classes="section-title" />
+                                    <TextBlock Text="{x:Static loc:GuiUiText.ui_import_pe_desc}"
+                                               Classes="muted" FontSize="12" />
                                 </StackPanel>
+                                <Grid ColumnDefinitions="*,180" RowDefinitions="Auto,Auto" RowSpacing="12">
+                                    <StackPanel Grid.Row="0" Spacing="3">
+                                        <TextBlock Text="{x:Static loc:GuiUiText.ui_import_frame_duration}" />
+                                        <TextBlock Text="{x:Static loc:GuiUiText.ui_import_frame_duration_desc}" Classes="muted" FontSize="11" />
+                                    </StackPanel>
+                                    <NumericUpDown Grid.Row="0" Grid.Column="1"
+                                                   Value="{Binding PeFrameDurationBeat}" Minimum="1" Maximum="4096"
+                                                   Increment="1" FormatString="F0" />
+                                    <StackPanel Grid.Row="1" Spacing="3">
+                                        <TextBlock Text="{x:Static loc:GuiUiText.ui_import_trailing_padding}" />
+                                        <TextBlock Text="{x:Static loc:GuiUiText.ui_import_trailing_padding_desc}" Classes="muted" FontSize="11" />
+                                    </StackPanel>
+                                    <NumericUpDown Grid.Row="1" Grid.Column="1"
+                                                   Value="{Binding PeTrailingBeatPadding}" Minimum="1" Maximum="4096"
+                                                   Increment="1" FormatString="F0" />
+                                </Grid>
                             </StackPanel>
 
-                            <!-- PhiChain 导入选项 -->
-                            <StackPanel Spacing="8" IsVisible="{Binding ShowPhiChainOptions}">
-                                <TextBlock Text="{x:Static loc:GuiLocalizationString.convert_phichain_options}"
-                                           FontSize="12" Opacity="0.7" />
-                                <StackPanel Spacing="6">
-                                    <StackPanel Spacing="4">
-                                        <TextBlock Text="{x:Static loc:GuiLocalizationString.convert_easing_precision}"
-                                                   FontSize="12" Opacity="0.7" />
-                                        <NumericUpDown Value="{Binding PhiChainUnsupportedEasingPrecision}" Minimum="1"
-                                                       Maximum="4096"
-                                                       Increment="1" FormatString="F0" Width="240"
-                                                       HorizontalAlignment="Left" />
-                                    </StackPanel>
+                            <StackPanel IsVisible="{Binding ShowPhiChainOptions}" Spacing="13">
+                                <StackPanel Spacing="3">
+                                <TextBlock Text="{x:Static loc:GuiUiText.ui_import_phichain_title}" Classes="section-title" />
+                                <TextBlock Text="{x:Static loc:GuiUiText.ui_import_phichain_desc}"
+                                               Classes="muted" FontSize="12" />
                                 </StackPanel>
+                                <Grid ColumnDefinitions="*,180">
+                                    <StackPanel Spacing="3">
+                                        <TextBlock Text="{x:Static loc:GuiLocalizationString.convert_easing_precision}" />
+                                        <TextBlock Text="{x:Static loc:GuiUiText.ui_recommended_64}" Classes="muted" FontSize="11" />
+                                    </StackPanel>
+                                    <NumericUpDown Grid.Column="1"
+                                                   Value="{Binding PhiChainUnsupportedEasingPrecision}" Minimum="1"
+                                                   Maximum="4096" Increment="1" FormatString="F0" />
+                                </Grid>
                             </StackPanel>
                         </StackPanel>
                     </Border>
+                </ScrollViewer>
+
+                <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right"
+                            Spacing="10" Margin="0,20,0,0">
+                    <Button Classes="ghost" Click="OnCancelClick"
+                            Content="{x:Static loc:GuiLocalizationString.btn_back}" />
+                    <Button Classes="primary" Click="OnConfirmClick" Padding="20,10">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <TextBlock Text="&#xf058;" Classes="fa-icon" FontSize="14" />
+                            <TextBlock Text="{x:Static loc:GuiLocalizationString.import_options_confirm}" />
+                        </StackPanel>
+                    </Button>
                 </StackPanel>
-            </ScrollViewer>
-        </Border>
+            </Grid>
+        </Grid>
 
-        <!-- 加载中覆盖层 -->
-        <Border Background="#80000000"
-                IsVisible="{Binding IsLoading}"
-                ZIndex="100">
-            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="16">
-                <TextBlock Text="&#xf110;" Classes="fa-icon" FontSize="48"
-                           Foreground="{DynamicResource SystemAccentColor}"
-                           HorizontalAlignment="Center">
-                    <TextBlock.Styles>
-                        <Style Selector="TextBlock">
-                            <Style.Animations>
-                                <Animation Duration="0:0:1" IterationCount="Infinite">
-                                    <KeyFrame Cue="0%">
-                                        <Setter Property="RotateTransform.Angle" Value="0" />
-                                    </KeyFrame>
-                                    <KeyFrame Cue="100%">
-                                        <Setter Property="RotateTransform.Angle" Value="360" />
-                                    </KeyFrame>
-                                </Animation>
-                            </Style.Animations>
-                        </Style>
-                    </TextBlock.Styles>
-                </TextBlock>
-                <TextBlock Text="{x:Static loc:GuiLocalizationString.import_loading}"
-                           FontSize="16" Foreground="White"
-                           HorizontalAlignment="Center" />
-            </StackPanel>
-        </Border>
-
-        <!-- Bottom buttons -->
-        <Border Grid.Row="1" Padding="16,12"
-                Background="{DynamicResource CardBackgroundFillColorDefaultBrush}">
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="12">
-                <Button Padding="20,8" Click="OnCancelClick"
-                        IsEnabled="{Binding !IsLoading}"
-                        IsVisible="{Binding !IsLoading}">
-                    <StackPanel Orientation="Horizontal" Spacing="6">
-                        <TextBlock Text="&#xf060;" Classes="fa-icon"
-                                   FontSize="13" VerticalAlignment="Center" />
-                        <TextBlock Text="{x:Static loc:GuiLocalizationString.btn_back}" />
-                    </StackPanel>
-                </Button>
-                <Button Classes="accent" Padding="24,8" FontSize="14"
-                        Content="{x:Static loc:GuiLocalizationString.import_options_confirm}"
-                        Click="OnConfirmClick"
-                        IsEnabled="{Binding !IsLoading}"
-                        IsVisible="{Binding !IsLoading}" />
-                <Button Padding="24,8" FontSize="14"
-                        Content="{x:Static loc:GuiLocalizationString.btn_cancel}"
-                        Click="OnCancelImportClick"
-                        IsVisible="{Binding IsLoading}" />
-            </StackPanel>
+        <Border Background="{DynamicResource OverlayBrush}" IsVisible="{Binding IsLoading}" ZIndex="100">
+            <Border Classes="card" Padding="32" MinWidth="320"
+                    HorizontalAlignment="Center" VerticalAlignment="Center">
+                <StackPanel Spacing="16">
+                    <ProgressBar IsIndeterminate="True" Height="6" />
+                    <TextBlock Text="{x:Static loc:GuiLocalizationString.import_loading}"
+                               FontSize="16" FontWeight="SemiBold" HorizontalAlignment="Center" />
+                    <Button Classes="secondary" Content="{x:Static loc:GuiLocalizationString.btn_cancel}"
+                            Click="OnCancelImportClick" HorizontalAlignment="Center" />
+                </StackPanel>
+            </Border>
         </Border>
     </Grid>
 </UserControl>

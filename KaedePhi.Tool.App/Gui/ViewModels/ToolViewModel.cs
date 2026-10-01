@@ -121,6 +121,7 @@ public sealed class ToolViewModel : INotifyPropertyChanged
             OnPropertyChanged(nameof(ShowMergeTolerance));
             OnPropertyChanged(nameof(ShowClassicMode));
             OnPropertyChanged(nameof(ShowDisableCompress));
+            OnPropertyChanged(nameof(ShowGeneralOptions));
             OnPropertyChanged(nameof(ShowRenderOptions));
             OnPropertyChanged(nameof(ShowFitOptions));
             OnPropertyChanged(nameof(DisableCompressEnabled));
@@ -282,6 +283,12 @@ public sealed class ToolViewModel : INotifyPropertyChanged
     public bool ShowMergeTolerance => SelectedTool?.HasMergeTolerance == true;
     public bool ShowClassicMode => SelectedTool?.HasClassicMode == true;
     public bool ShowDisableCompress => SelectedTool?.HasDisableCompress == true;
+    public bool ShowGeneralOptions =>
+        ShowPrecision
+        || ShowTolerance
+        || ShowMergeTolerance
+        || ShowClassicMode
+        || ShowDisableCompress;
     public bool ShowRenderOptions => SelectedTool?.HasRenderOptions == true;
     public bool ShowFitOptions => SelectedTool?.HasFitOptions == true;
 
@@ -289,14 +296,11 @@ public sealed class ToolViewModel : INotifyPropertyChanged
 
     public event Action? RequestRun;
     public event Action? RequestExport;
-    public event Action? RequestSettings;
     public event Action? RequestReturnToImport;
 
     public void OnRunClicked() => RequestRun?.Invoke();
 
     public void OnExportClicked() => RequestExport?.Invoke();
-
-    public void OnSettingsClicked() => RequestSettings?.Invoke();
 
     public void OnReturnToImportClicked() => RequestReturnToImport?.Invoke();
 

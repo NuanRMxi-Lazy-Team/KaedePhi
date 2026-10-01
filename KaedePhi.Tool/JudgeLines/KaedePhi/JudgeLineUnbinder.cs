@@ -10,9 +10,7 @@ namespace KaedePhi.Tool.JudgeLines.KaedePhi;
 /// 已弃用的 KPC 判定线父子解绑器，行为与 <see cref="Intermediate.JudgeLineUnbinder"/> 一致。
 /// </summary>
 [Obsolete("已弃用：请迁移至 KaedePhi.Tool.JudgeLines.Intermediate.JudgeLineUnbinder。")]
-public class JudgeLineUnbinder
-    : Intermediate.JudgeLineUnbinder,
-        IJudgeLineUnbinder<Kpc.JudgeLine>
+public class JudgeLineUnbinder : Intermediate.JudgeLineUnbinder, IJudgeLineUnbinder<Kpc.JudgeLine>
 {
     /// <summary>
     /// 使用等间隔采样将判定线与父判定线解绑。

@@ -1,6 +1,6 @@
 using System.Linq;
-using KaedePhi.Core.Primitives;
 using KaedePhi.Core.Intermediate.Model;
+using KaedePhi.Core.Primitives;
 using IrEvents = KaedePhi.Core.Intermediate.Model.Events;
 
 namespace KaedePhi.Tests.Event;
@@ -300,16 +300,10 @@ public class EventOverlapBehaviorTests
         IrEvents.EventLayer.GetValueAtBeat(events, Beat(1)).Should().BeApproximately(10.0, 1e-6);
 
         // During B: B active (B at beat 3: t=(3-2)/(5-2)=1/3, 200→300 → 233.33)
-        IrEvents
-            .EventLayer.GetValueAtBeat(events, Beat(3))
-            .Should()
-            .BeApproximately(233.33, 0.01);
+        IrEvents.EventLayer.GetValueAtBeat(events, Beat(3)).Should().BeApproximately(233.33, 0.01);
 
         // During C: C active (C at beat 5: t=(5-4)/(7-4)=1/3, 500→600 → 533.33)
-        IrEvents
-            .EventLayer.GetValueAtBeat(events, Beat(5))
-            .Should()
-            .BeApproximately(533.33, 0.01);
+        IrEvents.EventLayer.GetValueAtBeat(events, Beat(5)).Should().BeApproximately(533.33, 0.01);
 
         // After C ends: hold C.EndValue = 600
         IrEvents.EventLayer.GetValueAtBeat(events, Beat(8)).Should().BeApproximately(600.0, 1e-6);
@@ -336,10 +330,7 @@ public class EventOverlapBehaviorTests
         IrEvents.EventLayer.GetValueAtBeat(events, Beat(4)).Should().BeApproximately(240.0, 1e-6);
 
         // After B ends: hold B.EndValue = 400
-        IrEvents
-            .EventLayer.GetValueAtBeat(events, Beat(10))
-            .Should()
-            .BeApproximately(400.0, 1e-6);
+        IrEvents.EventLayer.GetValueAtBeat(events, Beat(10)).Should().BeApproximately(400.0, 1e-6);
     }
 
     #endregion

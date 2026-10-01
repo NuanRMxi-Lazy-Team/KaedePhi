@@ -5,8 +5,8 @@ using KaedePhi.Tool.Event.Intermediate;
 using KaedePhi.Tool.Layer.Intermediate;
 using IrEventLayer = KaedePhi.Core.Intermediate.Model.Events.EventLayer;
 using PhigrosEvent = KaedePhi.Core.Formats.Phigros.v3.Model.Event;
-using PhigrosSpeedEvent = KaedePhi.Core.Formats.Phigros.v3.Model.SpeedEvent;
 using PhigrosJudgeLine = KaedePhi.Core.Formats.Phigros.v3.Model.JudgeLine;
+using PhigrosSpeedEvent = KaedePhi.Core.Formats.Phigros.v3.Model.SpeedEvent;
 
 namespace KaedePhi.Tool.Converter.Phigros.v3.Utils;
 
@@ -28,9 +28,7 @@ public class PhigrosV3EventBuilder
     private readonly PhigrosV3TimeMapper? _timeMapper;
 
     public PhigrosV3EventBuilder(IrToPhigrosV3ConvertOptions options, Action<string>? warnLogger)
-        : this(options, warnLogger, null)
-    {
-    }
+        : this(options, warnLogger, null) { }
 
     internal PhigrosV3EventBuilder(
         IrToPhigrosV3ConvertOptions options,
@@ -94,11 +92,7 @@ public class PhigrosV3EventBuilder
 
     #region 移动事件
 
-    private void ConvertMoveEvents(
-        PhigrosJudgeLine target,
-        IrEventLayer layer,
-        float bpmFactor
-    )
+    private void ConvertMoveEvents(PhigrosJudgeLine target, IrEventLayer layer, float bpmFactor)
     {
         var xEvents = layer.MoveXEvents ?? [];
         var yEvents = layer.MoveYEvents ?? [];
@@ -154,7 +148,7 @@ public class PhigrosV3EventBuilder
         double xEnd,
         double yStart,
         double yEnd
-        )> MergeAndFill(
+    )> MergeAndFill(
         List<IrEvents.Event<double>> xEvents,
         List<IrEvents.Event<double>> yEvents,
         double defaultValue

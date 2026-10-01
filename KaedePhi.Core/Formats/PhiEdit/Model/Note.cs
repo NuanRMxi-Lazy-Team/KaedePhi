@@ -52,28 +52,29 @@ namespace KaedePhi.Core.Formats.PhiEdit.Model
 
             var aboveNumber = Above ? aboveNote : belowNote;
             var isFakeNumber = IsFake ? fakeNote : realNote;
-            var noteLine = Type == NoteType.Hold
-                ? string.Format(
-                    CultureInfo.InvariantCulture,
-                    "{0} {1} {2} {3} {4} {5} {6}",
-                    $"n{(int)Type}",
-                    judgeLineIndex,
-                    StartBeat,
-                    EndBeat,
-                    PositionX,
-                    aboveNumber,
-                    isFakeNumber
-                )
-                : string.Format(
-                    CultureInfo.InvariantCulture,
-                    "{0} {1} {2} {3} {4} {5}",
-                    $"n{(int)Type}",
-                    judgeLineIndex,
-                    StartBeat,
-                    PositionX,
-                    aboveNumber,
-                    isFakeNumber
-                );
+            var noteLine =
+                Type == NoteType.Hold
+                    ? string.Format(
+                        CultureInfo.InvariantCulture,
+                        "{0} {1} {2} {3} {4} {5} {6}",
+                        $"n{(int)Type}",
+                        judgeLineIndex,
+                        StartBeat,
+                        EndBeat,
+                        PositionX,
+                        aboveNumber,
+                        isFakeNumber
+                    )
+                    : string.Format(
+                        CultureInfo.InvariantCulture,
+                        "{0} {1} {2} {3} {4} {5}",
+                        $"n{(int)Type}",
+                        judgeLineIndex,
+                        StartBeat,
+                        PositionX,
+                        aboveNumber,
+                        isFakeNumber
+                    );
 
             return (
                 noteLine,

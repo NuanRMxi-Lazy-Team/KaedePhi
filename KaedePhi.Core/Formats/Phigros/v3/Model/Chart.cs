@@ -22,7 +22,7 @@ namespace KaedePhi.Core.Formats.Phigros.v3.Model
         /// </summary>
         [JsonProperty("judgeLineList")]
         public List<JudgeLine> JudgeLineList { get; set; } = new();
-        
+
         /// <summary>
         /// 尚不明确的字段，在行为确定之前，无任何有效注解可以提供
         /// </summary>
@@ -31,13 +31,14 @@ namespace KaedePhi.Core.Formats.Phigros.v3.Model
         /// <summary>
         /// 坐标系边界
         /// </summary>
-        public static Common.CoordinateSystem CoordinateSystem { get; } = new()
-        {
-            MaxX = 1f,
-            MinX = 0f,
-            MaxY = 1f,
-            MinY = 0f,
-            ClockwiseRotation = false
-        };
+        public static Common.CoordinateSystem CoordinateSystem { get; } =
+            new()
+            {
+                MaxX = 1f,
+                MinX = 0f,
+                MaxY = 1f,
+                MinY = 0f,
+                ClockwiseRotation = false,
+            };
     }
 }

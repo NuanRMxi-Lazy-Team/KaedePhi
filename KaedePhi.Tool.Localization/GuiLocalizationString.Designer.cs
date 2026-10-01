@@ -382,22 +382,22 @@ namespace KaedePhi.Tool.Localization {
                 return ResourceManager.GetString("convert_phichain_options", resourceCulture);
             }
         }
-
-        /// <summary>
-        ///   Looks up a localized string similar to 转换到 PhiFans 格式选项.
-        /// </summary>
-        public static string convert_phifans_options {
-            get {
-                return ResourceManager.GetString("convert_phifans_options", resourceCulture);
-            }
-        }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to 不连续节点向后推迟拍数精分（1 / x 拍）.
         /// </summary>
         public static string convert_phifans_discontinuity_precision {
             get {
                 return ResourceManager.GetString("convert_phifans_discontinuity_precision", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 转换到 PhiFans 格式选项.
+        /// </summary>
+        public static string convert_phifans_options {
+            get {
+                return ResourceManager.GetString("convert_phifans_options", resourceCulture);
             }
         }
         
@@ -1541,6 +1541,888 @@ namespace KaedePhi.Tool.Localization {
         public static string tool_unclear_content_warning {
             get {
                 return ResourceManager.GetString("tool_unclear_content_warning", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 刷新背景.
+        /// </summary>
+        public static string ui_background_refresh {
+            get {
+                return ResourceManager.GetString("ui_background_refresh", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 暂时无法刷新背景，请稍后再试。.
+        /// </summary>
+        public static string ui_background_refresh_failed {
+            get {
+                return ResourceManager.GetString("ui_background_refresh_failed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 刷新背景.
+        /// </summary>
+        public static string ui_background_refresh_hint {
+            get {
+                return ResourceManager.GetString("ui_background_refresh_hint", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 正在获取新背景….
+        /// </summary>
+        public static string ui_background_refreshing {
+            get {
+                return ResourceManager.GetString("ui_background_refreshing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 背景保存失败，请检查图片目录是否可写。.
+        /// </summary>
+        public static string ui_background_save_failed {
+            get {
+                return ResourceManager.GetString("ui_background_save_failed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 背景已保存：{0}.
+        /// </summary>
+        public static string ui_background_saved {
+            get {
+                return ResourceManager.GetString("ui_background_saved", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 当前没有可保存的背景图片。.
+        /// </summary>
+        public static string ui_background_unavailable {
+            get {
+                return ResourceManager.GetString("ui_background_unavailable", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 已载入谱面.
+        /// </summary>
+        public static string ui_chart_loaded {
+            get {
+                return ResourceManager.GetString("ui_chart_loaded", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 当前谱面.
+        /// </summary>
+        public static string ui_current_chart {
+            get {
+                return ResourceManager.GetString("ui_current_chart", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 根据目标格式显示相关选项，保持默认值即可完成常规导出。.
+        /// </summary>
+        public static string ui_export_advanced_desc {
+            get {
+                return ResourceManager.GetString("ui_export_advanced_desc", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 高级转换参数.
+        /// </summary>
+        public static string ui_export_advanced_title {
+            get {
+                return ResourceManager.GetString("ui_export_advanced_title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Alpha 事件切割精度.
+        /// </summary>
+        public static string ui_export_alpha_precision {
+            get {
+                return ResourceManager.GetString("ui_export_alpha_precision", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Alpha 容差（百分比）.
+        /// </summary>
+        public static string ui_export_alpha_tolerance {
+            get {
+                return ResourceManager.GetString("ui_export_alpha_tolerance", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 适用于多个目标格式的父子线与层级合并处理。.
+        /// </summary>
+        public static string ui_export_common_desc {
+            get {
+                return ResourceManager.GetString("ui_export_common_desc", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 通用处理.
+        /// </summary>
+        public static string ui_export_common_title {
+            get {
+                return ResourceManager.GetString("ui_export_common_title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 不连续节点拍数精分.
+        /// </summary>
+        public static string ui_export_discontinuity_precision {
+            get {
+                return ResourceManager.GetString("ui_export_discontinuity_precision", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 缓动截取切割精度.
+        /// </summary>
+        public static string ui_export_easing_cut_precision {
+            get {
+                return ResourceManager.GetString("ui_export_easing_cut_precision", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 第 03 步  /  输出.
+        /// </summary>
+        public static string ui_export_eyebrow {
+            get {
+                return ResourceManager.GetString("ui_export_eyebrow", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 回退 BPM.
+        /// </summary>
+        public static string ui_export_fallback_bpm {
+            get {
+                return ResourceManager.GetString("ui_export_fallback_bpm", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 合并容差.
+        /// </summary>
+        public static string ui_export_merge_tolerance {
+            get {
+                return ResourceManager.GetString("ui_export_merge_tolerance", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 多层级合并.
+        /// </summary>
+        public static string ui_export_multi_merge {
+            get {
+                return ResourceManager.GetString("ui_export_multi_merge", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 负透明度抬高步长.
+        /// </summary>
+        public static string ui_export_negative_step {
+            get {
+                return ResourceManager.GetString("ui_export_negative_step", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 控制缓动、透明度和速度事件的切割方式。.
+        /// </summary>
+        public static string ui_export_pe_desc {
+            get {
+                return ResourceManager.GetString("ui_export_pe_desc", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to PhiEdit 转换.
+        /// </summary>
+        public static string ui_export_pe_title {
+            get {
+                return ResourceManager.GetString("ui_export_pe_title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 按阶段控制父子线解绑、多层合并和缓动切割。.
+        /// </summary>
+        public static string ui_export_phichain_desc {
+            get {
+                return ResourceManager.GetString("ui_export_phichain_desc", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to PhiChain 转换.
+        /// </summary>
+        public static string ui_export_phichain_title {
+            get {
+                return ResourceManager.GetString("ui_export_phichain_title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to PhiFans 转换.
+        /// </summary>
+        public static string ui_export_phifans_title {
+            get {
+                return ResourceManager.GetString("ui_export_phifans_title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 目标格式没有 BPM 时使用回退值。.
+        /// </summary>
+        public static string ui_export_phigros_desc {
+            get {
+                return ResourceManager.GetString("ui_export_phigros_desc", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Phigros V3 转换.
+        /// </summary>
+        public static string ui_export_phigros_title {
+            get {
+                return ResourceManager.GetString("ui_export_phigros_title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 精度.
+        /// </summary>
+        public static string ui_export_precision {
+            get {
+                return ResourceManager.GetString("ui_export_precision", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to RePhiEdit 转换.
+        /// </summary>
+        public static string ui_export_rephiedit_title {
+            get {
+                return ResourceManager.GetString("ui_export_rephiedit_title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 选择目标格式，KaedePhi 会在保存前应用对应的转换规则。.
+        /// </summary>
+        public static string ui_export_result_desc {
+            get {
+                return ResourceManager.GetString("ui_export_result_desc", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 导出你的结果.
+        /// </summary>
+        public static string ui_export_result_title {
+            get {
+                return ResourceManager.GetString("ui_export_result_title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 保存时会自动补全目标格式需要的文件扩展名。.
+        /// </summary>
+        public static string ui_export_saved_hint {
+            get {
+                return ResourceManager.GetString("ui_export_saved_hint", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 源格式.
+        /// </summary>
+        public static string ui_export_source_format {
+            get {
+                return ResourceManager.GetString("ui_export_source_format", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 速度事件切割精度.
+        /// </summary>
+        public static string ui_export_speed_precision {
+            get {
+                return ResourceManager.GetString("ui_export_speed_precision", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 容差.
+        /// </summary>
+        public static string ui_export_tolerance {
+            get {
+                return ResourceManager.GetString("ui_export_tolerance", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 父子线解绑.
+        /// </summary>
+        public static string ui_export_unbind {
+            get {
+                return ResourceManager.GetString("ui_export_unbind", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to XY 事件切割精度.
+        /// </summary>
+        public static string ui_export_xy_precision {
+            get {
+                return ResourceManager.GetString("ui_export_xy_precision", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 把谱面文件拖到这里.
+        /// </summary>
+        public static string ui_import_drop_title {
+            get {
+                return ResourceManager.GetString("ui_import_drop_title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 第 01 步  /  开始.
+        /// </summary>
+        public static string ui_import_eyebrow {
+            get {
+                return ResourceManager.GetString("ui_import_eyebrow", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 或使用文件选择器打开本地文件.
+        /// </summary>
+        public static string ui_import_file_picker_desc {
+            get {
+                return ResourceManager.GetString("ui_import_file_picker_desc", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 从文件到结果，三步完成.
+        /// </summary>
+        public static string ui_import_flow_desc {
+            get {
+                return ResourceManager.GetString("ui_import_flow_desc", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 保存为目标格式.
+        /// </summary>
+        public static string ui_import_flow_export_desc {
+            get {
+                return ResourceManager.GetString("ui_import_flow_export_desc", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 导出结果.
+        /// </summary>
+        public static string ui_import_flow_export_title {
+            get {
+                return ResourceManager.GetString("ui_import_flow_export_title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 自动检测谱面格式.
+        /// </summary>
+        public static string ui_import_flow_import_desc {
+            get {
+                return ResourceManager.GetString("ui_import_flow_import_desc", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 导入并识别.
+        /// </summary>
+        public static string ui_import_flow_import_title {
+            get {
+                return ResourceManager.GetString("ui_import_flow_import_title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 处理流程.
+        /// </summary>
+        public static string ui_import_flow_title {
+            get {
+                return ResourceManager.GetString("ui_import_flow_title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 选择工具并调整参数.
+        /// </summary>
+        public static string ui_import_flow_tool_desc {
+            get {
+                return ResourceManager.GetString("ui_import_flow_tool_desc", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 处理谱面.
+        /// </summary>
+        public static string ui_import_flow_tool_title {
+            get {
+                return ResourceManager.GetString("ui_import_flow_tool_title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 帧转事件持续拍长度.
+        /// </summary>
+        public static string ui_import_frame_duration {
+            get {
+                return ResourceManager.GetString("ui_import_frame_duration", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 数值越大，事件数量越少.
+        /// </summary>
+        public static string ui_import_frame_duration_desc {
+            get {
+                return ResourceManager.GetString("ui_import_frame_duration_desc", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to KaedePhi 会自动识别格式，并把后续操作整理成清晰的工作流。.
+        /// </summary>
+        public static string ui_import_hero_desc {
+            get {
+                return ResourceManager.GetString("ui_import_hero_desc", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 导入一份谱面，开始处理.
+        /// </summary>
+        public static string ui_import_hero_title {
+            get {
+                return ResourceManager.GetString("ui_import_hero_title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 大文件可以启用流式加载，降低一次性占用的内存。.
+        /// </summary>
+        public static string ui_import_load_mode_desc {
+            get {
+                return ResourceManager.GetString("ui_import_load_mode_desc", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 加载方式.
+        /// </summary>
+        public static string ui_import_load_mode_title {
+            get {
+                return ResourceManager.GetString("ui_import_load_mode_title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 把帧数据转换为事件时使用的采样精度。.
+        /// </summary>
+        public static string ui_import_pe_desc {
+            get {
+                return ResourceManager.GetString("ui_import_pe_desc", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to PhiEdit 导入.
+        /// </summary>
+        public static string ui_import_pe_title {
+            get {
+                return ResourceManager.GetString("ui_import_pe_title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 当源格式不支持某些缓动时，使用采样切割近似。.
+        /// </summary>
+        public static string ui_import_phichain_desc {
+            get {
+                return ResourceManager.GetString("ui_import_phichain_desc", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to PhiChain 导入.
+        /// </summary>
+        public static string ui_import_phichain_title {
+            get {
+                return ResourceManager.GetString("ui_import_phichain_title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 导入后先检查格式，再选择工具或直接导出。所有参数都会保留在当前会话中。.
+        /// </summary>
+        public static string ui_import_recommended_desc {
+            get {
+                return ResourceManager.GetString("ui_import_recommended_desc", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 推荐流程.
+        /// </summary>
+        public static string ui_import_recommended_title {
+            get {
+                return ResourceManager.GetString("ui_import_recommended_title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 尾部拍填充量.
+        /// </summary>
+        public static string ui_import_trailing_padding {
+            get {
+                return ResourceManager.GetString("ui_import_trailing_padding", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 避免谱面尾部被截断.
+        /// </summary>
+        public static string ui_import_trailing_padding_desc {
+            get {
+                return ResourceManager.GetString("ui_import_trailing_padding_desc", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 选择目标格式.
+        /// </summary>
+        public static string ui_nav_export_desc {
+            get {
+                return ResourceManager.GetString("ui_nav_export_desc", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 导出结果.
+        /// </summary>
+        public static string ui_nav_export_title {
+            get {
+                return ResourceManager.GetString("ui_nav_export_title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 选择并识别文件.
+        /// </summary>
+        public static string ui_nav_import_desc {
+            get {
+                return ResourceManager.GetString("ui_nav_import_desc", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 导入谱面.
+        /// </summary>
+        public static string ui_nav_import_title {
+            get {
+                return ResourceManager.GetString("ui_nav_import_title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 选择操作并运行.
+        /// </summary>
+        public static string ui_nav_tool_desc {
+            get {
+                return ResourceManager.GetString("ui_nav_tool_desc", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 处理工具.
+        /// </summary>
+        public static string ui_nav_tool_title {
+            get {
+                return ResourceManager.GetString("ui_nav_tool_title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 检测到格式.
+        /// </summary>
+        public static string ui_options_detected_format {
+            get {
+                return ResourceManager.GetString("ui_options_detected_format", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 格式检测完成，可以继续。.
+        /// </summary>
+        public static string ui_options_detected_ready {
+            get {
+                return ResourceManager.GetString("ui_options_detected_ready", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 准备导入.
+        /// </summary>
+        public static string ui_options_eyebrow {
+            get {
+                return ResourceManager.GetString("ui_options_eyebrow", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 文件.
+        /// </summary>
+        public static string ui_options_file {
+            get {
+                return ResourceManager.GetString("ui_options_file", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 通常可以直接使用推荐值，只有需要控制转换精度时才调整这里。.
+        /// </summary>
+        public static string ui_options_hint {
+            get {
+                return ResourceManager.GetString("ui_options_hint", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 确认识别结果和必要的导入参数后，KaedePhi 会建立可编辑的中间谱面。.
+        /// </summary>
+        public static string ui_options_summary_desc {
+            get {
+                return ResourceManager.GetString("ui_options_summary_desc", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 检查文件信息.
+        /// </summary>
+        public static string ui_options_summary_title {
+            get {
+                return ResourceManager.GetString("ui_options_summary_title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 处理完成.
+        /// </summary>
+        public static string ui_processing_completed {
+            get {
+                return ResourceManager.GetString("ui_processing_completed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 请保持窗口打开，处理完成后可以继续下一步。.
+        /// </summary>
+        public static string ui_processing_keep_open {
+            get {
+                return ResourceManager.GetString("ui_processing_keep_open", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 推荐值：64.
+        /// </summary>
+        public static string ui_recommended_64 {
+            get {
+                return ResourceManager.GetString("ui_recommended_64", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 把常用参数放在这里。保存后，它们会成为下一次处理和转换的起点。.
+        /// </summary>
+        public static string ui_settings_desc {
+            get {
+                return ResourceManager.GetString("ui_settings_desc", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 设置  /  默认值.
+        /// </summary>
+        public static string ui_settings_eyebrow {
+            get {
+                return ResourceManager.GetString("ui_settings_eyebrow", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 当前页面按任务分组参数。只需要调整你熟悉的部分，其余选项保持默认即可。.
+        /// </summary>
+        public static string ui_settings_hint_desc {
+            get {
+                return ResourceManager.GetString("ui_settings_hint_desc", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 更改会在点击保存设置后生效。.
+        /// </summary>
+        public static string ui_settings_hint_saved {
+            get {
+                return ResourceManager.GetString("ui_settings_hint_saved", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 配置提示.
+        /// </summary>
+        public static string ui_settings_hint_title {
+            get {
+                return ResourceManager.GetString("ui_settings_hint_title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 收起侧边栏.
+        /// </summary>
+        public static string ui_sidebar_collapse {
+            get {
+                return ResourceManager.GetString("ui_sidebar_collapse", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 展开侧边栏.
+        /// </summary>
+        public static string ui_sidebar_expand {
+            get {
+                return ResourceManager.GetString("ui_sidebar_expand", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 第 02 步  /  处理.
+        /// </summary>
+        public static string ui_tool_eyebrow {
+            get {
+                return ResourceManager.GetString("ui_tool_eyebrow", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 参数越精细，输出事件数量越多。先用推荐值试跑，再针对结果微调。.
+        /// </summary>
+        public static string ui_tool_file_tip {
+            get {
+                return ResourceManager.GetString("ui_tool_file_tip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 相邻事件层的合并阈值.
+        /// </summary>
+        public static string ui_tool_merge_tolerance_desc {
+            get {
+                return ResourceManager.GetString("ui_tool_merge_tolerance_desc", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 默认值适合大多数谱面；修改后只影响这次运行。.
+        /// </summary>
+        public static string ui_tool_options_desc {
+            get {
+                return ResourceManager.GetString("ui_tool_options_desc", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 参数.
+        /// </summary>
+        public static string ui_tool_options_eyebrow {
+            get {
+                return ResourceManager.GetString("ui_tool_options_eyebrow", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 先选择目标，再按需调整参数。.
+        /// </summary>
+        public static string ui_tool_page_desc {
+            get {
+                return ResourceManager.GetString("ui_tool_page_desc", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 选择处理工具.
+        /// </summary>
+        public static string ui_tool_page_title {
+            get {
+                return ResourceManager.GetString("ui_tool_page_title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 采样与切割使用的精度.
+        /// </summary>
+        public static string ui_tool_precision_desc {
+            get {
+                return ResourceManager.GetString("ui_tool_precision_desc", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 渲染设置.
+        /// </summary>
+        public static string ui_tool_render_title {
+            get {
+                return ResourceManager.GetString("ui_tool_render_title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 允许的相对误差范围.
+        /// </summary>
+        public static string ui_tool_tolerance_desc {
+            get {
+                return ResourceManager.GetString("ui_tool_tolerance_desc", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 工作区.
+        /// </summary>
+        public static string ui_workspace {
+            get {
+                return ResourceManager.GetString("ui_workspace", resourceCulture);
             }
         }
     }

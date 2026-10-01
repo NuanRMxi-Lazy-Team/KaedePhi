@@ -39,6 +39,11 @@ internal sealed class AppController
             _importController.ReturnToImport
         );
 
+        main.RequestImport += _importController.ReturnToImport;
+        main.RequestTools += _navigation.ShowTool;
+        main.RequestExport += _navigation.ShowExport;
+        main.RequestSettings += _navigation.ShowSettings;
+
         window.Closing += OnWindowClosing;
     }
 

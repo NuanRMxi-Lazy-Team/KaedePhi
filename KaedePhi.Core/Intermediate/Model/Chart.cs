@@ -10,14 +10,15 @@ namespace KaedePhi.Core.Intermediate.Model
         /// <summary>
         /// 坐标系边界
         /// </summary>
-        public static Common.CoordinateSystem CoordinateSystem { get; } = new()
-        {
-            MaxX = 1f,
-            MinX = -1f,
-            MaxY = 1f,
-            MinY = -1f,
-            ClockwiseRotation = false
-        };
+        public static Common.CoordinateSystem CoordinateSystem { get; } =
+            new()
+            {
+                MaxX = 1f,
+                MinX = -1f,
+                MaxY = 1f,
+                MinY = -1f,
+                ClockwiseRotation = false,
+            };
 
         /// <summary>
         /// BPM列表

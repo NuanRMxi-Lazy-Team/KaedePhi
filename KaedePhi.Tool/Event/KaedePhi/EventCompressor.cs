@@ -66,5 +66,8 @@ public class EventCompressor<TPayload>
     [Obsolete("已弃用：请迁移至 EventCompressor{TPayload}.RemoveUselessEvent。")]
     public List<KpcEvents.Event<TPayload>> RemoveUselessEvent(
         List<KpcEvents.Event<TPayload>>? events
-    ) => KpcCompatibilityMapper.ToKpc(base.RemoveUselessEvent(KpcCompatibilityMapper.ToIntermediate(events)))!;
+    ) =>
+        KpcCompatibilityMapper.ToKpc(
+            base.RemoveUselessEvent(KpcCompatibilityMapper.ToIntermediate(events))
+        )!;
 }

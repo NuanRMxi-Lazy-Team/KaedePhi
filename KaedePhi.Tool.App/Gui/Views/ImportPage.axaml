@@ -7,99 +7,101 @@
              DragDrop.AllowDrop="True"
              Background="Transparent">
 
-    <Grid>
-        <!-- 主内容（拖拽时模糊） -->
-        <Grid Name="ContentGrid">
-            <!-- 居中导入按钮 -->
-            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="20"
-                        IsVisible="{Binding !IsLoading}">
-                <Image Source="avares://KaedePhi.Tool.App/Assets/KaedePhiIcon.png"
-                       Width="120" Height="120"
-                       HorizontalAlignment="Center" />
-                <TextBlock Text="{x:Static loc:GuiLocalizationString.app_title}"
-                           FontSize="36" FontWeight="Bold"
-                           HorizontalAlignment="Center"
-                           Foreground="{DynamicResource SystemAccentColor}" />
-                <TextBlock Text="{x:Static loc:GuiLocalizationString.app_subtitle}"
-                           FontSize="14" Opacity="0.6"
-                           HorizontalAlignment="Center" />
-                <Button Classes="accent"
-                        HorizontalAlignment="Center"
-                        Padding="40,16"
-                        FontSize="16"
-                        Click="OnImportClick">
-                    <StackPanel Orientation="Horizontal" Spacing="10">
-                        <TextBlock Text="&#xf07c;" Classes="fa-icon" FontSize="20" />
-                        <TextBlock Text="{x:Static loc:GuiLocalizationString.import_button}" />
-                    </StackPanel>
-                </Button>
-                <TextBlock Text="{x:Static loc:GuiLocalizationString.import_drop_hint}"
-                           FontSize="12" Opacity="0.4"
-                           HorizontalAlignment="Center"
-                           IsVisible="{Binding !IsLoading}" />
-            </StackPanel>
-
-            <!-- 加载覆盖层 -->
-            <Border Background="#80000000"
-                    IsVisible="{Binding IsLoading}"
-                    ZIndex="100">
-                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="16">
-                    <TextBlock Text="&#xf110;" Classes="fa-icon" FontSize="48"
-                               Foreground="{DynamicResource SystemAccentColor}"
-                               HorizontalAlignment="Center">
-                        <TextBlock.Styles>
-                            <Style Selector="TextBlock">
-                                <Style.Animations>
-                                    <Animation Duration="0:0:1" IterationCount="Infinite">
-                                        <KeyFrame Cue="0%">
-                                            <Setter Property="RotateTransform.Angle" Value="0" />
-                                        </KeyFrame>
-                                        <KeyFrame Cue="100%">
-                                            <Setter Property="RotateTransform.Angle" Value="360" />
-                                        </KeyFrame>
-                                    </Animation>
-                                </Style.Animations>
-                            </Style>
-                        </TextBlock.Styles>
-                    </TextBlock>
-                    <TextBlock Text="{x:Static loc:GuiLocalizationString.import_loading}"
-                               FontSize="16" Foreground="White"
-                               HorizontalAlignment="Center" />
-                    <Button Content="{x:Static loc:GuiLocalizationString.btn_cancel}"
-                            HorizontalAlignment="Center"
-                            Click="OnCancelLoadingClick" />
+    <Grid Margin="34,30">
+        <ScrollViewer IsVisible="{Binding !IsLoading}" VerticalScrollBarVisibility="Auto"
+                      HorizontalScrollBarVisibility="Disabled">
+            <StackPanel Spacing="20" MaxWidth="860" HorizontalAlignment="Stretch">
+                <StackPanel Spacing="8">
+                    <TextBlock Text="{x:Static loc:GuiUiText.ui_import_eyebrow}" Classes="eyebrow" />
+                    <TextBlock Text="{x:Static loc:GuiUiText.ui_import_hero_title}" Classes="page-title" />
+                    <TextBlock Text="{x:Static loc:GuiUiText.ui_import_hero_desc}"
+                               Classes="muted" FontSize="14" TextWrapping="Wrap" />
                 </StackPanel>
-            </Border>
-        </Grid>
 
-        <!-- Drop 覆盖层：深色半透明背景 + 虚线边框，完全遮挡后方内容 -->
-        <Border Name="DropOverlay"
-                Background="#E6101020"
-                IsVisible="False"
-                ZIndex="200">
-            <Border BorderBrush="{DynamicResource SystemAccentColor}"
-                    BorderThickness="3"
-                    CornerRadius="16"
-                    Margin="24">
-                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="16">
-                    <TextBlock Text="&#xf019;" Classes="fa-icon" FontSize="56"
-                               Foreground="{DynamicResource SystemAccentColor}"
-                               HorizontalAlignment="Center" />
+                <Border Classes="card" Padding="24" MinHeight="260">
+                    <Grid RowDefinitions="*,Auto" Name="DropContent">
+                        <StackPanel Grid.Row="0" VerticalAlignment="Center" HorizontalAlignment="Center"
+                                    Spacing="14">
+                            <Border Width="68" Height="68" CornerRadius="20"
+                                    Background="{DynamicResource AccentDimBrush}"
+                                    HorizontalAlignment="Center">
+                                <TextBlock Text="&#xf093;" Classes="fa-icon" FontSize="28"
+                                           Foreground="{DynamicResource AccentBrush}"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center" />
+                            </Border>
+                            <TextBlock Text="{x:Static loc:GuiUiText.ui_import_drop_title}" FontSize="19"
+                                       FontWeight="SemiBold"
+                                       HorizontalAlignment="Center" TextWrapping="Wrap" TextAlignment="Center" />
+                            <TextBlock Text="{x:Static loc:GuiUiText.ui_import_file_picker_desc}" Classes="muted"
+                                       HorizontalAlignment="Center" TextWrapping="Wrap" TextAlignment="Center" />
+                            <Button Classes="import-action" Click="OnImportClick"
+                                    HorizontalAlignment="Center">
+                                <StackPanel Orientation="Horizontal" Spacing="9">
+                                    <TextBlock Text="&#xf07c;" Classes="fa-icon" FontSize="15" />
+                                    <TextBlock Text="{x:Static loc:GuiLocalizationString.import_button}" />
+                                </StackPanel>
+                            </Button>
+                        </StackPanel>
+                        <TextBlock Grid.Row="1" Text="{x:Static loc:GuiLocalizationString.import_drop_hint}"
+                                   Classes="muted" FontSize="11" HorizontalAlignment="Center"
+                                   VerticalAlignment="Center" Margin="0,22,0,0" />
+                    </Grid>
+                </Border>
+
+                <Border Classes="card" Padding="20,16">
+                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="20">
+                        <StackPanel Spacing="6">
+                            <TextBlock Text="{x:Static loc:GuiUiText.ui_import_load_mode_title}"
+                                       Classes="section-title" />
+                            <TextBlock Text="{x:Static loc:GuiUiText.ui_import_load_mode_desc}"
+                                       Classes="muted" FontSize="12" TextWrapping="Wrap" />
+                        </StackPanel>
+                        <ToggleSwitch Grid.Column="1"
+                                      Content="{x:Static loc:GuiLocalizationString.import_stream_loading}"
+                                      IsChecked="{Binding UseStream}" VerticalAlignment="Center" />
+                    </Grid>
+                </Border>
+
+                <Border Classes="note">
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="13">
+                        <TextBlock Text="&#xf05a;" Classes="fa-icon" FontSize="18"
+                                   Foreground="{DynamicResource AccentBrush}" />
+                        <StackPanel Grid.Column="1" Spacing="5">
+                            <TextBlock Text="{x:Static loc:GuiUiText.ui_import_recommended_title}"
+                                       FontWeight="SemiBold" />
+                            <TextBlock Text="{x:Static loc:GuiUiText.ui_import_recommended_desc}"
+                                       Classes="muted" FontSize="12" TextWrapping="Wrap" />
+                        </StackPanel>
+                    </Grid>
+                </Border>
+            </StackPanel>
+        </ScrollViewer>
+
+        <Border Name="DropOverlay" Background="{DynamicResource OverlayBrush}" IsVisible="False" ZIndex="200"
+                Margin="-34,-30">
+            <Border BorderBrush="{DynamicResource AccentBrush}" BorderThickness="2"
+                    CornerRadius="0" Margin="28">
+                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="14">
+                    <TextBlock Text="&#xf019;" Classes="fa-icon" FontSize="48"
+                               Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" />
                     <TextBlock Text="{x:Static loc:GuiLocalizationString.import_drop_active}"
-                               FontSize="20" FontWeight="SemiBold"
-                               Foreground="White"
-                               HorizontalAlignment="Center" />
+                               FontSize="20" FontWeight="SemiBold" HorizontalAlignment="Center" />
                 </StackPanel>
             </Border>
         </Border>
 
-        <!-- 右下角流式复选框 -->
-        <CheckBox Content="{x:Static loc:GuiLocalizationString.import_stream_loading}"
-                  IsChecked="{Binding UseStream}"
-                  IsVisible="{Binding !IsLoading}"
-                  HorizontalAlignment="Right"
-                  VerticalAlignment="Bottom"
-                  Margin="24"
-                  ZIndex="10" />
+        <Border Background="{DynamicResource OverlayBrush}" IsVisible="{Binding IsLoading}" ZIndex="300"
+                Margin="-34,-30">
+            <Border Classes="card" Padding="32" MinWidth="320"
+                    HorizontalAlignment="Center" VerticalAlignment="Center">
+                <StackPanel Spacing="16">
+                    <ProgressBar IsIndeterminate="True" Height="6" />
+                    <TextBlock Text="{x:Static loc:GuiLocalizationString.import_loading}"
+                               FontSize="16" FontWeight="SemiBold" HorizontalAlignment="Center" />
+                    <Button Classes="secondary" Content="{x:Static loc:GuiLocalizationString.btn_cancel}"
+                            Click="OnCancelLoadingClick" HorizontalAlignment="Center" />
+                </StackPanel>
+            </Border>
+        </Border>
     </Grid>
 </UserControl>

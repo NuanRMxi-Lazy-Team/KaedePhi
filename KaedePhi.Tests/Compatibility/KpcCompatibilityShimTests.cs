@@ -5,12 +5,12 @@ using KaedePhi.Tool.Common;
 using KaedePhi.Tool.Converter;
 using KaedePhi.Tool.Converter.RePhiEdit.Model;
 using KaedePhi.Tool.Render.KaedePhi;
+using IrChart = KaedePhi.Core.Intermediate.Model.Chart;
+using IrEvents = KaedePhi.Core.Intermediate.Model.Events;
 using Kpc = KaedePhi.Core.KaedePhi;
 using KpcCommon = KaedePhi.Core.Common;
 using KpcControls = KaedePhi.Core.KaedePhi.Controls;
 using KpcEvents = KaedePhi.Core.KaedePhi.Events;
-using IrChart = KaedePhi.Core.Intermediate.Model.Chart;
-using IrEvents = KaedePhi.Core.Intermediate.Model.Events;
 
 namespace KaedePhi.Tests.Compatibility;
 

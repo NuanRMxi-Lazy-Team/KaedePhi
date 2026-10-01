@@ -1,0 +1,110 @@
+namespace KaedePhi.Tool.Localization;
+
+public static class GuiUiText
+{
+    private static string Get(string key) =>
+        GuiLocalizationString.ResourceManager.GetString(key, GuiLocalizationString.Culture) ?? key;
+
+    public static string ui_workspace => Get(nameof(ui_workspace));
+    public static string ui_sidebar_collapse => Get(nameof(ui_sidebar_collapse));
+    public static string ui_sidebar_expand => Get(nameof(ui_sidebar_expand));
+    public static string ui_background_refresh => Get(nameof(ui_background_refresh));
+    public static string ui_background_refresh_hint => Get(nameof(ui_background_refresh_hint));
+    public static string ui_background_refreshing => Get(nameof(ui_background_refreshing));
+    public static string ui_background_refresh_failed => Get(nameof(ui_background_refresh_failed));
+    public static string ui_background_saved => Get(nameof(ui_background_saved));
+    public static string ui_background_save_failed => Get(nameof(ui_background_save_failed));
+    public static string ui_background_unavailable => Get(nameof(ui_background_unavailable));
+    public static string ui_nav_import_title => Get(nameof(ui_nav_import_title));
+    public static string ui_nav_import_desc => Get(nameof(ui_nav_import_desc));
+    public static string ui_nav_tool_title => Get(nameof(ui_nav_tool_title));
+    public static string ui_nav_tool_desc => Get(nameof(ui_nav_tool_desc));
+    public static string ui_nav_export_title => Get(nameof(ui_nav_export_title));
+    public static string ui_nav_export_desc => Get(nameof(ui_nav_export_desc));
+    public static string ui_current_chart => Get(nameof(ui_current_chart));
+    public static string ui_chart_loaded => Get(nameof(ui_chart_loaded));
+    public static string ui_import_eyebrow => Get(nameof(ui_import_eyebrow));
+    public static string ui_import_hero_title => Get(nameof(ui_import_hero_title));
+    public static string ui_import_hero_desc => Get(nameof(ui_import_hero_desc));
+    public static string ui_import_drop_title => Get(nameof(ui_import_drop_title));
+    public static string ui_import_file_picker_desc => Get(nameof(ui_import_file_picker_desc));
+    public static string ui_import_recommended_title => Get(nameof(ui_import_recommended_title));
+    public static string ui_import_recommended_desc => Get(nameof(ui_import_recommended_desc));
+    public static string ui_import_flow_title => Get(nameof(ui_import_flow_title));
+    public static string ui_import_flow_desc => Get(nameof(ui_import_flow_desc));
+    public static string ui_import_flow_import_title => Get(nameof(ui_import_flow_import_title));
+    public static string ui_import_flow_import_desc => Get(nameof(ui_import_flow_import_desc));
+    public static string ui_import_flow_tool_title => Get(nameof(ui_import_flow_tool_title));
+    public static string ui_import_flow_tool_desc => Get(nameof(ui_import_flow_tool_desc));
+    public static string ui_import_flow_export_title => Get(nameof(ui_import_flow_export_title));
+    public static string ui_import_flow_export_desc => Get(nameof(ui_import_flow_export_desc));
+    public static string ui_import_load_mode_title => Get(nameof(ui_import_load_mode_title));
+    public static string ui_import_load_mode_desc => Get(nameof(ui_import_load_mode_desc));
+    public static string ui_options_eyebrow => Get(nameof(ui_options_eyebrow));
+    public static string ui_options_summary_title => Get(nameof(ui_options_summary_title));
+    public static string ui_options_summary_desc => Get(nameof(ui_options_summary_desc));
+    public static string ui_options_detected_format => Get(nameof(ui_options_detected_format));
+    public static string ui_options_file => Get(nameof(ui_options_file));
+    public static string ui_options_detected_ready => Get(nameof(ui_options_detected_ready));
+    public static string ui_options_hint => Get(nameof(ui_options_hint));
+    public static string ui_import_pe_title => Get(nameof(ui_import_pe_title));
+    public static string ui_import_pe_desc => Get(nameof(ui_import_pe_desc));
+    public static string ui_import_frame_duration => Get(nameof(ui_import_frame_duration));
+    public static string ui_import_frame_duration_desc =>
+        Get(nameof(ui_import_frame_duration_desc));
+    public static string ui_import_trailing_padding => Get(nameof(ui_import_trailing_padding));
+    public static string ui_import_trailing_padding_desc =>
+        Get(nameof(ui_import_trailing_padding_desc));
+    public static string ui_import_phichain_title => Get(nameof(ui_import_phichain_title));
+    public static string ui_import_phichain_desc => Get(nameof(ui_import_phichain_desc));
+    public static string ui_recommended_64 => Get(nameof(ui_recommended_64));
+    public static string ui_tool_eyebrow => Get(nameof(ui_tool_eyebrow));
+    public static string ui_tool_page_title => Get(nameof(ui_tool_page_title));
+    public static string ui_tool_page_desc => Get(nameof(ui_tool_page_desc));
+    public static string ui_tool_file_tip => Get(nameof(ui_tool_file_tip));
+    public static string ui_tool_options_eyebrow => Get(nameof(ui_tool_options_eyebrow));
+    public static string ui_tool_options_desc => Get(nameof(ui_tool_options_desc));
+    public static string ui_tool_precision_desc => Get(nameof(ui_tool_precision_desc));
+    public static string ui_tool_tolerance_desc => Get(nameof(ui_tool_tolerance_desc));
+    public static string ui_tool_merge_tolerance_desc => Get(nameof(ui_tool_merge_tolerance_desc));
+    public static string ui_tool_render_title => Get(nameof(ui_tool_render_title));
+    public static string ui_export_eyebrow => Get(nameof(ui_export_eyebrow));
+    public static string ui_export_result_title => Get(nameof(ui_export_result_title));
+    public static string ui_export_result_desc => Get(nameof(ui_export_result_desc));
+    public static string ui_export_source_format => Get(nameof(ui_export_source_format));
+    public static string ui_export_saved_hint => Get(nameof(ui_export_saved_hint));
+    public static string ui_export_advanced_title => Get(nameof(ui_export_advanced_title));
+    public static string ui_export_advanced_desc => Get(nameof(ui_export_advanced_desc));
+    public static string ui_export_pe_title => Get(nameof(ui_export_pe_title));
+    public static string ui_export_pe_desc => Get(nameof(ui_export_pe_desc));
+    public static string ui_export_phigros_title => Get(nameof(ui_export_phigros_title));
+    public static string ui_export_phigros_desc => Get(nameof(ui_export_phigros_desc));
+    public static string ui_export_rephiedit_title => Get(nameof(ui_export_rephiedit_title));
+    public static string ui_export_phichain_title => Get(nameof(ui_export_phichain_title));
+    public static string ui_export_phichain_desc => Get(nameof(ui_export_phichain_desc));
+    public static string ui_export_phifans_title => Get(nameof(ui_export_phifans_title));
+    public static string ui_export_common_title => Get(nameof(ui_export_common_title));
+    public static string ui_export_common_desc => Get(nameof(ui_export_common_desc));
+    public static string ui_export_precision => Get(nameof(ui_export_precision));
+    public static string ui_export_tolerance => Get(nameof(ui_export_tolerance));
+    public static string ui_export_merge_tolerance => Get(nameof(ui_export_merge_tolerance));
+    public static string ui_export_xy_precision => Get(nameof(ui_export_xy_precision));
+    public static string ui_export_alpha_precision => Get(nameof(ui_export_alpha_precision));
+    public static string ui_export_alpha_tolerance => Get(nameof(ui_export_alpha_tolerance));
+    public static string ui_export_speed_precision => Get(nameof(ui_export_speed_precision));
+    public static string ui_export_fallback_bpm => Get(nameof(ui_export_fallback_bpm));
+    public static string ui_export_negative_step => Get(nameof(ui_export_negative_step));
+    public static string ui_export_discontinuity_precision =>
+        Get(nameof(ui_export_discontinuity_precision));
+    public static string ui_export_multi_merge => Get(nameof(ui_export_multi_merge));
+    public static string ui_export_unbind => Get(nameof(ui_export_unbind));
+    public static string ui_export_easing_cut_precision =>
+        Get(nameof(ui_export_easing_cut_precision));
+    public static string ui_processing_keep_open => Get(nameof(ui_processing_keep_open));
+    public static string ui_processing_completed => Get(nameof(ui_processing_completed));
+    public static string ui_settings_eyebrow => Get(nameof(ui_settings_eyebrow));
+    public static string ui_settings_desc => Get(nameof(ui_settings_desc));
+    public static string ui_settings_hint_title => Get(nameof(ui_settings_hint_title));
+    public static string ui_settings_hint_desc => Get(nameof(ui_settings_hint_desc));
+    public static string ui_settings_hint_saved => Get(nameof(ui_settings_hint_saved));
+}

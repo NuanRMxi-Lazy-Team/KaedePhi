@@ -550,4 +550,102 @@
   <data name="btn_cancel" xml:space="preserve">
     <value>取消</value>
   </data>
+  <data name="ui_workspace" xml:space="preserve"><value>工作區</value></data>
+  <data name="ui_nav_import_title" xml:space="preserve"><value>匯入譜面</value></data>
+  <data name="ui_nav_import_desc" xml:space="preserve"><value>選擇並偵測檔案</value></data>
+  <data name="ui_nav_tool_title" xml:space="preserve"><value>處理工具</value></data>
+  <data name="ui_nav_tool_desc" xml:space="preserve"><value>選擇操作並執行</value></data>
+  <data name="ui_nav_export_title" xml:space="preserve"><value>匯出結果</value></data>
+  <data name="ui_nav_export_desc" xml:space="preserve"><value>選擇目標格式</value></data>
+  <data name="ui_current_chart" xml:space="preserve"><value>目前譜面</value></data>
+  <data name="ui_chart_loaded" xml:space="preserve"><value>已載入譜面</value></data>
+  <data name="ui_import_eyebrow" xml:space="preserve"><value>第 01 步  /  開始</value></data>
+  <data name="ui_import_hero_title" xml:space="preserve"><value>匯入一份譜面，開始處理</value></data>
+  <data name="ui_import_hero_desc" xml:space="preserve"><value>KaedePhi 會自動偵測格式，並將後續操作整理成清晰的工作流程。</value></data>
+  <data name="ui_import_drop_title" xml:space="preserve"><value>將譜面檔案拖曳到這裡</value></data>
+  <data name="ui_import_file_picker_desc" xml:space="preserve"><value>或使用檔案選擇器開啟本機檔案</value></data>
+  <data name="ui_import_recommended_title" xml:space="preserve"><value>推薦流程</value></data>
+  <data name="ui_import_recommended_desc" xml:space="preserve"><value>匯入後先檢查格式，再選擇工具或直接匯出。所有參數都會保留在目前工作階段。</value></data>
+  <data name="ui_import_flow_title" xml:space="preserve"><value>處理流程</value></data>
+  <data name="ui_import_flow_desc" xml:space="preserve"><value>從檔案到結果，三步完成</value></data>
+  <data name="ui_import_flow_import_title" xml:space="preserve"><value>匯入並偵測</value></data>
+  <data name="ui_import_flow_import_desc" xml:space="preserve"><value>自動偵測譜面格式</value></data>
+  <data name="ui_import_flow_tool_title" xml:space="preserve"><value>處理譜面</value></data>
+  <data name="ui_import_flow_tool_desc" xml:space="preserve"><value>選擇工具並調整參數</value></data>
+  <data name="ui_import_flow_export_title" xml:space="preserve"><value>匯出結果</value></data>
+  <data name="ui_import_flow_export_desc" xml:space="preserve"><value>儲存為目標格式</value></data>
+  <data name="ui_import_load_mode_title" xml:space="preserve"><value>載入方式</value></data>
+  <data name="ui_import_load_mode_desc" xml:space="preserve"><value>大型檔案可以啟用串流載入，降低一次性使用的記憶體。</value></data>
+  <data name="ui_options_eyebrow" xml:space="preserve"><value>準備匯入</value></data>
+  <data name="ui_options_summary_title" xml:space="preserve"><value>檢查檔案資訊</value></data>
+  <data name="ui_options_summary_desc" xml:space="preserve"><value>確認偵測結果和必要的匯入參數後，KaedePhi 會建立可編輯的中間譜面。</value></data>
+  <data name="ui_options_detected_format" xml:space="preserve"><value>偵測到格式</value></data>
+  <data name="ui_options_file" xml:space="preserve"><value>檔案</value></data>
+  <data name="ui_options_detected_ready" xml:space="preserve"><value>格式偵測完成，可以繼續。</value></data>
+  <data name="ui_options_hint" xml:space="preserve"><value>通常可以直接使用推薦值，只有需要控制轉換精度時才調整這裡。</value></data>
+  <data name="ui_import_pe_title" xml:space="preserve"><value>PhiEdit 匯入</value></data>
+  <data name="ui_import_pe_desc" xml:space="preserve"><value>將影格資料轉換為事件時使用的取樣精度。</value></data>
+  <data name="ui_import_frame_duration" xml:space="preserve"><value>影格轉事件持續拍長度</value></data>
+  <data name="ui_import_frame_duration_desc" xml:space="preserve"><value>數值越大，事件數量越少</value></data>
+  <data name="ui_import_trailing_padding" xml:space="preserve"><value>尾部拍填充量</value></data>
+  <data name="ui_import_trailing_padding_desc" xml:space="preserve"><value>避免譜面尾部被截斷</value></data>
+  <data name="ui_import_phichain_title" xml:space="preserve"><value>PhiChain 匯入</value></data>
+  <data name="ui_import_phichain_desc" xml:space="preserve"><value>當來源格式不支援某些緩動時，使用取樣切割近似。</value></data>
+  <data name="ui_recommended_64" xml:space="preserve"><value>推薦值：64</value></data>
+  <data name="ui_tool_eyebrow" xml:space="preserve"><value>第 02 步  /  處理</value></data>
+  <data name="ui_tool_page_title" xml:space="preserve"><value>選擇處理工具</value></data>
+  <data name="ui_tool_page_desc" xml:space="preserve"><value>先選擇目標，再按需要調整參數。</value></data>
+  <data name="ui_tool_file_tip" xml:space="preserve"><value>參數越精細，輸出事件數量越多。先用推薦值試跑，再針對結果微調。</value></data>
+  <data name="ui_tool_options_eyebrow" xml:space="preserve"><value>參數</value></data>
+  <data name="ui_tool_options_desc" xml:space="preserve"><value>預設值適合大多數譜面；修改後只影響這次執行。</value></data>
+  <data name="ui_tool_precision_desc" xml:space="preserve"><value>取樣與切割使用的精度</value></data>
+  <data name="ui_tool_tolerance_desc" xml:space="preserve"><value>允許的相對誤差範圍</value></data>
+  <data name="ui_tool_merge_tolerance_desc" xml:space="preserve"><value>相鄰事件層的合併閾值</value></data>
+  <data name="ui_tool_render_title" xml:space="preserve"><value>渲染設定</value></data>
+  <data name="ui_export_eyebrow" xml:space="preserve"><value>第 03 步  /  輸出</value></data>
+  <data name="ui_export_result_title" xml:space="preserve"><value>匯出你的結果</value></data>
+  <data name="ui_export_result_desc" xml:space="preserve"><value>選擇目標格式，KaedePhi 會在儲存前套用對應的轉換規則。</value></data>
+  <data name="ui_export_source_format" xml:space="preserve"><value>來源格式</value></data>
+  <data name="ui_export_saved_hint" xml:space="preserve"><value>儲存時會自動補上目標格式需要的檔案副檔名。</value></data>
+  <data name="ui_export_advanced_title" xml:space="preserve"><value>進階轉換參數</value></data>
+  <data name="ui_export_advanced_desc" xml:space="preserve"><value>根據目標格式顯示相關選項，保持預設值即可完成一般匯出。</value></data>
+  <data name="ui_export_pe_title" xml:space="preserve"><value>PhiEdit 轉換</value></data>
+  <data name="ui_export_pe_desc" xml:space="preserve"><value>控制緩動、透明度和速度事件的切割方式。</value></data>
+  <data name="ui_export_phigros_title" xml:space="preserve"><value>Phigros V3 轉換</value></data>
+  <data name="ui_export_phigros_desc" xml:space="preserve"><value>目標格式沒有 BPM 時使用回退值。</value></data>
+  <data name="ui_export_rephiedit_title" xml:space="preserve"><value>RePhiEdit 轉換</value></data>
+  <data name="ui_export_phichain_title" xml:space="preserve"><value>PhiChain 轉換</value></data>
+  <data name="ui_export_phichain_desc" xml:space="preserve"><value>按階段控制父子線解綁、多層合併和緩動切割。</value></data>
+  <data name="ui_export_phifans_title" xml:space="preserve"><value>PhiFans 轉換</value></data>
+  <data name="ui_export_common_title" xml:space="preserve"><value>通用處理</value></data>
+  <data name="ui_export_common_desc" xml:space="preserve"><value>適用於多個目標格式的父子線與層級合併處理。</value></data>
+  <data name="ui_export_precision" xml:space="preserve"><value>精度</value></data>
+  <data name="ui_export_tolerance" xml:space="preserve"><value>容差</value></data>
+  <data name="ui_export_merge_tolerance" xml:space="preserve"><value>合併容差</value></data>
+  <data name="ui_export_xy_precision" xml:space="preserve"><value>XY 事件切割精度</value></data>
+  <data name="ui_export_alpha_precision" xml:space="preserve"><value>Alpha 事件切割精度</value></data>
+  <data name="ui_export_alpha_tolerance" xml:space="preserve"><value>Alpha 容差（百分比）</value></data>
+  <data name="ui_export_speed_precision" xml:space="preserve"><value>速度事件切割精度</value></data>
+  <data name="ui_export_fallback_bpm" xml:space="preserve"><value>回退 BPM</value></data>
+  <data name="ui_export_negative_step" xml:space="preserve"><value>負透明度抬高步長</value></data>
+  <data name="ui_export_discontinuity_precision" xml:space="preserve"><value>不連續節點拍數精分</value></data>
+  <data name="ui_export_multi_merge" xml:space="preserve"><value>多層級合併</value></data>
+  <data name="ui_export_unbind" xml:space="preserve"><value>父子線解綁</value></data>
+  <data name="ui_export_easing_cut_precision" xml:space="preserve"><value>緩動截取切割精度</value></data>
+  <data name="ui_processing_keep_open" xml:space="preserve"><value>請保持視窗開啟，處理完成後可以繼續下一步。</value></data>
+  <data name="ui_processing_completed" xml:space="preserve"><value>處理完成</value></data>
+  <data name="ui_settings_eyebrow" xml:space="preserve"><value>設定  /  預設值</value></data>
+  <data name="ui_settings_desc" xml:space="preserve"><value>將常用參數放在這裡。儲存後，它們會成為下一次處理和轉換的起點。</value></data>
+  <data name="ui_settings_hint_title" xml:space="preserve"><value>設定提示</value></data>
+  <data name="ui_settings_hint_desc" xml:space="preserve"><value>目前頁面按任務分組參數。只需要調整你熟悉的部分，其餘選項保持預設即可。</value></data>
+  <data name="ui_settings_hint_saved" xml:space="preserve"><value>變更會在點擊儲存設定後生效。</value></data>
+  <data name="ui_sidebar_collapse" xml:space="preserve"><value>收起側邊欄</value></data>
+  <data name="ui_sidebar_expand" xml:space="preserve"><value>展開側邊欄</value></data>
+  <data name="ui_background_refresh" xml:space="preserve"><value>重新整理背景</value></data>
+  <data name="ui_background_refresh_hint" xml:space="preserve"><value>重新整理背景</value></data>
+  <data name="ui_background_refreshing" xml:space="preserve"><value>正在取得新背景…</value></data>
+  <data name="ui_background_refresh_failed" xml:space="preserve"><value>暫時無法重新整理背景，請稍後再試。</value></data>
+  <data name="ui_background_saved" xml:space="preserve"><value>背景已儲存：{0}</value></data>
+  <data name="ui_background_save_failed" xml:space="preserve"><value>背景儲存失敗，請檢查圖片目錄是否可寫入。</value></data>
+  <data name="ui_background_unavailable" xml:space="preserve"><value>目前沒有可儲存的背景圖片。</value></data>
 </root>

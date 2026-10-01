@@ -4,7 +4,9 @@ using Newtonsoft.Json;
 
 namespace KaedePhi.Core.PhiChain.v6
 {
-    [System.Obsolete("已弃用：请迁移至 KaedePhi.Core.Formats.PhiChain.v6.Model 命名空间下的同名类型。")]
+    [System.Obsolete(
+        "已弃用：请迁移至 KaedePhi.Core.Formats.PhiChain.v6.Model 命名空间下的同名类型。"
+    )]
     public sealed partial class Chart
     {
         [JsonProperty("format")]
@@ -22,14 +24,15 @@ namespace KaedePhi.Core.PhiChain.v6
         /// <summary>
         /// 坐标系边界
         /// </summary>
-        public static Common.CoordinateSystem CoordinateSystem { get; } = new()
-        {
-            MaxX = 675f,
-            MinX = -675f,
-            MaxY = 450f,
-            MinY = -450f,
-            ClockwiseRotation = false,
-        };
+        public static Common.CoordinateSystem CoordinateSystem { get; } =
+            new()
+            {
+                MaxX = 675f,
+                MinX = -675f,
+                MaxY = 450f,
+                MinY = -450f,
+                ClockwiseRotation = false,
+            };
 
         /// <summary>
         /// 深克隆当前 Chart 对象
