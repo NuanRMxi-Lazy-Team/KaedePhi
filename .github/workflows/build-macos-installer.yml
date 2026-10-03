@@ -89,7 +89,7 @@ jobs:
               echo "::error::Missing universal native asset: $native_asset"
               return 1
             fi
-            if ! lipo -verify_arch arm64 x86_64 "$native_asset"; then
+            if ! lipo "$native_asset" -verify_arch arm64 x86_64; then
               echo "::error::The NuGet asset is not universal: $native_asset"
               return 1
             fi
@@ -116,11 +116,11 @@ jobs:
                   ;;
               esac
 
-              if ! lipo -verify_arch arm64 "$arm64_binary" >/dev/null 2>&1; then
+              if ! lipo "$arm64_binary" -verify_arch arm64 >/dev/null 2>&1; then
                 echo "::error::The osx-arm64 publish is missing the arm64 slice for $relative_path"
                 exit 1
               fi
-              if ! lipo -verify_arch x86_64 "$x64_binary" >/dev/null 2>&1; then
+              if ! lipo "$x64_binary" -verify_arch x86_64 >/dev/null 2>&1; then
                 echo "::error::The osx-x64 publish is missing the x86_64 slice for $relative_path"
                 exit 1
               fi
@@ -131,10 +131,10 @@ jobs:
               universal_binary="$bundle_binary.universal"
               binary_mode=$(stat -f '%Lp' "$bundle_binary")
 
-              lipo -thin arm64 "$arm64_binary" -output "$arm64_slice"
-              lipo -thin x86_64 "$x64_binary" -output "$x64_slice"
+              lipo "$arm64_binary" -thin arm64 -output "$arm64_slice"
+              lipo "$x64_binary" -thin x86_64 -output "$x64_slice"
               lipo -create "$arm64_slice" "$x64_slice" -output "$universal_binary"
-              lipo -verify_arch arm64 x86_64 "$universal_binary"
+              lipo "$universal_binary" -verify_arch arm64 x86_64
               chmod "$binary_mode" "$universal_binary"
               mv "$universal_binary" "$bundle_binary"
               rm "$arm64_slice" "$x64_slice"
@@ -154,7 +154,7 @@ jobs:
 
           while IFS= read -r -d '' bundle_binary; do
             if file -b "$bundle_binary" | grep -q 'Mach-O'; then
-              if ! lipo -verify_arch arm64 x86_64 "$bundle_binary"; then
+              if ! lipo "$bundle_binary" -verify_arch arm64 x86_64; then
                 echo "::error::The app bundle contains a non-universal binary: ${bundle_binary#"$macos_dir"/}"
                 exit 1
               fi
