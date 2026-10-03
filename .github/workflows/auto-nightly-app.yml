@@ -39,9 +39,7 @@ jobs:
           echo "version=${VERSION}+nightly.${HASH}" >> $GITHUB_OUTPUT
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v6.0.0
-        with:
-          dotnet-version: '10.0.400'
+        uses: ./.github/actions/setup-dotnet
 
       - name: Restore dependencies
         run: dotnet restore KaedePhi.Tool.App/KaedePhi.Tool.App.csproj --locked-mode

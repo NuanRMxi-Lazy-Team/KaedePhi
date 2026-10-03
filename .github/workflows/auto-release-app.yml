@@ -118,9 +118,7 @@ jobs:
 
       - name: Setup .NET
         if: steps.version.outputs.build_type != 'skip'
-        uses: actions/setup-dotnet@v6.0.0
-        with:
-          dotnet-version: '10.0.400'
+        uses: ./.github/actions/setup-dotnet
 
       - name: Build and publish App
         if: steps.version.outputs.build_type != 'skip'
