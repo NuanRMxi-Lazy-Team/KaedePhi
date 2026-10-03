@@ -27,12 +27,40 @@ XML 文档注释仅适用于**库项目**（KaedePhi.Core、KaedePhi.Tool）的�
 
 这些项目的公开接口（ViewModel 属性、Command 属性等）名字本身已自解释，仅需保留有意义的行间注释。
 
+对于非公开接口，不使用XML文档注释，而是使用行内注释进行逻辑说明。
+
 ### 禁止内容
 
 - 不得出现调用方无需知道的实现原理
 - 不得出现内部算法细节
 - 不得出现与调用无关的技术细节
 
+### 对于所有内容的禁止事项
+
+在某些场景下，用户可能会提供给你一些参考用项目，这些参考项目通常有自己的名称，但是通常情况下，你永远也不应该在调用方可直接看到的内容中直接输出参考项目名称。
+
+错误示范：
+```csharp
+/// <summary>
+/// 检查事件列表是否已按 StartBeat 升序排列，对齐phichain行为
+/// </summary>
+private static bool IsSortedByStartBeat(List<IrEvents.Event<TPayload>> events)
+{
+    ... 
+}
+```
+
+正确示范：
+```csharp
+/// <summary>
+/// 检查事件列表是否已按 StartBeat 升序排列。
+/// </summary>
+private static bool IsSortedByStartBeat(List<IrEvents.Event<TPayload>> events)
+{
+    // 此处相关代码来自于项目“phichain”
+    // 相关算法参考或代码誊抄已经过对应项目许可证LGPLv3授权，感谢原项目的贡献。
+}
+```
 ### 示例
 
 ```csharp
@@ -100,6 +128,45 @@ public float PhigrosDefaultBpm { get; set; } = 120f;
 #endregion
 ```
 
+## 代码文件规范
+枚举、类、结构等内容不得定义在同一个文件中，命名空间一定要与文件所在位置对齐。
+
+正确示范，一个位于KaedePhi.Core/Common/Unit.cs的文件：
+```csharp
+namespace KaedePhi.Core.Common
+{
+    /// <summary>
+    /// 单位转换工具类
+    /// </summary>
+    public static class Unit
+    {
+        // 实现细节...
+    }
+}
+```
+
+错误示范，一个位于KaedePhi.Core/Common/Unit.cs的文件：
+```csharp
+namespace KaedePhi.Core.Units
+{
+    /// <summary>
+    /// 单位转换工具类
+    /// </summary>
+    public static class Unit
+    {
+        // 实现细节...
+    }
+    
+    public enum HowToDo
+    {
+        Delete,
+        Keep,
+        ReWrite,
+        Ignore
+    }
+}
+```
+
 ## 检查清单
 
 在提交代码前，请检查：
@@ -112,3 +179,5 @@ public float PhigrosDefaultBpm { get; set; } = 120f;
 - [ ] 用词是否统一
 - [ ] 是否有破坏性更改未添加向前兼容
 - [ ] 是否有破坏性更改未在 commit 中明确说明
+- [ ] 单个文件中是否定义了多个枚举、类、结构等内容
+- [ ] 文件的命名空间是否与文件所在位置对齐

@@ -488,7 +488,7 @@
     <value>工具运行失败</value>
   </data>
   <data name="tool_unclear_content_warning" xml:space="preserve">
-    <value>您导入的谱面有到目前为止暂时尚不明确行为的内容，这些内容在行为明确之前，暂时无法进行任何处理。</value>
+    <value>您导入的谱面中有当前其它格式未定义的内容，在其它格式兼容之前，本程序无法对相关内容进行处理。</value>
   </data>
   <data name="export_success_title" xml:space="preserve">
     <value>导出成功</value>
