@@ -1,0 +1,149 @@
+name: Build macOS Universal Installer
+
+on:
+  workflow_call:
+    inputs:
+      version:
+        description: 应用版本号
+        required: true
+        type: string
+      configuration:
+        description: 构建配置
+        required: true
+        type: string
+      artifact_name:
+        description: 上传的构建产物名称
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  build-macos-installer:
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7.0.1
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v6.0.0
+        with:
+          dotnet-version: '10.0.400'
+
+      - name: Restore dependencies
+        run: dotnet restore KaedePhi.Tool.App/KaedePhi.Tool.App.csproj --locked-mode
+
+      - name: Publish macOS architectures
+        env:
+          CONFIGURATION: ${{ inputs.configuration }}
+        run: |
+          set -euo pipefail
+          project="KaedePhi.Tool.App/KaedePhi.Tool.App.csproj"
+          publish_dir="$RUNNER_TEMP/kaedephi-publish"
+
+          for runtime in osx-arm64 osx-x64; do
+            dotnet publish "$project" \
+              --configuration "$CONFIGURATION" \
+              --framework net10.0 \
+              --runtime "$runtime" \
+              --self-contained false \
+              --no-restore \
+              --output "$publish_dir/$runtime"
+          done
+
+      - name: Create universal macOS app and disk image
+        env:
+          APP_VERSION: ${{ inputs.version }}
+        run: |
+          set -euo pipefail
+          arm64_dir="$RUNNER_TEMP/kaedephi-publish/osx-arm64"
+          x64_dir="$RUNNER_TEMP/kaedephi-publish/osx-x64"
+          bundle_dir="$RUNNER_TEMP/KaedePhi.app"
+          contents_dir="$bundle_dir/Contents"
+          macos_dir="$contents_dir/MacOS"
+          resources_dir="$contents_dir/Resources"
+          version_number="${APP_VERSION%%+*}"
+
+          mkdir -p "$macos_dir" "$resources_dir"
+          cp -R "$arm64_dir/." "$macos_dir/"
+
+          while IFS= read -r -d '' arm64_binary; do
+            if file -b "$arm64_binary" | grep -q 'Mach-O'; then
+              relative_path="${arm64_binary#"$arm64_dir"/}"
+              x64_binary="$x64_dir/$relative_path"
+              if [ ! -f "$x64_binary" ] || ! file -b "$x64_binary" | grep -q 'Mach-O'; then
+                echo "::error::Missing x64 Mach-O counterpart for $relative_path"
+                exit 1
+              fi
+
+              universal_binary="$arm64_binary.universal"
+              lipo -create "$arm64_binary" "$x64_binary" -output "$universal_binary"
+              lipo -verify_arch arm64 x86_64 "$universal_binary"
+              mv "$universal_binary" "$arm64_binary"
+            fi
+          done < <(find "$arm64_dir" -type f -print0)
+
+          while IFS= read -r -d '' x64_binary; do
+            if file -b "$x64_binary" | grep -q 'Mach-O'; then
+              relative_path="${x64_binary#"$x64_dir"/}"
+              arm64_binary="$arm64_dir/$relative_path"
+              if [ ! -f "$arm64_binary" ] || ! file -b "$arm64_binary" | grep -q 'Mach-O'; then
+                echo "::error::Missing arm64 Mach-O counterpart for $relative_path"
+                exit 1
+              fi
+            fi
+          done < <(find "$x64_dir" -type f -print0)
+
+          chmod +x "$macos_dir/KaedePhi.Tool.App"
+          sips -s format icns KaedePhiIcon.png --out "$resources_dir/KaedePhiIcon.icns" >/dev/null
+          cat > "$contents_dir/Info.plist" <<EOF
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+            <key>CFBundleExecutable</key>
+            <string>KaedePhi.Tool.App</string>
+            <key>CFBundleIdentifier</key>
+            <string>com.nuanrstar.kaedephi</string>
+            <key>CFBundleName</key>
+            <string>KaedePhi</string>
+            <key>CFBundleDisplayName</key>
+            <string>KaedePhi</string>
+            <key>CFBundlePackageType</key>
+            <string>APPL</string>
+            <key>CFBundleShortVersionString</key>
+            <string>${version_number}</string>
+            <key>CFBundleVersion</key>
+            <string>${version_number}</string>
+            <key>CFBundleIconFile</key>
+            <string>KaedePhiIcon</string>
+            <key>NSPrincipalClass</key>
+            <string>NSApplication</string>
+            <key>NSHighResolutionCapable</key>
+            <true/>
+          </dict>
+          </plist>
+          EOF
+
+          dmg_root="$RUNNER_TEMP/kaedephi-dmg"
+          dmg_path="artifacts/macos/KaedePhi-${APP_VERSION}-macos-universal.dmg"
+          mkdir -p "$dmg_root" "$(dirname "$dmg_path")"
+          cp -R "$bundle_dir" "$dmg_root/"
+          ln -s /Applications "$dmg_root/Applications"
+          hdiutil create \
+            -volname "KaedePhi ${version_number}" \
+            -srcfolder "$dmg_root" \
+            -ov \
+            -format UDZO \
+            "$dmg_path"
+          hdiutil verify "$dmg_path"
+
+      - name: Upload macOS installer
+        uses: actions/upload-artifact@v7.0.1
+        with:
+          name: ${{ inputs.artifact_name }}
+          path: artifacts/macos/*.dmg
+          if-no-files-found: error
+          retention-days: 1

@@ -123,8 +123,16 @@ jobs:
           if-no-files-found: warn
           retention-days: 7
 
+  build-macos-installer:
+    needs: build-app
+    uses: ./.github/workflows/build-macos-installer.yml
+    with:
+      version: ${{ needs.build-app.outputs.version }}
+      configuration: Debug
+      artifact_name: app-nightly-macos-installer-${{ github.sha }}
+
   upload-nightly:
-    needs: [build-app, build-installer]
+    needs: [build-app, build-installer, build-macos-installer]
     runs-on: ubuntu-latest
 
     steps:
@@ -140,5 +148,6 @@ jobs:
           path: |
             ./artifacts/app-nightly-build-*/*.zip
             ./artifacts/app-nightly-installer-*/*.exe
+            ./artifacts/app-nightly-macos-installer-*/*.dmg
           if-no-files-found: warn
           retention-days: 7

@@ -12,7 +12,7 @@
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
     <ApplicationIcon>..\KaedePhiIcon.ico</ApplicationIcon>
     <!-- 发布工作流使用的 RID；声明后锁文件会包含对应依赖图，避免发布时隐式还原改写锁文件 -->
-    <RuntimeIdentifiers>win-x64;linux-x64</RuntimeIdentifiers>
+    <RuntimeIdentifiers>win-x64;linux-x64;osx-x64;osx-arm64</RuntimeIdentifiers>
     <DefineConstants Condition="'$(Configuration)' == 'Debug'"
       >$(DefineConstants);Debug</DefineConstants
     >

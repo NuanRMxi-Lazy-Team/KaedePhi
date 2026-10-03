@@ -210,8 +210,17 @@ jobs:
           if-no-files-found: error
           retention-days: 1
 
+  build-macos-installer:
+    needs: build-app
+    if: needs.build-app.outputs.build_type != 'skip'
+    uses: ./.github/workflows/build-macos-installer.yml
+    with:
+      version: ${{ needs.build-app.outputs.version }}
+      configuration: ${{ needs.build-app.outputs.build_type == 'release' && 'Release' || 'PreRelease' }}
+      artifact_name: app-macos-installer-${{ github.sha }}
+
   create-release:
-    needs: [test-app, build-app, build-installer]
+    needs: [test-app, build-app, build-installer, build-macos-installer]
     if: needs.build-app.outputs.build_type != 'skip'
     permissions:
       contents: write
@@ -282,7 +291,8 @@ jobs:
           echo "## 下载说明" >> "$NOTES_FILE"
           echo "" >> "$NOTES_FILE"
           echo "- **便携版**：下载 \`KaedePhi.Tool.App-net10.0-*-fdd.zip\`，解压后直接运行" >> "$NOTES_FILE"
-          echo "- **安装版**：下载 \`KaedePhi-${VERSION}.exe\` 安装程序" >> "$NOTES_FILE"
+          echo "- **Windows 安装版**：下载 \`KaedePhi-${VERSION}.exe\` 安装程序" >> "$NOTES_FILE"
+          echo "- **macOS 通用安装版**：下载 \`KaedePhi-${VERSION}-macos-universal.dmg\`，将应用拖入“应用程序”文件夹" >> "$NOTES_FILE"
 
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
