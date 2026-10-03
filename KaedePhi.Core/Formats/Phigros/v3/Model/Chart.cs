@@ -24,8 +24,9 @@ namespace KaedePhi.Core.Formats.Phigros.v3.Model
         public List<JudgeLine> JudgeLineList { get; set; } = new();
 
         /// <summary>
-        /// 尚不明确的字段，在行为确定之前，无任何有效注解可以提供
+        /// 方块区域列表；坐标和时间等字段遵循 Phigros v3 方块区域格式。
         /// </summary>
+        [JsonProperty("blockAreaList")]
         public List<BlockArea> BlockAreaList { get; set; } = new();
 
         /// <summary>
