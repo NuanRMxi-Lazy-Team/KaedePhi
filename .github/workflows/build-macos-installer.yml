@@ -126,18 +126,32 @@ jobs:
               fi
 
               bundle_binary="$macos_dir/$relative_path"
-              arm64_slice="$bundle_binary.arm64"
-              x64_slice="$bundle_binary.x86_64"
+              arm64_slice="$arm64_binary"
+              x64_slice="$x64_binary"
               universal_binary="$bundle_binary.universal"
               binary_mode=$(stat -f '%Lp' "$bundle_binary")
 
-              lipo "$arm64_binary" -thin arm64 -output "$arm64_slice"
-              lipo "$x64_binary" -thin x86_64 -output "$x64_slice"
+              arm64_archs=$(lipo "$arm64_binary" -archs)
+              if [ "$arm64_archs" != "arm64" ]; then
+                arm64_slice="$bundle_binary.arm64"
+                lipo "$arm64_binary" -thin arm64 -output "$arm64_slice"
+              fi
+              x64_archs=$(lipo "$x64_binary" -archs)
+              if [ "$x64_archs" != "x86_64" ]; then
+                x64_slice="$bundle_binary.x86_64"
+                lipo "$x64_binary" -thin x86_64 -output "$x64_slice"
+              fi
+
               lipo -create "$arm64_slice" "$x64_slice" -output "$universal_binary"
               lipo "$universal_binary" -verify_arch arm64 x86_64
               chmod "$binary_mode" "$universal_binary"
               mv "$universal_binary" "$bundle_binary"
-              rm "$arm64_slice" "$x64_slice"
+              if [ "$arm64_slice" != "$arm64_binary" ]; then
+                rm "$arm64_slice"
+              fi
+              if [ "$x64_slice" != "$x64_binary" ]; then
+                rm "$x64_slice"
+              fi
             fi
           done < <(find "$arm64_dir" -type f -print0)
 
