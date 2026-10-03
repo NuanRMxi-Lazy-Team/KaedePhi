@@ -32,9 +32,10 @@ nightly-app-build:
       runtimes=("win-x64" "linux-x64")
 
        VERSION=$(grep -oP '<Version>\K[^<]+' "$PROPS" 2>/dev/null || echo "0.0.0")
-      HASH=$(git rev-parse --short HEAD)
+      HASH=$(git rev-parse --short=7 HEAD)
       FULL_VERSION="${VERSION}+nightly.${HASH}"
-      echo "$FULL_VERSION" > nightly-version.txt
+       FILE_VERSION="${VERSION}-nightly-${HASH}"
+       echo "$FULL_VERSION" > nightly-version.txt
 
        mkdir -p "$output_dir"
 
@@ -51,7 +52,11 @@ nightly-app-build:
           -o "$output_dir/net10.0-$runtime"
 
         cd "$output_dir/net10.0-$runtime"
-        zip -r "../KaedePhi.Tool.App-nightly-net10.0-$runtime.zip" .
+        case "$runtime" in
+          win-x64) artifact_target="Windows-x64" ;;
+          linux-x64) artifact_target="Linux-x64" ;;
+        esac
+        zip -r "../KaedePhi-App-v${FILE_VERSION}-${artifact_target}-Portable.zip" .
         cd -
       done
   artifacts:
@@ -88,12 +93,14 @@ nightly-app-installer:
       $ErrorActionPreference = "Stop"
 
       $version = (Get-Content -Path "nightly-version.txt" -Raw).Trim()
-      $zipFile = "./artifacts/app/KaedePhi.Tool.App-nightly-net10.0-win-x64.zip"
+      $fileVersion = $version -replace '\+nightly\.', '-nightly-'
+      $zipFile = "./artifacts/app/KaedePhi-App-v$fileVersion-Windows-x64-Portable.zip"
       $publishDir = (Resolve-Path ".").Path + "\publish"
 
       Expand-Archive -Path $zipFile -DestinationPath $publishDir -Force
 
       $env:KAEPHI_VERSION = $version
+      $env:KAEPHI_FILE_VERSION = $fileVersion
       $env:KAEPHI_PROJECT_DIR = (Resolve-Path ".").Path
       $env:KAEPHI_PUBLISH_DIR = $publishDir
 

@@ -25,6 +25,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.version.outputs.version }}
+      file_version: ${{ steps.version.outputs.file_version }}
 
     steps:
       - name: Checkout code
@@ -35,8 +36,9 @@ jobs:
         run: |
           PROPS="Directory.Build.props"
           VERSION=$(grep -oP '<Version>\K[^<]+' "$PROPS" 2>/dev/null || echo "0.0.0")
-          HASH=$(git rev-parse --short HEAD)
+          HASH=$(git rev-parse --short=7 HEAD)
           echo "version=${VERSION}+nightly.${HASH}" >> $GITHUB_OUTPUT
+          echo "file_version=${VERSION}-nightly-${HASH}" >> $GITHUB_OUTPUT
 
       - name: Setup .NET
         uses: ./.github/actions/setup-dotnet
@@ -45,6 +47,8 @@ jobs:
         run: dotnet restore KaedePhi.Tool.App/KaedePhi.Tool.App.csproj --locked-mode
 
       - name: Build App (Debug / Nightly)
+        env:
+          FILE_VERSION: ${{ steps.version.outputs.file_version }}
         run: |
           CSPROJ="KaedePhi.Tool.App/KaedePhi.Tool.App.csproj"
           output_dir="./artifacts/app"
@@ -53,6 +57,10 @@ jobs:
           mkdir -p "$output_dir"
 
           for runtime in "${runtimes[@]}"; do
+            case "$runtime" in
+              win-x64) artifact_target="Windows-x64" ;;
+              linux-x64) artifact_target="Linux-x64" ;;
+            esac
             echo "Building net10.0 / $runtime (Debug)..."
             dotnet publish "$CSPROJ" \
               -c Debug \
@@ -63,14 +71,14 @@ jobs:
               -o "$output_dir/net10.0-$runtime"
 
             cd "$output_dir/net10.0-$runtime"
-            zip -r "../KaedePhi.Tool.App-nightly-net10.0-$runtime.zip" .
+            zip -r "../KaedePhi-App-v${FILE_VERSION}-${artifact_target}-Portable.zip" .
             cd -
           done
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v7.0.1
         with:
-          name: app-nightly-build-${{ github.sha }}
+          name: KaedePhi-App-Portable-${{ steps.version.outputs.file_version }}
           path: ./artifacts/app/*.zip
           if-no-files-found: warn
           retention-days: 1
@@ -86,20 +94,21 @@ jobs:
       - name: Download build artifacts
         uses: actions/download-artifact@v8.0.1
         with:
-          name: app-nightly-build-${{ github.sha }}
+          name: KaedePhi-App-Portable-${{ needs.build-app.outputs.file_version }}
           path: ./artifacts/app
 
       - name: Extract Windows build
         shell: pwsh
         run: |
           $version = "${{ needs.build-app.outputs.version }}"
-          $fullVersion = "$version+${{ github.sha }}"
-          $zipFile = "./artifacts/app/KaedePhi.Tool.App-nightly-net10.0-win-x64.zip"
+          $fileVersion = "${{ needs.build-app.outputs.file_version }}"
+          $zipFile = "./artifacts/app/KaedePhi-App-v$fileVersion-Windows-x64-Portable.zip"
           $publishDir = "./publish"
           
           Expand-Archive -Path $zipFile -DestinationPath $publishDir
           
-          echo "KAEPHI_VERSION=$fullVersion" >> $env:GITHUB_ENV
+          echo "KAEPHI_VERSION=$version" >> $env:GITHUB_ENV
+          echo "KAEPHI_FILE_VERSION=$fileVersion" >> $env:GITHUB_ENV
           echo "KAEPHI_PROJECT_DIR=$env:GITHUB_WORKSPACE" >> $env:GITHUB_ENV
           echo "KAEPHI_PUBLISH_DIR=$env:GITHUB_WORKSPACE\$publishDir" >> $env:GITHUB_ENV
 
@@ -116,7 +125,7 @@ jobs:
       - name: Upload installer artifact
         uses: actions/upload-artifact@v7.0.1
         with:
-          name: app-nightly-installer-${{ github.sha }}
+          name: KaedePhi-App-Windows-Installer-${{ needs.build-app.outputs.file_version }}
           path: ./setup/*.exe
           if-no-files-found: warn
           retention-days: 7
@@ -127,7 +136,7 @@ jobs:
     with:
       version: ${{ needs.build-app.outputs.version }}
       configuration: Debug
-      artifact_name: app-nightly-macos-installer-${{ github.sha }}
+      artifact_name: KaedePhi-App-macOS-Installers-${{ needs.build-app.outputs.file_version }}
 
   upload-nightly:
     needs: [build-app, build-installer, build-macos-installer]
@@ -142,10 +151,10 @@ jobs:
       - name: Upload nightly artifacts
         uses: actions/upload-artifact@v7.0.1
         with:
-          name: app-nightly-${{ github.sha }}
+          name: KaedePhi-App-Nightly-${{ needs.build-app.outputs.file_version }}
           path: |
-            ./artifacts/app-nightly-build-*/*.zip
-            ./artifacts/app-nightly-installer-*/*.exe
-            ./artifacts/app-nightly-macos-installer-*/*.dmg
+            ./artifacts/KaedePhi-App-Portable-*/*.zip
+            ./artifacts/KaedePhi-App-Windows-Installer-*/*.exe
+            ./artifacts/KaedePhi-App-macOS-Installers-*/*.dmg
           if-no-files-found: warn
           retention-days: 7

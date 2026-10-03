@@ -3,8 +3,9 @@
 ; Non-commercial use only
 
 ; 环境变量配置说明：
-;   KAEPHI_VERSION     - 应用版本号（必需），例如 "0.5.0" 或 "0.5.0+abc123def456..."
-;                        建议使用完整 commit hash 以保持与软件内部展示一致
+;   KAEPHI_VERSION     - 应用版本号（必需），例如 "0.5.0" 或 "0.5.0+abc1234"
+;                        建议使用 7 位短提交哈希以保持与软件内部展示一致
+;   KAEPHI_FILE_VERSION - 安装包文件名中的版本号（可选），默认使用 KAEPHI_VERSION
 ;   KAEPHI_PROJECT_DIR - 项目根目录（可选），用于定位 LICENSE、README 等文件，默认为脚本所在目录
 ;   KAEPHI_PUBLISH_DIR - 发布输出目录（必需），包含编译产物的目录
 
@@ -17,6 +18,11 @@
 #define MyAppVersion GetEnv("KAEPHI_VERSION")
 #if MyAppVersion == ""
   #error "环境变量 KAEPHI_VERSION 未设置，请设置版本号，例如 set KAEPHI_VERSION=0.5.0"
+#endif
+
+#define MyAppFileVersion GetEnv("KAEPHI_FILE_VERSION")
+#if MyAppFileVersion == ""
+  #define MyAppFileVersion MyAppVersion
 #endif
 
 ; 从环境变量获取项目根目录，默认为脚本所在目录
@@ -37,7 +43,7 @@
 AppId={{CE5E9518-27D0-44CC-925F-DDBAD2355D52}
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
-; 显示名称仅保留程序名，版本与 commit hash 只保存在版本字段中
+; 显示名称仅保留程序名，版本与提交哈希仅保存在版本字段中
 AppVerName={#MyAppName}
 AppPublisher={#MyAppPublisher}
 AppPublisherURL={#MyAppURL}
@@ -61,7 +67,7 @@ InfoBeforeFile={#ProjectDir}\README.md
 ;PrivilegesRequired=lowest
 PrivilegesRequiredOverridesAllowed=dialog
 OutputDir={#ProjectDir}\setup
-OutputBaseFilename=KaedePhi-{#MyAppVersion}
+OutputBaseFilename=KaedePhi-App-v{#MyAppFileVersion}-Windows-x64-Installer
 SetupIconFile={#ProjectDir}\KaedePhiIcon.ico
 SolidCompression=yes
 WizardStyle=modern dynamic
@@ -116,4 +122,3 @@ begin
       DelTree(ExpandConstant('{localappdata}\KaedePhi'), True, True, True);
   end;
 end;
-

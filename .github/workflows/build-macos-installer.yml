@@ -1,4 +1,4 @@
-name: Build macOS Universal Installer
+name: Build macOS Installers
 
 on:
   workflow_call:
@@ -51,133 +51,33 @@ jobs:
               --output "$publish_dir/$runtime"
           done
 
-      - name: Create universal macOS app and disk image
+      - name: Package architecture-specific macOS disk images
         env:
           APP_VERSION: ${{ inputs.version }}
         run: |
           set -euo pipefail
           arm64_dir="$RUNNER_TEMP/kaedephi-publish/osx-arm64"
           x64_dir="$RUNNER_TEMP/kaedephi-publish/osx-x64"
-          bundle_dir="$RUNNER_TEMP/KaedePhi.app"
-          contents_dir="$bundle_dir/Contents"
-          macos_dir="$contents_dir/MacOS"
-          resources_dir="$contents_dir/Resources"
           version_number="${APP_VERSION%%+*}"
+          file_version="${APP_VERSION/+nightly./-nightly-}"
+          mkdir -p artifacts/macos
 
-          mkdir -p "$macos_dir" "$resources_dir"
-          cp -R "$arm64_dir/." "$macos_dir/"
+          for runtime in osx-x64 osx-arm64; do
+            case "$runtime" in
+              osx-x64) architecture="x86_64" ;;
+              osx-arm64) architecture="arm64" ;;
+            esac
 
-          global_packages=$(dotnet nuget locals global-packages --list | sed 's/^global-packages: //')
-          restore_universal_native_asset() {
-            local package_id="$1"
-            local binary_name="$2"
-            local package_version
-            local package_dir
-            local native_asset
-
-            package_version=$(jq -r --arg package_id "$package_id" \
-              '.libraries | keys[] | select(startswith($package_id + "/")) | split("/")[1]' \
-              "$arm64_dir/KaedePhi.Tool.App.deps.json")
-            if [ -z "$package_version" ] || [ "$package_version" = "null" ]; then
-              echo "::error::Could not resolve $package_id from the app dependency manifest"
-              return 1
-            fi
-
-            package_dir=$(printf '%s' "$package_id" | tr '[:upper:]' '[:lower:]')
-            native_asset="$global_packages/$package_dir/$package_version/runtimes/osx/native/$binary_name"
-            if [ ! -f "$native_asset" ]; then
-              echo "::error::Missing universal native asset: $native_asset"
-              return 1
-            fi
-            if ! lipo "$native_asset" -verify_arch arm64 x86_64; then
-              echo "::error::The NuGet asset is not universal: $native_asset"
-              return 1
-            fi
-
-            cp -p "$native_asset" "$macos_dir/$binary_name"
-          }
-
-          restore_universal_native_asset "Avalonia.Native" "libAvaloniaNative.dylib"
-          restore_universal_native_asset "HarfBuzzSharp.NativeAssets.macOS" "libHarfBuzzSharp.dylib"
-          restore_universal_native_asset "SkiaSharp.NativeAssets.macOS" "libSkiaSharp.dylib"
-
-          while IFS= read -r -d '' arm64_binary; do
-            if file -b "$arm64_binary" | grep -q 'Mach-O'; then
-              relative_path="${arm64_binary#"$arm64_dir"/}"
-              x64_binary="$x64_dir/$relative_path"
-              if [ ! -f "$x64_binary" ] || ! file -b "$x64_binary" | grep -q 'Mach-O'; then
-                echo "::error::Missing x64 Mach-O counterpart for $relative_path"
-                exit 1
-              fi
-
-              case "$relative_path" in
-                libAvaloniaNative.dylib|libHarfBuzzSharp.dylib|libSkiaSharp.dylib)
-                  continue
-                  ;;
-              esac
-
-              if ! lipo "$arm64_binary" -verify_arch arm64 >/dev/null 2>&1; then
-                echo "::error::The osx-arm64 publish is missing the arm64 slice for $relative_path"
-                exit 1
-              fi
-              if ! lipo "$x64_binary" -verify_arch x86_64 >/dev/null 2>&1; then
-                echo "::error::The osx-x64 publish is missing the x86_64 slice for $relative_path"
-                exit 1
-              fi
-
-              bundle_binary="$macos_dir/$relative_path"
-              arm64_slice="$arm64_binary"
-              x64_slice="$x64_binary"
-              universal_binary="$bundle_binary.universal"
-              binary_mode=$(stat -f '%Lp' "$bundle_binary")
-
-              arm64_archs=$(lipo "$arm64_binary" -archs)
-              if [ "$arm64_archs" != "arm64" ]; then
-                arm64_slice="$bundle_binary.arm64"
-                lipo "$arm64_binary" -thin arm64 -output "$arm64_slice"
-              fi
-              x64_archs=$(lipo "$x64_binary" -archs)
-              if [ "$x64_archs" != "x86_64" ]; then
-                x64_slice="$bundle_binary.x86_64"
-                lipo "$x64_binary" -thin x86_64 -output "$x64_slice"
-              fi
-
-              lipo -create "$arm64_slice" "$x64_slice" -output "$universal_binary"
-              lipo "$universal_binary" -verify_arch arm64 x86_64
-              chmod "$binary_mode" "$universal_binary"
-              mv "$universal_binary" "$bundle_binary"
-              if [ "$arm64_slice" != "$arm64_binary" ]; then
-                rm "$arm64_slice"
-              fi
-              if [ "$x64_slice" != "$x64_binary" ]; then
-                rm "$x64_slice"
-              fi
-            fi
-          done < <(find "$arm64_dir" -type f -print0)
-
-          while IFS= read -r -d '' x64_binary; do
-            if file -b "$x64_binary" | grep -q 'Mach-O'; then
-              relative_path="${x64_binary#"$x64_dir"/}"
-              arm64_binary="$arm64_dir/$relative_path"
-              if [ ! -f "$arm64_binary" ] || ! file -b "$arm64_binary" | grep -q 'Mach-O'; then
-                echo "::error::Missing arm64 Mach-O counterpart for $relative_path"
-                exit 1
-              fi
-            fi
-          done < <(find "$x64_dir" -type f -print0)
-
-          while IFS= read -r -d '' bundle_binary; do
-            if file -b "$bundle_binary" | grep -q 'Mach-O'; then
-              if ! lipo "$bundle_binary" -verify_arch arm64 x86_64; then
-                echo "::error::The app bundle contains a non-universal binary: ${bundle_binary#"$macos_dir"/}"
-                exit 1
-              fi
-            fi
-          done < <(find "$macos_dir" -type f -print0)
-
-          chmod +x "$macos_dir/KaedePhi.Tool.App"
-          sips -s format icns KaedePhiIcon.png --out "$resources_dir/KaedePhiIcon.icns" >/dev/null
-          cat > "$contents_dir/Info.plist" <<EOF
+            bundle_dir="$RUNNER_TEMP/KaedePhi-$architecture/KaedePhi.app"
+            contents_dir="$bundle_dir/Contents"
+            macos_dir="$contents_dir/MacOS"
+            resources_dir="$contents_dir/Resources"
+            publish_dir="$RUNNER_TEMP/kaedephi-publish/$runtime"
+            mkdir -p "$macos_dir" "$resources_dir"
+            cp -R "$publish_dir/." "$macos_dir/"
+            chmod +x "$macos_dir/KaedePhi.Tool.App"
+            sips -s format icns KaedePhiIcon.png --out "$resources_dir/KaedePhiIcon.icns" >/dev/null
+            cat > "$contents_dir/Info.plist" <<EOF
           <?xml version="1.0" encoding="UTF-8"?>
           <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
           <plist version="1.0">
@@ -206,18 +106,19 @@ jobs:
           </plist>
           EOF
 
-          dmg_root="$RUNNER_TEMP/kaedephi-dmg"
-          dmg_path="artifacts/macos/KaedePhi-${APP_VERSION}-macos-universal.dmg"
-          mkdir -p "$dmg_root" "$(dirname "$dmg_path")"
-          cp -R "$bundle_dir" "$dmg_root/"
-          ln -s /Applications "$dmg_root/Applications"
-          hdiutil create \
-            -volname "KaedePhi ${version_number}" \
-            -srcfolder "$dmg_root" \
-            -ov \
-            -format UDZO \
-            "$dmg_path"
-          hdiutil verify "$dmg_path"
+            dmg_root="$RUNNER_TEMP/kaedephi-dmg-$architecture"
+            dmg_path="artifacts/macos/KaedePhi-App-v${file_version}-macOS-${architecture}-Installer.dmg"
+            mkdir -p "$dmg_root"
+            cp -R "$bundle_dir" "$dmg_root/"
+            ln -s /Applications "$dmg_root/Applications"
+            hdiutil create \
+              -volname "KaedePhi ${version_number} macOS ${architecture}" \
+              -srcfolder "$dmg_root" \
+              -ov \
+              -format UDZO \
+              "$dmg_path"
+            hdiutil verify "$dmg_path"
+          done
 
       - name: Upload macOS installer
         uses: actions/upload-artifact@v7.0.1

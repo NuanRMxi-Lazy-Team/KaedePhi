@@ -14,8 +14,8 @@ NuanR_Star Ciallo Team（以下简称“我们”）KaedePhi（以下简称“�
 ### 安装运行时
 - Windows：安装 [.NET 10 Desktop Runtime](https://dotnet.microsoft.com/download/dotnet/10.0)，再运行安装包或便携版中的 `KaedePhi.Tool.App.exe`。
 - Linux：安装 [.NET 10 Runtime](https://dotnet.microsoft.com/download/dotnet/10.0)，解压 `linux-x64` 便携版后运行 `KaedePhi.Tool.App`。
-- macOS：从 GitHub Release 下载 `KaedePhi-*-macos-universal.dmg`，打开后将 `KaedePhi.app` 拖入“应用程序”文件夹；首次运行前需安装 [.NET 10 Runtime](https://dotnet.microsoft.com/download/dotnet/10.0)。当前应用包未进行 Apple 开发者签名与公证，首次打开时请按住 Control 键点按应用并选择“打开”，再确认运行。
-- 正式应用产物使用 `net10.0` FDD：提供 Windows x64、Linux x64 便携版，Windows x64 安装包，以及同时支持 Intel 和 Apple 芯片的 macOS 通用 `.dmg` 安装包。
+- macOS：从 GitHub Release 下载 `KaedePhi-App-v*-macOS-x86_64-Installer.dmg`（Intel）或 `KaedePhi-App-v*-macOS-arm64-Installer.dmg`（Apple 芯片），打开后将 `KaedePhi.app` 拖入“应用程序”文件夹；首次运行前需安装 [.NET 10 Runtime](https://dotnet.microsoft.com/download/dotnet/10.0)。当前应用包未进行 Apple 开发者签名与公证，首次打开时请按住 Control 键点按应用并选择“打开”，再确认运行。
+- 正式应用产物使用 `net10.0` FDD：提供 Windows x64、Linux x64 便携版，Windows x64 安装包，以及分别面向 Intel 和 Apple 芯片的 macOS `.dmg` 安装包。
 
 ## 注意事项
 > [!CAUTION]
@@ -67,7 +67,7 @@ dotnet run --project KaedePhi.Tool.App -- --help
 配置文件由 CLI 和 GUI 共享。工作区只保存名为 `chart.json` 的原始谱面文件，工作区 ID 只允许字母、数字、下划线和连字符。
 
 ## 构建与测试
-根目录 `global.json` 为 `dotnet test` 配置 Microsoft.Testing.Platform 测试运行器；
+根目录 `global.json` 为 `dotnet test` 配置 Microsoft.Testing.Platform 测试运行器。
 
 ```bash
 dotnet restore KaedePhi.sln
@@ -82,17 +82,17 @@ dotnet publish KaedePhi.Tool.App/KaedePhi.Tool.App.csproj \
 - `KaedePhi.Tool.App`：源码支持 .NET8.0、.NET10.0，官方应用发布目标为 .NET10.0
 - `KaedePhi.Tool.Localization`：.NET8.0、.NET10.0
 
-当前仓库版本为 `0.4.5`。Core 和 Tool 的 NuGet 包分别使用 `Core-v0.4.5`、`Tool-v0.4.5` 标签发布；应用使用 `App-v0.4.5` 标签发布，并提供 `KaedePhi.Tool.App-net10.0-*-fdd.zip` 和 Windows 安装包。
+Core 和 Tool 的 NuGet 包分别使用 `Core-v<版本>`、`Tool-v<版本>` 标签发布，并保留 NuGet 标准的 `<包 ID>.<版本>.nupkg` 文件名；应用使用 `App-v<版本>` 标签发布。App 附件使用 `KaedePhi-App-v<版本>-<系统>-<架构>-<包类型>` 格式命名，例如 `KaedePhi-App-v1.2.0-macOS-arm64-Installer.dmg`。
 
 ## 限制说明
 - FDD 便携版和安装版都要求先安装对应的 .NET 10 运行时，不能脱离运行时单独执行。
-- macOS 通用安装包未进行 Apple 开发者签名与公证，首次启动需手动确认。
-- 目前正式应用产物提供 Windows x64、Linux x64 和 macOS x64/arm64；其他系统和架构需要自行编译验证。
+- macOS 安装包未进行 Apple 开发者签名与公证，首次启动需手动确认；Intel 与 Apple 芯片用户需下载对应架构的安装包。
+- 目前正式应用产物提供 Windows x64、Linux x64 和 macOS x86_64/arm64；其他系统和架构需要自行编译验证。
 - 部分目标格式不支持源格式的全部事件或缓动类型，转换时可能进行采样、拟合或压缩；大型谱面可尝试 `--stream` 降低内存占用。
 - 项目仍处于早期阶段，字段、默认配置和转换行为可能变化；升级前请备份谱面和配置。
 
 ## 发布流程
-GitHub Actions 是唯一权威发布入口，负责 Core、Tool 和 App 的标签、GitHub Release 及正式附件，并为 App 提供 Windows 与 macOS 安装包。GitLab CI 仅保留夜间 App 构建，不再创建发布和标签，避免两个平台并发发布导致版本、附件和标签不一致。正式 App 发布固定为 `net10.0` FDD；GitLab 夜间构建也使用同一目标框架。
+GitHub Actions 是唯一权威发布入口，负责 Core、Tool 和 App 的标签、GitHub Release 及正式附件，并为 App 提供 Windows 安装程序以及分别面向 macOS x86_64 和 arm64 的 `.dmg`。GitLab CI 仅保留夜间 App 构建，不再创建发布和标签，避免两个平台并发发布导致版本、附件和标签不一致。正式 App 发布固定为 `net10.0` FDD；GitLab 夜间构建也使用同一目标框架。
 
 ## 招新
 本项目需要更多人开发与维护，欢迎发送邮件到 nrlt@nuanr-mxi.com 来加入开发！  
