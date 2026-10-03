@@ -76,10 +76,28 @@ jobs:
                 exit 1
               fi
 
-              universal_binary="$arm64_binary.universal"
-              lipo -create "$arm64_binary" "$x64_binary" -output "$universal_binary"
+              if ! lipo -verify_arch arm64 "$arm64_binary" >/dev/null 2>&1; then
+                echo "::error::The osx-arm64 publish is missing the arm64 slice for $relative_path"
+                exit 1
+              fi
+              if ! lipo -verify_arch x86_64 "$x64_binary" >/dev/null 2>&1; then
+                echo "::error::The osx-x64 publish is missing the x86_64 slice for $relative_path"
+                exit 1
+              fi
+
+              bundle_binary="$macos_dir/$relative_path"
+              arm64_slice="$bundle_binary.arm64"
+              x64_slice="$bundle_binary.x86_64"
+              universal_binary="$bundle_binary.universal"
+              binary_mode=$(stat -f '%Lp' "$bundle_binary")
+
+              lipo -thin arm64 "$arm64_binary" -output "$arm64_slice"
+              lipo -thin x86_64 "$x64_binary" -output "$x64_slice"
+              lipo -create "$arm64_slice" "$x64_slice" -output "$universal_binary"
               lipo -verify_arch arm64 x86_64 "$universal_binary"
-              mv "$universal_binary" "$arm64_binary"
+              chmod "$binary_mode" "$universal_binary"
+              mv "$universal_binary" "$bundle_binary"
+              rm "$arm64_slice" "$x64_slice"
             fi
           done < <(find "$arm64_dir" -type f -print0)
 
@@ -93,6 +111,15 @@ jobs:
               fi
             fi
           done < <(find "$x64_dir" -type f -print0)
+
+          while IFS= read -r -d '' bundle_binary; do
+            if file -b "$bundle_binary" | grep -q 'Mach-O'; then
+              if ! lipo -verify_arch arm64 x86_64 "$bundle_binary"; then
+                echo "::error::The app bundle contains a non-universal binary: ${bundle_binary#"$macos_dir"/}"
+                exit 1
+              fi
+            fi
+          done < <(find "$macos_dir" -type f -print0)
 
           chmod +x "$macos_dir/KaedePhi.Tool.App"
           sips -s format icns KaedePhiIcon.png --out "$resources_dir/KaedePhiIcon.icns" >/dev/null
