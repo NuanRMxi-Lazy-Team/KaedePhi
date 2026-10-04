@@ -38,7 +38,7 @@ public class PhigrosV3BlockAreaTests
         Assert.Equal(90f, Assert.Single(area.RotateEvents).Rotation);
         Assert.Equal(0.75f, Assert.Single(area.MoveEvents).EndPosition.Y);
         Assert.Equal(2f, Assert.Single(area.ScaleEvents).Scale.X);
-        Assert.Equal(AreaEaseType.InSine, Assert.Single(area.RotateEvents).EaseType.Type);
+        Assert.Equal(AreaEaseType.EaseInQuad, Assert.Single(area.RotateEvents).EaseType.Type);
         Assert.Single(legacyChart.BlockAreaList);
         Assert.Contains("\"blockAreaList\"", serialized);
         Assert.Contains("\"easeType\":1", serialized);
@@ -61,6 +61,27 @@ public class PhigrosV3BlockAreaTests
         Assert.Equal(expected, AreaEase.GetEaseWithProgress(progress, type), precision: 6);
     }
 
+    [Theory]
+    [InlineData(0, "Linear")]
+    [InlineData(1, "EaseInQuad")]
+    [InlineData(2, "EaseOutQuad")]
+    [InlineData(3, "EaseInOutQuad")]
+    [InlineData(4, "EaseInCubic")]
+    [InlineData(5, "EaseOutCubic")]
+    [InlineData(6, "EaseInOutCubic")]
+    [InlineData(7, "EaseInQuart")]
+    [InlineData(8, "EaseOutQuart")]
+    [InlineData(9, "EaseInOutQuart")]
+    [InlineData(10, "EaseInQuint")]
+    [InlineData(11, "EaseOutQuint")]
+    [InlineData(12, "EaseInOutQuint")]
+    [InlineData(13, "Zero")]
+    [InlineData(14, "One")]
+    public void EaseTypeNamesMatchTheirActualCurves(int value, string expectedName)
+    {
+        Assert.Equal(expectedName, ((AreaEaseType)value).ToString());
+    }
+
     [Fact]
     public void EaseProgressIsClampedAtTableEndpoints()
     {
@@ -74,7 +95,7 @@ public class PhigrosV3BlockAreaTests
     [Fact]
     public void InterpolationAppliesTheEasedProgress()
     {
-        Assert.Equal(12.5f, AreaEase.Interpolate(10f, 20f, 0.5f, AreaEaseType.InSine));
+        Assert.Equal(12.5f, AreaEase.Interpolate(10f, 20f, 0.5f, AreaEaseType.EaseInQuad));
     }
 
     [Fact]
@@ -84,23 +105,23 @@ public class PhigrosV3BlockAreaTests
         {
             Time = 3f,
             EndPosition = new PositionUnit { X = 1f, Y = 1f },
-            EaseTypeX = AreaEaseType.InSine,
-            EaseTypeY = AreaEaseType.OutSine,
+            EaseTypeX = AreaEaseType.EaseInQuad,
+            EaseTypeY = AreaEaseType.EaseOutQuad,
         };
         var rotationEvent = new AreaRotateEvent
         {
             Time = 3f,
             Anchor = new PositionUnit { X = 1f, Y = 1f },
             Rotation = 90f,
-            EaseType = AreaEaseType.InSine,
+            EaseType = AreaEaseType.EaseInQuad,
         };
         var scaleEvent = new AreaScaleEvent
         {
             Time = 3f,
             Anchor = new PositionUnit { X = 1f, Y = 1f },
             Scale = new PositionUnit { X = 2f, Y = 2f },
-            EaseTypeX = AreaEaseType.InSine,
-            EaseTypeY = AreaEaseType.OutSine,
+            EaseTypeX = AreaEaseType.EaseInQuad,
+            EaseTypeY = AreaEaseType.EaseOutQuad,
         };
         var start = new PositionUnit { X = 0f, Y = 0f };
 

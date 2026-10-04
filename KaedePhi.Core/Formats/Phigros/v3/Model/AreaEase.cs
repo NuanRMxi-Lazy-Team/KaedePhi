@@ -1,5 +1,6 @@
 using System;
 using KaedePhi.Core.Formats.Phigros.v3.Serialization.JsonConverter;
+using KaedePhi.Core.Utils;
 using Newtonsoft.Json;
 
 namespace KaedePhi.Core.Formats.Phigros.v3.Model
@@ -266,26 +267,25 @@ namespace KaedePhi.Core.Formats.Phigros.v3.Model
 
         private static float CalculateEaseValue(int type, float progress)
         {
-            switch (type)
-            {
-                case (int)AreaEaseType.Linear:
-                    return progress;
-                case (int)AreaEaseType.Zero:
-                    return 0f;
-                case (int)AreaEaseType.One:
-                    return 1f;
-            }
-
-            var exponent = (type - 1) / 3 + 2;
-            var mode = (type - 1) % 3;
-            var value = (double)progress;
             return (float)(
-                mode switch
+                type switch
                 {
-                    0 => Math.Pow(value, exponent),
-                    1 => 1d - Math.Pow(1d - value, exponent),
-                    _ when value < 0.5d => 0.5d * Math.Pow(2d * value, exponent),
-                    _ => 1d - 0.5d * Math.Pow(2d - 2d * value, exponent),
+                    (int)AreaEaseType.Linear => Easings.Linear(progress),
+                    (int)AreaEaseType.EaseInQuad => Easings.EaseInQuad(progress),
+                    (int)AreaEaseType.EaseOutQuad => Easings.EaseOutQuad(progress),
+                    (int)AreaEaseType.EaseInOutQuad => Easings.EaseInOutQuad(progress),
+                    (int)AreaEaseType.EaseInCubic => Easings.EaseInCubic(progress),
+                    (int)AreaEaseType.EaseOutCubic => Easings.EaseOutCubic(progress),
+                    (int)AreaEaseType.EaseInOutCubic => Easings.EaseInOutCubic(progress),
+                    (int)AreaEaseType.EaseInQuart => Easings.EaseInQuart(progress),
+                    (int)AreaEaseType.EaseOutQuart => Easings.EaseOutQuart(progress),
+                    (int)AreaEaseType.EaseInOutQuart => Easings.EaseInOutQuart(progress),
+                    (int)AreaEaseType.EaseInQuint => Easings.EaseInQuint(progress),
+                    (int)AreaEaseType.EaseOutQuint => Easings.EaseOutQuint(progress),
+                    (int)AreaEaseType.EaseInOutQuint => Easings.EaseInOutQuint(progress),
+                    (int)AreaEaseType.Zero => 0d,
+                    (int)AreaEaseType.One => 1d,
+                    _ => throw new ArgumentOutOfRangeException(nameof(type)),
                 }
             );
         }

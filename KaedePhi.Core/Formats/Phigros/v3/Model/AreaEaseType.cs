@@ -1,5 +1,3 @@
-using System.ComponentModel;
-
 namespace KaedePhi.Core.Formats.Phigros.v3.Model
 {
     /// <summary>
@@ -13,70 +11,64 @@ namespace KaedePhi.Core.Formats.Phigros.v3.Model
         Linear = 0,
 
         /// <summary>
-        /// Phigros 原版对线性缓动使用的名称。
-        /// </summary>
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        Liner = Linear,
-
-        /// <summary>
         /// 二次缓入。
         /// </summary>
-        InSine = 1,
+        EaseInQuad = 1,
 
         /// <summary>
         /// 二次缓出。
         /// </summary>
-        OutSine = 2,
+        EaseOutQuad = 2,
 
         /// <summary>
         /// 二次缓入缓出。
         /// </summary>
-        InOutSine = 3,
+        EaseInOutQuad = 3,
 
         /// <summary>
         /// 三次缓入。
         /// </summary>
-        InQuad = 4,
+        EaseInCubic = 4,
 
         /// <summary>
         /// 三次缓出。
         /// </summary>
-        OutQuad = 5,
+        EaseOutCubic = 5,
 
         /// <summary>
         /// 三次缓入缓出。
         /// </summary>
-        InOutQuad = 6,
+        EaseInOutCubic = 6,
 
         /// <summary>
         /// 四次缓入。
         /// </summary>
-        InCubic = 7,
+        EaseInQuart = 7,
 
         /// <summary>
         /// 四次缓出。
         /// </summary>
-        OutCubic = 8,
+        EaseOutQuart = 8,
 
         /// <summary>
         /// 四次缓入缓出。
         /// </summary>
-        InOutCubic = 9,
+        EaseInOutQuart = 9,
 
         /// <summary>
         /// 五次缓入。
         /// </summary>
-        InQuart = 10,
+        EaseInQuint = 10,
 
         /// <summary>
         /// 五次缓出。
         /// </summary>
-        OutQuart = 11,
+        EaseOutQuint = 11,
 
         /// <summary>
         /// 五次缓入缓出。
         /// </summary>
-        InOutQuart = 12,
+        EaseInOutQuint = 12,
 
         /// <summary>
         /// 缓动值恒为零。
