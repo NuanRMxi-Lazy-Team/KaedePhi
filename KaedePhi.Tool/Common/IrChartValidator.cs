@@ -43,6 +43,8 @@ public static class IrChartValidator
             throw new FormatException("谱面 BPM 列表不能为 null。");
         if (chart.JudgeLineList is null)
             throw new FormatException("谱面判定线列表不能为 null。");
+        if (chart.BlockAreaList is null)
+            throw new FormatException("谱面噪域列表不能为 null。");
     }
 
     private static void ValidateBpmItems(IReadOnlyList<BpmItem> bpmItems)

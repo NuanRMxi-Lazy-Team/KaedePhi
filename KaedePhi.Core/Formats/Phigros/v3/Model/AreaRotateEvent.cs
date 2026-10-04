@@ -3,7 +3,7 @@ using Newtonsoft.Json;
 namespace KaedePhi.Core.Formats.Phigros.v3.Model
 {
     /// <summary>
-    /// 表示方块区域的旋转关键帧，属性值由上一关键帧插值至此事件的目标值。
+    /// 表示噪域的旋转关键帧，属性值由上一关键帧插值至此事件的目标值。
     /// </summary>
     public class AreaRotateEvent
     {

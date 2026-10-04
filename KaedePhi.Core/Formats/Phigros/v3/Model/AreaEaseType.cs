@@ -1,7 +1,7 @@
 namespace KaedePhi.Core.Formats.Phigros.v3.Model
 {
     /// <summary>
-    /// 方块区域事件使用的缓动类型。
+    /// 噪域事件使用的缓动类型。
     /// </summary>
     public enum AreaEaseType
     {

@@ -12,6 +12,9 @@ namespace KaedePhi.Core.Intermediate.Model
                 JudgeLineList = JudgeLineList
                     .FindAll(judgeLine => judgeLine is not null)
                     .ConvertAll(judgeLine => judgeLine.Clone()),
+                BlockAreaList = BlockAreaList
+                    .FindAll(blockArea => blockArea is not null)
+                    .ConvertAll(blockArea => blockArea.Clone()),
             };
         }
     }

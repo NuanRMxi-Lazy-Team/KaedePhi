@@ -52,11 +52,18 @@ public class PhigrosV3Converter
             );
         }
 
+        var bpmList = BpmItemBuilder.ConvertBpmList(input.JudgeLineList);
+        var timeMapper = new PhigrosV3TimeMapper(bpmList);
         var converted = new Ir.Chart
         {
-            BpmList = BpmItemBuilder.ConvertBpmList(input.JudgeLineList),
+            BpmList = bpmList,
             Meta = MetaBuilder.ConvertMeta(input),
             JudgeLineList = judgeLines,
+            BlockAreaList = IrBlockAreaBuilder.ConvertBlockAreas(
+                input.BlockAreaList,
+                timeMapper,
+                _ct
+            ),
         };
         return IrChartNormalizer.NormalizeAndValidateNoteEndBeats(converted);
     }
@@ -79,12 +86,13 @@ public class PhigrosV3Converter
         WarnIfUnsupportedMeta(normalized.Meta);
 
         var hasBpmList = normalized.BpmList is { Count: > 0 };
+        var timeMapper = hasBpmList ? new PhigrosV3TimeMapper(normalized.BpmList) : null;
         PhigrosV3JudgeLineBuilder judgeLineConverter;
-        if (hasBpmList)
+        if (timeMapper is not null)
         {
             judgeLineConverter = new PhigrosV3JudgeLineBuilder(
                 options,
-                new PhigrosV3TimeMapper(normalized.BpmList),
+                timeMapper,
                 CalculateChartEndBeat(normalized),
                 OnWarning
             );
@@ -108,10 +116,24 @@ public class PhigrosV3Converter
                 judgeLines.Add(converted);
         }
 
+        var blockAreaTimeMapper =
+            timeMapper
+            ?? new PhigrosV3TimeMapper(
+                [new Ir.BpmItem { Bpm = options.DefaultBpm, StartBeat = new Beat(0) }]
+            );
+        var blockAreas = PhigrosV3BlockAreaBuilder.ConvertBlockAreas(
+            normalized.BlockAreaList,
+            blockAreaTimeMapper,
+            options.Cutting.EasingPrecision,
+            OnWarning,
+            _ct
+        );
+
         return new PhigrosChart
         {
             Offset = GetPhigrosV3Offset(normalized.Meta),
             JudgeLineList = judgeLines,
+            BlockAreaList = blockAreas,
         };
     }
 
@@ -129,8 +151,6 @@ public class PhigrosV3Converter
     {
         var maxBeat = 0d;
 
-        if (input.JudgeLineList is not { Count: > 0 })
-            return maxBeat;
         foreach (var line in input.JudgeLineList)
         {
             if (line.Notes is { Count: > 0 })
@@ -146,6 +166,23 @@ public class PhigrosV3Converter
                 maxBeat = Math.Max(maxBeat, GetMaxEventEndBeat(layer.AlphaEvents));
                 maxBeat = Math.Max(maxBeat, GetMaxEventEndBeat(layer.SpeedEvents));
             }
+        }
+
+        foreach (var blockArea in input.BlockAreaList)
+        {
+            maxBeat = Math.Max(maxBeat, (double)blockArea.AppearBeat);
+            maxBeat = Math.Max(maxBeat, (double)blockArea.EnableBeat);
+            maxBeat = Math.Max(maxBeat, (double)blockArea.DisableBeat);
+            maxBeat = Math.Max(maxBeat, (double)blockArea.DisappearBeat);
+            maxBeat = Math.Max(maxBeat, GetMaxEventEndBeat(blockArea.MoveXEvents));
+            maxBeat = Math.Max(maxBeat, GetMaxEventEndBeat(blockArea.MoveYEvents));
+            maxBeat = Math.Max(maxBeat, GetMaxEventEndBeat(blockArea.RotateEvents));
+            maxBeat = Math.Max(maxBeat, GetMaxEventEndBeat(blockArea.RotateAnchorXEvents));
+            maxBeat = Math.Max(maxBeat, GetMaxEventEndBeat(blockArea.RotateAnchorYEvents));
+            maxBeat = Math.Max(maxBeat, GetMaxEventEndBeat(blockArea.ScaleXEvents));
+            maxBeat = Math.Max(maxBeat, GetMaxEventEndBeat(blockArea.ScaleYEvents));
+            maxBeat = Math.Max(maxBeat, GetMaxEventEndBeat(blockArea.ScaleAnchorXEvents));
+            maxBeat = Math.Max(maxBeat, GetMaxEventEndBeat(blockArea.ScaleAnchorYEvents));
         }
 
         return maxBeat;

@@ -3,7 +3,7 @@ using Newtonsoft.Json;
 namespace KaedePhi.Core.Formats.Phigros.v3.Model
 {
     /// <summary>
-    /// 表示方块区域使用的二维坐标或缩放倍率。
+    /// 表示噪域使用的二维坐标或缩放倍率。
     /// </summary>
     public struct PositionUnit
     {

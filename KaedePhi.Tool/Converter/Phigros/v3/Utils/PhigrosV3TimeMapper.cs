@@ -28,7 +28,7 @@ internal sealed class PhigrosV3TimeMapper
         var changes = new List<(Beat Beat, float Bpm)>();
         var currentBpm = initialBpm;
 
-        for (var start = 0; start < ordered.Count; )
+        for (var start = 0; start < ordered.Count;)
         {
             var beat = ordered[start].Item.StartBeat;
             var end = start + 1;
@@ -41,7 +41,7 @@ internal sealed class PhigrosV3TimeMapper
                 initialBpm = bpm;
                 currentBpm = bpm;
             }
-            else if (beat > new Beat(0) && bpm != currentBpm)
+            else if (beat > new Beat(0) && Math.Abs(bpm - currentBpm) > Common.Constants.FloatEpsilon)
             {
                 changes.Add((beat, bpm));
                 currentBpm = bpm;
@@ -59,7 +59,7 @@ internal sealed class PhigrosV3TimeMapper
         var seconds = 0d;
         foreach (var (beat, bpm) in changes)
         {
-            seconds += (double)(beat - segmentBeat) * 60d / segmentBpm;
+            seconds += (beat - segmentBeat) * 60d / segmentBpm;
             _segments.Add(new TempoSegment(beat, bpm, seconds));
             segmentBeat = beat;
             segmentBpm = bpm;
@@ -88,6 +88,29 @@ internal sealed class PhigrosV3TimeMapper
         return encoded;
     }
 
+    public double ToMusicTime(Beat beat) => GetSeconds(beat, 1f);
+
+    public Beat ToBeat(double musicTime)
+    {
+        if (!double.IsFinite(musicTime))
+            throw new FormatException("噪域音乐时间必须是有限数值。");
+
+        var segment = _segments[0];
+        for (var index = 1; index < _segments.Count; index++)
+        {
+            if (_segments[index].StartSeconds > musicTime)
+                break;
+            segment = _segments[index];
+        }
+
+        var beat =
+            segment.StartBeat
+            + (musicTime - segment.StartSeconds) * segment.Bpm / 60d;
+        return !double.IsFinite(beat)
+            ? throw new FormatException("噪域音乐时间转换后的拍数不是有限数值。")
+            : new Beat(beat);
+    }
+
     public float ToHoldTime(Beat startBeat, Beat endBeat, float bpmFactor)
     {
         var startTime = ToNoteTime(startBeat, bpmFactor);
@@ -103,14 +126,8 @@ internal sealed class PhigrosV3TimeMapper
 
     public IEnumerable<Beat> GetTempoChangeBeats(Beat startBeat, Beat endBeat)
     {
-        foreach (var segment in _segments.Skip(1))
-        {
-            if (segment.StartBeat <= startBeat)
-                continue;
-            if (segment.StartBeat >= endBeat)
-                yield break;
-            yield return segment.StartBeat;
-        }
+        return _segments.Skip(1).Where(segment => segment.StartBeat > startBeat)
+            .TakeWhile(segment => segment.StartBeat < endBeat).Select(segment => segment.StartBeat);
     }
 
     private (long Time, double Seconds) Quantize(Beat beat, float bpmFactor)
@@ -141,11 +158,9 @@ internal sealed class PhigrosV3TimeMapper
         }
 
         var seconds =
-            (segment.StartSeconds + (double)(beat - segment.StartBeat) * 60d / segment.Bpm)
+            (segment.StartSeconds + (beat - segment.StartBeat) * 60d / segment.Bpm)
             * bpmFactor;
-        if (!double.IsFinite(seconds))
-            throw new FormatException("IR BPM 时间积分结果不是有限数值。");
-        return seconds;
+        return !double.IsFinite(seconds) ? throw new FormatException("IR BPM 时间积分结果不是有限数值。") : seconds;
     }
 
     private static void ValidateEncodedTime(double encodedTime, double expectedSeconds)

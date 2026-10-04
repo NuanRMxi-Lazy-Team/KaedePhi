@@ -6,7 +6,7 @@ using Newtonsoft.Json;
 namespace KaedePhi.Core.Formats.Phigros.v3.Serialization.JsonConverter
 {
     /// <summary>
-    /// 在方块区域缓动类型与 JSON 整数编号之间转换。
+    /// 在噪域缓动类型与 JSON 整数编号之间转换。
     /// </summary>
     public sealed class AreaEaseJsonConverter : JsonConverter<AreaEase>
     {
@@ -40,7 +40,7 @@ namespace KaedePhi.Core.Formats.Phigros.v3.Serialization.JsonConverter
         )
         {
             if (reader.TokenType != JsonToken.Integer || reader.Value == null)
-                throw new JsonSerializationException("方块区域缓动类型必须是整数编号。");
+                throw new JsonSerializationException("噪域缓动类型必须是整数编号。");
 
             try
             {
@@ -48,7 +48,7 @@ namespace KaedePhi.Core.Formats.Phigros.v3.Serialization.JsonConverter
             }
             catch (Exception exception) when (exception is FormatException || exception is OverflowException)
             {
-                throw new JsonSerializationException("方块区域缓动类型超出整数范围。", exception);
+                throw new JsonSerializationException("噪域缓动类型超出整数范围。", exception);
             }
         }
     }

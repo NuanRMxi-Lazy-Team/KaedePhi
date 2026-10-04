@@ -6,7 +6,7 @@ using Newtonsoft.Json;
 namespace KaedePhi.Core.Formats.Phigros.v3.Model
 {
     /// <summary>
-    /// 表示方块区域事件的缓动类型，并提供对应的插值计算。
+    /// 表示噪域事件的缓动类型，并提供对应的插值计算。
     /// </summary>
     [JsonConverter(typeof(AreaEaseJsonConverter))]
     public readonly struct AreaEase : IEquatable<AreaEase>
@@ -14,19 +14,18 @@ namespace KaedePhi.Core.Formats.Phigros.v3.Model
         private const int EaseTypeCount = (int)AreaEaseType.One + 1;
         private const int SamplesPerEase = 100;
         private static readonly float[,] EaseTable = CreateEaseTable();
-        private readonly int _value;
 
         /// <summary>
-        /// 创建指定整数编号的方块区域缓动类型。
+        /// 创建指定整数编号的噪域缓动类型。
         /// </summary>
         /// <param name="value">缓动编号；格式定义的有效范围为 0 到 14。</param>
         public AreaEase(int value)
         {
-            _value = value;
+            Value = value;
         }
 
         /// <summary>
-        /// 创建指定方块区域缓动类型。
+        /// 创建指定噪域缓动类型。
         /// </summary>
         /// <param name="type">缓动类型。</param>
         public AreaEase(AreaEaseType type)
@@ -40,12 +39,12 @@ namespace KaedePhi.Core.Formats.Phigros.v3.Model
         /// <summary>
         /// 获取缓动类型对应的枚举值。
         /// </summary>
-        public AreaEaseType Type => (AreaEaseType)_value;
+        public AreaEaseType Type => (AreaEaseType)Value;
 
         /// <summary>
         /// 获取缓动类型对应的原始整数编号。
         /// </summary>
-        public int Value => _value;
+        public int Value { get; }
 
         /// <summary>
         /// 对两个数值按当前缓动类型进行插值。
@@ -55,14 +54,14 @@ namespace KaedePhi.Core.Formats.Phigros.v3.Model
         /// <param name="progress">事件进度，通常位于 0 到 1 之间。</param>
         /// <returns>插值结果。</returns>
         public float Interpolate(float start, float end, float progress) =>
-            Interpolate(start, end, progress, _value);
+            Interpolate(start, end, progress, Value);
 
         /// <summary>
         /// 将缓动类型转换为原始整数编号。
         /// </summary>
         /// <param name="ease">待转换的缓动类型。</param>
         /// <returns>缓动编号。</returns>
-        public static implicit operator int(AreaEase ease) => ease._value;
+        public static implicit operator int(AreaEase ease) => ease.Value;
 
         /// <summary>
         /// 从原始整数编号创建缓动类型。
@@ -90,20 +89,20 @@ namespace KaedePhi.Core.Formats.Phigros.v3.Model
         /// </summary>
         /// <param name="other">要比较的缓动类型。</param>
         /// <returns>编号相同时为 <see langword="true"/>。</returns>
-        public bool Equals(AreaEase other) => _value == other._value;
+        public bool Equals(AreaEase other) => Value == other.Value;
 
         /// <summary>
         /// 判断对象是否与当前缓动类型相同。
         /// </summary>
         /// <param name="obj">待比较的对象。</param>
-        /// <returns>对象是编号相同的缓动类型时为 <see langword="true"/>。</returns>
+        /// <returns>对象是编号相同缓动类型时为 <see langword="true"/>。</returns>
         public override bool Equals(object? obj) => obj is AreaEase other && Equals(other);
 
         /// <summary>
         /// 获取缓动类型编号的哈希值。
         /// </summary>
         /// <returns>当前缓动类型的哈希值。</returns>
-        public override int GetHashCode() => _value.GetHashCode();
+        public override int GetHashCode() => Value.GetHashCode();
 
         /// <summary>
         /// 比较两个缓动类型是否相同。
@@ -126,7 +125,7 @@ namespace KaedePhi.Core.Formats.Phigros.v3.Model
         /// </summary>
         /// <returns>缓动名称或未知编号。</returns>
         public override string ToString() =>
-            Enum.IsDefined(typeof(AreaEaseType), _value) ? Type.ToString() : $"Unknown({_value})";
+            Enum.IsDefined(typeof(AreaEaseType), Value) ? Type.ToString() : $"Unknown({Value})";
 
         /// <summary>
         /// 按原版的百分比采样表和线性插值规则计算缓动值。
@@ -202,7 +201,7 @@ namespace KaedePhi.Core.Formats.Phigros.v3.Model
         /// <summary>
         /// 根据前一事件时间、当前事件时间和查询时间计算事件进度。
         /// </summary>
-        /// <param name="previousEventTime">前一关键帧时间，单位为音乐时间秒。</param>
+        /// <param name="previousEventTime">前一个关键帧时间，单位为音乐时间秒。</param>
         /// <param name="eventTime">当前关键帧时间，单位为音乐时间秒。</param>
         /// <param name="time">要查询的音乐时间，单位为秒。</param>
         /// <returns>当前时间在两个关键帧之间的归一化进度。</returns>

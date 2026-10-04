@@ -34,5 +34,10 @@ namespace KaedePhi.Core.Intermediate.Model
         /// 判定线列表
         /// </summary>
         public List<JudgeLine> JudgeLineList { get; set; } = new();
+
+        /// <summary>
+        /// 噪域列表。
+        /// </summary>
+        public List<BlockArea> BlockAreaList { get; set; } = new();
     }
 }

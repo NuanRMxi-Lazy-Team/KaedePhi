@@ -1,7 +1,7 @@
 namespace KaedePhi.Core.Formats.Phigros.v3.Model
 {
     /// <summary>
-    /// 方块区域在时间轴上的显示阶段。
+    /// 噪域在时间轴上的显示阶段。
     /// </summary>
     public enum BlockAreaPhase
     {
