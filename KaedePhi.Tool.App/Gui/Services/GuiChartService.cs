@@ -150,8 +150,7 @@ public sealed class GuiChartService
         }
 
         var hasUnclearContent =
-            detectedType == ChartType.PhigrosV3
-            && await PhigrosV3UnclearFieldDetector.HasNonDefaultBlockAreaListAsync(filePath, ct);
+            detectedType == ChartType.PhigrosV3 && kpcChart.BlockAreaList.Count > 0;
 
         CurrentChart = kpcChart;
         SourceFormat = detectedType;

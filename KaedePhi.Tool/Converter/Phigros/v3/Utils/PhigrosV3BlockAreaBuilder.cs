@@ -63,7 +63,6 @@ internal static class PhigrosV3BlockAreaBuilder
             [source.MoveXEvents, source.MoveYEvents],
             [centerX, centerY],
             [[0], [1]],
-            timeMapper,
             easingPrecision,
             warnLogger,
             index,
@@ -73,7 +72,6 @@ internal static class PhigrosV3BlockAreaBuilder
             [source.RotateEvents, source.RotateAnchorXEvents, source.RotateAnchorYEvents],
             [0d, centerX, centerY],
             [[0, 1, 2]],
-            timeMapper,
             easingPrecision,
             warnLogger,
             index,
@@ -88,7 +86,6 @@ internal static class PhigrosV3BlockAreaBuilder
             ],
             [1d, 1d, centerX, centerY],
             [[0, 2], [1, 3]],
-            timeMapper,
             easingPrecision,
             warnLogger,
             index,
@@ -169,7 +166,6 @@ internal static class PhigrosV3BlockAreaBuilder
         List<IrEvent>?[] sourceTracks,
         double[] initialValues,
         int[][] linkedTracks,
-        PhigrosV3TimeMapper timeMapper,
         double easingPrecision,
         Action<string>? warnLogger,
         int blockAreaIndex,
@@ -213,16 +209,23 @@ internal static class PhigrosV3BlockAreaBuilder
             var easingTypes = new PhigrosAreaEaseType[linkedTracks.Length];
             for (var groupIndex = 0; groupIndex < linkedTracks.Length; groupIndex++)
             {
-                easingTypes[groupIndex] = useNativeEasings
-                    ? GetNativeEaseAtBeat(
+                if (useNativeEasings)
+                {
+                    easingTypes[groupIndex] = GetNativeEaseAtBeat(
                         tracks,
                         linkedTracks[groupIndex],
                         beat,
                         initialValues
-                    )
-                    : HasStepAtBeat(tracks, linkedTracks[groupIndex], beat, initialValues)
-                        ? PhigrosAreaEaseType.Zero
-                        : PhigrosAreaEaseType.Linear;
+                    );
+                }
+                else if (HasStepAtBeat(tracks, linkedTracks[groupIndex], beat, initialValues))
+                {
+                    easingTypes[groupIndex] = PhigrosAreaEaseType.Zero;
+                }
+                else
+                {
+                    easingTypes[groupIndex] = PhigrosAreaEaseType.Linear;
+                }
             }
 
             if (beat == new Beat(0) && IsDefaultFrame(values, initialValues))
@@ -412,10 +415,8 @@ internal static class PhigrosV3BlockAreaBuilder
     )
     {
         IrEvent? dominant = null;
-        foreach (var evt in events)
+        foreach (var evt in events.TakeWhile(evt => evt.StartBeat < beat))
         {
-            if (evt.StartBeat >= beat)
-                break;
             dominant = evt;
         }
 

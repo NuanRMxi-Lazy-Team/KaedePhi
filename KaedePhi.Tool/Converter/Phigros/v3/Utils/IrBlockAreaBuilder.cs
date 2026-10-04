@@ -264,9 +264,7 @@ internal static class IrBlockAreaBuilder
 
     private static double ToFiniteDouble(float value)
     {
-        if (!float.IsFinite(value))
-            throw new FormatException("PhigrosV3 噪域值必须是有限数值。");
-        return value;
+        return !float.IsFinite(value) ? throw new FormatException("PhigrosV3 噪域值必须是有限数值。") : value;
     }
 
     private static float ToFiniteFloat(float value) =>
