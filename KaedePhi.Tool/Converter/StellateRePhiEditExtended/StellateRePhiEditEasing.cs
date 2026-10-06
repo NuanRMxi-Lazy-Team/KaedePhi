@@ -1,11 +1,10 @@
+using PhiEditEasings = KaedePhi.Core.Formats.PhiEdit.Model.Easings;
 using RpeEvent = KaedePhi.Core.Formats.RePhiEdit.Model.Events.Event<float>;
 
 namespace KaedePhi.Tool.Converter.StellateRePhiEditExtended;
 
 internal static class StellateRePhiEditEasing
 {
-    private const double Pi = 3.1415926535897932384626433832795d;
-
     internal static int NormalizeType(int easingType)
     {
         if (easingType is <= -1 and >= -28)
@@ -14,8 +13,9 @@ internal static class StellateRePhiEditEasing
     }
 
     internal static bool IsBezierEvent(RpeEvent evt) =>
-        evt.IsBezier && evt.BezierPoints is { Length: 4 };
+        evt is { IsBezier: true, BezierPoints.Length: 4 };
 
+    // 将 RPE 缓动编号转换为 Phigros 噪域缓动编号。
     internal static bool TryMapToBlockArea(int easingType, out int areaEaseType)
     {
         areaEaseType = NormalizeType(easingType) switch
@@ -51,6 +51,7 @@ internal static class StellateRePhiEditEasing
         );
     }
 
+    // RPE 的区间退化与端点外推规则不同于 Core 的通用归一化处理。
     private static double RpeEase(
         double progress,
         int easingType,
@@ -85,48 +86,11 @@ internal static class StellateRePhiEditEasing
         if (progress >= 1d)
             return 1d;
 
+        // RPE 的指数端点处理、回退系数和弹性周期与 Core 通用曲线不同。
         return easingType switch
         {
-            1 => progress,
-            2 => Math.Sin(progress * Pi / 2d),
-            3 => 1d - Math.Sin(progress * Pi / 2d + Pi / 2d),
-            4 => 1d - Math.Pow(progress - 1d, 2d),
-            5 => Math.Pow(progress, 2d),
-            6 => progress < 0.5d
-                ? 0.5d - Math.Sin(progress * Pi + Pi / 2d) / 2d
-                : Math.Sin((progress - 0.5d) * Pi) / 2d + 0.5d,
-            7 => progress < 0.5d
-                ? Math.Pow(progress * 2d, 2d) / 2d
-                : (2d - Math.Pow(2d * progress - 2d, 2d)) / 2d,
-            8 => 1d + Math.Pow(progress - 1d, 3d),
-            9 => Math.Pow(progress, 3d),
-            10 => 1d - Math.Pow(progress - 1d, 4d),
-            11 => Math.Pow(progress, 4d),
-            12 => progress < 0.5d
-                ? Math.Pow(progress * 2d, 3d) / 2d
-                : (2d + Math.Pow(2d * progress - 2d, 3d)) / 2d,
-            13 => progress < 0.5d
-                ? Math.Pow(progress * 2d, 4d) / 2d
-                : (2d - Math.Pow(2d * progress - 2d, 4d)) / 2d,
-            14 => 1d + Math.Pow(progress - 1d, 5d),
-            15 => Math.Pow(progress, 5d),
             16 => 1d - Math.Pow(2d, -10d * progress),
             17 => Math.Pow(2d, 10d * (progress - 1d)),
-            18 => progress is >= 0d and <= 2d
-                ? Math.Sqrt(1d - Math.Pow(progress - 1d, 2d))
-                : double.NaN,
-            19 => progress is >= -1d and <= 1d
-                ? 1d - Math.Sqrt(1d - progress * progress)
-                : double.NaN,
-            20 => 1d
-                + 2.70158d * Math.Pow(progress - 1d, 3d)
-                + 1.70158d * Math.Pow(progress - 1d, 2d),
-            21 => 2.70158d * Math.Pow(progress, 3d) - 1.70158d * Math.Pow(progress, 2d),
-            22 => progress is >= -0.5d and <= 1.5d
-                ? progress < 0.5d
-                    ? 0.5d - Math.Sqrt(1d - progress * progress * 4d) / 2d
-                    : 0.5d + Math.Sqrt(1d - Math.Pow(progress * 2d - 2d, 2d)) / 2d
-                : double.NaN,
             23 => progress < 0.5d
                 ? (21.61264d * Math.Pow(progress, 3d) - 6.80632d * Math.Pow(progress, 2d)) / 2d
                 : (
@@ -139,34 +103,12 @@ internal static class StellateRePhiEditEasing
                 + 1d,
             25 => -Math.Pow(2d, 10d * (progress - 1d))
                 * Math.Sin((10d * progress - 10.75d) * 2.094395d),
-            26 => EaseOutBounce(progress),
-            27 => 1d - EaseOutBounce(1d - progress),
-            28 => progress < 0.5d
-                ? (1d - EaseOutBounce(1d - 2d * progress)) / 2d
-                : (1d + EaseOutBounce(2d * progress - 1d)) / 2d,
+            >= 1 and <= 28 => PhiEditEasings.GetFunction(easingType)(progress),
             _ => progress,
         };
     }
 
-    private static double EaseOutBounce(double progress)
-    {
-        if (progress < 1d / 2.75d)
-            return 7.5625d * progress * progress;
-        if (progress < 2d / 2.75d)
-        {
-            progress -= 1.5d / 2.75d;
-            return 7.5625d * progress * progress + 0.75d;
-        }
-        if (progress < 2.5d / 2.75d)
-        {
-            progress -= 2.25d / 2.75d;
-            return 7.5625d * progress * progress + 0.9375d;
-        }
-
-        progress -= 2.625d / 2.75d;
-        return 7.5625d * progress * progress + 0.984375d;
-    }
-
+    // Core 贝塞尔工具会截断进度；此处需要保留 RPE 曲线的负进度外推。
     private static double BezierEase(double x, float[] points, bool escape)
     {
         if (x <= 0d && escape)
