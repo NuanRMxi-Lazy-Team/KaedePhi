@@ -62,8 +62,10 @@ internal sealed class ImportController
             return;
         _isFileProcessing = true;
         _navigation.Import.IsLoading = true;
+        _navigation.Import.Progress.Reset();
         _cts = new CancellationTokenSource();
         var ct = _cts.Token;
+        var progress = new Progress<double?>(_navigation.Import.Progress.SetProgress);
 
         try
         {
@@ -71,7 +73,7 @@ internal sealed class ImportController
 
             // 先检测格式
             var detectedType = await Task.Run(
-                () => _chart.DetectChartTypeAsync(filePath, useStream, ct),
+                () => _chart.DetectChartTypeAsync(filePath, useStream, ct, progress),
                 ct
             );
 
@@ -86,7 +88,14 @@ internal sealed class ImportController
             else
             {
                 // 不需要选项，直接加载
-                await LoadChartWithOptions(filePath, useStream, detectedType, null, ct);
+                await LoadChartWithOptions(
+                    filePath,
+                    useStream,
+                    detectedType,
+                    null,
+                    progress,
+                    ct
+                );
             }
         }
         catch (OperationCanceledException)
@@ -119,8 +128,12 @@ internal sealed class ImportController
 
         _isFileProcessing = true;
         _navigation.ImportOptions.IsLoading = true;
+        _navigation.ImportOptions.Progress.Reset();
         _cts = new CancellationTokenSource();
         var ct = _cts.Token;
+        var progress = new Progress<double?>(
+            _navigation.ImportOptions.Progress.SetProgress
+        );
 
         try
         {
@@ -133,6 +146,7 @@ internal sealed class ImportController
                 _pendingUseStream,
                 detectedType,
                 importOptions,
+                progress,
                 ct
             );
         }
@@ -171,10 +185,14 @@ internal sealed class ImportController
         bool useStream,
         ChartType detectedType,
         object? importOptions,
+        IProgress<double?> progress,
         CancellationToken ct
     )
     {
-        await Task.Run(() => _chart.LoadChartAsync(filePath, useStream, ct, importOptions), ct);
+        await Task.Run(
+            () => _chart.LoadChartAsync(filePath, useStream, ct, importOptions, progress),
+            ct
+        );
         ct.ThrowIfCancellationRequested();
         _navigation.ShowToolForChart(filePath, detectedType);
     }

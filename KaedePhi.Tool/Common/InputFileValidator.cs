@@ -6,7 +6,7 @@ namespace KaedePhi.Tool.Common;
 public static class InputFileValidator
 {
     private const long BytesPerMegabyte = 1024L * 1024;
-    private const long MaximumInputMegabytes = 4096L;
+    private const long MaximumInputMegabytes = 40960000000L;
 
     /// <summary>
     /// 允许读取的最大谱面文件大小。

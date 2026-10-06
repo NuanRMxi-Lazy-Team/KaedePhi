@@ -1,3 +1,4 @@
+using System.Text;
 using KaedePhi.Tool.App.Shared;
 using KaedePhi.Tool.Common;
 using KaedePhi.Tool.Converter;
@@ -65,22 +66,23 @@ public sealed class GuiChartService
     /// <param name="stream">是否使用流式导入兼容模式。</param>
     /// <param name="ct">取消令牌。</param>
     /// <returns>检测到的谱面格式。</returns>
-    public async Task<ChartType> DetectChartTypeAsync(
+    public Task<ChartType> DetectChartTypeAsync(
         string filePath,
         bool stream,
         CancellationToken ct = default
+    ) => DetectChartTypeAsync(filePath, stream, ct, null);
+
+    internal async Task<ChartType> DetectChartTypeAsync(
+        string filePath,
+        bool stream,
+        CancellationToken ct,
+        IProgress<double?>? progress
     )
     {
         InputFileValidator.Validate(filePath);
-        await using var inputStream = new FileStream(
-            filePath,
-            FileMode.Open,
-            FileAccess.Read,
-            FileShare.Read,
-            65536,
-            useAsync: true
-        );
+        await using var inputStream = OpenProgressReadStream(filePath, progress);
         var detectedType = await ChartGetType.GetTypeAsync(inputStream, ct);
+        progress?.Report(null);
         _detectedFilePath = filePath;
         _detectedType = detectedType;
         _log.Information(log_step_detected, detectedType);
@@ -90,11 +92,19 @@ public sealed class GuiChartService
     /// <summary>
     /// 从文件加载图表并转换为 KPC 格式存储在内存中
     /// </summary>
-    public async Task LoadChartAsync(
+    public Task LoadChartAsync(
         string filePath,
         bool stream,
         CancellationToken ct,
         object? importOptions = null
+    ) => LoadChartAsync(filePath, stream, ct, importOptions, null);
+
+    internal async Task LoadChartAsync(
+        string filePath,
+        bool stream,
+        CancellationToken ct,
+        object? importOptions,
+        IProgress<double?>? progress
     )
     {
         _log.Information(log_file_selected, filePath, stream);
@@ -128,14 +138,7 @@ public sealed class GuiChartService
         Chart kpcChart;
         if (stream && descriptor.CanStreamImport)
         {
-            await using var inputStream = new FileStream(
-                filePath,
-                FileMode.Open,
-                FileAccess.Read,
-                FileShare.Read,
-                65536,
-                useAsync: true
-            );
+            await using var inputStream = OpenProgressReadStream(filePath, progress);
             kpcChart = await descriptor.ImportStreamIrAsync(
                 inputStream,
                 importOptions,
@@ -145,7 +148,16 @@ public sealed class GuiChartService
         }
         else
         {
-            var text = await File.ReadAllTextAsync(filePath, ct);
+            await using var inputStream = OpenProgressReadStream(filePath, progress);
+            using var reader = new StreamReader(
+                inputStream,
+                Encoding.UTF8,
+                detectEncodingFromByteOrderMarks: true,
+                bufferSize: 4096,
+                leaveOpen: true
+            );
+            var text = await reader.ReadToEndAsync(ct);
+            progress?.Report(null);
             kpcChart = await descriptor.ImportIrAsync(text, importOptions, CreateLogSink(), ct);
         }
 
@@ -156,6 +168,7 @@ public sealed class GuiChartService
         SourceFormat = detectedType;
         SourceFilePath = filePath;
         HasUnclearContent = hasUnclearContent;
+        progress?.Report(1.0);
     }
 
     /// <summary>
@@ -221,6 +234,22 @@ public sealed class GuiChartService
             Error = msg => _log.Error(msg),
             Debug = msg => _log.Debug(msg),
         };
+
+    private static Stream OpenProgressReadStream(
+        string filePath,
+        IProgress<double?>? progress
+    )
+    {
+        var inputStream = new FileStream(
+            filePath,
+            FileMode.Open,
+            FileAccess.Read,
+            FileShare.Read,
+            65536,
+            useAsync: true
+        );
+        return progress is null ? inputStream : new ProgressReadStream(inputStream, progress);
+    }
 
     public void RunFatherUnbind(
         Chart chart,

@@ -8,6 +8,8 @@ public sealed class ImportViewModel : INotifyPropertyChanged
     private bool _useStream;
     private bool _isLoading;
 
+    public ImportProgressViewModel Progress { get; } = new();
+
     public bool UseStream
     {
         get => _useStream;

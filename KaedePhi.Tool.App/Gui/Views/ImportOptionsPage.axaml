@@ -103,9 +103,13 @@
             <Border Classes="card" Padding="32" MinWidth="320"
                     HorizontalAlignment="Center" VerticalAlignment="Center">
                 <StackPanel Spacing="16">
-                    <ProgressBar IsIndeterminate="True" Height="6" />
+                    <ProgressBar Value="{Binding Progress.Value}" Maximum="100"
+                                 IsIndeterminate="{Binding Progress.IsIndeterminate}" Height="6" />
                     <TextBlock Text="{x:Static loc:GuiLocalizationString.import_loading}"
                                FontSize="16" FontWeight="SemiBold" HorizontalAlignment="Center" />
+                    <TextBlock Text="{Binding Progress.PercentageText}"
+                               IsVisible="{Binding Progress.IsDeterminate}" Classes="muted"
+                               FontSize="12" HorizontalAlignment="Center" />
                     <Button Classes="secondary" Content="{x:Static loc:GuiLocalizationString.btn_cancel}"
                             Click="OnCancelImportClick" HorizontalAlignment="Center" />
                 </StackPanel>

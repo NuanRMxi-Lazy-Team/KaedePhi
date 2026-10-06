@@ -8,6 +8,8 @@ public sealed class ImportOptionsViewModel : INotifyPropertyChanged
 {
     private ChartType _detectedFormat;
 
+    public ImportProgressViewModel Progress { get; } = new();
+
     /// <summary>
     /// 检测到的源文件格式
     /// </summary>
