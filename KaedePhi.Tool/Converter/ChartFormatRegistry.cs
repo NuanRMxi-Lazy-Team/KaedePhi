@@ -66,6 +66,7 @@ public static class ChartFormatRegistry
             {
                 Type = ChartType.StellateRePhiEditExtended,
                 FileExtension = "json",
+                ExportOptionsFactory = () => new ConvertOption(),
                 Importer = async (text, _, log, ct) =>
                 {
                     var converter = Prepare(
@@ -85,6 +86,25 @@ public static class ChartFormatRegistry
                     );
                     var source = await RpeSerialization.LoadFromStreamAsync(stream);
                     return converter.ToIr(source);
+                },
+                Exporter = async (chart, path, write, options, log, ct) =>
+                {
+                    var converter = Prepare(
+                        new StellateRePhiEditExtendedConverter(),
+                        log,
+                        ct
+                    );
+                    var target = converter.FromIr(
+                        chart,
+                        Coerce(options, () => new ConvertOption())
+                    );
+                    await WriteAsync(
+                        path,
+                        write,
+                        () => target.ExportToJsonAsync(write.Indented),
+                        stream => target.ExportToJsonStreamAsync(stream, write.Indented),
+                        ct
+                    );
                 },
             },
 

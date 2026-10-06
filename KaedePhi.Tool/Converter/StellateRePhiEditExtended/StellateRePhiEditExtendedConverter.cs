@@ -2,6 +2,7 @@ using KaedePhi.Core.Primitives;
 using KaedePhi.Tool.Common;
 using KaedePhi.Tool.Converter.Phigros.v3.Utils;
 using KaedePhi.Tool.Converter.RePhiEdit;
+using KaedePhi.Tool.Converter.RePhiEdit.Model;
 using IrBlockArea = KaedePhi.Core.Intermediate.Model.BlockArea;
 using IrChart = KaedePhi.Core.Intermediate.Model.Chart;
 using RpeChart = KaedePhi.Core.Formats.RePhiEdit.Model.Chart;
@@ -104,6 +105,57 @@ internal sealed class StellateRePhiEditExtendedConverter : LoggableBase, ICancel
                 BlockAreaList = [.. converted.BlockAreaList, .. blockAreas],
             }
         );
+    }
+
+    internal RpeChart FromIr(IrChart source, ConvertOption options)
+    {
+        ArgumentNullException.ThrowIfNull(source);
+        ArgumentNullException.ThrowIfNull(options);
+        _ct.ThrowIfCancellationRequested();
+
+        var normalized = IrChartNormalizer.NormalizeAndValidateNoteEndBeats(source);
+        var baseConverter = new RePhiEditConverter
+        {
+            OnInfo = OnInfo,
+            OnWarning = OnWarning,
+            OnError = OnError,
+            OnDebug = OnDebug,
+        };
+        baseConverter.SetCancellationToken(_ct);
+        var converted = baseConverter.FromIr(normalized, options);
+
+        for (var index = 0; index < normalized.JudgeLineList.Count; index++)
+        {
+            _ct.ThrowIfCancellationRequested();
+            if (
+                StellateRePhiEditExtendedTexture.IsBlockAreaTexture(
+                    normalized.JudgeLineList[index].Texture
+                )
+            )
+                LogWarning(
+                    $"IR 判定线 {index} 使用了噪域标记纹理，导出后重新导入时会被转换为噪域。"
+                );
+        }
+
+        for (var index = 0; index < normalized.BlockAreaList.Count; index++)
+        {
+            _ct.ThrowIfCancellationRequested();
+            var blockArea = normalized.BlockAreaList[index];
+            if (blockArea is null)
+                throw new FormatException("IR 噪域列表不能包含 null。");
+
+            converted.JudgeLineList.Add(
+                StellateRePhiEditExtendedBlockAreaBuilder.ConvertBlockArea(
+                    blockArea,
+                    index,
+                    options.Cutting,
+                    LogWarning,
+                    _ct
+                )
+            );
+        }
+
+        return converted;
     }
 
     private static PhigrosV3TimeMapper CreateBeatMapper(IrChart chart)

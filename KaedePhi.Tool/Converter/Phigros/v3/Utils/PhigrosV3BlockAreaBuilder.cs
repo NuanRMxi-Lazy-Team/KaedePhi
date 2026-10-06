@@ -179,6 +179,7 @@ internal static class PhigrosV3BlockAreaBuilder
             return [];
 
         var useNativeEasings = CanUseNativeEasings(tracks, linkedTracks);
+        var zeroBeat = new Beat(0);
         var boundaries = new SortedSet<Beat>();
         foreach (var track in tracks)
         {
@@ -196,6 +197,7 @@ internal static class PhigrosV3BlockAreaBuilder
             );
             AddSampleBeats(boundaries, easingPrecision);
         }
+        boundaries.Add(zeroBeat);
 
         var result = new List<(Beat, double[], PhigrosAreaEaseType[])>(boundaries.Count);
         foreach (var beat in boundaries)
@@ -224,47 +226,36 @@ internal static class PhigrosV3BlockAreaBuilder
 
             if (stepGroups.Any(isStep => isStep))
             {
-                var beforeEasingTypes = new PhigrosAreaEaseType[linkedTracks.Length];
-                for (var groupIndex = 0; groupIndex < linkedTracks.Length; groupIndex++)
-                {
-                    beforeEasingTypes[groupIndex] = useNativeEasings
-                        ? GetNativeEaseBeforeBeat(tracks, linkedTracks[groupIndex], beat)
-                        : PhigrosAreaEaseType.Linear;
-                }
+                // 同拍的前后帧表示瞬时跳变，One 只作用于这段零时长过渡。
+                var beforeEasingTypes = Enumerable
+                    .Repeat(PhigrosAreaEaseType.One, linkedTracks.Length)
+                    .ToArray();
 
-                if (beat != new Beat(0) || !IsDefaultFrame(beforeValues, initialValues))
+                if (beat != zeroBeat || !IsDefaultFrame(beforeValues, initialValues))
                     result.Add((beat, beforeValues, beforeEasingTypes));
 
                 result.Add(
                     (
                         beat,
                         values,
-                        Enumerable
-                            .Repeat(PhigrosAreaEaseType.One, linkedTracks.Length)
-                            .ToArray()
+                        GetEaseTypesAfterBeat(tracks, linkedTracks, beat, useNativeEasings)
                     )
                 );
                 continue;
             }
 
-            var easingTypes = new PhigrosAreaEaseType[linkedTracks.Length];
-            for (var groupIndex = 0; groupIndex < linkedTracks.Length; groupIndex++)
-            {
-                if (useNativeEasings)
-                {
-                    easingTypes[groupIndex] = GetNativeEaseBeforeBeat(
-                        tracks,
-                        linkedTracks[groupIndex],
-                        beat
-                    );
-                }
-                else
-                {
-                    easingTypes[groupIndex] = PhigrosAreaEaseType.Linear;
-                }
-            }
+            var easingTypes = GetEaseTypesAfterBeat(
+                tracks,
+                linkedTracks,
+                beat,
+                useNativeEasings
+            );
 
-            if (beat == new Beat(0) && IsDefaultFrame(values, initialValues))
+            if (
+                beat == zeroBeat
+                && IsDefaultFrame(values, initialValues)
+                && easingTypes.All(easingType => easingType == PhigrosAreaEaseType.Linear)
+            )
                 continue;
 
             result.Add((beat, values, easingTypes));
@@ -338,7 +329,7 @@ internal static class PhigrosV3BlockAreaBuilder
 
     private static bool CanUseNativeEasings(List<IrEvent>[] tracks, int[][] linkedTracks)
     {
-        var boundaries = new SortedSet<Beat>();
+        var boundaries = new SortedSet<Beat> { new(0) };
         foreach (var track in tracks)
         {
             foreach (var evt in track)
@@ -425,25 +416,57 @@ internal static class PhigrosV3BlockAreaBuilder
         return beat <= dominant.EndBeat ? dominant.GetValueAtBeatAsDouble(beat) : dominant.EndValue;
     }
 
-    private static PhigrosAreaEaseType GetNativeEaseBeforeBeat(
+    private static PhigrosAreaEaseType[] GetEaseTypesAfterBeat(
         List<IrEvent>[] tracks,
-        int[] linkedTracks,
-        Beat beat
+        int[][] linkedTracks,
+        Beat beat,
+        bool useNativeEasings
     )
     {
+        var result = new PhigrosAreaEaseType[linkedTracks.Length];
+        for (var groupIndex = 0; groupIndex < linkedTracks.Length; groupIndex++)
+            result[groupIndex] = GetEaseAfterBeat(
+                tracks,
+                linkedTracks[groupIndex],
+                beat,
+                useNativeEasings
+            );
+
+        return result;
+    }
+
+    private static PhigrosAreaEaseType GetEaseAfterBeat(
+        List<IrEvent>[] tracks,
+        int[] linkedTracks,
+        Beat beat,
+        bool useNativeEasings
+    )
+    {
+        var hasActiveEvent = false;
         var easingType = PhigrosAreaEaseType.Linear;
         foreach (var trackIndex in linkedTracks)
         {
-            var evt = tracks[trackIndex].FirstOrDefault(candidate =>
-                candidate.StartBeat < candidate.EndBeat
-                && candidate.EndBeat == beat
-                && !ValuesEqual(candidate.StartValue, candidate.EndValue)
+            var evt = tracks[trackIndex].LastOrDefault(candidate =>
+                candidate.StartBeat <= beat
             );
-            if (evt is not null && TryToAreaEase(evt.Easing, out var mapped))
+            if (
+                evt is null
+                || evt.EndBeat <= beat
+                || ValuesEqual(evt.StartValue, evt.EndValue)
+            )
+                continue;
+
+            hasActiveEvent = true;
+            if (!useNativeEasings)
+                break;
+            if (TryToAreaEase(evt.Easing, out var mapped))
                 easingType = mapped;
+            else
+                easingType = PhigrosAreaEaseType.Linear;
         }
 
-        return easingType;
+        // 无活动事件时以 One 保持左帧端值，避免缓动延伸到空白区间。
+        return hasActiveEvent ? easingType : PhigrosAreaEaseType.One;
     }
 
     private static double GetValueBeforeBeat(

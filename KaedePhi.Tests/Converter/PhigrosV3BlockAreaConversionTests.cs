@@ -95,22 +95,36 @@ public class PhigrosV3BlockAreaConversionTests
         Assert.Equal(source.BlockAreaList[0].DisappearTime, result.DisappearTime, 6);
         Assert.Equal(source.BlockAreaList[0].TopRightPercentage, result.TopRightPercentage);
         Assert.Equal(source.BlockAreaList[0].BottomLeftPercentage, result.BottomLeftPercentage);
+        Assert.Equal(2, result.MoveEvents.Count);
         Assert.Equal(
             source.BlockAreaList[0].MoveEvents[0].EndPosition,
-            Assert.Single(result.MoveEvents).EndPosition
+            result.MoveEvents[^1].EndPosition
         );
         Assert.Equal(
             source.BlockAreaList[0].MoveEvents[0].EaseTypeX.Type,
-            Assert.Single(result.MoveEvents).EaseTypeX.Type
+            result.MoveEvents[0].EaseTypeX.Type
+        );
+        Assert.Equal(PhigrosAreaEaseType.One, result.MoveEvents[^1].EaseTypeX.Type);
+        Assert.Equal(2, result.RotateEvents.Count);
+        Assert.Equal(
+            source.BlockAreaList[0].RotateEvents[0].Rotation,
+            result.RotateEvents[^1].Rotation
         );
         Assert.Equal(
             source.BlockAreaList[0].RotateEvents[0].EaseType.Type,
-            Assert.Single(result.RotateEvents).EaseType.Type
+            result.RotateEvents[0].EaseType.Type
+        );
+        Assert.Equal(PhigrosAreaEaseType.One, result.RotateEvents[^1].EaseType.Type);
+        Assert.Equal(2, result.ScaleEvents.Count);
+        Assert.Equal(
+            source.BlockAreaList[0].ScaleEvents[0].Scale,
+            result.ScaleEvents[^1].Scale
         );
         Assert.Equal(
             source.BlockAreaList[0].ScaleEvents[0].EaseTypeY.Type,
-            Assert.Single(result.ScaleEvents).EaseTypeY.Type
+            result.ScaleEvents[0].EaseTypeY.Type
         );
+        Assert.Equal(PhigrosAreaEaseType.One, result.ScaleEvents[^1].EaseTypeY.Type);
     }
 
     [Fact]
@@ -179,6 +193,7 @@ public class PhigrosV3BlockAreaConversionTests
                             EndBeat = new Beat(2),
                             StartValue = 0.4d,
                             EndValue = 0.6d,
+                            Easing = new(6),
                         },
                     ],
                 },
@@ -190,16 +205,21 @@ public class PhigrosV3BlockAreaConversionTests
         var converted = new PhigrosV3Converter().FromIr(source, options);
         var moves = Assert.Single(converted.BlockAreaList).MoveEvents;
 
-        Assert.Equal(4, moves.Count);
-        Assert.Equal(0.5f, moves[0].Time, 6);
-        Assert.Equal(0.6f, moves[0].EndPosition.X, 6);
+        Assert.Equal(5, moves.Count);
+        Assert.Equal(0f, moves[0].Time, 6);
         Assert.Equal(PhigrosAreaEaseType.EaseInQuad, moves[0].EaseTypeX.Type);
-        Assert.Equal(0.5078125f, moves[1].Time, 6);
+        Assert.Equal(0.5f, moves[1].Time, 6);
         Assert.Equal(0.6f, moves[1].EndPosition.X, 6);
-        Assert.Equal(moves[1].Time, moves[2].Time);
-        Assert.Equal(0.7f, moves[2].EndPosition.X, 6);
+        Assert.Equal(PhigrosAreaEaseType.One, moves[1].EaseTypeX.Type);
+        Assert.Equal(0.5078125f, moves[2].Time, 6);
+        Assert.Equal(0.6f, moves[2].EndPosition.X, 6);
         Assert.Equal(PhigrosAreaEaseType.One, moves[2].EaseTypeX.Type);
-        Assert.Equal(0.8f, moves[3].EndPosition.X, 6);
+        Assert.Equal(moves[2].Time, moves[3].Time);
+        Assert.Equal(0.7f, moves[3].EndPosition.X, 6);
+        Assert.Equal(PhigrosAreaEaseType.EaseOutQuad, moves[3].EaseTypeX.Type);
+        Assert.Equal(1f, moves[4].Time, 6);
+        Assert.Equal(0.8f, moves[4].EndPosition.X, 6);
+        Assert.Equal(PhigrosAreaEaseType.One, moves[4].EaseTypeX.Type);
     }
 
     [Fact]
@@ -236,6 +256,7 @@ public class PhigrosV3BlockAreaConversionTests
                             EndBeat = new Beat(2),
                             StartValue = 0.4d,
                             EndValue = 0.6d,
+                            Easing = new(6),
                         },
                     ],
                 },
@@ -248,13 +269,17 @@ public class PhigrosV3BlockAreaConversionTests
         );
         var moves = Assert.Single(converted.BlockAreaList).MoveEvents;
 
-        Assert.Equal(3, moves.Count);
-        Assert.Equal(0.5f, moves[0].Time, 6);
-        Assert.Equal(0.6f, moves[0].EndPosition.X, 6);
-        Assert.Equal(moves[0].Time, moves[1].Time);
-        Assert.Equal(0.7f, moves[1].EndPosition.X, 6);
+        Assert.Equal(4, moves.Count);
+        Assert.Equal(0f, moves[0].Time, 6);
+        Assert.Equal(0.5f, moves[1].Time, 6);
+        Assert.Equal(0.6f, moves[1].EndPosition.X, 6);
         Assert.Equal(PhigrosAreaEaseType.One, moves[1].EaseTypeX.Type);
-        Assert.Equal(0.8f, moves[2].EndPosition.X, 6);
+        Assert.Equal(moves[1].Time, moves[2].Time);
+        Assert.Equal(0.7f, moves[2].EndPosition.X, 6);
+        Assert.Equal(PhigrosAreaEaseType.EaseOutQuad, moves[2].EaseTypeX.Type);
+        Assert.Equal(1f, moves[3].Time, 6);
+        Assert.Equal(0.8f, moves[3].EndPosition.X, 6);
+        Assert.Equal(PhigrosAreaEaseType.One, moves[3].EaseTypeX.Type);
     }
 
     [Fact]
@@ -321,8 +346,10 @@ public class PhigrosV3BlockAreaConversionTests
 
         Assert.Empty(converted.JudgeLineList);
         Assert.Equal(2f, area.AppearTime);
-        Assert.Equal(2f, Assert.Single(area.MoveEvents).Time);
-        Assert.Equal(1f, Assert.Single(area.MoveEvents).EndPosition.X);
+        Assert.Equal(2, area.MoveEvents.Count);
+        Assert.Equal(0f, area.MoveEvents[0].Time);
+        Assert.Equal(2f, area.MoveEvents[^1].Time);
+        Assert.Equal(1f, area.MoveEvents[^1].EndPosition.X);
     }
 
     [Fact]
@@ -380,11 +407,10 @@ public class PhigrosV3BlockAreaConversionTests
         var converted = converter.FromIr(source, options);
         var area = Assert.Single(converted.BlockAreaList);
 
-        Assert.Equal(2, area.MoveEvents.Count);
-        Assert.All(
-            area.MoveEvents,
-            evt => Assert.Equal(PhigrosAreaEaseType.Linear, evt.EaseTypeX.Type)
-        );
+        Assert.Equal(3, area.MoveEvents.Count);
+        Assert.Equal(PhigrosAreaEaseType.Linear, area.MoveEvents[0].EaseTypeX.Type);
+        Assert.Equal(PhigrosAreaEaseType.Linear, area.MoveEvents[1].EaseTypeX.Type);
+        Assert.Equal(PhigrosAreaEaseType.One, area.MoveEvents[^1].EaseTypeX.Type);
         Assert.Contains(warnings, message => message.Contains("线性事件"));
     }
 }

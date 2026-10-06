@@ -5,6 +5,7 @@ using KaedePhi.Tool.Common;
 using KaedePhi.Tool.Converter;
 using KaedePhi.Tool.Converter.Phigros.v3;
 using KaedePhi.Tool.Converter.Phigros.v3.Model;
+using PhigrosAreaEase = KaedePhi.Core.Formats.Phigros.v3.Model.AreaEase;
 using PhigrosAreaEaseType = KaedePhi.Core.Formats.Phigros.v3.Model.AreaEaseType;
 using PhigrosBlockArea = KaedePhi.Core.Formats.Phigros.v3.Model.BlockArea;
 using IrBlockArea = KaedePhi.Core.Intermediate.Model.BlockArea;
@@ -13,12 +14,291 @@ using RpeEvent = KaedePhi.Core.Formats.RePhiEdit.Model.Events.Event<float>;
 using RpeEventLayer = KaedePhi.Core.Formats.RePhiEdit.Model.Events.EventLayer;
 using RpeExtendLayer = KaedePhi.Core.Formats.RePhiEdit.Model.Events.ExtendLayer;
 using RpeJudgeLine = KaedePhi.Core.Formats.RePhiEdit.Model.JudgeLine;
+using IrBpmItem = KaedePhi.Core.Intermediate.Model.BpmItem;
+using IrChart = KaedePhi.Core.Intermediate.Model.Chart;
+using IrEasing = KaedePhi.Core.Intermediate.Model.Easing;
+using IrJudgeLine = KaedePhi.Core.Intermediate.Model.JudgeLine;
 using Xunit;
 
 namespace KaedePhi.Tests.Converter;
 
 public class StellateRePhiEditExtendedConverterTests
 {
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task ExportEncodesIrBlockAreasAsEditableMarkerLines(bool useStream)
+    {
+        var source = new IrChart
+        {
+            BpmList = [new IrBpmItem { Bpm = 120f, StartBeat = new Beat(0) }],
+            JudgeLineList = [new IrJudgeLine { Texture = "line.png" }],
+            BlockAreaList =
+            [
+                new IrBlockArea
+                {
+                    TopRightX = 0.75d,
+                    TopRightY = 0.75d,
+                    BottomLeftX = -0.25d,
+                    BottomLeftY = -0.25d,
+                    AppearBeat = new Beat(1),
+                    EnableBeat = new Beat(2),
+                    DisableBeat = new Beat(3),
+                    DisappearBeat = new Beat(4),
+                    IsSubtract = true,
+                    MoveXEvents = [CreateIrEvent(0, 4, 0.25d, 0.5d, 5)],
+                    MoveYEvents = [CreateIrEvent(0, 4, 0.25d, -0.25d)],
+                    RotateEvents = [CreateIrEvent(0, 4, 0d, 90d)],
+                    ScaleXEvents = [CreateIrEvent(0, 4, 1d, 2d)],
+                    ScaleYEvents = [CreateIrEvent(0, 4, 1d, 0.5d)],
+                },
+            ],
+        };
+
+        var path = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid():N}.json");
+        try
+        {
+            var descriptor = ChartFormatRegistry.Get(ChartType.StellateRePhiEditExtended);
+            Assert.True(descriptor.CanExport);
+            await descriptor.ExportAsync(
+                source,
+                path,
+                new ChartWriteSettings { UseStream = useStream },
+                ct: TestContext.Current.CancellationToken
+            );
+
+            var json = await File.ReadAllTextAsync(
+                path,
+                TestContext.Current.CancellationToken
+            );
+            var exported = await ChartSerialization.LoadFromJsonAsync(json);
+            Assert.Equal(2, exported.JudgeLineList.Count);
+            var markerLine = exported.JudgeLineList[1];
+            Assert.Equal(@"Pictures\isSubtract1.png", markerLine.Texture);
+            Assert.Equal(4, markerLine.EventLayers[0].SpeedEvents!.Count);
+            var alphaEvents = markerLine.EventLayers[0].AlphaEvents!;
+            Assert.Equal(
+                new[] { 0, 128, 255, 0 },
+                alphaEvents.Select(evt => evt.EndValue)
+            );
+            Assert.Equal(
+                new[] { 0, 1, 2, 3 }.Select(beat => new Beat(beat)),
+                alphaEvents.Select(evt => evt.StartBeat)
+            );
+
+            var (detectedType, converted) = await ChartFormatRegistry.ImportIrAsync(
+                json,
+                ct: TestContext.Current.CancellationToken
+            );
+
+            Assert.Equal(ChartType.StellateRePhiEditExtended, detectedType);
+            Assert.Single(converted.JudgeLineList);
+            var area = Assert.Single(converted.BlockAreaList);
+            Assert.True(area.IsSubtract);
+            Assert.Equal(0.75d, area.TopRightX, 6);
+            Assert.Equal(0.75d, area.TopRightY, 6);
+            Assert.Equal(-0.25d, area.BottomLeftX, 6);
+            Assert.Equal(-0.25d, area.BottomLeftY, 6);
+            Assert.Equal(new Beat(1), area.AppearBeat);
+            Assert.Equal(new Beat(2), area.EnableBeat);
+            Assert.Equal(new Beat(3), area.DisableBeat);
+            Assert.Equal(new Beat(4), area.DisappearBeat);
+            var moveXEvent = Assert.Single(area.MoveXEvents!);
+            Assert.Equal(0.5d, moveXEvent.EndValue, 6);
+            Assert.Equal(5, (int)moveXEvent.Easing);
+            Assert.Equal(-0.25d, area.MoveYEvents!.Single().EndValue, 6);
+            Assert.Equal(90d, area.RotateEvents!.Single().EndValue, 6);
+            Assert.Equal(2d, area.ScaleXEvents!.Single().EndValue, 6);
+            Assert.Equal(0.5d, area.ScaleYEvents!.Single().EndValue, 6);
+        }
+        finally
+        {
+            if (File.Exists(path))
+                File.Delete(path);
+        }
+    }
+
+    [Fact]
+    public async Task ExportUsesActiveOpacityWhenAppearAndEnableBeatsCoincide()
+    {
+        var source = new IrChart
+        {
+            BlockAreaList =
+            [
+                new IrBlockArea
+                {
+                    TopRightX = 0.5d,
+                    TopRightY = 0.5d,
+                    BottomLeftX = -0.5d,
+                    BottomLeftY = -0.5d,
+                    AppearBeat = new Beat(2),
+                    EnableBeat = new Beat(2),
+                    DisableBeat = new Beat(4),
+                    DisappearBeat = new Beat(5),
+                },
+            ],
+        };
+
+        var path = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid():N}.json");
+        try
+        {
+            await ChartFormatRegistry.Get(ChartType.StellateRePhiEditExtended).ExportAsync(
+                source,
+                path,
+                ct: TestContext.Current.CancellationToken
+            );
+            var json = await File.ReadAllTextAsync(
+                path,
+                TestContext.Current.CancellationToken
+            );
+            var exported = await ChartSerialization.LoadFromJsonAsync(json);
+            var alphaEvents = exported.JudgeLineList[0].EventLayers[0].AlphaEvents!;
+
+            Assert.Equal(
+                new[] { 0, 255, 0 },
+                alphaEvents.Select(evt => evt.EndValue)
+            );
+            Assert.Equal(
+                new[] { 0, 2, 4 }.Select(beat => new Beat(beat)),
+                alphaEvents.Select(evt => evt.StartBeat)
+            );
+        }
+        finally
+        {
+            if (File.Exists(path))
+                File.Delete(path);
+        }
+    }
+
+    [Fact]
+    public async Task ExportBakesChangingScaleAndRotationAnchorsIntoPosition()
+    {
+        var source = new IrChart
+        {
+            BpmList = [new IrBpmItem { Bpm = 120f, StartBeat = new Beat(0) }],
+            BlockAreaList =
+            [
+                new IrBlockArea
+                {
+                    TopRightX = 0.5d,
+                    TopRightY = 0.5d,
+                    BottomLeftX = -0.5d,
+                    BottomLeftY = -0.5d,
+                    AppearBeat = new Beat(0),
+                    EnableBeat = new Beat(0),
+                    DisableBeat = new Beat(5),
+                    DisappearBeat = new Beat(6),
+                    RotateEvents = [CreateIrEvent(0, 4, 0d, 90d)],
+                    RotateAnchorXEvents = [CreateIrEvent(0, 4, 0d, 0d)],
+                    RotateAnchorYEvents = [CreateIrEvent(0, 4, 0d, 0.5d)],
+                    ScaleXEvents = [CreateIrEvent(0, 4, 1d, 2d)],
+                    ScaleYEvents = [CreateIrEvent(0, 4, 1d, 1d)],
+                    ScaleAnchorXEvents = [CreateIrEvent(0, 4, 0d, 0.5d)],
+                    ScaleAnchorYEvents = [CreateIrEvent(0, 4, 0d, 0d)],
+                },
+            ],
+        };
+
+        var path = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid():N}.json");
+        try
+        {
+            await ChartFormatRegistry.Get(ChartType.StellateRePhiEditExtended).ExportAsync(
+                source,
+                path,
+                ct: TestContext.Current.CancellationToken
+            );
+            var json = await File.ReadAllTextAsync(
+                path,
+                TestContext.Current.CancellationToken
+            );
+            var (_, converted) = await ChartFormatRegistry.ImportIrAsync(
+                json,
+                ct: TestContext.Current.CancellationToken
+            );
+
+            var area = Assert.Single(converted.BlockAreaList);
+            var centerX = GetIrCenterX(area);
+            var centerY = (area.TopRightY + area.BottomLeftY) / 2d;
+            var movedX = EvaluateIrTrack(area.MoveXEvents, new Beat(4), centerX);
+            var movedY = EvaluateIrTrack(area.MoveYEvents, new Beat(4), centerY);
+
+            Assert.Equal(1d / 3d, movedX, 3);
+            Assert.Equal(-0.25d, movedY, 3);
+            Assert.Null(area.RotateAnchorXEvents);
+            Assert.Null(area.ScaleAnchorXEvents);
+        }
+        finally
+        {
+            if (File.Exists(path))
+                File.Delete(path);
+        }
+    }
+
+    [Fact]
+    public async Task ExportSeedsBlockAreaTracksThatStartAfterZero()
+    {
+        var source = new IrChart
+        {
+            BpmList = [new IrBpmItem { Bpm = 120f, StartBeat = new Beat(0) }],
+            BlockAreaList =
+            [
+                new IrBlockArea
+                {
+                    TopRightX = 0.5d,
+                    TopRightY = 0.5d,
+                    BottomLeftX = -0.5d,
+                    BottomLeftY = -0.5d,
+                    AppearBeat = new Beat(0),
+                    EnableBeat = new Beat(1),
+                    DisableBeat = new Beat(3),
+                    DisappearBeat = new Beat(4),
+                    MoveXEvents = [CreateIrEvent(2, 4, 0d, 0.5d)],
+                    RotateEvents = [CreateIrEvent(2, 4, 0d, 45d)],
+                    ScaleXEvents = [CreateIrEvent(2, 4, 1d, 2d)],
+                },
+            ],
+        };
+
+        var path = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid():N}.json");
+        try
+        {
+            await ChartFormatRegistry.Get(ChartType.StellateRePhiEditExtended).ExportAsync(
+                source,
+                path,
+                ct: TestContext.Current.CancellationToken
+            );
+            var json = await File.ReadAllTextAsync(
+                path,
+                TestContext.Current.CancellationToken
+            );
+            var (_, converted) = await ChartFormatRegistry.ImportIrAsync(
+                json,
+                ct: TestContext.Current.CancellationToken
+            );
+
+            var area = Assert.Single(converted.BlockAreaList);
+            Assert.Equal(0.5d, area.TopRightX, 6);
+            Assert.Equal(-0.5d, area.BottomLeftX, 6);
+            Assert.Equal(new Beat(0), area.MoveXEvents![0].StartBeat);
+            Assert.Equal(new Beat(2), area.MoveXEvents[0].EndBeat);
+            Assert.Equal(0d, area.MoveXEvents[0].EndValue, 6);
+            Assert.Equal(0.5d, area.MoveXEvents[^1].EndValue, 6);
+            Assert.Equal(new Beat(0), area.RotateEvents![0].StartBeat);
+            Assert.Equal(new Beat(2), area.RotateEvents[0].EndBeat);
+            Assert.Equal(0d, area.RotateEvents[0].EndValue, 6);
+            Assert.Equal(45d, area.RotateEvents[^1].EndValue, 6);
+            Assert.Equal(new Beat(0), area.ScaleXEvents![0].StartBeat);
+            Assert.Equal(new Beat(2), area.ScaleXEvents[0].EndBeat);
+            Assert.Equal(1d, area.ScaleXEvents[0].EndValue, 6);
+            Assert.Equal(2d, area.ScaleXEvents[^1].EndValue, 6);
+        }
+        finally
+        {
+            if (File.Exists(path))
+                File.Delete(path);
+        }
+    }
+
     [Fact]
     public async Task ImportDetectsMarkerLinesAndExportsThemAsPhigrosBlockAreas()
     {
@@ -69,15 +349,17 @@ public class StellateRePhiEditExtendedConverterTests
         Assert.Equal(0.5f, firstArea.EnableTime);
         Assert.Equal(1f, firstArea.DisableTime);
         Assert.Equal(2f, firstArea.DisappearTime);
-        Assert.Equal(1f, Assert.Single(firstArea.MoveEvents).EndPosition.X);
-        Assert.Equal(0f, Assert.Single(firstArea.MoveEvents).EndPosition.Y);
+        Assert.Equal(2, firstArea.MoveEvents.Count);
+        Assert.Equal(1f, firstArea.MoveEvents[^1].EndPosition.X);
+        Assert.Equal(0f, firstArea.MoveEvents[^1].EndPosition.Y);
+        Assert.Equal(
+            PhigrosAreaEaseType.EaseInQuad,
+            firstArea.MoveEvents[0].EaseTypeX.Type
+        );
+        Assert.Equal(PhigrosAreaEaseType.One, firstArea.MoveEvents[^1].EaseTypeX.Type);
         Assert.Equal(-90f, Assert.Single(firstArea.RotateEvents).Rotation);
         Assert.Equal(2f, Assert.Single(firstArea.ScaleEvents).Scale.X);
         Assert.Equal(0.5f, Assert.Single(firstArea.ScaleEvents).Scale.Y);
-        Assert.Equal(
-            PhigrosAreaEaseType.EaseInQuad,
-            Assert.Single(firstArea.MoveEvents).EaseTypeX.Type
-        );
     }
 
     [Fact]
@@ -328,11 +610,13 @@ public class StellateRePhiEditExtendedConverterTests
         );
         var area = Assert.Single(exported.BlockAreaList);
 
-        Assert.Equal(2, area.RotateEvents.Count);
-        Assert.Equal(1f, area.RotateEvents[0].Time, 6);
+        Assert.Equal(3, area.RotateEvents.Count);
+        Assert.Equal(0f, area.RotateEvents[0].Time, 6);
         Assert.Equal(0f, area.RotateEvents[0].Rotation);
-        Assert.Equal(1.5f, area.RotateEvents[1].Time, 6);
-        Assert.Equal(-90f, area.RotateEvents[1].Rotation, 4);
+        Assert.Equal(1f, area.RotateEvents[1].Time, 6);
+        Assert.Equal(0f, area.RotateEvents[1].Rotation);
+        Assert.Equal(1.5f, area.RotateEvents[2].Time, 6);
+        Assert.Equal(-90f, area.RotateEvents[2].Rotation, 4);
     }
 
     [Fact]
@@ -455,7 +739,7 @@ public class StellateRePhiEditExtendedConverterTests
 
         Assert.Equal(
             expected,
-            Assert.Single(Assert.Single(exported.BlockAreaList).MoveEvents).EaseTypeX.Type
+            Assert.Single(exported.BlockAreaList).MoveEvents[0].EaseTypeX.Type
         );
     }
 
@@ -625,7 +909,7 @@ public class StellateRePhiEditExtendedConverterTests
 
         Assert.Equal(
             PhigrosAreaEaseType.EaseInQuad,
-            Assert.Single(Assert.Single(exported.BlockAreaList).MoveEvents).EaseTypeX.Type
+            Assert.Single(exported.BlockAreaList).MoveEvents[0].EaseTypeX.Type
         );
     }
 
@@ -671,7 +955,7 @@ public class StellateRePhiEditExtendedConverterTests
 
         Assert.Equal(
             PhigrosAreaEaseType.EaseInQuad,
-            Assert.Single(Assert.Single(exported.BlockAreaList).MoveEvents).EaseTypeX.Type
+            Assert.Single(exported.BlockAreaList).MoveEvents[0].EaseTypeX.Type
         );
     }
 
@@ -751,12 +1035,23 @@ public class StellateRePhiEditExtendedConverterTests
     {
         var previousTime = 0f;
         var startPosition = area.Center;
+        var leftEase = PhigrosAreaEaseType.Linear;
         foreach (var moveEvent in area.MoveEvents.OrderBy(evt => evt.Time))
         {
             if (time <= moveEvent.Time)
-                return moveEvent.GetPositionAtTime(time, previousTime, startPosition).X;
+            {
+                var progress = PhigrosAreaEase.GetProgress(
+                    previousTime,
+                    moveEvent.Time,
+                    time
+                );
+                var easedProgress = PhigrosAreaEase.GetEaseWithProgress(progress, leftEase);
+                return startPosition.X
+                    + (moveEvent.EndPosition.X - startPosition.X) * easedProgress;
+            }
             previousTime = moveEvent.Time;
             startPosition = moveEvent.EndPosition;
+            leftEase = moveEvent.EaseTypeX.Type;
         }
         return startPosition.X;
     }
@@ -806,5 +1101,21 @@ public class StellateRePhiEditExtendedConverterTests
             EndBeat = new Beat(endBeat),
             StartValue = start,
             EndValue = end,
+        };
+
+    private static IrEvent CreateIrEvent(
+        int startBeat,
+        int endBeat,
+        double start,
+        double end,
+        int easing = 1
+    ) =>
+        new()
+        {
+            StartBeat = new Beat(startBeat),
+            EndBeat = new Beat(endBeat),
+            StartValue = start,
+            EndValue = end,
+            Easing = new IrEasing(easing),
         };
 }

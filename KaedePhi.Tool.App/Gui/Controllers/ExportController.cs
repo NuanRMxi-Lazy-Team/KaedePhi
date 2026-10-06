@@ -54,6 +54,7 @@ internal sealed class ExportController
         {
             ChartType.PhiEdit => ("pec", file_type_pe_chart),
             ChartType.RePhiEdit => ("json", file_type_rpe_json),
+            ChartType.StellateRePhiEditExtended => ("json", file_type_rpe_json),
             ChartType.PhigrosV3 => ("json", file_type_phigros_json),
             ChartType.PhiFans => ("json", file_type_phifans_json),
             ChartType.PhiChain => ("json", file_type_phichain_json),
@@ -197,6 +198,7 @@ internal sealed class ExportController
             ChartType.PhigrosV3 => BuildPhigrosV3Options(vm),
             ChartType.PhiChain => BuildPhiChainOptions(vm),
             ChartType.RePhiEdit => BuildRePhiEditOptions(vm),
+            ChartType.StellateRePhiEditExtended => BuildRePhiEditOptions(vm),
             ChartType.PhiFans => BuildPhiFansOptions(vm),
             _ => null,
         };

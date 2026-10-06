@@ -12,6 +12,7 @@ public sealed class ExportViewModel : INotifyPropertyChanged
     public List<ChartType> AvailableFormats { get; } =
     [
         ChartType.RePhiEdit,
+        ChartType.StellateRePhiEditExtended,
         ChartType.PhiEdit,
         ChartType.PhigrosV3,
         ChartType.PhiChain,
@@ -70,6 +71,7 @@ public sealed class ExportViewModel : INotifyPropertyChanged
             is ChartType.PhiEdit
                 or ChartType.PhigrosV3
                 or ChartType.RePhiEdit
+                or ChartType.StellateRePhiEditExtended
                 or ChartType.PhiChain
                 or ChartType.PhiFans;
 
@@ -85,10 +87,11 @@ public sealed class ExportViewModel : INotifyPropertyChanged
         ShowConversionOptions && _selectedFormat == ChartType.PhigrosV3;
 
     /// <summary>
-    /// 是否显示 RePhiEdit 专属转换选项（目标为 RePhiEdit）
+    /// 是否显示 RePhiEdit 专属转换选项（目标为 RePhiEdit 或其噪域扩展格式）
     /// </summary>
     public bool ShowRePhiEditOptions =>
-        ShowConversionOptions && _selectedFormat == ChartType.RePhiEdit;
+        ShowConversionOptions
+        && _selectedFormat is ChartType.RePhiEdit or ChartType.StellateRePhiEditExtended;
 
     /// <summary>
     /// 是否显示 PhiChain 专属转换选项（目标为 PhiChain）
@@ -620,7 +623,7 @@ public sealed class ExportViewModel : INotifyPropertyChanged
         NegativeAlphaElevation = config.PhigrosNegativeAlphaElevation;
         NegativeAlphaStep = config.PhigrosNegativeAlphaStep;
 
-        // RePhiEdit 选项使用通用配置
+        // RePhiEdit 及其噪域扩展格式选项使用通用配置
         RePhiEditUnsupportedEasingPrecision = (int)config.UnbindPrecision;
 
         // PhiChain 选项使用通用配置
