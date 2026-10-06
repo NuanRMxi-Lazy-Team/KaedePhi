@@ -8,4 +8,5 @@ public enum ChartType
     PhigrosV3,
     PhiChain,
     PhiFans,
+    StellateRePhiEditExtended,
 }

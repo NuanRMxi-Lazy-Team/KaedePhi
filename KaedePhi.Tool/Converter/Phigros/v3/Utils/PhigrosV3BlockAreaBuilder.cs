@@ -172,7 +172,9 @@ internal static class PhigrosV3BlockAreaBuilder
         string groupName
     )
     {
-        var tracks = sourceTracks.Select(SortAndValidateEvents).ToArray();
+        var tracks = sourceTracks
+            .Select(events => SortAndValidateEvents(events, easingPrecision))
+            .ToArray();
         if (tracks.All(track => track.Count == 0))
             return [];
 
@@ -198,29 +200,63 @@ internal static class PhigrosV3BlockAreaBuilder
         var result = new List<(Beat, double[], PhigrosAreaEaseType[])>(boundaries.Count);
         foreach (var beat in boundaries)
         {
+            var beforeValues = new double[tracks.Length];
             var values = new double[tracks.Length];
             for (var trackIndex = 0; trackIndex < tracks.Length; trackIndex++)
+            {
+                beforeValues[trackIndex] = GetValueBeforeBeat(
+                    tracks[trackIndex],
+                    beat,
+                    initialValues[trackIndex]
+                );
                 values[trackIndex] = GetValueAtBeat(
                     tracks[trackIndex],
                     beat,
                     initialValues[trackIndex]
                 );
+            }
+
+            var stepGroups = new bool[linkedTracks.Length];
+            for (var groupIndex = 0; groupIndex < linkedTracks.Length; groupIndex++)
+                stepGroups[groupIndex] = linkedTracks[groupIndex].Any(trackIndex =>
+                    !ValuesEqual(beforeValues[trackIndex], values[trackIndex])
+                );
+
+            if (stepGroups.Any(isStep => isStep))
+            {
+                var beforeEasingTypes = new PhigrosAreaEaseType[linkedTracks.Length];
+                for (var groupIndex = 0; groupIndex < linkedTracks.Length; groupIndex++)
+                {
+                    beforeEasingTypes[groupIndex] = useNativeEasings
+                        ? GetNativeEaseBeforeBeat(tracks, linkedTracks[groupIndex], beat)
+                        : PhigrosAreaEaseType.Linear;
+                }
+
+                if (beat != new Beat(0) || !IsDefaultFrame(beforeValues, initialValues))
+                    result.Add((beat, beforeValues, beforeEasingTypes));
+
+                result.Add(
+                    (
+                        beat,
+                        values,
+                        Enumerable
+                            .Repeat(PhigrosAreaEaseType.One, linkedTracks.Length)
+                            .ToArray()
+                    )
+                );
+                continue;
+            }
 
             var easingTypes = new PhigrosAreaEaseType[linkedTracks.Length];
             for (var groupIndex = 0; groupIndex < linkedTracks.Length; groupIndex++)
             {
                 if (useNativeEasings)
                 {
-                    easingTypes[groupIndex] = GetNativeEaseAtBeat(
+                    easingTypes[groupIndex] = GetNativeEaseBeforeBeat(
                         tracks,
                         linkedTracks[groupIndex],
-                        beat,
-                        initialValues
+                        beat
                     );
-                }
-                else if (HasStepAtBeat(tracks, linkedTracks[groupIndex], beat, initialValues))
-                {
-                    easingTypes[groupIndex] = PhigrosAreaEaseType.Zero;
                 }
                 else
                 {
@@ -237,7 +273,10 @@ internal static class PhigrosV3BlockAreaBuilder
         return result;
     }
 
-    private static List<IrEvent> SortAndValidateEvents(List<IrEvent>? events)
+    private static List<IrEvent> SortAndValidateEvents(
+        List<IrEvent>? events,
+        double easingPrecision
+    )
     {
         if (events is not { Count: > 0 })
             return [];
@@ -254,14 +293,47 @@ internal static class PhigrosV3BlockAreaBuilder
                 throw new FormatException("IR 噪域缓动范围必须是有限数值。");
         }
 
-        return
-        [
-            .. events
-                .Select((evt, index) => (Event: evt, Index: index))
-                .OrderBy(item => item.Event.StartBeat)
-                .ThenBy(item => item.Index)
-                .Select(item => item.Event)
-        ];
+        var result = events
+            .Select((evt, index) => (Event: evt, Index: index))
+            .OrderBy(item => item.Event.StartBeat)
+            .ThenBy(item => item.Index)
+            .Select(item => item.Event.Clone())
+            .ToList();
+        FixDiscontinuityGaps(result, easingPrecision);
+        return result;
+    }
+
+    private static void FixDiscontinuityGaps(List<IrEvent> events, double precision)
+    {
+        if (events.Count < 2)
+            return;
+
+        var padding = new Beat(1d / precision);
+        if (padding == new Beat(0))
+            return;
+
+        for (var index = 1; index < events.Count; index++)
+        {
+            var previous = events[index - 1];
+            var current = events[index];
+            if (
+                previous.StartBeat >= previous.EndBeat
+                || current.StartBeat == current.EndBeat
+                || previous.EndBeat != current.StartBeat
+                || ValuesEqual(previous.EndValue, current.StartValue)
+            )
+                continue;
+
+            // 相邻区间终值与起值不连续时错开新起点，保留前一段的终点关键帧。
+            var shiftedStartBeat = current.StartBeat + padding;
+            if (
+                shiftedStartBeat >= current.EndBeat
+                || (index + 1 < events.Count && shiftedStartBeat >= events[index + 1].StartBeat)
+            )
+                continue;
+
+            current.StartBeat = shiftedStartBeat;
+        }
     }
 
     private static bool CanUseNativeEasings(List<IrEvent>[] tracks, int[][] linkedTracks)
@@ -353,16 +425,12 @@ internal static class PhigrosV3BlockAreaBuilder
         return beat <= dominant.EndBeat ? dominant.GetValueAtBeatAsDouble(beat) : dominant.EndValue;
     }
 
-    private static PhigrosAreaEaseType GetNativeEaseAtBeat(
+    private static PhigrosAreaEaseType GetNativeEaseBeforeBeat(
         List<IrEvent>[] tracks,
         int[] linkedTracks,
-        Beat beat,
-        double[] initialValues
+        Beat beat
     )
     {
-        if (HasStepAtBeat(tracks, linkedTracks, beat, initialValues))
-            return PhigrosAreaEaseType.Zero;
-
         var easingType = PhigrosAreaEaseType.Linear;
         foreach (var trackIndex in linkedTracks)
         {
@@ -376,36 +444,6 @@ internal static class PhigrosV3BlockAreaBuilder
         }
 
         return easingType;
-    }
-
-    private static bool HasStepAtBeat(
-        List<IrEvent>[] tracks,
-        int[] linkedTracks,
-        Beat beat,
-        double[] initialValues
-    )
-    {
-        foreach (var trackIndex in linkedTracks)
-        {
-            var beforeValue = GetValueBeforeBeat(
-                tracks[trackIndex],
-                beat,
-                initialValues[trackIndex]
-            );
-            foreach (var evt in tracks[trackIndex].Where(evt => evt.StartBeat == beat))
-            {
-                if (
-                    evt.StartBeat == evt.EndBeat
-                    && !ValuesEqual(evt.StartValue, evt.EndValue)
-                )
-                    return true;
-                if (!ValuesEqual(evt.StartValue, beforeValue))
-                    return true;
-                beforeValue = evt.EndValue;
-            }
-        }
-
-        return false;
     }
 
     private static double GetValueBeforeBeat(

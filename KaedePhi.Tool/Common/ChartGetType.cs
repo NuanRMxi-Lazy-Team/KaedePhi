@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using KaedePhi.Tool.Converter.StellateRePhiEditExtended;
 using Newtonsoft.Json;
 
 namespace KaedePhi.Tool.Common;
@@ -122,6 +123,8 @@ public static class ChartGetType
         var hasFormatVersion = false;
         var formatVersionValid = false;
         var formatVersion = 0;
+        var hasRePhiEditMeta = false;
+        var hasStellateTexture = false;
 
         while (ReadNext(reader))
         {
@@ -137,7 +140,8 @@ public static class ChartGetType
             switch (propertyName)
             {
                 case "META" when reader.TokenType == JsonToken.StartObject:
-                    return ChartType.RePhiEdit;
+                    hasRePhiEditMeta = true;
+                    break;
                 case "formatVersion":
                     hasFormatVersion = true;
                     formatVersionValid = TryReadFormatVersion(reader, out formatVersion);
@@ -156,8 +160,16 @@ public static class ChartGetType
                     break;
             }
 
-            SkipValue(reader);
+            hasStellateTexture |= SkipValue(
+                reader,
+                string.Equals(propertyName, "judgeLineList", StringComparison.Ordinal)
+            );
         }
+
+        if (hasRePhiEditMeta)
+            return hasStellateTexture
+                ? ChartType.StellateRePhiEditExtended
+                : ChartType.RePhiEdit;
 
         if (hasFormatVersion)
         {
@@ -191,6 +203,8 @@ public static class ChartGetType
         var hasFormatVersion = false;
         var formatVersionValid = false;
         var formatVersion = 0;
+        var hasRePhiEditMeta = false;
+        var hasStellateTexture = false;
 
         while (await ReadNextAsync(reader, ct))
         {
@@ -206,7 +220,8 @@ public static class ChartGetType
             switch (propertyName)
             {
                 case "META" when reader.TokenType == JsonToken.StartObject:
-                    return ChartType.RePhiEdit;
+                    hasRePhiEditMeta = true;
+                    break;
                 case "formatVersion":
                     hasFormatVersion = true;
                     formatVersionValid = TryReadFormatVersion(reader, out formatVersion);
@@ -225,8 +240,17 @@ public static class ChartGetType
                     break;
             }
 
-            await SkipValueAsync(reader, ct);
+            hasStellateTexture |= await SkipValueAsync(
+                reader,
+                string.Equals(propertyName, "judgeLineList", StringComparison.Ordinal),
+                ct
+            );
         }
+
+        if (hasRePhiEditMeta)
+            return hasStellateTexture
+                ? ChartType.StellateRePhiEditExtended
+                : ChartType.RePhiEdit;
 
         if (hasFormatVersion)
         {
@@ -265,16 +289,38 @@ public static class ChartGetType
         return false;
     }
 
-    private static void SkipValue(JsonTextReader reader)
+    private static bool SkipValue(JsonTextReader reader, bool detectStellateTexture = false)
     {
         if (reader.TokenType is not (JsonToken.StartObject or JsonToken.StartArray))
-            return;
+            return false;
 
         var depth = 1;
+        var hasStellateTexture = false;
         while (depth > 0)
         {
             if (!reader.Read())
                 throw new JsonException("JSON 值未正常结束。");
+
+            if (
+                detectStellateTexture
+                && reader.TokenType == JsonToken.PropertyName
+                && string.Equals(reader.Value as string, "Texture", StringComparison.Ordinal)
+            )
+            {
+                if (!reader.Read())
+                    throw new JsonException("JSON 属性缺少值。");
+                if (
+                    reader.TokenType == JsonToken.String
+                    && StellateRePhiEditExtendedTexture.IsBlockAreaTexture(
+                        reader.Value as string
+                    )
+                )
+                    hasStellateTexture = true;
+                if (reader.TokenType is JsonToken.StartObject or JsonToken.StartArray)
+                    depth++;
+                continue;
+            }
+
             switch (reader.TokenType)
             {
                 case JsonToken.StartObject or JsonToken.StartArray:
@@ -285,18 +331,46 @@ public static class ChartGetType
                     break;
             }
         }
+
+        return hasStellateTexture;
     }
 
-    private static async Task SkipValueAsync(JsonTextReader reader, CancellationToken ct)
+    private static async Task<bool> SkipValueAsync(
+        JsonTextReader reader,
+        bool detectStellateTexture,
+        CancellationToken ct
+    )
     {
         if (reader.TokenType is not (JsonToken.StartObject or JsonToken.StartArray))
-            return;
+            return false;
 
         var depth = 1;
+        var hasStellateTexture = false;
         while (depth > 0)
         {
             if (!await reader.ReadAsync(ct))
                 throw new JsonException("JSON 值未正常结束。");
+
+            if (
+                detectStellateTexture
+                && reader.TokenType == JsonToken.PropertyName
+                && string.Equals(reader.Value as string, "Texture", StringComparison.Ordinal)
+            )
+            {
+                if (!await reader.ReadAsync(ct))
+                    throw new JsonException("JSON 属性缺少值。");
+                if (
+                    reader.TokenType == JsonToken.String
+                    && StellateRePhiEditExtendedTexture.IsBlockAreaTexture(
+                        reader.Value as string
+                    )
+                )
+                    hasStellateTexture = true;
+                if (reader.TokenType is JsonToken.StartObject or JsonToken.StartArray)
+                    depth++;
+                continue;
+            }
+
             switch (reader.TokenType)
             {
                 case JsonToken.StartObject or JsonToken.StartArray:
@@ -307,6 +381,8 @@ public static class ChartGetType
                     break;
             }
         }
+
+        return hasStellateTexture;
     }
 
     private static bool TryReadFormatVersion(JsonTextReader reader, out int formatVersion)

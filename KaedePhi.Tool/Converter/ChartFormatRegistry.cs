@@ -15,6 +15,7 @@ using KaedePhi.Tool.Converter.Phigros.v3;
 using KaedePhi.Tool.Converter.Phigros.v3.Model;
 using KaedePhi.Tool.Converter.RePhiEdit;
 using KaedePhi.Tool.Converter.RePhiEdit.Model;
+using KaedePhi.Tool.Converter.StellateRePhiEditExtended;
 using KpcChart = KaedePhi.Core.KaedePhi.Chart;
 
 namespace KaedePhi.Tool.Converter;
@@ -58,6 +59,32 @@ public static class ChartFormatRegistry
                         stream => target.ExportToJsonStreamAsync(stream, write.Indented),
                         ct
                     );
+                },
+            },
+
+            [ChartType.StellateRePhiEditExtended] = new()
+            {
+                Type = ChartType.StellateRePhiEditExtended,
+                FileExtension = "json",
+                Importer = async (text, _, log, ct) =>
+                {
+                    var converter = Prepare(
+                        new StellateRePhiEditExtendedConverter(),
+                        log,
+                        ct
+                    );
+                    var source = await RpeSerialization.LoadFromJsonAsync(text);
+                    return converter.ToIr(source);
+                },
+                StreamImporter = async (stream, _, log, ct) =>
+                {
+                    var converter = Prepare(
+                        new StellateRePhiEditExtendedConverter(),
+                        log,
+                        ct
+                    );
+                    var source = await RpeSerialization.LoadFromStreamAsync(stream);
+                    return converter.ToIr(source);
                 },
             },
 

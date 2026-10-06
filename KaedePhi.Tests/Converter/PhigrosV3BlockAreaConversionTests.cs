@@ -152,6 +152,112 @@ public class PhigrosV3BlockAreaConversionTests
     }
 
     [Fact]
+    public void FromIrPreservesThePreviousEndpointBeforeADiscontinuousCurveStart()
+    {
+        var source = new IrChart
+        {
+            BpmList = [new() { Bpm = 120f, StartBeat = new Beat(0) }],
+            BlockAreaList =
+            [
+                new IrBlockArea
+                {
+                    TopRightX = 1d,
+                    BottomLeftX = -1d,
+                    MoveXEvents =
+                    [
+                        new IrEvent
+                        {
+                            StartBeat = new Beat(0),
+                            EndBeat = new Beat(1),
+                            StartValue = 0d,
+                            EndValue = 0.2d,
+                            Easing = new(5),
+                        },
+                        new IrEvent
+                        {
+                            StartBeat = new Beat(1),
+                            EndBeat = new Beat(2),
+                            StartValue = 0.4d,
+                            EndValue = 0.6d,
+                        },
+                    ],
+                },
+            ],
+        };
+        var options = new IrToPhigrosV3ConvertOptions();
+        options.Cutting.EasingPrecision = 64d;
+
+        var converted = new PhigrosV3Converter().FromIr(source, options);
+        var moves = Assert.Single(converted.BlockAreaList).MoveEvents;
+
+        Assert.Equal(4, moves.Count);
+        Assert.Equal(0.5f, moves[0].Time, 6);
+        Assert.Equal(0.6f, moves[0].EndPosition.X, 6);
+        Assert.Equal(PhigrosAreaEaseType.EaseInQuad, moves[0].EaseTypeX.Type);
+        Assert.Equal(0.5078125f, moves[1].Time, 6);
+        Assert.Equal(0.6f, moves[1].EndPosition.X, 6);
+        Assert.Equal(moves[1].Time, moves[2].Time);
+        Assert.Equal(0.7f, moves[2].EndPosition.X, 6);
+        Assert.Equal(PhigrosAreaEaseType.One, moves[2].EaseTypeX.Type);
+        Assert.Equal(0.8f, moves[3].EndPosition.X, 6);
+    }
+
+    [Fact]
+    public void FromIrPreservesAnExplicitInstantStepAtThePreviousEndpoint()
+    {
+        var source = new IrChart
+        {
+            BpmList = [new() { Bpm = 120f, StartBeat = new Beat(0) }],
+            BlockAreaList =
+            [
+                new IrBlockArea
+                {
+                    TopRightX = 1d,
+                    BottomLeftX = -1d,
+                    MoveXEvents =
+                    [
+                        new IrEvent
+                        {
+                            StartBeat = new Beat(0),
+                            EndBeat = new Beat(1),
+                            StartValue = 0d,
+                            EndValue = 0.2d,
+                        },
+                        new IrEvent
+                        {
+                            StartBeat = new Beat(1),
+                            EndBeat = new Beat(1),
+                            StartValue = 0.2d,
+                            EndValue = 0.4d,
+                        },
+                        new IrEvent
+                        {
+                            StartBeat = new Beat(1),
+                            EndBeat = new Beat(2),
+                            StartValue = 0.4d,
+                            EndValue = 0.6d,
+                        },
+                    ],
+                },
+            ],
+        };
+
+        var converted = new PhigrosV3Converter().FromIr(
+            source,
+            new IrToPhigrosV3ConvertOptions()
+        );
+        var moves = Assert.Single(converted.BlockAreaList).MoveEvents;
+
+        Assert.Equal(3, moves.Count);
+        Assert.Equal(0.5f, moves[0].Time, 6);
+        Assert.Equal(0.6f, moves[0].EndPosition.X, 6);
+        Assert.Equal(moves[0].Time, moves[1].Time);
+        Assert.Equal(0.7f, moves[1].EndPosition.X, 6);
+        Assert.Equal(PhigrosAreaEaseType.One, moves[1].EaseTypeX.Type);
+        Assert.Equal(0.8f, moves[2].EndPosition.X, 6);
+    }
+
+    [Fact]
     public void ChartCloneDeepCopiesBlockAreaIntervals()
     {
         var source = new IrChart
