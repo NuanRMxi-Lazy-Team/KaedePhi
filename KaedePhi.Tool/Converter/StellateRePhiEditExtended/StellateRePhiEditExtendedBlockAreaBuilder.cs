@@ -256,47 +256,49 @@ internal static class StellateRePhiEditExtendedBlockAreaBuilder
             var moveCenterX = EvaluateTrack(moveX, beat, baseCenterX, rightSide);
             var moveCenterY = EvaluateTrack(moveY, beat, baseCenterY, rightSide);
             var rotation = EvaluateTrack(rotate, beat, 0d, rightSide);
-            var rotationAnchorValueX = EvaluateTrack(
+            var rotationAnchorValueX = EvaluateAnchor(
                 rotateAnchorX,
                 beat,
                 baseCenterX,
+                moveCenterX,
                 rightSide
             );
-            var rotationAnchorValueY = EvaluateTrack(
+            var rotationAnchorValueY = EvaluateAnchor(
                 rotateAnchorY,
                 beat,
                 baseCenterY,
+                moveCenterY,
                 rightSide
             );
             var scaleValueX = EvaluateTrack(scaleX, beat, 1d, rightSide);
             var scaleValueY = EvaluateTrack(scaleY, beat, 1d, rightSide);
-            var scaleAnchorValueX = EvaluateTrack(
+            var scaleAnchorValueX = EvaluateAnchor(
                 scaleAnchorX,
                 beat,
                 baseCenterX,
+                moveCenterX,
                 rightSide
             );
-            var scaleAnchorValueY = EvaluateTrack(
+            var scaleAnchorValueY = EvaluateAnchor(
                 scaleAnchorY,
                 beat,
                 baseCenterY,
+                moveCenterY,
                 rightSide
             );
 
-            // 先围绕缩放锚点缩放，再围绕旋转锚点旋转，最后叠加中心相对基础区域的移动量。
+            // 变换基于移动后的中心：先围绕缩放锚点缩放，再围绕旋转锚点旋转。
             var scaledCenterX =
-                scaleAnchorValueX + (baseCenterX - scaleAnchorValueX) * scaleValueX;
+                scaleAnchorValueX + (moveCenterX - scaleAnchorValueX) * scaleValueX;
             var scaledCenterY =
-                scaleAnchorValueY + (baseCenterY - scaleAnchorValueY) * scaleValueY;
+                scaleAnchorValueY + (moveCenterY - scaleAnchorValueY) * scaleValueY;
             var rotatedOffset = CoordinateGeometry.RotateIrOffset(
                 scaledCenterX - rotationAnchorValueX,
                 scaledCenterY - rotationAnchorValueY,
                 rotation
             );
-            var rotatedCenterX = rotationAnchorValueX + rotatedOffset.X;
-            var rotatedCenterY = rotationAnchorValueY + rotatedOffset.Y;
-            var centerX = rotatedCenterX + moveCenterX - baseCenterX;
-            var centerY = rotatedCenterY + moveCenterY - baseCenterY;
+            var centerX = rotationAnchorValueX + rotatedOffset.X;
+            var centerY = rotationAnchorValueY + rotatedOffset.Y;
             if (!double.IsFinite(centerX) || !double.IsFinite(centerY))
                 throw new FormatException($"IR 噪域 {blockAreaIndex} 的锚点变换后位置不是有限数值。");
 
@@ -452,6 +454,17 @@ internal static class StellateRePhiEditExtendedBlockAreaBuilder
             .Select(item => item.Event)
             .ToList();
     }
+
+    private static double EvaluateAnchor(
+        IReadOnlyList<IrEvent> events,
+        Beat beat,
+        double baseValue,
+        double movedValue,
+        bool includeStartAtBeat
+    ) =>
+        events.Count == 0
+            ? movedValue
+            : EvaluateTrack(events, beat, baseValue, includeStartAtBeat);
 
     private static double EvaluateTrack(
         IReadOnlyList<IrEvent> events,

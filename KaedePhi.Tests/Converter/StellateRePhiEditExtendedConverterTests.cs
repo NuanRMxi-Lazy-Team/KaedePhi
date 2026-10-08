@@ -235,6 +235,63 @@ public class StellateRePhiEditExtendedConverterTests
     }
 
     [Fact]
+    public async Task ExportAppliesScaleAnchorToBlockCenterAfterMove()
+    {
+        var source = new IrChart
+        {
+            BpmList = [new IrBpmItem { Bpm = 120f, StartBeat = new Beat(0) }],
+            BlockAreaList =
+            [
+                new IrBlockArea
+                {
+                    TopRightX = 1d,
+                    TopRightY = 1d,
+                    BottomLeftX = -1d,
+                    BottomLeftY = -1d,
+                    AppearBeat = new Beat(0),
+                    EnableBeat = new Beat(0),
+                    DisableBeat = new Beat(4),
+                    DisappearBeat = new Beat(5),
+                    MoveXEvents = [CreateIrEvent(0, 2, 0d, 0.5d)],
+                    ScaleXEvents = [CreateIrEvent(0, 2, 1d, 2d)],
+                    ScaleYEvents = [CreateIrEvent(0, 2, 1d, 1d)],
+                    ScaleAnchorXEvents = [CreateIrEvent(0, 2, -1d, -1d)],
+                    ScaleAnchorYEvents = [CreateIrEvent(0, 2, -1d, -1d)],
+                },
+            ],
+        };
+
+        var path = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid():N}.json");
+        try
+        {
+            await ChartFormatRegistry.Get(ChartType.StellateRePhiEditExtended).ExportAsync(
+                source,
+                path,
+                ct: TestContext.Current.CancellationToken
+            );
+            var json = await File.ReadAllTextAsync(
+                path,
+                TestContext.Current.CancellationToken
+            );
+            var (_, converted) = await ChartFormatRegistry.ImportIrAsync(
+                json,
+                ct: TestContext.Current.CancellationToken
+            );
+
+            var area = Assert.Single(converted.BlockAreaList);
+            var movedX = EvaluateIrTrack(area.MoveXEvents, new Beat(2), GetIrCenterX(area));
+
+            // 移动到 0.5 后以 -1 为锚点放大 2 倍：-1 + (0.5 + 1) * 2 = 2。
+            Assert.Equal(2d, movedX, 3);
+        }
+        finally
+        {
+            if (File.Exists(path))
+                File.Delete(path);
+        }
+    }
+
+    [Fact]
     public async Task ExportSeedsBlockAreaTracksThatStartAfterZero()
     {
         var source = new IrChart
