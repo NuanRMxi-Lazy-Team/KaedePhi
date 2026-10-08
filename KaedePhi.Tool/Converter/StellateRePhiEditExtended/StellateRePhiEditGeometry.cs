@@ -1,3 +1,4 @@
+using System.Runtime.ExceptionServices;
 using KaedePhi.Core.Primitives;
 using KaedePhi.Tool.Converter.Phigros.v3.Utils;
 using RpeChart = KaedePhi.Core.Formats.RePhiEdit.Model.Chart;
@@ -19,6 +20,7 @@ internal sealed class StellateRePhiEditGeometry
     private const double TextureWidth = 900d;
     private const double TextureHeight = 900d;
     private const int SamplesPerBeat = 32;
+    private const int ParallelSampleThreshold = 512;
     private const double SimplifyTolerance = 0.02d;
     private const double ValueEpsilon = 1e-10;
     private const double MinimumBaseSize = 1e-12d;
@@ -29,6 +31,7 @@ internal sealed class StellateRePhiEditGeometry
     private readonly PhigrosV3TimeMapper _timeMapper;
     private readonly CancellationToken _ct;
     private readonly Beat _chartEndBeat;
+    private readonly Dictionary<List<RpeEvent>, StellateCurveIndex> _curveIndexes = new();
 
     internal StellateRePhiEditGeometry(
         RpeChart source,
@@ -42,6 +45,110 @@ internal sealed class StellateRePhiEditGeometry
         _chartEndBeat = CalculateChartEndBeat(source);
     }
 
+    private void PrepareCurveIndexes(int lineIndex, HashSet<int> visited, bool includeScale)
+    {
+        if (!visited.Add(lineIndex))
+            return;
+
+        var line = _source.JudgeLineList[lineIndex];
+        if (line.EventLayers is not null)
+        {
+            foreach (var layer in line.EventLayers.OfType<RpeEventLayer>())
+            {
+                AddCurveIndex(layer.MoveXEvents);
+                AddCurveIndex(layer.MoveYEvents);
+                AddCurveIndex(layer.RotateEvents);
+            }
+        }
+
+        if (includeScale)
+        {
+            AddCurveIndex(line.Extended?.ScaleXEvents);
+            AddCurveIndex(line.Extended?.ScaleYEvents);
+        }
+
+        if (line.Father >= 0 && line.Father < _source.JudgeLineList.Count)
+            PrepareCurveIndexes(line.Father, visited, includeScale: false);
+    }
+
+    private void AddCurveIndex(List<RpeEvent>? events)
+    {
+        if (events is { Count: > 0 } && !_curveIndexes.ContainsKey(events))
+            _curveIndexes.Add(events, new StellateCurveIndex(events, _timeMapper));
+    }
+
+    private (
+        Beat Beat,
+        StellateBlockAreaGeometry Left,
+        StellateBlockAreaGeometry Right,
+        bool Hard
+        )[] SampleGeometry(
+            int lineIndex,
+            SortedSet<Beat> sampleBeats,
+            SortedSet<Beat> hardBeats
+        )
+    {
+        var beats = sampleBeats.ToArray();
+        var samples = new (
+            Beat Beat,
+            StellateBlockAreaGeometry Left,
+            StellateBlockAreaGeometry Right,
+            bool Hard
+            )[beats.Length];
+
+        void Sample(int index, HashSet<int> visiting)
+        {
+            _ct.ThrowIfCancellationRequested();
+            var beat = beats[index];
+            var musicTime = _timeMapper.ToMusicTime(beat);
+            samples[index] = (
+                beat,
+                GetGeometry(lineIndex, musicTime, visiting, rightSide: false),
+                GetGeometry(lineIndex, musicTime, visiting, rightSide: true),
+                hardBeats.Contains(beat)
+            );
+        }
+
+        if (beats.Length < ParallelSampleThreshold || Environment.ProcessorCount <= 1)
+        {
+            var visiting = new HashSet<int>();
+            for (var index = 0; index < beats.Length; index++)
+                Sample(index, visiting);
+
+            return samples;
+        }
+
+        try
+        {
+            Parallel.For(
+                0,
+                beats.Length,
+                new ParallelOptions
+                {
+                    CancellationToken = _ct,
+                    MaxDegreeOfParallelism = Environment.ProcessorCount,
+                },
+                () => new HashSet<int>(),
+                (index, _, visiting) =>
+                {
+                    Sample(index, visiting);
+                    return visiting;
+                },
+                _ => { }
+            );
+        }
+        catch (AggregateException exception)
+        {
+            var failures = exception.Flatten().InnerExceptions;
+            if (failures.Count == 1)
+                ExceptionDispatchInfo.Capture(failures[0]).Throw();
+
+            throw;
+        }
+
+        return samples;
+    }
+
     internal List<Ir.BlockArea> ConvertLine(int lineIndex)
     {
         _ct.ThrowIfCancellationRequested();
@@ -51,10 +158,10 @@ internal sealed class StellateRePhiEditGeometry
         if (lifeCycles.Count == 0)
             return [];
 
+        PrepareCurveIndexes(lineIndex, [], includeScale: true);
         var endBeat = _chartEndBeat;
-        foreach (var marker in markers)
-            if (marker.Beat > endBeat)
-                endBeat = marker.Beat;
+        foreach (var marker in markers.Where(marker => marker.Beat > endBeat))
+            endBeat = marker.Beat;
 
         var hardBeats = new SortedSet<Beat> { new(0) };
         CollectPoseBreaks(lineIndex, hardBeats, []);
@@ -101,27 +208,15 @@ internal sealed class StellateRePhiEditGeometry
             AddRotationCutPoints(sampleBeats, rotateSourceEvents);
         AddScaleCutPoints(sampleBeats, scaleXSourceEvents, scaleYSourceEvents);
         AddUniformGrid(sampleBeats, endBeat);
-        var samples = new List<(
-            Beat Beat,
-            StellateBlockAreaGeometry Left,
-            StellateBlockAreaGeometry Right,
-            bool Hard
-        )>(sampleBeats.Count);
+        var samples = SampleGeometry(lineIndex, sampleBeats, hardBeats).ToList();
 
-        foreach (var beat in sampleBeats)
-        {
-            _ct.ThrowIfCancellationRequested();
-            samples.Add(
-                (
-                    beat,
-                    GetGeometry(lineIndex, beat, rightSide: false),
-                    GetGeometry(lineIndex, beat, rightSide: true),
-                    hardBeats.Contains(beat)
-                )
-            );
-        }
-
-        var baseGeometry = GetGeometry(lineIndex, new Beat(0), rightSide: true);
+        var baseBeat = new Beat(0);
+        var baseGeometry = GetGeometry(
+            lineIndex,
+            _timeMapper.ToMusicTime(baseBeat),
+            new HashSet<int>(),
+            rightSide: true
+        );
         var baseWidth = baseGeometry.Width > MinimumBaseSize
             ? baseGeometry.Width
             : TextureWidth / 1350d;
@@ -137,20 +232,10 @@ internal sealed class StellateRePhiEditGeometry
             (point.Beat, ToIrCoordinate(point.X), ToIrCoordinate(point.Y), point.Hard)
         );
         var scaleSamples = samples.ConvertAll(sample =>
-            (
-                Beat: sample.Beat,
-                Left: sample.Left,
-                Right: sample.Right,
-                Hard: scaleHardBeats.Contains(sample.Beat)
-            )
+            sample with { Hard = scaleHardBeats.Contains(sample.Beat) }
         );
         var rotateSamples = samples.ConvertAll(sample =>
-            (
-                Beat: sample.Beat,
-                Left: sample.Left,
-                Right: sample.Right,
-                Hard: rotateHardBeats.Contains(sample.Beat)
-            )
+            sample with { Hard = rotateHardBeats.Contains(sample.Beat) }
         );
         var scalePath = SimplifyVector(
             BuildVectorPath(
@@ -222,8 +307,8 @@ internal sealed class StellateRePhiEditGeometry
                     scaleYSourceEvents,
                     baseBeat: new Beat(0),
                     canonicalBaseSize: TextureHeight
-                        * AspectWidth
-                        / (1350d * AspectHeight),
+                                       * AspectWidth
+                                       / (1350d * AspectHeight),
                     out var directScaleY
                 )
             )
@@ -276,7 +361,12 @@ internal sealed class StellateRePhiEditGeometry
             return false;
 
         var baseScale = FiniteOr(
-            CurveValue(events, baseBeat, rightSide: true, 1d),
+            CurveValue(
+                events,
+                _timeMapper.ToMusicTime(baseBeat),
+                rightSide: true,
+                1d
+            ),
             1d
         );
         var divisor = Math.Abs(baseScale) * canonicalBaseSize > MinimumBaseSize
@@ -327,6 +417,7 @@ internal sealed class StellateRePhiEditGeometry
                         Font = evt.Font,
                     };
                 }
+
                 var convertedEvent = RpeEventBuilder.ConvertFloatToDoubleEvent(
                     evt,
                     valueTransform
@@ -445,6 +536,7 @@ internal sealed class StellateRePhiEditGeometry
             boundaries.Add(evt.StartBeat);
             boundaries.Add(evt.EndBeat);
         }
+
         return events.Any(evt =>
             evt.StartBeat < evt.EndBeat
             && HasInteriorBoundary(boundaries, evt.StartBeat, evt.EndBeat)
@@ -475,9 +567,8 @@ internal sealed class StellateRePhiEditGeometry
     {
         hasMultipleRotationCurves = false;
         List<RpeEvent>? result = null;
-        foreach (var layer in line.EventLayers)
+        foreach (var events in line.EventLayers.Select(layer => layer?.RotateEvents))
         {
-            var events = layer?.RotateEvents;
             if (events is not { Count: > 0 } || IsNeutralRotationCurve(events))
                 continue;
             if (result is not null)
@@ -485,8 +576,10 @@ internal sealed class StellateRePhiEditGeometry
                 hasMultipleRotationCurves = true;
                 return null;
             }
+
             result = events;
         }
+
         return result;
     }
 
@@ -566,16 +659,21 @@ internal sealed class StellateRePhiEditGeometry
         return result;
     }
 
-    private StellateBlockAreaGeometry GetGeometry(int lineIndex, Beat beat, bool rightSide)
+    private StellateBlockAreaGeometry GetGeometry(
+        int lineIndex,
+        double musicTime,
+        HashSet<int> visiting,
+        bool rightSide
+    )
     {
-        var pose = GetPose(lineIndex, beat, rightSide, []);
+        var pose = GetPose(lineIndex, musicTime, rightSide, visiting);
         var line = _source.JudgeLineList[lineIndex];
         var scaleX = FiniteOr(
-            CurveValue(line.Extended?.ScaleXEvents, beat, rightSide, 1d),
+            CurveValue(line.Extended?.ScaleXEvents, musicTime, rightSide, 1d),
             1d
         );
         var scaleY = FiniteOr(
-            CurveValue(line.Extended?.ScaleYEvents, beat, rightSide, 1d),
+            CurveValue(line.Extended?.ScaleYEvents, musicTime, rightSide, 1d),
             1d
         );
 
@@ -602,7 +700,7 @@ internal sealed class StellateRePhiEditGeometry
 
     private (double X, double Y, double Rotation) GetPose(
         int lineIndex,
-        Beat beat,
+        double musicTime,
         bool rightSide,
         HashSet<int> visiting
     )
@@ -610,23 +708,25 @@ internal sealed class StellateRePhiEditGeometry
         if (!visiting.Add(lineIndex))
             return (0d, 0d, 0d);
 
-        var line = _source.JudgeLineList[lineIndex];
-        var x = FiniteOr(
-            SumLayerCurve(line, beat, rightSide, static layer => layer.MoveXEvents),
-            0d
-        );
-        var y = FiniteOr(
-            SumLayerCurve(line, beat, rightSide, static layer => layer.MoveYEvents),
-            0d
-        );
-        var rotation = FiniteOr(
-            SumLayerCurve(line, beat, rightSide, static layer => layer.RotateEvents),
-            0d
-        );
-
-        if (line.Father >= 0 && line.Father < _source.JudgeLineList.Count)
+        try
         {
-            var father = GetPose(line.Father, beat, rightSide, visiting);
+            var line = _source.JudgeLineList[lineIndex];
+            var x = FiniteOr(
+                SumLayerCurve(line, musicTime, rightSide, static layer => layer.MoveXEvents),
+                0d
+            );
+            var y = FiniteOr(
+                SumLayerCurve(line, musicTime, rightSide, static layer => layer.MoveYEvents),
+                0d
+            );
+            var rotation = FiniteOr(
+                SumLayerCurve(line, musicTime, rightSide, static layer => layer.RotateEvents),
+                0d
+            );
+
+            if (line.Father < 0 || line.Father >= _source.JudgeLineList.Count) 
+                return (x, y, rotation);
+            var father = GetPose(line.Father, musicTime, rightSide, visiting);
             x += father.X;
             y += father.Y;
             var parentPhysicalX = father.X * AspectWidth / 1350d;
@@ -644,10 +744,13 @@ internal sealed class StellateRePhiEditGeometry
             y = childPhysicalY * 900d / AspectHeight;
             if (line.RotateWithFather)
                 rotation += father.Rotation;
-        }
 
-        visiting.Remove(lineIndex);
-        return (x, y, rotation);
+            return (x, y, rotation);
+        }
+        finally
+        {
+            visiting.Remove(lineIndex);
+        }
     }
 
     private static (double X, double Y) RotatePoint(
@@ -670,24 +773,18 @@ internal sealed class StellateRePhiEditGeometry
 
     private double SumLayerCurve(
         RpeJudgeLine line,
-        Beat beat,
+        double musicTime,
         bool rightSide,
         Func<RpeEventLayer, List<RpeEvent>?> selector
     )
     {
-        var value = 0d;
-        foreach (var layer in line.EventLayers)
-        {
-            if (layer is null)
-                continue;
-            value += CurveValue(selector(layer), beat, rightSide, 0d);
-        }
-        return value;
+        return line.EventLayers.OfType<RpeEventLayer>()
+            .Sum(layer => CurveValue(selector(layer), musicTime, rightSide, 0d));
     }
 
     private double CurveValue(
         List<RpeEvent>? events,
-        Beat beat,
+        double musicTime,
         bool rightSide,
         double defaultValue
     )
@@ -695,105 +792,60 @@ internal sealed class StellateRePhiEditGeometry
         if (events is not { Count: > 0 })
             return defaultValue;
 
-        var time = _timeMapper.ToMusicTime(beat);
-        RpeEvent? first = null;
-        var firstIndex = -1;
-        RpeEvent? dominantBefore = null;
-        var dominantBeforeIndex = -1;
-        RpeEvent? dominant = null;
-        var dominantIndex = -1;
-        var dominantStartTime = 0d;
-        for (var index = 0; index < events.Count; index++)
-        {
-            var candidate = events[index];
-            if (
-                first is null
-                || HasEarlierCurvePriority(candidate, index, first, firstIndex)
-            )
-            {
-                first = candidate;
-                firstIndex = index;
-            }
+        if (!_curveIndexes.TryGetValue(events, out var curveIndex))
+            throw new InvalidOperationException("扩展曲线索引未初始化。");
 
-            var startTime = _timeMapper.ToMusicTime(candidate.StartBeat);
-            if (startTime > time + CurveStartTimeEpsilon)
-                continue;
+        var (dominantIndex, previousIndex) = curveIndex.FindDominant(
+            musicTime,
+            CurveStartTimeEpsilon
+        );
+        if (dominantIndex < 0)
+            return EventValueAtMusicTime(
+                curveIndex,
+                curveIndex.FirstIndex,
+                musicTime,
+                allowExtrapolation: true
+            );
 
-            if (dominant is null || HasHigherCurvePriority(candidate, index, dominant, dominantIndex))
-            {
-                dominantBefore = dominant;
-                dominantBeforeIndex = dominantIndex;
-                dominant = candidate;
-                dominantIndex = index;
-                dominantStartTime = startTime;
-            }
-            else if (
-                dominantBefore is null
-                || HasHigherCurvePriority(
-                    candidate,
-                    index,
-                    dominantBefore,
-                    dominantBeforeIndex
-                )
-            )
-            {
-                dominantBefore = candidate;
-                dominantBeforeIndex = index;
-            }
-        }
-
-        if (dominant is null)
-            return first is null ? defaultValue : EventValueAtMusicTime(first, time, true);
-        if (Math.Abs(time - dominantStartTime) <= CurveStartTimeEpsilon)
-        {
-            if (rightSide)
-                return EventValueAtStart(dominant);
-            return dominantBefore is null
-                ? EventValueAtStart(dominant)
-                : EventValueAtMusicTime(dominantBefore, time, false);
-        }
-        return EventValueAtMusicTime(dominant, time, false);
+        var dominant = curveIndex.GetEvent(dominantIndex);
+        var dominantStartTime = curveIndex.GetStartTime(dominantIndex);
+        if (!(Math.Abs(musicTime - dominantStartTime) <= CurveStartTimeEpsilon))
+            return EventValueAtMusicTime(
+                curveIndex,
+                dominantIndex,
+                musicTime,
+                allowExtrapolation: false
+            );
+        if (rightSide)
+            return EventValueAtStart(curveIndex, dominantIndex);
+        return previousIndex < 0
+            ? EventValueAtStart(curveIndex, dominantIndex)
+            : EventValueAtMusicTime(
+                curveIndex,
+                previousIndex,
+                musicTime,
+                allowExtrapolation: false
+            );
     }
 
-    private static bool HasEarlierCurvePriority(
-        RpeEvent candidate,
-        int candidateIndex,
-        RpeEvent current,
-        int currentIndex
+    private static double EventValueAtStart(StellateCurveIndex curveIndex, int eventIndex)
+    {
+        var curveEvent = curveIndex.GetEvent(eventIndex);
+        return curveIndex.GetEndTime(eventIndex) <= curveIndex.GetStartTime(eventIndex)
+            ? curveEvent.EndValue
+            : curveEvent.StartValue;
+    }
+
+    private static double EventValueAtMusicTime(
+        StellateCurveIndex curveIndex,
+        int eventIndex,
+        double time,
+        bool allowExtrapolation
     )
     {
-        if (candidate.StartBeat != current.StartBeat)
-            return candidate.StartBeat < current.StartBeat;
-        if (candidate.EndBeat != current.EndBeat)
-            return candidate.EndBeat < current.EndBeat;
-        return candidateIndex < currentIndex;
-    }
-
-    private static bool HasHigherCurvePriority(
-        RpeEvent candidate,
-        int candidateIndex,
-        RpeEvent current,
-        int currentIndex
-    )
-    {
-        if (candidate.StartBeat != current.StartBeat)
-            return candidate.StartBeat > current.StartBeat;
-        if (candidate.EndBeat != current.EndBeat)
-            return candidate.EndBeat > current.EndBeat;
-        return candidateIndex > currentIndex;
-    }
-
-    private double EventValueAtStart(RpeEvent evt)
-    {
-        var startTime = _timeMapper.ToMusicTime(evt.StartBeat);
-        var endTime = _timeMapper.ToMusicTime(evt.EndBeat);
-        return endTime <= startTime ? evt.EndValue : evt.StartValue;
-    }
-
-    private double EventValueAtMusicTime(RpeEvent evt, double time, bool allowExtrapolation)
-    {
-        var startTime = _timeMapper.ToMusicTime(evt.StartBeat);
-        var endTime = _timeMapper.ToMusicTime(evt.EndBeat);
+        var evt = curveIndex.GetEvent(eventIndex);
+        var startTime = curveIndex.GetStartTime(eventIndex);
+        var endTime = curveIndex.GetEndTime(eventIndex);
         if (endTime <= startTime)
             return evt.EndValue;
         if (!allowExtrapolation && time <= startTime)
@@ -807,35 +859,47 @@ internal sealed class StellateRePhiEditGeometry
 
     private void CollectPoseBreaks(int lineIndex, SortedSet<Beat> beats, HashSet<int> visited)
     {
-        if (!visited.Add(lineIndex))
-            return;
-        var line = _source.JudgeLineList[lineIndex];
-        foreach (var layer in line.EventLayers)
+        while (true)
         {
-            if (layer is null)
+            if (!visited.Add(lineIndex)) return;
+            var line = _source.JudgeLineList[lineIndex];
+            foreach (var layer in line.EventLayers.OfType<RpeEventLayer>())
+            {
+                AddCurveBoundaries(layer.MoveXEvents, beats);
+                AddCurveBoundaries(layer.MoveYEvents, beats);
+                AddCurveBoundaries(layer.RotateEvents, beats);
+            }
+
+            if (line.Father >= 0 && line.Father < _source.JudgeLineList.Count)
+            {
+                lineIndex = line.Father;
                 continue;
-            AddCurveBoundaries(layer.MoveXEvents, beats);
-            AddCurveBoundaries(layer.MoveYEvents, beats);
-            AddCurveBoundaries(layer.RotateEvents, beats);
+            }
+
+            break;
         }
-        if (line.Father >= 0 && line.Father < _source.JudgeLineList.Count)
-            CollectPoseBreaks(line.Father, beats, visited);
     }
 
     private void CollectRotationBreaks(int lineIndex, SortedSet<Beat> beats, HashSet<int> visited)
     {
-        if (!visited.Add(lineIndex))
-            return;
-
-        var line = _source.JudgeLineList[lineIndex];
-        foreach (var layer in line.EventLayers)
+        while (true)
         {
-            if (layer is not null)
-                AddCurveBoundaries(layer.RotateEvents, beats);
-        }
+            if (!visited.Add(lineIndex)) return;
 
-        if (line.RotateWithFather && line.Father >= 0 && line.Father < _source.JudgeLineList.Count)
-            CollectRotationBreaks(line.Father, beats, visited);
+            var line = _source.JudgeLineList[lineIndex];
+            foreach (var layer in line.EventLayers.OfType<RpeEventLayer>())
+            {
+                AddCurveBoundaries(layer.RotateEvents, beats);
+            }
+
+            if (line.RotateWithFather && line.Father >= 0 && line.Father < _source.JudgeLineList.Count)
+            {
+                lineIndex = line.Father;
+                continue;
+            }
+
+            break;
+        }
     }
 
     private static void AddCurveBoundaries(List<RpeEvent>? events, SortedSet<Beat> beats)
@@ -870,6 +934,7 @@ internal sealed class StellateRePhiEditGeometry
             AddCurveCutPoints(times, moveXEvents, splitSupportedIfInterrupted: true);
             AddCurveCutPoints(times, moveYEvents, splitSupportedIfInterrupted: true);
         }
+
         sampleBeats.UnionWith(times);
     }
 
@@ -897,6 +962,7 @@ internal sealed class StellateRePhiEditGeometry
             AddCurveCutPoints(times, scaleYEvents, splitSupportedIfInterrupted: true);
             AddScaleZeroCrossingCutPoints(times, scaleYEvents);
         }
+
         sampleBeats.UnionWith(times);
     }
 
@@ -967,18 +1033,19 @@ internal sealed class StellateRePhiEditGeometry
     {
         areaEaseType = -1;
         return !StellateRePhiEditEasing.IsBezierEvent(evt)
-            && IsFullEasingRange(evt)
-            && StellateRePhiEditEasing.TryMapToBlockArea((int)evt.Easing, out areaEaseType);
+               && IsFullEasingRange(evt)
+               && StellateRePhiEditEasing.TryMapToBlockArea((int)evt.Easing, out areaEaseType);
     }
 
     private void AddUniformGrid(SortedSet<Beat> beats, Beat endBeat)
     {
-        var count = (long)Math.Floor(Math.Max(0d, (double)endBeat) * SamplesPerBeat + 1e-9);
+        var count = (long)Math.Floor(Math.Max(0d, endBeat) * SamplesPerBeat + 1e-9);
         for (long index = 0; index <= count; index++)
         {
             _ct.ThrowIfCancellationRequested();
             beats.Add(new Beat((double)index / SamplesPerBeat));
         }
+
         beats.Add(endBeat);
     }
 
@@ -988,7 +1055,7 @@ internal sealed class StellateRePhiEditGeometry
             StellateBlockAreaGeometry Left,
             StellateBlockAreaGeometry Right,
             bool Hard
-        )> samples,
+            )> samples,
         Func<StellateBlockAreaGeometry, (double X, double Y)> selector
     )
     {
@@ -1008,6 +1075,7 @@ internal sealed class StellateRePhiEditGeometry
             )
                 result.Add((sample.Beat, right.X, right.Y, index > 0 || sample.Hard));
         }
+
         return result;
     }
 
@@ -1017,7 +1085,7 @@ internal sealed class StellateRePhiEditGeometry
             StellateBlockAreaGeometry Left,
             StellateBlockAreaGeometry Right,
             bool Hard
-        )> samples,
+            )> samples,
         Func<StellateBlockAreaGeometry, double> selector
     )
     {
@@ -1033,6 +1101,7 @@ internal sealed class StellateRePhiEditGeometry
             if (index == 0 || Math.Abs(left - right) > ValueEpsilon)
                 result.Add((sample.Beat, right, index > 0 || sample.Hard));
         }
+
         return result;
     }
 
@@ -1049,11 +1118,9 @@ internal sealed class StellateRePhiEditGeometry
         keep[^1] = true;
         for (var index = 1; index < points.Count; index++)
         {
-            if (times[index] <= times[index - 1] + 1e-12)
-            {
-                keep[index - 1] = true;
-                keep[index] = true;
-            }
+            if (!(times[index] <= times[index - 1] + 1e-12)) continue;
+            keep[index - 1] = true;
+            keep[index] = true;
         }
 
         var anchors = Enumerable.Range(0, keep.Length).Where(index => keep[index]).ToArray();
@@ -1107,11 +1174,9 @@ internal sealed class StellateRePhiEditGeometry
                             deviationY / HardPointEpsilon
                         )
                     );
-                if (deviation > largestDeviation)
-                {
-                    largestDeviation = deviation;
-                    splitIndex = index;
-                }
+                if (!(deviation > largestDeviation)) continue;
+                largestDeviation = deviation;
+                splitIndex = index;
             }
 
             if (splitIndex < 0)
@@ -1137,11 +1202,9 @@ internal sealed class StellateRePhiEditGeometry
         keep[^1] = true;
         for (var index = 1; index < points.Count; index++)
         {
-            if (times[index] <= times[index - 1] + 1e-12)
-            {
-                keep[index - 1] = true;
-                keep[index] = true;
-            }
+            if (!(times[index] <= times[index - 1] + 1e-12)) continue;
+            keep[index - 1] = true;
+            keep[index] = true;
         }
 
         var anchors = Enumerable.Range(0, keep.Length).Where(index => keep[index]).ToArray();
@@ -1197,14 +1260,14 @@ internal sealed class StellateRePhiEditGeometry
         return points.Where((_, index) => keep[index]).ToList();
     }
 
-    private static List<Ir.Events.Event<double>>? CreateVectorEvents(
+    private static List<IrEvent>? CreateVectorEvents(
         List<(Beat Beat, double X, double Y, bool Hard)> points,
         double initialX,
         double initialY,
         bool xAxis
     )
     {
-        var events = new List<Ir.Events.Event<double>>();
+        var events = new List<IrEvent>();
         var previousBeat = new Beat(0);
         var previousX = initialX;
         var previousY = initialY;
@@ -1226,6 +1289,7 @@ internal sealed class StellateRePhiEditGeometry
                     )
                 );
             }
+
             previousBeat = point.Beat;
             if (xAxis)
                 previousX = point.X;
@@ -1236,12 +1300,12 @@ internal sealed class StellateRePhiEditGeometry
         return events.Count > 0 ? events : null;
     }
 
-    private static List<Ir.Events.Event<double>>? CreateScalarEvents(
+    private static List<IrEvent>? CreateScalarEvents(
         List<(Beat Beat, double Value, bool Hard)> points,
         double initialValue
     )
     {
-        var events = new List<Ir.Events.Event<double>>();
+        var events = new List<IrEvent>();
         var previousBeat = new Beat(0);
         var previousValue = initialValue;
         foreach (var point in points)
@@ -1257,7 +1321,7 @@ internal sealed class StellateRePhiEditGeometry
         return events.Count > 0 ? events : null;
     }
 
-    private static Ir.Events.Event<double> CreateEvent(
+    private static IrEvent CreateEvent(
         Beat startBeat,
         Beat endBeat,
         double startValue,
@@ -1290,10 +1354,8 @@ internal sealed class StellateRePhiEditGeometry
         var endBeat = new Beat(0);
         foreach (var line in source.JudgeLineList)
         {
-            foreach (var layer in line.EventLayers)
+            foreach (var layer in line.EventLayers.OfType<RpeEventLayer>())
             {
-                if (layer is null)
-                    continue;
                 UpdateEndBeat(layer.MoveXEvents, ref endBeat);
                 UpdateEndBeat(layer.MoveYEvents, ref endBeat);
                 UpdateEndBeat(layer.RotateEvents, ref endBeat);
@@ -1325,7 +1387,7 @@ internal sealed class StellateRePhiEditGeometry
     }
 
     private static void UpdateEndBeat<T>(
-        List<global::KaedePhi.Core.Formats.RePhiEdit.Model.Events.Event<T>>? events,
+        List<RpeEvents.Event<T>>? events,
         ref Beat endBeat
     )
         where T : notnull

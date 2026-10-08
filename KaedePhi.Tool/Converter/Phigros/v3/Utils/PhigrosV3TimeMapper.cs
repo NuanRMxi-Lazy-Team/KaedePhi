@@ -149,18 +149,30 @@ internal sealed class PhigrosV3TimeMapper
         if (!float.IsFinite(bpmFactor) || bpmFactor <= 0f)
             throw new FormatException("判定线 BPM 因子必须是有限正数。");
 
-        var segment = _segments[0];
-        for (var index = 1; index < _segments.Count; index++)
-        {
-            if (_segments[index].StartBeat > beat)
-                break;
-            segment = _segments[index];
-        }
-
+        var segment = FindTempoSegment(beat);
         var seconds =
             (segment.StartSeconds + (beat - segment.StartBeat) * 60d / segment.Bpm)
             * bpmFactor;
         return !double.IsFinite(seconds) ? throw new FormatException("IR BPM 时间积分结果不是有限数值。") : seconds;
+    }
+
+    private TempoSegment FindTempoSegment(Beat beat)
+    {
+        if (_segments.Count == 1)
+            return _segments[0];
+
+        var lower = 0;
+        var upper = _segments.Count;
+        while (lower < upper)
+        {
+            var middle = lower + ((upper - lower) >> 1);
+            if (_segments[middle].StartBeat <= beat)
+                lower = middle + 1;
+            else
+                upper = middle;
+        }
+
+        return _segments[Math.Max(0, lower - 1)];
     }
 
     private static void ValidateEncodedTime(double encodedTime, double expectedSeconds)
