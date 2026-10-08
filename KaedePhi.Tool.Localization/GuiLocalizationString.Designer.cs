@@ -843,6 +843,15 @@ namespace KaedePhi.Tool.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to 导入已取消.
+        /// </summary>
+        public static string log_import_cancelled {
+            get {
+                return ResourceManager.GetString("log_import_cancelled", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to 加载文件失败。.
         /// </summary>
         public static string log_load_failed {
@@ -1536,7 +1545,7 @@ namespace KaedePhi.Tool.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to 您导入的谱面有到目前为止暂时尚不明确行为的内容，这些内容在行为明确之前，暂时无法进行任何处理。.
+        ///   Looks up a localized string similar to 您导入的谱面中有当前其它格式未定义的内容，在其它格式兼容之前，本程序无法对相关内容进行处理。.
         /// </summary>
         public static string tool_unclear_content_warning {
             get {

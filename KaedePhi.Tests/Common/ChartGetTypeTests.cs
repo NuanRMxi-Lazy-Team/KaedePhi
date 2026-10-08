@@ -64,4 +64,56 @@ public class ChartGetTypeTests
 
         detected.Should().Be(ChartType.StellateRePhiEditExtended);
     }
+
+    [Fact]
+    public void GetType_WithPhiFansSignature_StopsBeforeReadingChartBody()
+    {
+        var largePayload = new string('x', 100_000);
+        var chartText = $"{{\"info\":{{}},\"lines\":[\"{largePayload}\"]}}";
+        using var reader = new StringReader(chartText);
+
+        ChartGetType.GetType(reader).Should().Be(ChartType.PhiFans);
+        reader.ReadToEnd().Should().NotBeEmpty();
+    }
+
+    [Fact]
+    public void GetType_WithPhiChainSignature_StopsBeforeReadingChartBody()
+    {
+        var largePayload = new string('x', 100_000);
+        var chartText = $"{{\"format\":6,\"bpm_list\":[\"{largePayload}\"]}}";
+        using var reader = new StringReader(chartText);
+
+        ChartGetType.GetType(reader).Should().Be(ChartType.PhiChain);
+        reader.ReadToEnd().Should().NotBeEmpty();
+    }
+
+    [Fact]
+    public void GetType_WithRePhiEditTextureMarker_StopsAfterFindingMarker()
+    {
+        var largePayload = new string('x', 100_000);
+        var chartText =
+            "{\"META\":{},\"judgeLineList\":[{\"Texture\":\"Pictures\\\\isSubtract0.png\",\"payload\":\""
+            + largePayload
+            + "\"}]}";
+        using var reader = new StringReader(chartText);
+
+        ChartGetType.GetType(reader).Should().Be(ChartType.StellateRePhiEditExtended);
+        reader.ReadToEnd().Should().NotBeEmpty();
+    }
+
+    [Fact]
+    public async Task GetTypeAsync_WithFormatVersion_StopsBeforeReadingChartBody()
+    {
+        var largePayload = new string('x', 100_000);
+        var chartText = $"{{\"formatVersion\":3,\"judgeLineList\":[\"{largePayload}\"]}}";
+        await using var stream = new MemoryStream(Encoding.UTF8.GetBytes(chartText));
+
+        var detected = await ChartGetType.GetTypeAsync(
+            stream,
+            TestContext.Current.CancellationToken
+        );
+
+        detected.Should().Be(ChartType.PhigrosV3);
+        stream.Position.Should().BeLessThan(stream.Length);
+    }
 }

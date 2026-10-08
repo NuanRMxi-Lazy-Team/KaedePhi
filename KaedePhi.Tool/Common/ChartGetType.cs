@@ -55,7 +55,7 @@ public static class ChartGetType
     }
 
     /// <summary>
-    /// 从输入流中推算谱面类型，只读取必要的令牌，不缓存完整谱面文本。
+    /// 从输入流中推算谱面类型，匹配到足够的类型标记后停止读取，不缓存完整谱面文本。
     /// </summary>
     /// <param name="stream">待检测的谱面输入流。</param>
     /// <returns>检测到的谱面类型。</returns>
@@ -75,7 +75,7 @@ public static class ChartGetType
     }
 
     /// <summary>
-    /// 异步从输入流中推算谱面类型，只读取必要的令牌，不缓存完整谱面文本。
+    /// 异步从输入流中推算谱面类型，匹配到足够的类型标记后停止读取，不缓存完整谱面文本。
     /// </summary>
     /// <param name="stream">待检测的谱面输入流。</param>
     /// <param name="ct">取消令牌。</param>
@@ -125,6 +125,7 @@ public static class ChartGetType
         var formatVersion = 0;
         var hasRePhiEditMeta = false;
         var hasStellateTexture = false;
+        var hasScannedJudgeLineList = false;
 
         while (ReadNext(reader))
         {
@@ -160,10 +161,34 @@ public static class ChartGetType
                     break;
             }
 
+            if (!hasRePhiEditMeta)
+            {
+                if (hasFormatVersion && formatVersionValid)
+                    return GetTypeFromFormatVersion(formatVersion);
+                if (hasInfoObject && hasLinesArray)
+                    return ChartType.PhiFans;
+                if (hasPhiChainFormat && hasBpmList)
+                    return ChartType.PhiChain;
+            }
+
             hasStellateTexture |= SkipValue(
                 reader,
-                string.Equals(propertyName, "judgeLineList", StringComparison.Ordinal)
+                string.Equals(propertyName, "judgeLineList", StringComparison.Ordinal),
+                hasRePhiEditMeta
             );
+            hasScannedJudgeLineList |= string.Equals(
+                propertyName,
+                "judgeLineList",
+                StringComparison.Ordinal
+            );
+
+            if (hasRePhiEditMeta)
+            {
+                if (hasStellateTexture)
+                    return ChartType.StellateRePhiEditExtended;
+                if (hasScannedJudgeLineList)
+                    return ChartType.RePhiEdit;
+            }
         }
 
         if (hasRePhiEditMeta)
@@ -205,6 +230,7 @@ public static class ChartGetType
         var formatVersion = 0;
         var hasRePhiEditMeta = false;
         var hasStellateTexture = false;
+        var hasScannedJudgeLineList = false;
 
         while (await ReadNextAsync(reader, ct))
         {
@@ -240,11 +266,35 @@ public static class ChartGetType
                     break;
             }
 
+            if (!hasRePhiEditMeta)
+            {
+                if (hasFormatVersion && formatVersionValid)
+                    return GetTypeFromFormatVersion(formatVersion);
+                if (hasInfoObject && hasLinesArray)
+                    return ChartType.PhiFans;
+                if (hasPhiChainFormat && hasBpmList)
+                    return ChartType.PhiChain;
+            }
+
             hasStellateTexture |= await SkipValueAsync(
                 reader,
                 string.Equals(propertyName, "judgeLineList", StringComparison.Ordinal),
+                hasRePhiEditMeta,
                 ct
             );
+            hasScannedJudgeLineList |= string.Equals(
+                propertyName,
+                "judgeLineList",
+                StringComparison.Ordinal
+            );
+
+            if (hasRePhiEditMeta)
+            {
+                if (hasStellateTexture)
+                    return ChartType.StellateRePhiEditExtended;
+                if (hasScannedJudgeLineList)
+                    return ChartType.RePhiEdit;
+            }
         }
 
         if (hasRePhiEditMeta)
@@ -289,7 +339,11 @@ public static class ChartGetType
         return false;
     }
 
-    private static bool SkipValue(JsonTextReader reader, bool detectStellateTexture = false)
+    private static bool SkipValue(
+        JsonTextReader reader,
+        bool detectStellateTexture = false,
+        bool stopOnStellateTexture = false
+    )
     {
         if (reader.TokenType is not (JsonToken.StartObject or JsonToken.StartArray))
             return false;
@@ -315,7 +369,11 @@ public static class ChartGetType
                         reader.Value as string
                     )
                 )
+                {
                     hasStellateTexture = true;
+                    if (stopOnStellateTexture)
+                        return true;
+                }
                 if (reader.TokenType is JsonToken.StartObject or JsonToken.StartArray)
                     depth++;
                 continue;
@@ -338,6 +396,7 @@ public static class ChartGetType
     private static async Task<bool> SkipValueAsync(
         JsonTextReader reader,
         bool detectStellateTexture,
+        bool stopOnStellateTexture,
         CancellationToken ct
     )
     {
@@ -365,7 +424,11 @@ public static class ChartGetType
                         reader.Value as string
                     )
                 )
+                {
                     hasStellateTexture = true;
+                    if (stopOnStellateTexture)
+                        return true;
+                }
                 if (reader.TokenType is JsonToken.StartObject or JsonToken.StartArray)
                     depth++;
                 continue;
