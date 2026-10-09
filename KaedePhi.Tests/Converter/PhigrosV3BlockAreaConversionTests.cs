@@ -70,8 +70,8 @@ public class PhigrosV3BlockAreaConversionTests
         var converter = new PhigrosV3Converter();
         var intermediate = converter.ToIr(source, null);
         var area = Assert.Single(intermediate.BlockAreaList);
-        var moveXEvent = Assert.Single(area.MoveXEvents!);
-        var moveYEvent = Assert.Single(area.MoveYEvents!);
+        var moveXEvent = area.MoveXEvents![^1];
+        var moveYEvent = area.MoveYEvents![^1];
 
         Assert.Equal(2d, (double)area.AppearBeat, 6);
         Assert.Equal(4d, (double)area.EnableBeat, 6);
@@ -79,12 +79,15 @@ public class PhigrosV3BlockAreaConversionTests
         Assert.Equal(8d, (double)area.DisappearBeat, 6);
         Assert.Equal(2d, area.TopRightX, 6);
         Assert.Equal(1.4d, area.TopRightY, 6);
+        Assert.Equal(2, area.MoveXEvents.Count);
         Assert.Equal(-0.5d, moveXEvent.EndValue, 6);
         Assert.Equal(0.5d, moveYEvent.EndValue, 6);
-        Assert.Equal(5, (int)moveXEvent.Easing);
-        Assert.Equal(8, (int)Assert.Single(area.RotateEvents!).Easing);
-        Assert.Equal(11, (int)Assert.Single(area.ScaleXEvents!).Easing);
-        Assert.Equal(15, (int)Assert.Single(area.ScaleYEvents!).Easing);
+        Assert.Equal(2, area.RotateEvents!.Count);
+        Assert.Equal(2, area.ScaleXEvents!.Count);
+        Assert.Equal(2, area.ScaleYEvents!.Count);
+        Assert.Equal(45d, area.RotateEvents[^1].EndValue, 6);
+        Assert.Equal(2d, area.ScaleXEvents[^1].EndValue, 6);
+        Assert.Equal(1.5d, area.ScaleYEvents[^1].EndValue, 6);
 
         var converted = converter.FromIr(intermediate, new IrToPhigrosV3ConvertOptions());
         var result = Assert.Single(converted.BlockAreaList);
@@ -95,34 +98,22 @@ public class PhigrosV3BlockAreaConversionTests
         Assert.Equal(source.BlockAreaList[0].DisappearTime, result.DisappearTime, 6);
         Assert.Equal(source.BlockAreaList[0].TopRightPercentage, result.TopRightPercentage);
         Assert.Equal(source.BlockAreaList[0].BottomLeftPercentage, result.BottomLeftPercentage);
-        Assert.Equal(2, result.MoveEvents.Count);
+        Assert.Equal(3, result.MoveEvents.Count);
         Assert.Equal(
             source.BlockAreaList[0].MoveEvents[0].EndPosition,
             result.MoveEvents[^1].EndPosition
         );
-        Assert.Equal(
-            source.BlockAreaList[0].MoveEvents[0].EaseTypeX.Type,
-            result.MoveEvents[0].EaseTypeX.Type
-        );
         Assert.Equal(PhigrosAreaEaseType.One, result.MoveEvents[^1].EaseTypeX.Type);
-        Assert.Equal(2, result.RotateEvents.Count);
+        Assert.Equal(3, result.RotateEvents.Count);
         Assert.Equal(
             source.BlockAreaList[0].RotateEvents[0].Rotation,
             result.RotateEvents[^1].Rotation
         );
-        Assert.Equal(
-            source.BlockAreaList[0].RotateEvents[0].EaseType.Type,
-            result.RotateEvents[0].EaseType.Type
-        );
         Assert.Equal(PhigrosAreaEaseType.One, result.RotateEvents[^1].EaseType.Type);
-        Assert.Equal(2, result.ScaleEvents.Count);
+        Assert.Equal(3, result.ScaleEvents.Count);
         Assert.Equal(
             source.BlockAreaList[0].ScaleEvents[0].Scale,
             result.ScaleEvents[^1].Scale
-        );
-        Assert.Equal(
-            source.BlockAreaList[0].ScaleEvents[0].EaseTypeY.Type,
-            result.ScaleEvents[0].EaseTypeY.Type
         );
         Assert.Equal(PhigrosAreaEaseType.One, result.ScaleEvents[^1].EaseTypeY.Type);
     }
@@ -157,12 +148,94 @@ public class PhigrosV3BlockAreaConversionTests
         var moveXEvents = area.MoveXEvents!;
         var moveYEvents = area.MoveYEvents!;
 
-        Assert.Equal(0d, moveXEvents[0].GetValueAtBeatAsDouble(new Beat(1)), 6);
-        Assert.Equal(-0.5d, moveXEvents[1].GetValueAtBeatAsDouble(new Beat(2)), 6);
-        Assert.Equal(0.5d, Assert.Single(moveYEvents).GetValueAtBeatAsDouble(new Beat(0)), 6);
-        Assert.Equal(0.5d, moveYEvents[0].GetValueAtBeatAsDouble(new Beat(1)), 6);
-        Assert.Equal(new Beat(2), moveXEvents[1].StartBeat);
-        Assert.Equal(new Beat(2), moveXEvents[1].EndBeat);
+        Assert.Equal(2, moveXEvents.Count);
+        Assert.Equal(2, moveYEvents.Count);
+        Assert.Equal(0d, EvaluateIrTrack(moveXEvents, new Beat(1), 0d), 6);
+        Assert.Equal(-0.5d, EvaluateIrTrack(moveXEvents, new Beat(2), 0d), 6);
+        Assert.Equal(0d, EvaluateIrTrack(moveYEvents, new Beat(1), 0d), 6);
+        Assert.Equal(0.5d, EvaluateIrTrack(moveYEvents, new Beat(2), 0d), 6);
+        Assert.Equal(new Beat(2), moveXEvents[^1].StartBeat);
+        Assert.Equal(new Beat(2), moveXEvents[^1].EndBeat);
+    }
+
+    [Fact]
+    public void BlockAreaTransformFramesInterpolateFromTheLeftAndHoldItsAbsoluteAnchor()
+    {
+        var source = new PhigrosChart
+        {
+            JudgeLineList = [new PhigrosJudgeLine { Bpm = 120f }],
+            BlockAreaList =
+            [
+                new BlockArea
+                {
+                    TopRightPercentage = new PositionUnit { X = 0.75f, Y = 0.75f },
+                    BottomLeftPercentage = new PositionUnit { X = 0.25f, Y = 0.25f },
+                    RotateEvents =
+                    [
+                        new()
+                        {
+                            Time = 0f,
+                            Anchor = new PositionUnit { X = 0.25f, Y = 0.5f },
+                            Rotation = 0f,
+                            EaseType = PhigrosAreaEaseType.EaseInQuad,
+                        },
+                        new()
+                        {
+                            Time = 2f,
+                            Anchor = new PositionUnit { X = 0.75f, Y = 0.5f },
+                            Rotation = 90f,
+                            EaseType = PhigrosAreaEaseType.EaseOutQuad,
+                        },
+                    ],
+                    ScaleEvents =
+                    [
+                        new AreaScaleEvent
+                        {
+                            Time = 0f,
+                            Anchor = new PositionUnit { X = 0.25f, Y = 0.5f },
+                            Scale = new PositionUnit { X = 1f, Y = 1f },
+                            EaseTypeX = PhigrosAreaEaseType.EaseInQuad,
+                            EaseTypeY = PhigrosAreaEaseType.Linear,
+                        },
+                        new AreaScaleEvent
+                        {
+                            Time = 2f,
+                            Anchor = new PositionUnit { X = 0.75f, Y = 0.5f },
+                            Scale = new PositionUnit { X = 2f, Y = 2f },
+                            EaseTypeX = PhigrosAreaEaseType.EaseOutQuad,
+                            EaseTypeY = PhigrosAreaEaseType.Linear,
+                        },
+                    ],
+                },
+            ],
+        };
+
+        var area = Assert.Single(new PhigrosV3Converter().ToIr(source, null).BlockAreaList);
+        var midpoint = new Beat(2);
+        var secondFrame = new Beat(4);
+
+        Assert.Equal(
+            Transform.ToIrX(0.25f),
+            EvaluateIrTrack(area.ScaleAnchorXEvents, midpoint, 0d),
+            6
+        );
+        Assert.Equal(
+            Transform.ToIrX(0.75f),
+            EvaluateIrTrack(area.ScaleAnchorXEvents, secondFrame, 0d),
+            6
+        );
+        Assert.Equal(
+            Transform.ToIrX(0.25f),
+            EvaluateIrTrack(area.RotateAnchorXEvents, midpoint, 0d),
+            6
+        );
+        Assert.Equal(
+            Transform.ToIrX(0.75f),
+            EvaluateIrTrack(area.RotateAnchorXEvents, secondFrame, 0d),
+            6
+        );
+        Assert.Equal(1.25d, EvaluateIrTrack(area.ScaleXEvents, midpoint, 1d), 6);
+        Assert.Equal(22.5d, EvaluateIrTrack(area.RotateEvents, midpoint, 0d), 6);
     }
 
     [Fact]
@@ -412,5 +485,19 @@ public class PhigrosV3BlockAreaConversionTests
         Assert.Equal(PhigrosAreaEaseType.Linear, area.MoveEvents[1].EaseTypeX.Type);
         Assert.Equal(PhigrosAreaEaseType.One, area.MoveEvents[^1].EaseTypeX.Type);
         Assert.Contains(warnings, message => message.Contains("线性事件"));
+    }
+
+    private static double EvaluateIrTrack(
+        List<IrEvent>? events,
+        Beat beat,
+        double defaultValue
+    )
+    {
+        var dominant = events?.LastOrDefault(evt => evt.StartBeat <= beat);
+        if (dominant is null)
+            return defaultValue;
+        return beat <= dominant.EndBeat
+            ? dominant.GetValueAtBeatAsDouble(beat)
+            : dominant.EndValue;
     }
 }

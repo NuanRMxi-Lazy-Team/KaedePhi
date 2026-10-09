@@ -134,12 +134,20 @@ public class PhigrosV3BlockAreaTests
         Assert.Equal(0.25f, position.X, precision: 6);
         Assert.Equal(0.75f, position.Y, precision: 6);
         Assert.Equal(22.5f, rotation, precision: 6);
-        Assert.Equal(0.25f, rotationAnchor.X, precision: 6);
-        Assert.Equal(0.25f, rotationAnchor.Y, precision: 6);
+        Assert.Equal(0f, rotationAnchor.X, precision: 6);
+        Assert.Equal(0f, rotationAnchor.Y, precision: 6);
         Assert.Equal(1.25f, scale.X, precision: 6);
         Assert.Equal(1.75f, scale.Y, precision: 6);
-        Assert.Equal(0.25f, scaleAnchor.X, precision: 6);
-        Assert.Equal(0.75f, scaleAnchor.Y, precision: 6);
+        Assert.Equal(0f, scaleAnchor.X, precision: 6);
+        Assert.Equal(0f, scaleAnchor.Y, precision: 6);
+        Assert.Equal(
+            new PositionUnit { X = 1f, Y = 1f },
+            rotationEvent.GetAnchorAtTime(3f, 1f, start)
+        );
+        Assert.Equal(
+            new PositionUnit { X = 1f, Y = 1f },
+            scaleEvent.GetAnchorAtTime(3f, 1f, start)
+        );
     }
 
     [Fact]

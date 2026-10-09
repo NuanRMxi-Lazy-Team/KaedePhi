@@ -3,12 +3,12 @@ using Newtonsoft.Json;
 namespace KaedePhi.Core.Formats.Phigros.v3.Model
 {
     /// <summary>
-    /// 表示噪域的移动关键帧，目标坐标由上一关键帧的位置插值而来。
+    /// 表示噪域的移动关键帧，位置值作为当前帧状态并向后插值到下一关键帧。
     /// </summary>
     public class AreaMoveEvent
     {
         /// <summary>
-        /// 噪域中心的目标坐标，以谱面渲染范围左下角为原点；首个关键帧之前的位置为噪域中心。
+        /// 此关键帧中噪域中心的绝对坐标，以谱面渲染范围左下角为原点；首个关键帧之前的位置为噪域中心。
         /// </summary>
         [JsonProperty("endPosition")]
         public PositionUnit EndPosition { get; set; }
@@ -20,13 +20,13 @@ namespace KaedePhi.Core.Formats.Phigros.v3.Model
         public float Time { get; set; }
 
         /// <summary>
-        /// x 方向的缓动类型，由 <see cref="AreaEase"/> 表示，编号对应 <see cref="AreaEaseType"/>。
+        /// 从此关键帧向下一关键帧过渡时 x 方向的缓动类型，由 <see cref="AreaEase"/> 表示。
         /// </summary>
         [JsonProperty("easeTypeX")]
         public AreaEase EaseTypeX { get; set; }
 
         /// <summary>
-        /// y 方向的缓动类型，由 <see cref="AreaEase"/> 表示，编号对应 <see cref="AreaEaseType"/>。
+        /// 从此关键帧向下一关键帧过渡时 y 方向的缓动类型，由 <see cref="AreaEase"/> 表示。
         /// </summary>
         [JsonProperty("easeTypeY")]
         public AreaEase EaseTypeY { get; set; }

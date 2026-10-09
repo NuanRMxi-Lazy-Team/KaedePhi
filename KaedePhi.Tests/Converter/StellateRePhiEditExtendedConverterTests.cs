@@ -235,7 +235,7 @@ public class StellateRePhiEditExtendedConverterTests
     }
 
     [Fact]
-    public async Task ExportAppliesScaleAnchorToBlockCenterAfterMove()
+    public async Task ExportAppliesScaleAnchorBeforeTheFinalMove()
     {
         var source = new IrChart
         {
@@ -281,8 +281,156 @@ public class StellateRePhiEditExtendedConverterTests
             var area = Assert.Single(converted.BlockAreaList);
             var movedX = EvaluateIrTrack(area.MoveXEvents, new Beat(2), GetIrCenterX(area));
 
-            // 移动到 0.5 后以 -1 为锚点放大 2 倍：-1 + (0.5 + 1) * 2 = 2。
-            Assert.Equal(2d, movedX, 3);
+            // 原中心 0 以 -1 为锚点放大到 1，再应用移动偏移 0.5。
+            Assert.Equal(1.5d, movedX, 3);
+        }
+        finally
+        {
+            if (File.Exists(path))
+                File.Delete(path);
+        }
+    }
+
+    [Fact]
+    public async Task ExportBakesScaleThenRotationThenMove()
+    {
+        var source = new IrChart
+        {
+            BpmList = [new IrBpmItem { Bpm = 120f, StartBeat = new Beat(0) }],
+            BlockAreaList =
+            [
+                new IrBlockArea
+                {
+                    TopRightX = 1d,
+                    TopRightY = 1d,
+                    BottomLeftX = -1d,
+                    BottomLeftY = -1d,
+                    AppearBeat = new Beat(0),
+                    EnableBeat = new Beat(0),
+                    DisableBeat = new Beat(4),
+                    DisappearBeat = new Beat(5),
+                    MoveXEvents = [CreateIrEvent(0, 2, 0d, 0.5d)],
+                    RotateEvents = [CreateIrEvent(0, 2, 90d, 90d)],
+                    RotateAnchorXEvents = [CreateIrEvent(0, 2, 0d, 0d)],
+                    RotateAnchorYEvents = [CreateIrEvent(0, 2, 0d, 0d)],
+                    ScaleXEvents = [CreateIrEvent(0, 2, 2d, 2d)],
+                    ScaleYEvents = [CreateIrEvent(0, 2, 1d, 1d)],
+                    ScaleAnchorXEvents = [CreateIrEvent(0, 2, -1d, -1d)],
+                    ScaleAnchorYEvents = [CreateIrEvent(0, 2, 0d, 0d)],
+                },
+            ],
+        };
+
+        var path = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid():N}.json");
+        try
+        {
+            await ChartFormatRegistry.Get(ChartType.StellateRePhiEditExtended).ExportAsync(
+                source,
+                path,
+                ct: TestContext.Current.CancellationToken
+            );
+            var json = await File.ReadAllTextAsync(
+                path,
+                TestContext.Current.CancellationToken
+            );
+            var (_, converted) = await ChartFormatRegistry.ImportIrAsync(
+                json,
+                ct: TestContext.Current.CancellationToken
+            );
+
+            var area = Assert.Single(converted.BlockAreaList);
+            var centerX = GetIrCenterX(area);
+            var centerY = (area.TopRightY + area.BottomLeftY) / 2d;
+
+            Assert.Equal(0.5d, EvaluateIrTrack(area.MoveXEvents, new Beat(2), centerX), 3);
+            Assert.Equal(1.5d, EvaluateIrTrack(area.MoveYEvents, new Beat(2), centerY), 3);
+        }
+        finally
+        {
+            if (File.Exists(path))
+                File.Delete(path);
+        }
+    }
+
+    [Fact]
+    public async Task ExportBakesPhigrosLeftFrameAbsoluteAnchorBeforeMove()
+    {
+        var source = new KaedePhi.Core.Formats.Phigros.v3.Model.Chart
+        {
+            JudgeLineList =
+            [
+                new KaedePhi.Core.Formats.Phigros.v3.Model.JudgeLine { Bpm = 120f },
+            ],
+            BlockAreaList =
+            [
+                new PhigrosBlockArea
+                {
+                    TopRightPercentage = new() { X = 0.75f, Y = 0.75f },
+                    BottomLeftPercentage = new() { X = 0.25f, Y = 0.25f },
+                    AppearTime = 0f,
+                    EnableTime = 0f,
+                    DisableTime = 4f,
+                    DisappearTime = 5f,
+                    MoveEvents =
+                    [
+                        new()
+                        {
+                            Time = 0f,
+                            EndPosition = new() { X = 0.5f, Y = 0.5f },
+                            EaseTypeX = PhigrosAreaEaseType.Linear,
+                            EaseTypeY = PhigrosAreaEaseType.Linear,
+                        },
+                        new()
+                        {
+                            Time = 2f,
+                            EndPosition = new() { X = 0.75f, Y = 0.5f },
+                            EaseTypeX = PhigrosAreaEaseType.Linear,
+                            EaseTypeY = PhigrosAreaEaseType.Linear,
+                        },
+                    ],
+                    ScaleEvents =
+                    [
+                        new()
+                        {
+                            Time = 0f,
+                            Anchor = new() { X = 0.25f, Y = 0.5f },
+                            Scale = new() { X = 1f, Y = 1f },
+                            EaseTypeX = PhigrosAreaEaseType.Linear,
+                            EaseTypeY = PhigrosAreaEaseType.Linear,
+                        },
+                        new()
+                        {
+                            Time = 2f,
+                            Anchor = new() { X = 0.75f, Y = 0.5f },
+                            Scale = new() { X = 2f, Y = 1f },
+                            EaseTypeX = PhigrosAreaEaseType.Linear,
+                            EaseTypeY = PhigrosAreaEaseType.Linear,
+                        },
+                    ],
+                },
+            ],
+        };
+        var intermediate = new PhigrosV3Converter().ToIr(source, null);
+        var path = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid():N}.json");
+        try
+        {
+            await ChartFormatRegistry.Get(ChartType.StellateRePhiEditExtended).ExportAsync(
+                intermediate,
+                path,
+                ct: TestContext.Current.CancellationToken
+            );
+            var json = await File.ReadAllTextAsync(
+                path,
+                TestContext.Current.CancellationToken
+            );
+            var (_, converted) = await ChartFormatRegistry.ImportIrAsync(
+                json,
+                ct: TestContext.Current.CancellationToken
+            );
+
+            var area = Assert.Single(converted.BlockAreaList);
+            var centerX = GetIrCenterX(area);
+            Assert.Equal(0.5d, EvaluateIrTrack(area.MoveXEvents, new Beat(2), centerX), 2);
         }
         finally
         {

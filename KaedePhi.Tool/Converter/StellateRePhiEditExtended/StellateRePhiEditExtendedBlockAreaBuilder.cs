@@ -260,14 +260,12 @@ internal static class StellateRePhiEditExtendedBlockAreaBuilder
                 rotateAnchorX,
                 beat,
                 baseCenterX,
-                moveCenterX,
                 rightSide
             );
             var rotationAnchorValueY = EvaluateAnchor(
                 rotateAnchorY,
                 beat,
                 baseCenterY,
-                moveCenterY,
                 rightSide
             );
             var scaleValueX = EvaluateTrack(scaleX, beat, 1d, rightSide);
@@ -276,29 +274,27 @@ internal static class StellateRePhiEditExtendedBlockAreaBuilder
                 scaleAnchorX,
                 beat,
                 baseCenterX,
-                moveCenterX,
                 rightSide
             );
             var scaleAnchorValueY = EvaluateAnchor(
                 scaleAnchorY,
                 beat,
                 baseCenterY,
-                moveCenterY,
                 rightSide
             );
 
-            // 变换基于移动后的中心：先围绕缩放锚点缩放，再围绕旋转锚点旋转。
+            // 锚点为绝对坐标：先变换原始中心，再叠加移动中心相对原始中心的偏移。
             var scaledCenterX =
-                scaleAnchorValueX + (moveCenterX - scaleAnchorValueX) * scaleValueX;
+                scaleAnchorValueX + (baseCenterX - scaleAnchorValueX) * scaleValueX;
             var scaledCenterY =
-                scaleAnchorValueY + (moveCenterY - scaleAnchorValueY) * scaleValueY;
+                scaleAnchorValueY + (baseCenterY - scaleAnchorValueY) * scaleValueY;
             var rotatedOffset = CoordinateGeometry.RotateIrOffset(
                 scaledCenterX - rotationAnchorValueX,
                 scaledCenterY - rotationAnchorValueY,
                 rotation
             );
-            var centerX = rotationAnchorValueX + rotatedOffset.X;
-            var centerY = rotationAnchorValueY + rotatedOffset.Y;
+            var centerX = rotationAnchorValueX + rotatedOffset.X + moveCenterX - baseCenterX;
+            var centerY = rotationAnchorValueY + rotatedOffset.Y + moveCenterY - baseCenterY;
             if (!double.IsFinite(centerX) || !double.IsFinite(centerY))
                 throw new FormatException($"IR 噪域 {blockAreaIndex} 的锚点变换后位置不是有限数值。");
 
@@ -459,11 +455,10 @@ internal static class StellateRePhiEditExtendedBlockAreaBuilder
         IReadOnlyList<IrEvent> events,
         Beat beat,
         double baseValue,
-        double movedValue,
         bool includeStartAtBeat
     ) =>
         events.Count == 0
-            ? movedValue
+            ? baseValue
             : EvaluateTrack(events, beat, baseValue, includeStartAtBeat);
 
     private static double EvaluateTrack(

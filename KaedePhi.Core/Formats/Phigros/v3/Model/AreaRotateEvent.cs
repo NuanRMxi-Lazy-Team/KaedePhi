@@ -3,7 +3,7 @@ using Newtonsoft.Json;
 namespace KaedePhi.Core.Formats.Phigros.v3.Model
 {
     /// <summary>
-    /// 表示噪域的旋转关键帧，属性值由上一关键帧插值至此事件的目标值。
+    /// 表示噪域的旋转关键帧；旋转值向后插值，锚点在帧间保持左侧关键帧的位置。
     /// </summary>
     public class AreaRotateEvent
     {
@@ -20,13 +20,13 @@ namespace KaedePhi.Core.Formats.Phigros.v3.Model
         public float Time { get; set; }
 
         /// <summary>
-        /// 缓动类型，由 <see cref="AreaEase"/> 表示，编号对应 <see cref="AreaEaseType"/>。
+        /// 从此关键帧向下一关键帧过渡时使用的缓动类型，由 <see cref="AreaEase"/> 表示。
         /// </summary>
         [JsonProperty("easeType")]
         public AreaEase EaseType { get; set; }
 
         /// <summary>
-        /// 目标旋转角度，单位为度；首个关键帧之前的旋转角度为 0。
+        /// 此关键帧的旋转角度，单位为度；首个关键帧之前的旋转角度为 0。
         /// </summary>
         [JsonProperty("rotation")]
         public float Rotation { get; set; }
@@ -45,7 +45,7 @@ namespace KaedePhi.Core.Formats.Phigros.v3.Model
         }
 
         /// <summary>
-        /// 获取指定音乐时间的旋转中心坐标。
+        /// 获取指定音乐时间的旋转中心坐标；帧间保持左侧关键帧的锚点。
         /// </summary>
         /// <param name="time">当前音乐时间，单位为秒。</param>
         /// <param name="previousEventTime">前一个关键帧时间，单位为秒。</param>
@@ -58,7 +58,7 @@ namespace KaedePhi.Core.Formats.Phigros.v3.Model
         )
         {
             var progress = AreaEase.GetProgress(previousEventTime, Time, time);
-            return AreaEase.Interpolate(startAnchor, Anchor, progress, EaseType, EaseType);
+            return progress < 1f ? startAnchor : Anchor;
         }
     }
 }

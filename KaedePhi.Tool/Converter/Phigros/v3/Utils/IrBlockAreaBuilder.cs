@@ -52,7 +52,7 @@ internal static class IrBlockAreaBuilder
             DisableBeat = timeMapper.ToBeat(source.DisableTime),
             DisappearBeat = timeMapper.ToBeat(source.DisappearTime),
             IsSubtract = source.IsSubtract,
-            MoveXEvents = ConvertEvents(
+            MoveXEvents = ConvertLeftKeyframeEvents(
                 source.MoveEvents,
                 evt => evt.Time,
                 evt => ToIrX(evt.EndPosition.X),
@@ -60,7 +60,7 @@ internal static class IrBlockAreaBuilder
                 centerX,
                 timeMapper
             ),
-            MoveYEvents = ConvertEvents(
+            MoveYEvents = ConvertLeftKeyframeEvents(
                 source.MoveEvents,
                 evt => evt.Time,
                 evt => ToIrY(evt.EndPosition.Y),
@@ -68,7 +68,7 @@ internal static class IrBlockAreaBuilder
                 centerY,
                 timeMapper
             ),
-            RotateEvents = ConvertEvents(
+            RotateEvents = ConvertLeftKeyframeEvents(
                 source.RotateEvents,
                 evt => evt.Time,
                 evt => ToIrAngle(evt.Rotation),
@@ -76,23 +76,21 @@ internal static class IrBlockAreaBuilder
                 0d,
                 timeMapper
             ),
-            RotateAnchorXEvents = ConvertEvents(
+            RotateAnchorXEvents = ConvertAnchorEvents(
                 source.RotateEvents,
                 evt => evt.Time,
                 evt => ToIrX(evt.Anchor.X),
-                evt => evt.EaseType.Value,
                 centerX,
                 timeMapper
             ),
-            RotateAnchorYEvents = ConvertEvents(
+            RotateAnchorYEvents = ConvertAnchorEvents(
                 source.RotateEvents,
                 evt => evt.Time,
                 evt => ToIrY(evt.Anchor.Y),
-                evt => evt.EaseType.Value,
                 centerY,
                 timeMapper
             ),
-            ScaleXEvents = ConvertEvents(
+            ScaleXEvents = ConvertLeftKeyframeEvents(
                 source.ScaleEvents,
                 evt => evt.Time,
                 evt => ToFiniteDouble(evt.Scale.X),
@@ -100,7 +98,7 @@ internal static class IrBlockAreaBuilder
                 1d,
                 timeMapper
             ),
-            ScaleYEvents = ConvertEvents(
+            ScaleYEvents = ConvertLeftKeyframeEvents(
                 source.ScaleEvents,
                 evt => evt.Time,
                 evt => ToFiniteDouble(evt.Scale.Y),
@@ -108,30 +106,83 @@ internal static class IrBlockAreaBuilder
                 1d,
                 timeMapper
             ),
-            ScaleAnchorXEvents = ConvertEvents(
+            ScaleAnchorXEvents = ConvertAnchorEvents(
                 source.ScaleEvents,
                 evt => evt.Time,
                 evt => ToIrX(evt.Anchor.X),
-                evt => evt.EaseTypeX.Value,
                 centerX,
                 timeMapper
             ),
-            ScaleAnchorYEvents = ConvertEvents(
+            ScaleAnchorYEvents = ConvertAnchorEvents(
                 source.ScaleEvents,
                 evt => evt.Time,
                 evt => ToIrY(evt.Anchor.Y),
-                evt => evt.EaseTypeY.Value,
                 centerY,
                 timeMapper
             ),
         };
     }
 
-    private static List<IrEvent>? ConvertEvents<TSource>(
+    private static List<IrEvent>? ConvertLeftKeyframeEvents<TSource>(
         IReadOnlyList<TSource>? sourceEvents,
         Func<TSource, float> timeSelector,
         Func<TSource, double> valueSelector,
         Func<TSource, int> easingSelector,
+        double defaultValue,
+        PhigrosV3TimeMapper timeMapper
+    )
+        where TSource : class
+    {
+        if (sourceEvents is not { Count: > 0 })
+            return null;
+        if (sourceEvents.Any(evt => evt is null))
+            throw new FormatException("PhigrosV3 噪域事件列表不能包含 null。");
+
+        var ordered = sourceEvents
+            .Select((evt, index) => (Event: evt, Index: index))
+            .OrderBy(item => timeSelector(item.Event))
+            .ThenBy(item => item.Index)
+            .ToList();
+        var result = new List<IrEvent>();
+        var firstBeat = timeMapper.ToBeat(timeSelector(ordered[0].Event));
+        if (firstBeat > new Beat(0))
+            result.Add(CreateEvent(new Beat(0), firstBeat, defaultValue, defaultValue, 1));
+
+        for (var index = 0; index < ordered.Count - 1; index++)
+        {
+            var leftEvent = ordered[index].Event;
+            var rightEvent = ordered[index + 1].Event;
+            var startBeat = timeMapper.ToBeat(timeSelector(leftEvent));
+            var endBeat = timeMapper.ToBeat(timeSelector(rightEvent));
+            var startValue = valueSelector(leftEvent);
+            var endValue = valueSelector(rightEvent);
+            if (!double.IsFinite(startValue) || !double.IsFinite(endValue))
+                throw new FormatException("PhigrosV3 噪域事件值必须是有限数值。");
+
+            AddEvent(
+                result,
+                startBeat,
+                endBeat,
+                startValue,
+                endValue,
+                easingSelector(leftEvent)
+            );
+        }
+
+        var lastEvent = ordered[^1].Event;
+        var lastBeat = timeMapper.ToBeat(timeSelector(lastEvent));
+        var lastValue = valueSelector(lastEvent);
+        if (!double.IsFinite(lastValue))
+            throw new FormatException("PhigrosV3 噪域事件值必须是有限数值。");
+        result.Add(CreateEvent(lastBeat, lastBeat, lastValue, lastValue, 1));
+
+        return result.Count == 0 ? null : result;
+    }
+
+    private static List<IrEvent>? ConvertAnchorEvents<TSource>(
+        IReadOnlyList<TSource>? sourceEvents,
+        Func<TSource, float> timeSelector,
+        Func<TSource, double> valueSelector,
         double defaultValue,
         PhigrosV3TimeMapper timeMapper
     )
@@ -154,28 +205,26 @@ internal static class IrBlockAreaBuilder
         for (var index = 0; index < ordered.Count; index++)
         {
             var sourceEvent = ordered[index].Event;
-            var endBeat = timeMapper.ToBeat(timeSelector(sourceEvent));
+            var keyframeBeat = timeMapper.ToBeat(timeSelector(sourceEvent));
             var startBeat = previousBeat;
-            if (index == 0 && endBeat < startBeat)
-                startBeat = endBeat;
+            if (index == 0 && keyframeBeat < startBeat)
+                startBeat = keyframeBeat;
 
-            var endValue = valueSelector(sourceEvent);
-            if (!double.IsFinite(endValue))
-                throw new FormatException("PhigrosV3 噪域事件值必须是有限数值。");
+            var anchorValue = valueSelector(sourceEvent);
+            if (!double.IsFinite(anchorValue))
+                throw new FormatException("PhigrosV3 噪域锚点必须是有限数值。");
 
-            AddEvent(
-                result,
-                startBeat,
-                endBeat,
-                previousValue,
-                endValue,
-                easingSelector(sourceEvent)
-            );
-            previousBeat = endBeat;
-            previousValue = endValue;
+            if (keyframeBeat > startBeat)
+                result.Add(
+                    CreateEvent(startBeat, keyframeBeat, previousValue, previousValue, 1)
+                );
+            // 锚点在两帧之间保持左帧的绝对坐标，到新帧时才切换。
+            result.Add(CreateEvent(keyframeBeat, keyframeBeat, previousValue, anchorValue, 1));
+            previousBeat = keyframeBeat;
+            previousValue = anchorValue;
         }
 
-        return result.Count == 0 ? null : result;
+        return result;
     }
 
     private static void AddEvent(
