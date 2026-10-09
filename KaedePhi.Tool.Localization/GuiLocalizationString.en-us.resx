@@ -238,6 +238,9 @@
   <data name="log_tool_completed" xml:space="preserve">
     <value>Tool "{0}" completed. You can run another tool or export.</value>
   </data>
+  <data name="log_tool_cancelled" xml:space="preserve">
+    <value>Tool operation cancelled.</value>
+  </data>
   <data name="log_tool_render_output" xml:space="preserve">
     <value>Render output: {0}</value>
   </data>
@@ -255,6 +258,9 @@
   </data>
   <data name="log_export_cancelled" xml:space="preserve">
     <value>Export cancelled.</value>
+  </data>
+  <data name="log_import_cancelled" xml:space="preserve">
+    <value>Import cancelled.</value>
   </data>
   <data name="log_cannot_access_picker" xml:space="preserve">
     <value>Cannot access file picker.</value>

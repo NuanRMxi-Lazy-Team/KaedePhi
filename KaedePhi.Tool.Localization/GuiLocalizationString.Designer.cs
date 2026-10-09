@@ -915,6 +915,15 @@ namespace KaedePhi.Tool.Localization {
         }
         
         /// <summary>
+        ///   获取工具操作已取消文案。
+        /// </summary>
+        public static string log_tool_cancelled {
+            get {
+                return ResourceManager.GetString("log_tool_cancelled", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to 工具 &quot;{0}&quot; 已完成。您可以运行其它工具或导出。.
         /// </summary>
         public static string log_tool_completed {

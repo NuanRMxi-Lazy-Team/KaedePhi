@@ -115,7 +115,7 @@ internal sealed class ToolController
         }
         catch (OperationCanceledException)
         {
-            _log.Information(status_export_cancelled);
+            _log.Information(log_tool_cancelled);
             _navigation.ShowTool();
         }
         catch (Exception ex)
@@ -214,6 +214,6 @@ internal sealed class ToolController
         if (_cts is not { IsCancellationRequested: false })
             return;
         _cts.Cancel();
-        _log.Information(status_export_cancelled);
+        _log.Information(log_tool_cancelled);
     }
 }
