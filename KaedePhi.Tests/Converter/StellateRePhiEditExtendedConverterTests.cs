@@ -1219,6 +1219,42 @@ public class StellateRePhiEditExtendedConverterTests
         Assert.Equal(0d, scaleAtZero, 3);
     }
 
+    [Fact]
+    public async Task ImportHandlesDenseCurvesAcrossParallelGeometrySamples()
+    {
+        var line = CreateBlockAreaLine("isSubtract0.png");
+        SetFullLifecycleMarkers(line);
+        line.EventLayers[0].SpeedEvents![3] = CreateEvent(20, 20, 4f, 4f);
+        var moveXEvents = new List<RpeEvent>(640);
+        for (var index = 0; index < 640; index++)
+        {
+            moveXEvents.Add(
+                new RpeEvent
+                {
+                    StartBeat = new Beat(index / 32d),
+                    EndBeat = new Beat((index + 1) / 32d),
+                    StartValue = index,
+                    EndValue = index + 1,
+                }
+            );
+        }
+        line.EventLayers[0].MoveXEvents = moveXEvents;
+
+        var source = new Chart
+        {
+            BpmList = [new BpmItem { Bpm = 120f, StartBeat = new Beat(0) }],
+            JudgeLineList = [line],
+        };
+
+        var (_, imported) = await ChartFormatRegistry.ImportIrAsync(
+            source.ExportToJson(false),
+            ct: TestContext.Current.CancellationToken
+        );
+
+        Assert.Single(imported.BlockAreaList);
+        Assert.Equal(new Beat(20), imported.BlockAreaList[0].DisappearBeat);
+    }
+
     private static double GetIrCenterX(IrBlockArea area) =>
         (area.TopRightX + area.BottomLeftX) / 2d;
 

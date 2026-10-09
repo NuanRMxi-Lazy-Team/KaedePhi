@@ -30,6 +30,20 @@
         "resolved": "4.153.1",
         "contentHash": "Yqg6rChTVh0BUE8QQxtOA3uUBnihfgID4yex/AvDa0+os2bVcBjmI3Qj9tnOB+R1hd/Jry1Gwl8qw5JI9HZG8Q=="
       },
+      "CAPCOM.REDox": {
+        "type": "Transitive",
+        "resolved": "1.0.1",
+        "contentHash": "XGqPPnhRkIyTBK+dbvrzzdW34Um2IPKtplprSOP9KeixdY9fi2+a3+oJ1bfcGfukqunoSG+AxlmmE/fZKzuP6g=="
+      },
+      "CAPCOM.REDox.Serialization.NewtonsoftJson": {
+        "type": "Transitive",
+        "resolved": "1.0.1-preview",
+        "contentHash": "4Ssnjhch7SNUWUhat0KQGx7WAzgTnxqwpmq6M5oyxvXSWvExRgvQ4fNYJbZzumcrfgHb2r7+Ux/GAOYFHSR8UQ==",
+        "dependencies": {
+          "CAPCOM.REDox": "1.0.1",
+          "Newtonsoft.Json": "13.0.4"
+        }
+      },
       "Newtonsoft.Json": {
         "type": "Transitive",
         "resolved": "13.0.4",
@@ -43,6 +57,8 @@
       "kaedephi.core": {
         "type": "Project",
         "dependencies": {
+          "CAPCOM.REDox": "[1.0.1, )",
+          "CAPCOM.REDox.Serialization.NewtonsoftJson": "[1.0.1-preview, )",
           "JetBrains.Annotations": "[2026.2.0, )",
           "Newtonsoft.Json": "[13.0.4, )"
         }

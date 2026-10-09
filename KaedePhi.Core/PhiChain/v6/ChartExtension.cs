@@ -1,8 +1,10 @@
 using System;
 using System.IO;
+using System.Reflection;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using KaedePhi.Core.Common;
+using JsonCodec = KaedePhi.Core.Primitives.Serialization.JsonCodec;
 using Newtonsoft.Json;
 
 namespace KaedePhi.Core.PhiChain.v6
@@ -24,7 +26,7 @@ namespace KaedePhi.Core.PhiChain.v6
             try
             {
                 var chart =
-                    JsonConvert.DeserializeObject<Chart>(json, JsonDefaults.DeserializeSettings)
+                    JsonCodec.Deserialize<Chart>(json)
                     ?? throw new InvalidOperationException(
                         "Failed to deserialize Chart from JSON: result is null"
                     );
@@ -39,6 +41,13 @@ namespace KaedePhi.Core.PhiChain.v6
                 throw new InvalidOperationException(
                     $"Failed to deserialize Chart from JSON: {ex.Message}",
                     ex
+                );
+            }
+            catch (TargetInvocationException ex) when (ex.InnerException is JsonException jsonException)
+            {
+                throw new InvalidOperationException(
+                    $"Failed to deserialize Chart from JSON: {jsonException.Message}",
+                    jsonException
                 );
             }
         }
@@ -99,6 +108,13 @@ namespace KaedePhi.Core.PhiChain.v6
                     ex
                 );
             }
+            catch (TargetInvocationException ex) when (ex.InnerException is JsonException jsonException)
+            {
+                throw new InvalidOperationException(
+                    $"Failed to deserialize Chart from JSON: {jsonException.Message}",
+                    jsonException
+                );
+            }
         }
 
         /// <summary>
@@ -108,12 +124,7 @@ namespace KaedePhi.Core.PhiChain.v6
         /// <returns>JSON 字符串</returns>
         [PublicAPI]
         public string ExportToJson(bool format = false)
-        {
-            return JsonConvert.SerializeObject(
-                this,
-                format ? Formatting.Indented : Formatting.None
-            );
-        }
+            => JsonCodec.Serialize(this, format);
 
         /// <summary>
         /// 异步序列化 Chart 为 JSON 字符串
@@ -130,44 +141,15 @@ namespace KaedePhi.Core.PhiChain.v6
         /// <param name="stream">目标流</param>
         /// <param name="format">是否格式化输出</param>
         public void ExportToJsonStream(Stream stream, bool format = false)
-        {
-            using var streamWriter = new StreamWriter(
-                stream,
-                JsonDefaults.NoBomUtf8,
-                1024,
-                leaveOpen: true
-            );
-            var serializer = JsonDefaults.CreateSerializer(
-                format ? Formatting.Indented : Formatting.None
-            );
-
-            using var jsonWriter = new JsonTextWriter(streamWriter) { CloseOutput = false };
-            serializer.Serialize(jsonWriter, this);
-            jsonWriter.Flush();
-            streamWriter.Flush();
-        }
+            => JsonCodec.Serialize(stream, this, format);
 
         /// <summary>
         /// 异步序列化 Chart 为 JSON 并写入流
         /// </summary>
         /// <param name="stream">目标流</param>
         /// <param name="format">是否格式化输出</param>
-        public async Task ExportToJsonStreamAsync(Stream stream, bool format = false)
-        {
-            await using var streamWriter = new StreamWriter(
-                stream,
-                JsonDefaults.NoBomUtf8,
-                1024,
-                leaveOpen: true
-            );
-            var serializer = JsonDefaults.CreateSerializer(
-                format ? Formatting.Indented : Formatting.None
-            );
-            using var jsonWriter = new JsonTextWriter(streamWriter) { CloseOutput = false };
-            serializer.Serialize(jsonWriter, this);
-            jsonWriter.Flush();
-            await streamWriter.FlushAsync();
-        }
+        public Task ExportToJsonStreamAsync(Stream stream, bool format = false) =>
+            JsonCodec.SerializeAsync(stream, this, format);
 
         /// <summary>
         /// 异步从 JSON 字符串反序列化为 Chart 对象

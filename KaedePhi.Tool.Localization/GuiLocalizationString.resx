@@ -1,654 +1,662 @@
 <?xml version="1.0" encoding="utf-8"?>
 <root>
-  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
-    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
-    <xsd:element name="root" msdata:IsDataSet="true">
-      <xsd:complexType>
-        <xsd:choice maxOccurs="unbounded">
-          <xsd:element name="metadata">
+    <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+                xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+        <xsd:import namespace="http://www.w3.org/XML/1998/namespace"/>
+        <xsd:element name="root" msdata:IsDataSet="true">
             <xsd:complexType>
-              <xsd:sequence>
-                <xsd:element name="value" type="xsd:string" minOccurs="0" />
-              </xsd:sequence>
-              <xsd:attribute name="name" use="required" type="xsd:string" />
-              <xsd:attribute name="type" type="xsd:string" />
-              <xsd:attribute name="mimetype" type="xsd:string" />
-              <xsd:attribute ref="xml:space" />
+                <xsd:choice maxOccurs="unbounded">
+                    <xsd:element name="metadata">
+                        <xsd:complexType>
+                            <xsd:sequence>
+                                <xsd:element name="value" type="xsd:string" minOccurs="0"/>
+                            </xsd:sequence>
+                            <xsd:attribute name="name" use="required" type="xsd:string"/>
+                            <xsd:attribute name="type" type="xsd:string"/>
+                            <xsd:attribute name="mimetype" type="xsd:string"/>
+                            <xsd:attribute ref="xml:space"/>
+                        </xsd:complexType>
+                    </xsd:element>
+                    <xsd:element name="assembly">
+                        <xsd:complexType>
+                            <xsd:attribute name="alias" type="xsd:string"/>
+                            <xsd:attribute name="name" type="xsd:string"/>
+                        </xsd:complexType>
+                    </xsd:element>
+                    <xsd:element name="data">
+                        <xsd:complexType>
+                            <xsd:sequence>
+                                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1"/>
+                                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2"/>
+                            </xsd:sequence>
+                            <xsd:attribute name="name" use="required" type="xsd:string"/>
+                            <xsd:attribute name="type" type="xsd:string"/>
+                            <xsd:attribute name="mimetype" type="xsd:string"/>
+                            <xsd:attribute ref="xml:space"/>
+                        </xsd:complexType>
+                    </xsd:element>
+                    <xsd:element name="resheader">
+                        <xsd:complexType>
+                            <xsd:sequence>
+                                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1"/>
+                            </xsd:sequence>
+                            <xsd:attribute name="name" use="required" type="xsd:string"/>
+                        </xsd:complexType>
+                    </xsd:element>
+                </xsd:choice>
             </xsd:complexType>
-          </xsd:element>
-          <xsd:element name="assembly">
-            <xsd:complexType>
-              <xsd:attribute name="alias" type="xsd:string" />
-              <xsd:attribute name="name" type="xsd:string" />
-            </xsd:complexType>
-          </xsd:element>
-          <xsd:element name="data">
-            <xsd:complexType>
-              <xsd:sequence>
-                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
-                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
-              </xsd:sequence>
-              <xsd:attribute name="name" use="required" type="xsd:string" />
-              <xsd:attribute name="type" type="xsd:string" />
-              <xsd:attribute name="mimetype" type="xsd:string" />
-              <xsd:attribute ref="xml:space" />
-            </xsd:complexType>
-          </xsd:element>
-          <xsd:element name="resheader">
-            <xsd:complexType>
-              <xsd:sequence>
-                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
-              </xsd:sequence>
-              <xsd:attribute name="name" use="required" type="xsd:string" />
-            </xsd:complexType>
-          </xsd:element>
-        </xsd:choice>
-      </xsd:complexType>
-    </xsd:element>
-  </xsd:schema>
-  <resheader name="resmimetype">
-    <value>text/microsoft-resx</value>
-  </resheader>
-  <resheader name="version">
-    <value>2.0</value>
-  </resheader>
-  <resheader name="reader">
-    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </resheader>
-  <resheader name="writer">
-    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </resheader>
-  <data name="app_title" xml:space="preserve">
+        </xsd:element>
+    </xsd:schema>
+    <resheader name="resmimetype">
+        <value>text/microsoft-resx</value>
+    </resheader>
+    <resheader name="version">
+        <value>2.0</value>
+    </resheader>
+    <resheader name="reader">
+        <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral,
+            PublicKeyToken=b77a5c561934e089
+        </value>
+    </resheader>
+    <resheader name="writer">
+        <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral,
+            PublicKeyToken=b77a5c561934e089
+        </value>
+    </resheader>
+    <data name="app_title" xml:space="preserve">
     <value>KaedePhi</value>
   </data>
-  <data name="app_subtitle" xml:space="preserve">
+    <data name="app_subtitle" xml:space="preserve">
     <value>开源的自制谱工具集</value>
   </data>
-  <data name="import_button" xml:space="preserve">
+    <data name="import_button" xml:space="preserve">
     <value>导入谱面文件</value>
   </data>
-  <data name="import_stream_loading" xml:space="preserve">
+    <data name="import_stream_loading" xml:space="preserve">
     <value>流式加载</value>
   </data>
-  <data name="header_file" xml:space="preserve">
+    <data name="header_file" xml:space="preserve">
     <value>文件:</value>
   </data>
-  <data name="header_format" xml:space="preserve">
+    <data name="header_format" xml:space="preserve">
     <value>格式:</value>
   </data>
-  <data name="tool_select_title" xml:space="preserve">
+    <data name="tool_select_title" xml:space="preserve">
     <value>选择工具</value>
   </data>
-  <data name="tool_options_title" xml:space="preserve">
+    <data name="tool_options_title" xml:space="preserve">
     <value>工具选项</value>
   </data>
-  <data name="option_precision" xml:space="preserve">
+    <data name="option_precision" xml:space="preserve">
     <value>精度</value>
   </data>
-  <data name="option_tolerance" xml:space="preserve">
+    <data name="option_tolerance" xml:space="preserve">
     <value>容差 (百分比)</value>
   </data>
-  <data name="option_unbind_merge_tolerance" xml:space="preserve">
+    <data name="option_unbind_merge_tolerance" xml:space="preserve">
     <value>父子线事件通道合并容差（百分比）</value>
   </data>
-  <data name="option_classic_mode" xml:space="preserve">
+    <data name="option_classic_mode" xml:space="preserve">
     <value>经典模式</value>
   </data>
-  <data name="option_disable_compress" xml:space="preserve">
+    <data name="option_disable_compress" xml:space="preserve">
     <value>禁用压缩</value>
   </data>
-  <data name="option_disable_compress_hint" xml:space="preserve">
+    <data name="option_disable_compress_hint" xml:space="preserve">
     <value>仅在启用经典模式时可用</value>
   </data>
-  <data name="option_pixels_per_beat" xml:space="preserve">
+    <data name="option_pixels_per_beat" xml:space="preserve">
     <value>每拍像素</value>
   </data>
-  <data name="option_channel_width" xml:space="preserve">
+    <data name="option_channel_width" xml:space="preserve">
     <value>通道宽度</value>
   </data>
-  <data name="option_samples_per_event" xml:space="preserve">
+    <data name="option_samples_per_event" xml:space="preserve">
     <value>每事件采样数</value>
   </data>
-  <data name="option_beat_subdivisions" xml:space="preserve">
+    <data name="option_beat_subdivisions" xml:space="preserve">
     <value>拍细分数</value>
   </data>
-  <data name="option_render_output_dir" xml:space="preserve">
+    <data name="option_render_output_dir" xml:space="preserve">
     <value>图片输出文件夹（默认为谱面同级目录下的 RenderLayer）</value>
   </data>
-  <data name="option_render_output_dir_hint" xml:space="preserve">
+    <data name="option_render_output_dir_hint" xml:space="preserve">
     <value>输出文件夹路径（不存在时自动创建）</value>
   </data>
-  <data name="btn_browse" xml:space="preserve">
+    <data name="btn_browse" xml:space="preserve">
     <value>浏览</value>
   </data>
-  <data name="render_output_dir_picker_title" xml:space="preserve">
+    <data name="render_output_dir_picker_title" xml:space="preserve">
     <value>选择渲染输出文件夹</value>
   </data>
-  <data name="btn_run_tool" xml:space="preserve">
+    <data name="btn_run_tool" xml:space="preserve">
     <value>运行工具</value>
   </data>
-  <data name="btn_export_chart" xml:space="preserve">
+    <data name="btn_export_chart" xml:space="preserve">
     <value>导出谱面</value>
   </data>
-  <data name="btn_export" xml:space="preserve">
+    <data name="btn_export" xml:space="preserve">
     <value>导出</value>
   </data>
-  <data name="btn_back_to_import" xml:space="preserve">
+    <data name="btn_back_to_import" xml:space="preserve">
     <value>返回导入</value>
   </data>
-  <data name="btn_back_to_tools" xml:space="preserve">
+    <data name="btn_back_to_tools" xml:space="preserve">
     <value>返回工具</value>
   </data>
-  <data name="export_title" xml:space="preserve">
+    <data name="export_title" xml:space="preserve">
     <value>导出谱面</value>
   </data>
-  <data name="export_output_format" xml:space="preserve">
+    <data name="export_output_format" xml:space="preserve">
     <value>输出格式</value>
   </data>
-  <data name="export_stream_writing" xml:space="preserve">
+    <data name="export_stream_writing" xml:space="preserve">
     <value>流式写入</value>
   </data>
-  <data name="export_indented_output" xml:space="preserve">
+    <data name="export_indented_output" xml:space="preserve">
     <value>格式化输出（缩进）</value>
   </data>
-  <data name="processing_title" xml:space="preserve">
+    <data name="processing_title" xml:space="preserve">
     <value>处理谱面</value>
   </data>
-  <data name="processing_error" xml:space="preserve">
+    <data name="processing_error" xml:space="preserve">
     <value>错误</value>
   </data>
-  <data name="processing_log_file" xml:space="preserve">
+    <data name="processing_log_file" xml:space="preserve">
     <value>日志文件:</value>
   </data>
-  <data name="processing_success" xml:space="preserve">
+    <data name="processing_success" xml:space="preserve">
     <value>操作已完成。</value>
   </data>
-  <data name="step_loading" xml:space="preserve">
+    <data name="step_loading" xml:space="preserve">
     <value>加载文件</value>
   </data>
-  <data name="step_detecting" xml:space="preserve">
+    <data name="step_detecting" xml:space="preserve">
     <value>推断格式</value>
   </data>
-  <data name="step_to_kpc" xml:space="preserve">
+    <data name="step_to_kpc" xml:space="preserve">
     <value>转换为中间格式</value>
   </data>
-  <data name="step_running_tool" xml:space="preserve">
+    <data name="step_running_tool" xml:space="preserve">
     <value>使用工具</value>
   </data>
-  <data name="step_from_kpc" xml:space="preserve">
+    <data name="step_from_kpc" xml:space="preserve">
     <value>转换回原始格式</value>
   </data>
-  <data name="step_saving" xml:space="preserve">
+    <data name="step_saving" xml:space="preserve">
     <value>输出到工作区</value>
   </data>
-  <data name="tool_unbind_name" xml:space="preserve">
+    <data name="tool_unbind_name" xml:space="preserve">
     <value>父子线解绑</value>
   </data>
-  <data name="tool_unbind_desc" xml:space="preserve">
+    <data name="tool_unbind_desc" xml:space="preserve">
     <value>将子判定线从父线坐标系解绑为绝对坐标</value>
   </data>
-  <data name="tool_layermerge_name" xml:space="preserve">
+    <data name="tool_layermerge_name" xml:space="preserve">
     <value>层级合并</value>
   </data>
-  <data name="tool_layermerge_desc" xml:space="preserve">
+    <data name="tool_layermerge_desc" xml:space="preserve">
     <value>将多个事件层合并为单层</value>
   </data>
-  <data name="tool_cut_name" xml:space="preserve">
+    <data name="tool_cut_name" xml:space="preserve">
     <value>事件切割</value>
   </data>
-  <data name="tool_cut_desc" xml:space="preserve">
+    <data name="tool_cut_desc" xml:space="preserve">
     <value>将事件按等长段切割</value>
   </data>
-  <data name="tool_fit_name" xml:space="preserve">
+    <data name="tool_fit_name" xml:space="preserve">
     <value>事件拟合</value>
   </data>
-  <data name="tool_fit_desc" xml:space="preserve">
+    <data name="tool_fit_desc" xml:space="preserve">
     <value>将线性事件拟合为缓动曲线</value>
   </data>
-  <data name="tool_render_name" xml:space="preserve">
+    <data name="tool_render_name" xml:space="preserve">
     <value>事件渲染</value>
   </data>
-  <data name="tool_render_desc" xml:space="preserve">
+    <data name="tool_render_desc" xml:space="preserve">
     <value>将谱面事件层渲染为图片</value>
   </data>
-  <data name="log_app_starting" xml:space="preserve">
+    <data name="log_app_starting" xml:space="preserve">
     <value>应用程序启动中...</value>
   </data>
-  <data name="log_navigate_import" xml:space="preserve">
+    <data name="log_navigate_import" xml:space="preserve">
     <value>已导航至导入页面。</value>
   </data>
-  <data name="log_file_selected" xml:space="preserve">
+    <data name="log_file_selected" xml:space="preserve">
     <value>已选择文件: {0}, 流式={1}</value>
   </data>
-  <data name="log_step_loading" xml:space="preserve">
+    <data name="log_step_loading" xml:space="preserve">
     <value>正在加载文件...</value>
   </data>
-  <data name="log_step_detected" xml:space="preserve">
+    <data name="log_step_detected" xml:space="preserve">
     <value>已检测到格式: {0}</value>
   </data>
-  <data name="log_step_converting" xml:space="preserve">
+    <data name="log_step_converting" xml:space="preserve">
     <value>正在转换为中间格式...</value>
   </data>
-  <data name="log_chart_ready" xml:space="preserve">
+    <data name="log_chart_ready" xml:space="preserve">
     <value>谱面已加载，准备处理。</value>
   </data>
-  <data name="log_load_failed" xml:space="preserve">
+    <data name="log_load_failed" xml:space="preserve">
     <value>加载文件失败。</value>
   </data>
-  <data name="log_running_tool" xml:space="preserve">
+    <data name="log_running_tool" xml:space="preserve">
     <value>正在运行工具: {0}</value>
   </data>
-  <data name="log_tool_completed" xml:space="preserve">
+    <data name="log_tool_completed" xml:space="preserve">
     <value>工具 "{0}" 已完成。您可以运行其它工具或导出。</value>
   </data>
-  <data name="log_tool_render_output" xml:space="preserve">
+    <data name="log_tool_render_output" xml:space="preserve">
     <value>渲染输出: {0}</value>
   </data>
-  <data name="log_tool_failed" xml:space="preserve">
+    <data name="log_tool_failed" xml:space="preserve">
     <value>工具执行失败。</value>
   </data>
-  <data name="log_exporting_to" xml:space="preserve">
+    <data name="log_exporting_to" xml:space="preserve">
     <value>正在导出至: {0}，格式: {1}</value>
   </data>
-  <data name="log_export_done" xml:space="preserve">
+    <data name="log_export_done" xml:space="preserve">
     <value>导出完成。</value>
   </data>
-  <data name="log_export_failed" xml:space="preserve">
+    <data name="log_export_failed" xml:space="preserve">
     <value>导出失败。</value>
   </data>
-  <data name="log_export_cancelled" xml:space="preserve">
+    <data name="log_export_cancelled" xml:space="preserve">
     <value>导出已取消。</value>
   </data>
-  <data name="log_cannot_access_picker" xml:space="preserve">
+    <data name="log_cannot_access_picker" xml:space="preserve">
     <value>无法访问文件选择器。</value>
   </data>
-  <data name="log_workspace_cleared" xml:space="preserve">
+    <data name="log_workspace_cleared" xml:space="preserve">
     <value>工作区已清除。</value>
   </data>
-  <data name="log_shutdown" xml:space="preserve">
+    <data name="log_shutdown" xml:space="preserve">
     <value>应用程序关闭，正在清除工作区。</value>
   </data>
-  <data name="status_exporting" xml:space="preserve">
+    <data name="status_exporting" xml:space="preserve">
     <value>正在导出...</value>
   </data>
-  <data name="status_processing" xml:space="preserve">
+    <data name="status_processing" xml:space="preserve">
     <value>正在处理...</value>
   </data>
-  <data name="status_exported_to" xml:space="preserve">
+    <data name="status_exported_to" xml:space="preserve">
     <value>已导出至: {0}</value>
   </data>
-  <data name="status_export_cancelled" xml:space="preserve">
+    <data name="status_export_cancelled" xml:space="preserve">
     <value>导出已取消。</value>
   </data>
-  <data name="status_cannot_access_picker" xml:space="preserve">
+    <data name="status_cannot_access_picker" xml:space="preserve">
     <value>无法访问文件选择器。</value>
   </data>
-  <data name="status_tool_completed" xml:space="preserve">
+    <data name="status_tool_completed" xml:space="preserve">
     <value>工具 "{0}" 已完成。您可以运行其它工具或导出。</value>
   </data>
-  <data name="status_error_with_log" xml:space="preserve">
+    <data name="status_error_with_log" xml:space="preserve">
     <value>错误: {0}。详见日志: {1}</value>
   </data>
-  <data name="status_loaded_lines" xml:space="preserve">
+    <data name="status_loaded_lines" xml:space="preserve">
     <value>已加载 {0} 条判定线。</value>
   </data>
-  <data name="settings_title" xml:space="preserve">
+    <data name="settings_title" xml:space="preserve">
     <value>默认设置</value>
   </data>
-  <data name="settings_max_log_files" xml:space="preserve">
+    <data name="settings_max_log_files" xml:space="preserve">
     <value>最大日志文件数</value>
   </data>
-  <data name="settings_unbind" xml:space="preserve">
+    <data name="settings_unbind" xml:space="preserve">
     <value>判定线解绑</value>
   </data>
-  <data name="settings_layermerge" xml:space="preserve">
+    <data name="settings_layermerge" xml:space="preserve">
     <value>层级合并</value>
   </data>
-  <data name="settings_cut" xml:space="preserve">
+    <data name="settings_cut" xml:space="preserve">
     <value>事件切割</value>
   </data>
-  <data name="settings_fit" xml:space="preserve">
+    <data name="settings_fit" xml:space="preserve">
     <value>事件拟合</value>
   </data>
-  <data name="settings_render" xml:space="preserve">
+    <data name="settings_render" xml:space="preserve">
     <value>谱面渲染</value>
   </data>
-  <data name="settings_convert" xml:space="preserve">
+    <data name="settings_convert" xml:space="preserve">
     <value>格式转换</value>
   </data>
-  <data name="settings_saved" xml:space="preserve">
+    <data name="settings_saved" xml:space="preserve">
     <value>配置已保存。</value>
   </data>
-  <data name="btn_ok" xml:space="preserve">
+    <data name="btn_ok" xml:space="preserve">
     <value>确定</value>
   </data>
-  <data name="settings_save_failed" xml:space="preserve">
+    <data name="settings_save_failed" xml:space="preserve">
     <value>配置保存失败，请检查权限或磁盘空间。</value>
   </data>
-  <data name="settings_reset" xml:space="preserve">
+    <data name="settings_reset" xml:space="preserve">
     <value>已恢复默认设置。</value>
   </data>
-  <data name="option_segment_penalty" xml:space="preserve">
+    <data name="option_segment_penalty" xml:space="preserve">
     <value>段惩罚</value>
   </data>
-  <data name="option_keep_original_penalty" xml:space="preserve">
+    <data name="option_keep_original_penalty" xml:space="preserve">
     <value>保留原事件偏置</value>
   </data>
-  <data name="option_full_search_threshold" xml:space="preserve">
+    <data name="option_full_search_threshold" xml:space="preserve">
     <value>全搜索长度阈值</value>
   </data>
-  <data name="option_long_run_window" xml:space="preserve">
+    <data name="option_long_run_window" xml:space="preserve">
     <value>长段回看窗口</value>
   </data>
-  <data name="option_phase_epsilon" xml:space="preserve">
+    <data name="option_phase_epsilon" xml:space="preserve">
     <value>相位检测精度</value>
   </data>
-  <data name="option_range_padding_ratio" xml:space="preserve">
+    <data name="option_range_padding_ratio" xml:space="preserve">
     <value>值域填充比例</value>
   </data>
-  <data name="option_range_samples" xml:space="preserve">
+    <data name="option_range_samples" xml:space="preserve">
     <value>值域采样点数</value>
   </data>
-  <data name="option_segment_group_tolerance" xml:space="preserve">
+    <data name="option_segment_group_tolerance" xml:space="preserve">
     <value>段分组容差</value>
   </data>
-  <data name="option_min_value_range_half" xml:space="preserve">
+    <data name="option_min_value_range_half" xml:space="preserve">
     <value>最小值域半宽</value>
   </data>
-  <data name="option_min_value_range_half_ratio" xml:space="preserve">
+    <data name="option_min_value_range_half_ratio" xml:space="preserve">
     <value>最小值域半宽比例</value>
   </data>
-  <data name="convert_options_title" xml:space="preserve">
+    <data name="convert_options_title" xml:space="preserve">
     <value>转换选项</value>
   </data>
-  <data name="convert_pe_options" xml:space="preserve">
+    <data name="convert_pe_options" xml:space="preserve">
     <value>转换到 PhiEdit 格式选项</value>
   </data>
-  <data name="convert_phigros_options" xml:space="preserve">
+    <data name="convert_phigros_options" xml:space="preserve">
     <value>转换到 PhigrosV3 格式选项</value>
   </data>
-  <data name="convert_easing_precision" xml:space="preserve">
+    <data name="convert_easing_precision" xml:space="preserve">
     <value>不支持缓动切割精度</value>
   </data>
-  <data name="convert_alpha_precision" xml:space="preserve">
+    <data name="convert_alpha_precision" xml:space="preserve">
     <value>Alpha事件切割精度</value>
   </data>
-  <data name="convert_alpha_tolerance" xml:space="preserve">
+    <data name="convert_alpha_tolerance" xml:space="preserve">
     <value>Alpha事件容差（百分比）</value>
   </data>
-  <data name="convert_speed_precision" xml:space="preserve">
+    <data name="convert_speed_precision" xml:space="preserve">
     <value>速度事件切割精度</value>
   </data>
-  <data name="convert_default_bpm" xml:space="preserve">
+    <data name="convert_default_bpm" xml:space="preserve">
     <value>回退BPM</value>
   </data>
-  <data name="convert_filter_fake_notes" xml:space="preserve">
+    <data name="convert_filter_fake_notes" xml:space="preserve">
     <value>过滤假音符（删除假音符）</value>
   </data>
-  <data name="convert_negative_alpha_elevation" xml:space="preserve">
+    <data name="convert_negative_alpha_elevation" xml:space="preserve">
     <value>负透明度段判定线抬高至屏幕外</value>
   </data>
-  <data name="convert_negative_alpha_step" xml:space="preserve">
+    <data name="convert_negative_alpha_step" xml:space="preserve">
     <value>负透明度抬高步长（归一化Y）</value>
   </data>
-  <data name="convert_common_options" xml:space="preserve">
+    <data name="convert_common_options" xml:space="preserve">
     <value>通用选项</value>
   </data>
-  <data name="convert_unbind_section" xml:space="preserve">
+    <data name="convert_unbind_section" xml:space="preserve">
     <value>父子线解绑</value>
   </data>
-  <data name="convert_unbind_precision" xml:space="preserve">
+    <data name="convert_unbind_precision" xml:space="preserve">
     <value>解绑父线精度</value>
   </data>
-  <data name="convert_unbind_tolerance" xml:space="preserve">
+    <data name="convert_unbind_tolerance" xml:space="preserve">
     <value>解绑父线容差（百分比）</value>
   </data>
-  <data name="convert_unbind_merge_tolerance" xml:space="preserve">
+    <data name="convert_unbind_merge_tolerance" xml:space="preserve">
     <value>解绑父线事件层合并容差（百分比）</value>
   </data>
-  <data name="convert_unbind_classic" xml:space="preserve">
+    <data name="convert_unbind_classic" xml:space="preserve">
     <value>使用经典模式解绑父线</value>
   </data>
-  <data name="convert_unbind_compress" xml:space="preserve">
+    <data name="convert_unbind_compress" xml:space="preserve">
     <value>解绑父线后压缩</value>
   </data>
-  <data name="convert_merge_section" xml:space="preserve">
+    <data name="convert_merge_section" xml:space="preserve">
     <value>多层级合并</value>
   </data>
-  <data name="convert_merge_precision" xml:space="preserve">
+    <data name="convert_merge_precision" xml:space="preserve">
     <value>合并层级精度</value>
   </data>
-  <data name="convert_merge_tolerance" xml:space="preserve">
+    <data name="convert_merge_tolerance" xml:space="preserve">
     <value>合并层级容差百分比</value>
   </data>
-  <data name="convert_merge_classic" xml:space="preserve">
+    <data name="convert_merge_classic" xml:space="preserve">
     <value>合并层级经典模式</value>
   </data>
-  <data name="convert_merge_compress" xml:space="preserve">
+    <data name="convert_merge_compress" xml:space="preserve">
     <value>合并层级后压缩</value>
   </data>
-  <data name="convert_line_filter" xml:space="preserve">
+    <data name="convert_line_filter" xml:space="preserve">
     <value>判定线过滤</value>
   </data>
-  <data name="convert_remove_attach_ui" xml:space="preserve">
+    <data name="convert_remove_attach_ui" xml:space="preserve">
     <value>移除绑定UI的判定线</value>
   </data>
-  <data name="convert_remove_texture" xml:space="preserve">
+    <data name="convert_remove_texture" xml:space="preserve">
     <value>移除带有自定义纹理的判定线</value>
   </data>
-  <data name="btn_back" xml:space="preserve">
+    <data name="btn_back" xml:space="preserve">
     <value>返回</value>
   </data>
-  <data name="btn_reset_defaults" xml:space="preserve">
+    <data name="btn_reset_defaults" xml:space="preserve">
     <value>恢复默认</value>
   </data>
-  <data name="btn_save_settings" xml:space="preserve">
+    <data name="btn_save_settings" xml:space="preserve">
     <value>保存设置</value>
   </data>
-  <data name="btn_settings" xml:space="preserve">
+    <data name="btn_settings" xml:space="preserve">
     <value>设置</value>
   </data>
-  <data name="import_file_picker_title" xml:space="preserve">
+    <data name="import_file_picker_title" xml:space="preserve">
     <value>选择谱面文件</value>
   </data>
-  <data name="file_type_json" xml:space="preserve">
+    <data name="file_type_json" xml:space="preserve">
     <value>JSON 文件</value>
   </data>
-  <data name="file_type_all" xml:space="preserve">
+    <data name="file_type_all" xml:space="preserve">
     <value>所有文件</value>
   </data>
-  <data name="file_type_pe_chart" xml:space="preserve">
+    <data name="file_type_pe_chart" xml:space="preserve">
     <value>PhiEditer 谱面</value>
   </data>
-  <data name="file_type_rpe_json" xml:space="preserve">
+    <data name="file_type_rpe_json" xml:space="preserve">
     <value>RePhiEdit JSON</value>
   </data>
-  <data name="file_type_phigros_json" xml:space="preserve">
+    <data name="file_type_phigros_json" xml:space="preserve">
     <value>Phigros v3 JSON</value>
   </data>
-  <data name="file_type_phifans_json" xml:space="preserve">
+    <data name="file_type_phifans_json" xml:space="preserve">
     <value>PhiFans JSON</value>
   </data>
-  <data name="file_type_phichain_json" xml:space="preserve">
+    <data name="file_type_phichain_json" xml:space="preserve">
     <value>PhiChain JSON</value>
   </data>
-  <data name="import_loading" xml:space="preserve">
+    <data name="import_loading" xml:space="preserve">
     <value>正在加载谱面...</value>
   </data>
-  <data name="import_drop_hint" xml:space="preserve">
+    <data name="import_drop_hint" xml:space="preserve">
     <value>或将文件拖放到此处</value>
   </data>
-  <data name="import_drop_active" xml:space="preserve">
+    <data name="import_drop_active" xml:space="preserve">
     <value>释放以加载谱面</value>
   </data>
-  <data name="tool_success_title" xml:space="preserve">
+    <data name="tool_success_title" xml:space="preserve">
     <value>工具运行成功</value>
   </data>
-  <data name="tool_error_title" xml:space="preserve">
+    <data name="tool_error_title" xml:space="preserve">
     <value>工具运行失败</value>
   </data>
-  <data name="tool_unclear_content_warning" xml:space="preserve">
+    <data name="tool_unclear_content_warning" xml:space="preserve">
     <value>您导入的谱面中有当前其它格式未定义的内容，在其它格式兼容之前，本程序无法对相关内容进行处理。</value>
   </data>
-  <data name="export_success_title" xml:space="preserve">
+    <data name="export_success_title" xml:space="preserve">
     <value>导出成功</value>
   </data>
-  <data name="export_error_title" xml:space="preserve">
+    <data name="export_error_title" xml:space="preserve">
     <value>导出失败</value>
   </data>
-  <data name="export_same_file_error" xml:space="preserve">
+    <data name="export_same_file_error" xml:space="preserve">
     <value>输出路径不能覆盖输入谱面文件。</value>
   </data>
-  <data name="load_error_title" xml:space="preserve">
+    <data name="load_error_title" xml:space="preserve">
     <value>加载失败</value>
   </data>
-  <data name="import_convert_options" xml:space="preserve">
+    <data name="import_convert_options" xml:space="preserve">
     <value>导入选项</value>
   </data>
-  <data name="convert_frame_duration_beat" xml:space="preserve">
+    <data name="convert_frame_duration_beat" xml:space="preserve">
     <value>帧转事件持续拍长度（1 / x 拍）</value>
   </data>
-  <data name="convert_trailing_beat_padding" xml:space="preserve">
+    <data name="convert_trailing_beat_padding" xml:space="preserve">
     <value>尾部拍填充量（1 / x 拍）</value>
   </data>
-  <data name="convert_rephiedit_options" xml:space="preserve">
+    <data name="convert_rephiedit_options" xml:space="preserve">
     <value>转换到 RePhiEdit 格式选项</value>
   </data>
-  <data name="convert_phichain_options" xml:space="preserve">
+    <data name="convert_phichain_options" xml:space="preserve">
     <value>转换到 PhiChain 格式选项</value>
   </data>
-  <data name="convert_phifans_options" xml:space="preserve">
+    <data name="convert_phifans_options" xml:space="preserve">
     <value>转换到 PhiFans 格式选项</value>
   </data>
-  <data name="convert_phifans_discontinuity_precision" xml:space="preserve">
+    <data name="convert_phifans_discontinuity_precision" xml:space="preserve">
     <value>不连续节点向后推迟拍数精分（1 / x 拍）</value>
   </data>
-  <data name="convert_unbind_non_rotating" xml:space="preserve">
+    <data name="convert_unbind_non_rotating" xml:space="preserve">
     <value>解绑非旋转子线</value>
   </data>
-  <data name="convert_easing_cut_section" xml:space="preserve">
+    <data name="convert_easing_cut_section" xml:space="preserve">
     <value>缓动截取切割</value>
   </data>
-  <data name="convert_easing_cut_precision" xml:space="preserve">
+    <data name="convert_easing_cut_precision" xml:space="preserve">
     <value>缓动截取切割精度</value>
   </data>
-  <data name="convert_easing_cut_compress" xml:space="preserve">
+    <data name="convert_easing_cut_compress" xml:space="preserve">
     <value>缓动截取切割后压缩</value>
   </data>
-  <data name="convert_easing_cut_tolerance" xml:space="preserve">
+    <data name="convert_easing_cut_tolerance" xml:space="preserve">
     <value>缓动截取切割容差百分比</value>
   </data>
-  <data name="import_options_title" xml:space="preserve">
+    <data name="import_options_title" xml:space="preserve">
     <value>导入选项</value>
   </data>
-  <data name="import_options_file" xml:space="preserve">
+    <data name="import_options_file" xml:space="preserve">
     <value>文件:</value>
   </data>
-  <data name="import_options_format" xml:space="preserve">
+    <data name="import_options_format" xml:space="preserve">
     <value>检测到格式:</value>
   </data>
-  <data name="import_options_confirm" xml:space="preserve">
+    <data name="import_options_confirm" xml:space="preserve">
     <value>确认并加载</value>
   </data>
-  <data name="btn_cancel" xml:space="preserve">
+    <data name="btn_cancel" xml:space="preserve">
     <value>取消</value>
   </data>
-  <data name="ui_workspace" xml:space="preserve"><value>工作区</value></data>
-  <data name="ui_nav_import_title" xml:space="preserve"><value>导入谱面</value></data>
-  <data name="ui_nav_import_desc" xml:space="preserve"><value>选择并识别文件</value></data>
-  <data name="ui_nav_tool_title" xml:space="preserve"><value>处理工具</value></data>
-  <data name="ui_nav_tool_desc" xml:space="preserve"><value>选择操作并运行</value></data>
-  <data name="ui_nav_export_title" xml:space="preserve"><value>导出结果</value></data>
-  <data name="ui_nav_export_desc" xml:space="preserve"><value>选择目标格式</value></data>
-  <data name="ui_current_chart" xml:space="preserve"><value>当前谱面</value></data>
-  <data name="ui_chart_loaded" xml:space="preserve"><value>已载入谱面</value></data>
-  <data name="ui_import_eyebrow" xml:space="preserve"><value>第 01 步  /  开始</value></data>
-  <data name="ui_import_hero_title" xml:space="preserve"><value>导入一份谱面，开始处理</value></data>
-  <data name="ui_import_hero_desc" xml:space="preserve"><value>KaedePhi 会自动识别格式，并把后续操作整理成清晰的工作流。</value></data>
-  <data name="ui_import_drop_title" xml:space="preserve"><value>把谱面文件拖到这里</value></data>
-  <data name="ui_import_file_picker_desc" xml:space="preserve"><value>或使用文件选择器打开本地文件</value></data>
-  <data name="ui_import_recommended_title" xml:space="preserve"><value>推荐流程</value></data>
-  <data name="ui_import_recommended_desc" xml:space="preserve"><value>导入后先检查格式，再选择工具或直接导出。所有参数都会保留在当前会话中。</value></data>
-  <data name="ui_import_flow_title" xml:space="preserve"><value>处理流程</value></data>
-  <data name="ui_import_flow_desc" xml:space="preserve"><value>从文件到结果，三步完成</value></data>
-  <data name="ui_import_flow_import_title" xml:space="preserve"><value>导入并识别</value></data>
-  <data name="ui_import_flow_import_desc" xml:space="preserve"><value>自动检测谱面格式</value></data>
-  <data name="ui_import_flow_tool_title" xml:space="preserve"><value>处理谱面</value></data>
-  <data name="ui_import_flow_tool_desc" xml:space="preserve"><value>选择工具并调整参数</value></data>
-  <data name="ui_import_flow_export_title" xml:space="preserve"><value>导出结果</value></data>
-  <data name="ui_import_flow_export_desc" xml:space="preserve"><value>保存为目标格式</value></data>
-  <data name="ui_import_load_mode_title" xml:space="preserve"><value>加载方式</value></data>
-  <data name="ui_import_load_mode_desc" xml:space="preserve"><value>大文件可以启用流式加载，降低一次性占用的内存。</value></data>
-  <data name="ui_options_eyebrow" xml:space="preserve"><value>准备导入</value></data>
-  <data name="ui_options_summary_title" xml:space="preserve"><value>检查文件信息</value></data>
-  <data name="ui_options_summary_desc" xml:space="preserve"><value>确认识别结果和必要的导入参数后，KaedePhi 会建立可编辑的中间谱面。</value></data>
-  <data name="ui_options_detected_format" xml:space="preserve"><value>检测到格式</value></data>
-  <data name="ui_options_file" xml:space="preserve"><value>文件</value></data>
-  <data name="ui_options_detected_ready" xml:space="preserve"><value>格式检测完成，可以继续。</value></data>
-  <data name="ui_options_hint" xml:space="preserve"><value>通常可以直接使用推荐值，只有需要控制转换精度时才调整这里。</value></data>
-  <data name="ui_import_pe_title" xml:space="preserve"><value>PhiEdit 导入</value></data>
-  <data name="ui_import_pe_desc" xml:space="preserve"><value>把帧数据转换为事件时使用的采样精度。</value></data>
-  <data name="ui_import_frame_duration" xml:space="preserve"><value>帧转事件持续拍长度</value></data>
-  <data name="ui_import_frame_duration_desc" xml:space="preserve"><value>数值越大，事件数量越少</value></data>
-  <data name="ui_import_trailing_padding" xml:space="preserve"><value>尾部拍填充量</value></data>
-  <data name="ui_import_trailing_padding_desc" xml:space="preserve"><value>避免谱面尾部被截断</value></data>
-  <data name="ui_import_phichain_title" xml:space="preserve"><value>PhiChain 导入</value></data>
-  <data name="ui_import_phichain_desc" xml:space="preserve"><value>当源格式不支持某些缓动时，使用采样切割近似。</value></data>
-  <data name="ui_recommended_64" xml:space="preserve"><value>推荐值：64</value></data>
-  <data name="ui_tool_eyebrow" xml:space="preserve"><value>第 02 步  /  处理</value></data>
-  <data name="ui_tool_page_title" xml:space="preserve"><value>选择处理工具</value></data>
-  <data name="ui_tool_page_desc" xml:space="preserve"><value>先选择目标，再按需调整参数。</value></data>
-  <data name="ui_tool_file_tip" xml:space="preserve"><value>参数越精细，输出事件数量越多。先用推荐值试跑，再针对结果微调。</value></data>
-  <data name="ui_tool_options_eyebrow" xml:space="preserve"><value>参数</value></data>
-  <data name="ui_tool_options_desc" xml:space="preserve"><value>默认值适合大多数谱面；修改后只影响这次运行。</value></data>
-  <data name="ui_tool_precision_desc" xml:space="preserve"><value>采样与切割使用的精度</value></data>
-  <data name="ui_tool_tolerance_desc" xml:space="preserve"><value>允许的相对误差范围</value></data>
-  <data name="ui_tool_merge_tolerance_desc" xml:space="preserve"><value>相邻事件层的合并阈值</value></data>
-  <data name="ui_tool_render_title" xml:space="preserve"><value>渲染设置</value></data>
-  <data name="ui_export_eyebrow" xml:space="preserve"><value>第 03 步  /  输出</value></data>
-  <data name="ui_export_result_title" xml:space="preserve"><value>导出你的结果</value></data>
-  <data name="ui_export_result_desc" xml:space="preserve"><value>选择目标格式，KaedePhi 会在保存前应用对应的转换规则。</value></data>
-  <data name="ui_export_source_format" xml:space="preserve"><value>源格式</value></data>
-  <data name="ui_export_saved_hint" xml:space="preserve"><value>保存时会自动补全目标格式需要的文件扩展名。</value></data>
-  <data name="ui_export_advanced_title" xml:space="preserve"><value>高级转换参数</value></data>
-  <data name="ui_export_advanced_desc" xml:space="preserve"><value>根据目标格式显示相关选项，保持默认值即可完成常规导出。</value></data>
-  <data name="ui_export_pe_title" xml:space="preserve"><value>PhiEdit 转换</value></data>
-  <data name="ui_export_pe_desc" xml:space="preserve"><value>控制缓动、透明度和速度事件的切割方式。</value></data>
-  <data name="ui_export_phigros_title" xml:space="preserve"><value>Phigros V3 转换</value></data>
-  <data name="ui_export_phigros_desc" xml:space="preserve"><value>目标格式没有 BPM 时使用回退值。</value></data>
-  <data name="ui_export_rephiedit_title" xml:space="preserve"><value>RePhiEdit 转换</value></data>
-  <data name="ui_export_phichain_title" xml:space="preserve"><value>PhiChain 转换</value></data>
-  <data name="ui_export_phichain_desc" xml:space="preserve"><value>按阶段控制父子线解绑、多层合并和缓动切割。</value></data>
-  <data name="ui_export_phifans_title" xml:space="preserve"><value>PhiFans 转换</value></data>
-  <data name="ui_export_common_title" xml:space="preserve"><value>通用处理</value></data>
-  <data name="ui_export_common_desc" xml:space="preserve"><value>适用于多个目标格式的父子线与层级合并处理。</value></data>
-  <data name="ui_export_precision" xml:space="preserve"><value>精度</value></data>
-  <data name="ui_export_tolerance" xml:space="preserve"><value>容差</value></data>
-  <data name="ui_export_merge_tolerance" xml:space="preserve"><value>合并容差</value></data>
-  <data name="ui_export_xy_precision" xml:space="preserve"><value>XY 事件切割精度</value></data>
-  <data name="ui_export_alpha_precision" xml:space="preserve"><value>Alpha 事件切割精度</value></data>
-  <data name="ui_export_alpha_tolerance" xml:space="preserve"><value>Alpha 容差（百分比）</value></data>
-  <data name="ui_export_speed_precision" xml:space="preserve"><value>速度事件切割精度</value></data>
-  <data name="ui_export_fallback_bpm" xml:space="preserve"><value>回退 BPM</value></data>
-  <data name="ui_export_negative_step" xml:space="preserve"><value>负透明度抬高步长</value></data>
-  <data name="ui_export_discontinuity_precision" xml:space="preserve"><value>不连续节点拍数精分</value></data>
-  <data name="ui_export_multi_merge" xml:space="preserve"><value>多层级合并</value></data>
-  <data name="ui_export_unbind" xml:space="preserve"><value>父子线解绑</value></data>
-  <data name="ui_export_easing_cut_precision" xml:space="preserve"><value>缓动截取切割精度</value></data>
-  <data name="ui_processing_keep_open" xml:space="preserve"><value>请保持窗口打开，处理完成后可以继续下一步。</value></data>
-  <data name="ui_processing_completed" xml:space="preserve"><value>处理完成</value></data>
-  <data name="ui_settings_eyebrow" xml:space="preserve"><value>设置  /  默认值</value></data>
-  <data name="ui_settings_desc" xml:space="preserve"><value>把常用参数放在这里。保存后，它们会成为下一次处理和转换的起点。</value></data>
-  <data name="ui_settings_hint_title" xml:space="preserve"><value>配置提示</value></data>
-  <data name="ui_settings_hint_desc" xml:space="preserve"><value>当前页面按任务分组参数。只需要调整你熟悉的部分，其余选项保持默认即可。</value></data>
-  <data name="ui_settings_hint_saved" xml:space="preserve"><value>更改会在点击保存设置后生效。</value></data>
-  <data name="ui_sidebar_collapse" xml:space="preserve"><value>收起侧边栏</value></data>
-  <data name="ui_sidebar_expand" xml:space="preserve"><value>展开侧边栏</value></data>
-  <data name="ui_background_refresh" xml:space="preserve"><value>刷新背景</value></data>
-  <data name="ui_background_refresh_hint" xml:space="preserve"><value>刷新背景</value></data>
-  <data name="ui_background_refreshing" xml:space="preserve"><value>正在获取新背景…</value></data>
-  <data name="ui_background_refresh_failed" xml:space="preserve"><value>暂时无法刷新背景，请稍后再试。</value></data>
-  <data name="ui_background_saved" xml:space="preserve"><value>背景已保存：{0}</value></data>
-  <data name="ui_background_save_failed" xml:space="preserve"><value>背景保存失败，请检查图片目录是否可写。</value></data>
-  <data name="ui_background_unavailable" xml:space="preserve"><value>当前没有可保存的背景图片。</value></data>
+    <data name="ui_workspace" xml:space="preserve"><value>工作区</value></data>
+    <data name="ui_nav_import_title" xml:space="preserve"><value>导入谱面</value></data>
+    <data name="ui_nav_import_desc" xml:space="preserve"><value>选择并识别文件</value></data>
+    <data name="ui_nav_tool_title" xml:space="preserve"><value>处理工具</value></data>
+    <data name="ui_nav_tool_desc" xml:space="preserve"><value>选择操作并运行</value></data>
+    <data name="ui_nav_export_title" xml:space="preserve"><value>导出结果</value></data>
+    <data name="ui_nav_export_desc" xml:space="preserve"><value>选择目标格式</value></data>
+    <data name="ui_current_chart" xml:space="preserve"><value>当前谱面</value></data>
+    <data name="ui_chart_loaded" xml:space="preserve"><value>已载入谱面</value></data>
+    <data name="ui_import_eyebrow" xml:space="preserve"><value>第 01 步  /  开始</value></data>
+    <data name="ui_import_hero_title" xml:space="preserve"><value>导入一份谱面，开始处理</value></data>
+    <data name="ui_import_hero_desc" xml:space="preserve"><value>KaedePhi 会自动识别格式，并把后续操作整理成清晰的工作流。</value></data>
+    <data name="ui_import_drop_title" xml:space="preserve"><value>把谱面文件拖到这里</value></data>
+    <data name="ui_import_file_picker_desc" xml:space="preserve"><value>或使用文件选择器打开本地文件</value></data>
+    <data name="ui_import_recommended_title" xml:space="preserve"><value>推荐流程</value></data>
+    <data name="ui_import_recommended_desc" xml:space="preserve"><value>导入后先检查格式，再选择工具或直接导出。所有参数都会保留在当前会话中。</value></data>
+    <data name="ui_import_flow_title" xml:space="preserve"><value>处理流程</value></data>
+    <data name="ui_import_flow_desc" xml:space="preserve"><value>从文件到结果，三步完成</value></data>
+    <data name="ui_import_flow_import_title" xml:space="preserve"><value>导入并识别</value></data>
+    <data name="ui_import_flow_import_desc" xml:space="preserve"><value>自动检测谱面格式</value></data>
+    <data name="ui_import_flow_tool_title" xml:space="preserve"><value>处理谱面</value></data>
+    <data name="ui_import_flow_tool_desc" xml:space="preserve"><value>选择工具并调整参数</value></data>
+    <data name="ui_import_flow_export_title" xml:space="preserve"><value>导出结果</value></data>
+    <data name="ui_import_flow_export_desc" xml:space="preserve"><value>保存为目标格式</value></data>
+    <data name="ui_import_load_mode_title" xml:space="preserve"><value>加载方式</value></data>
+    <data name="ui_import_load_mode_desc" xml:space="preserve"><value>大文件可以启用流式加载，降低一次性占用的内存。</value></data>
+    <data name="ui_options_eyebrow" xml:space="preserve"><value>准备导入</value></data>
+    <data name="ui_options_summary_title" xml:space="preserve"><value>检查文件信息</value></data>
+    <data name="ui_options_summary_desc" xml:space="preserve"><value>确认识别结果和必要的导入参数后，KaedePhi 会建立可编辑的中间谱面。</value></data>
+    <data name="ui_options_detected_format" xml:space="preserve"><value>检测到格式</value></data>
+    <data name="ui_options_file" xml:space="preserve"><value>文件</value></data>
+    <data name="ui_options_detected_ready" xml:space="preserve"><value>格式检测完成，可以继续。</value></data>
+    <data name="ui_options_hint" xml:space="preserve"><value>通常可以直接使用推荐值，只有需要控制转换精度时才调整这里。</value></data>
+    <data name="ui_import_pe_title" xml:space="preserve"><value>PhiEdit 导入</value></data>
+    <data name="ui_import_pe_desc" xml:space="preserve"><value>把帧数据转换为事件时使用的采样精度。</value></data>
+    <data name="ui_import_frame_duration" xml:space="preserve"><value>帧转事件持续拍长度</value></data>
+    <data name="ui_import_frame_duration_desc" xml:space="preserve"><value>数值越大，事件数量越少</value></data>
+    <data name="ui_import_trailing_padding" xml:space="preserve"><value>尾部拍填充量</value></data>
+    <data name="ui_import_trailing_padding_desc" xml:space="preserve"><value>避免谱面尾部被截断</value></data>
+    <data name="ui_import_phichain_title" xml:space="preserve"><value>PhiChain 导入</value></data>
+    <data name="ui_import_phichain_desc" xml:space="preserve"><value>当源格式不支持某些缓动时，使用采样切割近似。</value></data>
+    <data name="ui_recommended_64" xml:space="preserve"><value>推荐值：64</value></data>
+    <data name="ui_tool_eyebrow" xml:space="preserve"><value>第 02 步  /  处理</value></data>
+    <data name="ui_tool_page_title" xml:space="preserve"><value>选择处理工具</value></data>
+    <data name="ui_tool_page_desc" xml:space="preserve"><value>先选择目标，再按需调整参数。</value></data>
+    <data name="ui_tool_file_tip" xml:space="preserve"><value>参数越精细，输出事件数量越多。先用推荐值试跑，再针对结果微调。</value></data>
+    <data name="ui_tool_options_eyebrow" xml:space="preserve"><value>参数</value></data>
+    <data name="ui_tool_options_desc" xml:space="preserve"><value>默认值适合大多数谱面；修改后只影响这次运行。</value></data>
+    <data name="ui_tool_precision_desc" xml:space="preserve"><value>采样与切割使用的精度</value></data>
+    <data name="ui_tool_tolerance_desc" xml:space="preserve"><value>允许的相对误差范围</value></data>
+    <data name="ui_tool_merge_tolerance_desc" xml:space="preserve"><value>相邻事件层的合并阈值</value></data>
+    <data name="ui_tool_render_title" xml:space="preserve"><value>渲染设置</value></data>
+    <data name="ui_export_eyebrow" xml:space="preserve"><value>第 03 步  /  输出</value></data>
+    <data name="ui_export_result_title" xml:space="preserve"><value>导出你的结果</value></data>
+    <data name="ui_export_result_desc" xml:space="preserve"><value>选择目标格式，KaedePhi 会在保存前应用对应的转换规则。</value></data>
+    <data name="ui_export_source_format" xml:space="preserve"><value>源格式</value></data>
+    <data name="ui_export_saved_hint" xml:space="preserve"><value>保存时会自动补全目标格式需要的文件扩展名。</value></data>
+    <data name="ui_export_advanced_title" xml:space="preserve"><value>高级转换参数</value></data>
+    <data name="ui_export_advanced_desc" xml:space="preserve"><value>根据目标格式显示相关选项，保持默认值即可完成常规导出。</value></data>
+    <data name="ui_export_pe_title" xml:space="preserve"><value>PhiEdit 转换</value></data>
+    <data name="ui_export_pe_desc" xml:space="preserve"><value>控制缓动、透明度和速度事件的切割方式。</value></data>
+    <data name="ui_export_phigros_title" xml:space="preserve"><value>Phigros V3 转换</value></data>
+    <data name="ui_export_phigros_desc" xml:space="preserve"><value>目标格式没有 BPM 时使用回退值。</value></data>
+    <data name="ui_export_rephiedit_title" xml:space="preserve"><value>RePhiEdit 转换</value></data>
+    <data name="ui_export_phichain_title" xml:space="preserve"><value>PhiChain 转换</value></data>
+    <data name="ui_export_phichain_desc" xml:space="preserve"><value>按阶段控制父子线解绑、多层合并和缓动切割。</value></data>
+    <data name="ui_export_phifans_title" xml:space="preserve"><value>PhiFans 转换</value></data>
+    <data name="ui_export_common_title" xml:space="preserve"><value>通用处理</value></data>
+    <data name="ui_export_common_desc" xml:space="preserve"><value>适用于多个目标格式的父子线与层级合并处理。</value></data>
+    <data name="ui_export_precision" xml:space="preserve"><value>精度</value></data>
+    <data name="ui_export_tolerance" xml:space="preserve"><value>容差</value></data>
+    <data name="ui_export_merge_tolerance" xml:space="preserve"><value>合并容差</value></data>
+    <data name="ui_export_xy_precision" xml:space="preserve"><value>XY 事件切割精度</value></data>
+    <data name="ui_export_alpha_precision" xml:space="preserve"><value>Alpha 事件切割精度</value></data>
+    <data name="ui_export_alpha_tolerance" xml:space="preserve"><value>Alpha 容差（百分比）</value></data>
+    <data name="ui_export_speed_precision" xml:space="preserve"><value>速度事件切割精度</value></data>
+    <data name="ui_export_fallback_bpm" xml:space="preserve"><value>回退 BPM</value></data>
+    <data name="ui_export_negative_step" xml:space="preserve"><value>负透明度抬高步长</value></data>
+    <data name="ui_export_discontinuity_precision" xml:space="preserve"><value>不连续节点拍数精分</value></data>
+    <data name="ui_export_multi_merge" xml:space="preserve"><value>多层级合并</value></data>
+    <data name="ui_export_unbind" xml:space="preserve"><value>父子线解绑</value></data>
+    <data name="ui_export_easing_cut_precision" xml:space="preserve"><value>缓动截取切割精度</value></data>
+    <data name="ui_processing_keep_open" xml:space="preserve"><value>请保持窗口打开，处理完成后可以继续下一步。</value></data>
+    <data name="ui_processing_completed" xml:space="preserve"><value>处理完成</value></data>
+    <data name="ui_settings_eyebrow" xml:space="preserve"><value>设置  /  默认值</value></data>
+    <data name="ui_settings_desc" xml:space="preserve"><value>把常用参数放在这里。保存后，它们会成为下一次处理和转换的起点。</value></data>
+    <data name="ui_settings_hint_title" xml:space="preserve"><value>配置提示</value></data>
+    <data name="ui_settings_hint_desc" xml:space="preserve"><value>当前页面按任务分组参数。只需要调整你熟悉的部分，其余选项保持默认即可。</value></data>
+    <data name="ui_settings_hint_saved" xml:space="preserve"><value>更改会在点击保存设置后生效。</value></data>
+    <data name="ui_sidebar_collapse" xml:space="preserve"><value>收起侧边栏</value></data>
+    <data name="ui_sidebar_expand" xml:space="preserve"><value>展开侧边栏</value></data>
+    <data name="ui_background_refresh" xml:space="preserve"><value>刷新背景</value></data>
+    <data name="ui_background_refresh_hint" xml:space="preserve"><value>刷新背景</value></data>
+    <data name="ui_background_refreshing" xml:space="preserve"><value>正在获取新背景…</value></data>
+    <data name="ui_background_refresh_failed" xml:space="preserve"><value>暂时无法刷新背景，请稍后再试。</value></data>
+    <data name="ui_background_saved" xml:space="preserve"><value>背景已保存：{0}</value></data>
+    <data name="ui_background_save_failed" xml:space="preserve"><value>背景保存失败，请检查图片目录是否可写。</value></data>
+    <data name="ui_background_unavailable" xml:space="preserve"><value>当前没有可保存的背景图片。</value></data>
+    <data name="log_import_cancelled" xml:space="preserve">
+    <value>导入已取消</value>
+  </data>
 </root>

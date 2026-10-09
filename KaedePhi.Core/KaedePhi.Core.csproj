@@ -27,6 +27,20 @@
     <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="6.1.2" />
   </ItemGroup>
 
+  <ItemGroup Condition="'$(TargetFramework)' == 'net10.0'">
+    <PackageReference Include="CAPCOM.REDox" Version="1.0.1" />
+    <PackageReference Include="CAPCOM.REDox.Serialization.NewtonsoftJson" Version="1.0.1-preview" />
+    <Compile Remove="Primitives\Serialization\JsonCodec.Newtonsoft.cs" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' != 'net10.0'">
+    <Compile Remove="Primitives\Serialization\JsonCodec.Redox.cs" />
+    <Compile Remove="Primitives\Serialization\RedoxJsonSettings.cs" />
+    <Compile Remove="Primitives\Serialization\BeatDataConverter.cs" />
+    <Compile Remove="Primitives\Serialization\PhiChainNoteDataConverter.cs" />
+    <Compile Remove="Primitives\Serialization\PrefixReadStream.cs" />
+  </ItemGroup>
+
   <ItemGroup>
     <ProjectReference
       Include="..\KaedePhi.Core.Analyzers\KaedePhi.Core.Analyzers\KaedePhi.Core.Analyzers.csproj"

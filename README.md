@@ -82,6 +82,8 @@ dotnet publish KaedePhi.Tool.App/KaedePhi.Tool.App.csproj \
 - `KaedePhi.Tool.App`：源码支持 .NET8.0、.NET10.0，官方应用发布目标为 .NET10.0
 - `KaedePhi.Tool.Localization`：.NET8.0、.NET10.0
 
+Core 的 `net10.0` 目标在 PhiFans、Phigros v3 和 PhiChain 的 JSON 编解码路径中使用 REDox；`net8.0` 与 `netstandard2.1` 继续使用 Newtonsoft.Json。为保持现有模型兼容和 PhiChain 流式输入行为，RePhiEdit 编解码及 PhiChain 流式反序列化仍使用 Newtonsoft.Json。目前 Newtonsoft 兼容包版本为 `1.0.1-preview`，打包稳定版 Core 会产生 NuGet `NU5104` 预览依赖警告；该包发布稳定版后应升级并清除此警告。
+
 Core 和 Tool 的 NuGet 包分别使用 `Core-v<版本>`、`Tool-v<版本>` 标签发布，并保留 NuGet 标准的 `<包 ID>.<版本>.nupkg` 文件名；应用使用 `App-v<版本>` 标签发布。App 附件使用 `KaedePhi-App-v<版本>-<系统>-<架构>-<包类型>` 格式命名，例如 `KaedePhi-App-v1.2.0-macOS-arm64-Installer.dmg`。
 
 ## 限制说明

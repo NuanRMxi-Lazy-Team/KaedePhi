@@ -152,7 +152,7 @@ internal sealed class ImportController
         }
         catch (OperationCanceledException)
         {
-            _log.Information(status_export_cancelled);
+            _log.Information(log_import_cancelled);
             _navigation.ShowImport();
         }
         catch (Exception ex)

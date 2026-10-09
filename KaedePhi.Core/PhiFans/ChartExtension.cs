@@ -3,7 +3,7 @@ using System.IO;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using KaedePhi.Core.Common;
-using Newtonsoft.Json;
+using JsonCodec = KaedePhi.Core.Primitives.Serialization.JsonCodec;
 
 namespace KaedePhi.Core.PhiFans
 {
@@ -16,12 +16,7 @@ namespace KaedePhi.Core.PhiFans
         /// <returns>JSON 字符串</returns>
         [PublicAPI]
         public string ExportToJson(bool format)
-        {
-            return JsonConvert.SerializeObject(
-                this,
-                format ? Formatting.Indented : Formatting.None
-            );
-        }
+            => JsonCodec.Serialize(this, format);
 
         /// <summary>
         /// 将谱面序列化为 JSON 并写入流。
@@ -29,44 +24,15 @@ namespace KaedePhi.Core.PhiFans
         /// <param name="stream">目标流</param>
         /// <param name="format">是否需要格式化</param>
         public void ExportToJsonStream(Stream stream, bool format)
-        {
-            using var streamWriter = new StreamWriter(
-                stream,
-                JsonDefaults.NoBomUtf8,
-                1024,
-                leaveOpen: true
-            );
-            var serializer = JsonDefaults.CreateSerializer(
-                format ? Formatting.Indented : Formatting.None
-            );
-
-            using var jsonWriter = new JsonTextWriter(streamWriter) { CloseOutput = false };
-            serializer.Serialize(jsonWriter, this);
-            jsonWriter.Flush();
-            streamWriter.Flush();
-        }
+            => JsonCodec.Serialize(stream, this, format);
 
         /// <summary>
         /// 异步将谱面序列化为 JSON 并写入流。
         /// </summary>
         /// <param name="stream">目标流</param>
         /// <param name="format">是否需要格式化</param>
-        public async Task ExportToJsonStreamAsync(Stream stream, bool format)
-        {
-            await using var streamWriter = new StreamWriter(
-                stream,
-                JsonDefaults.NoBomUtf8,
-                1024,
-                leaveOpen: true
-            );
-            var serializer = JsonDefaults.CreateSerializer(
-                format ? Formatting.Indented : Formatting.None
-            );
-            using var jsonWriter = new JsonTextWriter(streamWriter) { CloseOutput = false };
-            serializer.Serialize(jsonWriter, this);
-            await jsonWriter.FlushAsync();
-            await streamWriter.FlushAsync();
-        }
+        public Task ExportToJsonStreamAsync(Stream stream, bool format) =>
+            JsonCodec.SerializeAsync(stream, this, format);
 
         /// <summary>
         /// 异步序列化为 JSON。
@@ -84,7 +50,7 @@ namespace KaedePhi.Core.PhiFans
         [PublicAPI]
         public static Chart LoadFromJson(string json)
         {
-            return JsonConvert.DeserializeObject<Chart>(json, JsonDefaults.DeserializeSettings)
+            return JsonCodec.Deserialize<Chart>(json)
                 ?? throw new InvalidOperationException(
                     "Failed to deserialize PhiFans Chart from JSON."
                 );
@@ -106,16 +72,7 @@ namespace KaedePhi.Core.PhiFans
         /// <exception cref="InvalidOperationException">反序列化失败</exception>
         public static Chart LoadFromStream(Stream stream)
         {
-            using var streamReader = new StreamReader(
-                stream,
-                JsonDefaults.NoBomUtf8,
-                detectEncodingFromByteOrderMarks: true,
-                bufferSize: 1024,
-                leaveOpen: true
-            );
-            using var jsonReader = new JsonTextReader(streamReader);
-            var serializer = JsonDefaults.CreateSerializer(Formatting.None);
-            return serializer.Deserialize<Chart>(jsonReader)
+            return JsonCodec.Deserialize<Chart>(stream)
                 ?? throw new InvalidOperationException(
                     "Failed to deserialize PhiFans Chart from stream."
                 );
@@ -128,17 +85,7 @@ namespace KaedePhi.Core.PhiFans
         /// <returns>谱面</returns>
         public static Task<Chart> LoadFromStreamAsync(Stream stream)
         {
-            using var streamReader = new StreamReader(
-                stream,
-                JsonDefaults.NoBomUtf8,
-                detectEncodingFromByteOrderMarks: true,
-                bufferSize: 1024,
-                leaveOpen: true
-            );
-            using var jsonReader = new JsonTextReader(streamReader);
-            var serializer = JsonDefaults.CreateSerializer(Formatting.None);
-            var chart =
-                serializer.Deserialize<Chart>(jsonReader)
+            var chart = JsonCodec.Deserialize<Chart>(stream)
                 ?? throw new InvalidOperationException(
                     "Failed to deserialize PhiFans Chart from stream."
                 );
