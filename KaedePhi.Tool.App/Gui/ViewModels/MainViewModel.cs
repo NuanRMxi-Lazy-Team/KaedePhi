@@ -3,13 +3,14 @@ using System.Runtime.CompilerServices;
 using Avalonia.Media.Imaging;
 using KaedePhi.Tool.App.Gui.Models;
 using KaedePhi.Tool.App.Gui.Services;
-using KaedePhi.Tool.Localization;
+using Serilog;
 using static KaedePhi.Tool.Localization.GuiLocalizationString;
 
 namespace KaedePhi.Tool.App.Gui.ViewModels;
 
 public sealed class MainViewModel : INotifyPropertyChanged
 {
+    private readonly ILogger _log = Log.ForContext<MainViewModel>();
     private readonly BackgroundSceneService _backgroundScene;
     private CancellationTokenSource? _backgroundRefreshCancellation = new();
     private Task? _automaticBackgroundRefresh;
@@ -43,7 +44,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
     public string SidebarToggleIcon => IsSidebarExpanded ? "\uf053" : "\uf054";
 
     public string SidebarToggleDescription =>
-        IsSidebarExpanded ? GuiUiText.ui_sidebar_collapse : GuiUiText.ui_sidebar_expand;
+        IsSidebarExpanded ? ui_sidebar_collapse : ui_sidebar_expand;
 
     public Bitmap? BackgroundImage
     {
@@ -177,7 +178,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
     public bool CanOpenTools => HasChart;
     public bool CanOpenExport => HasChart;
 
-    public bool IsImportActive => CurrentPageKey == "import" || CurrentPageKey == "options";
+    public bool IsImportActive => CurrentPageKey is "import" or "options";
     public bool IsToolActive => CurrentPageKey is "tool" or "processing";
     public bool IsExportActive => CurrentPageKey == "export";
     public bool IsSettingsActive => CurrentPageKey == "settings";
@@ -267,7 +268,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
 
         var cancellationToken = _backgroundRefreshCancellation!.Token;
         IsRefreshingBackground = true;
-        BackgroundMessage = GuiUiText.ui_background_refreshing;
+        BackgroundMessage = ui_background_refreshing;
         BackgroundImageResource? incoming = null;
         try
         {
@@ -275,7 +276,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
             cancellationToken.ThrowIfCancellationRequested();
             if (incoming == null)
             {
-                BackgroundMessage = GuiUiText.ui_background_refresh_failed;
+                BackgroundMessage = ui_background_refresh_failed;
                 return false;
             }
 
@@ -297,9 +298,11 @@ public sealed class MainViewModel : INotifyPropertyChanged
         {
             return false;
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            BackgroundMessage = GuiUiText.ui_background_refresh_failed;
+            _log.Error(ex, ui_background_refresh_failed);
+            BackgroundMessage = ui_background_refresh_failed;
+            
             return false;
         }
         finally
@@ -316,7 +319,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
             return null;
         if (_currentBackground == null)
         {
-            BackgroundMessage = GuiUiText.ui_background_unavailable;
+            BackgroundMessage = ui_background_unavailable;
             return null;
         }
 
@@ -333,16 +336,17 @@ public sealed class MainViewModel : INotifyPropertyChanged
                 cancellationToken,
                 directory
             );
-            BackgroundMessage = string.Format(GuiUiText.ui_background_saved, path);
+            BackgroundMessage = string.Format(ui_background_saved, path);
             return path;
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {
             return null;
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            BackgroundMessage = GuiUiText.ui_background_save_failed;
+            _log.Error(ex, ui_background_save_failed);
+            BackgroundMessage = ui_background_save_failed;
             return null;
         }
         finally

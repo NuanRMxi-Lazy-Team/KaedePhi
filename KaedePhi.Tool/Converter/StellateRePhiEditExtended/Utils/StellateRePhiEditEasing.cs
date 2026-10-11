@@ -1,22 +1,38 @@
 using PhiEditEasings = KaedePhi.Core.Formats.PhiEdit.Model.Easings;
 using RpeEvent = KaedePhi.Core.Formats.RePhiEdit.Model.Events.Event<float>;
 
-namespace KaedePhi.Tool.Converter.StellateRePhiEditExtended;
+namespace KaedePhi.Tool.Converter.StellateRePhiEditExtended.Utils;
 
-internal static class StellateRePhiEditEasing
+/// <summary>
+/// 提供 StellateRePhiEditExtended 缓动类型映射和曲线求值功能。
+/// </summary>
+public static class StellateRePhiEditEasing
 {
-    internal static int NormalizeType(int easingType)
+    /// <summary>
+    /// 将缓动编号规范到支持的取值范围。
+    /// </summary>
+    /// <param name="easingType">缓动编号</param>
+    public static int NormalizeType(int easingType)
     {
         if (easingType is <= -1 and >= -28)
             easingType = -easingType;
         return easingType is >= 1 and <= 28 ? easingType : 1;
     }
 
-    internal static bool IsBezierEvent(RpeEvent evt) =>
+    /// <summary>
+    /// 判断事件是否包含有效的贝塞尔控制点。
+    /// </summary>
+    /// <param name="evt">待检查的 RePhiEdit 事件</param>
+    public static bool IsBezierEvent(RpeEvent evt) =>
         evt is { IsBezier: true, BezierPoints.Length: 4 };
 
     // 将 RPE 缓动编号转换为 Phigros 噪域缓动编号。
-    internal static bool TryMapToBlockArea(int easingType, out int areaEaseType)
+    /// <summary>
+    /// 将 RePhiEdit 缓动编号映射为噪域缓动编号。
+    /// </summary>
+    /// <param name="easingType">RePhiEdit 缓动编号</param>
+    /// <param name="areaEaseType">映射后的噪域缓动编号；未映射时为负数</param>
+    public static bool TryMapToBlockArea(int easingType, out int areaEaseType)
     {
         areaEaseType = NormalizeType(easingType) switch
         {
@@ -37,7 +53,13 @@ internal static class StellateRePhiEditEasing
         return areaEaseType >= 0;
     }
 
-    internal static double Evaluate(RpeEvent evt, double progress, bool escape)
+    /// <summary>
+    /// 根据事件缓动设置计算指定进度的值。
+    /// </summary>
+    /// <param name="evt">包含缓动设置的 RePhiEdit 事件</param>
+    /// <param name="progress">待求值的进度</param>
+    /// <param name="escape">是否将区间外进度按端点规则处理</param>
+    public static double Evaluate(RpeEvent evt, double progress, bool escape)
     {
         if (IsBezierEvent(evt))
             return BezierEase(progress, evt.BezierPoints, escape);

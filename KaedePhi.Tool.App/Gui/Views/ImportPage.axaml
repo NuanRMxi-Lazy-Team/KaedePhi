@@ -12,9 +12,9 @@
                       HorizontalScrollBarVisibility="Disabled">
             <StackPanel Spacing="20" MaxWidth="860" HorizontalAlignment="Stretch">
                 <StackPanel Spacing="8">
-                    <TextBlock Text="{x:Static loc:GuiUiText.ui_import_eyebrow}" Classes="eyebrow" />
-                    <TextBlock Text="{x:Static loc:GuiUiText.ui_import_hero_title}" Classes="page-title" />
-                    <TextBlock Text="{x:Static loc:GuiUiText.ui_import_hero_desc}"
+                    <TextBlock Text="{x:Static loc:GuiLocalizationString.ui_import_eyebrow}" Classes="eyebrow" />
+                    <TextBlock Text="{x:Static loc:GuiLocalizationString.ui_import_hero_title}" Classes="page-title" />
+                    <TextBlock Text="{x:Static loc:GuiLocalizationString.ui_import_hero_desc}"
                                Classes="muted" FontSize="14" TextWrapping="Wrap" />
                 </StackPanel>
 
@@ -29,10 +29,10 @@
                                            Foreground="{DynamicResource AccentBrush}"
                                            HorizontalAlignment="Center" VerticalAlignment="Center" />
                             </Border>
-                            <TextBlock Text="{x:Static loc:GuiUiText.ui_import_drop_title}" FontSize="19"
+                            <TextBlock Text="{x:Static loc:GuiLocalizationString.ui_import_drop_title}" FontSize="19"
                                        FontWeight="SemiBold"
                                        HorizontalAlignment="Center" TextWrapping="Wrap" TextAlignment="Center" />
-                            <TextBlock Text="{x:Static loc:GuiUiText.ui_import_file_picker_desc}" Classes="muted"
+                            <TextBlock Text="{x:Static loc:GuiLocalizationString.ui_import_file_picker_desc}" Classes="muted"
                                        HorizontalAlignment="Center" TextWrapping="Wrap" TextAlignment="Center" />
                             <Button Classes="import-action" Click="OnImportClick"
                                     HorizontalAlignment="Center">
@@ -51,9 +51,9 @@
                 <Border Classes="card" Padding="20,16">
                     <Grid ColumnDefinitions="*,Auto" ColumnSpacing="20">
                         <StackPanel Spacing="6">
-                            <TextBlock Text="{x:Static loc:GuiUiText.ui_import_load_mode_title}"
+                            <TextBlock Text="{x:Static loc:GuiLocalizationString.ui_import_load_mode_title}"
                                        Classes="section-title" />
-                            <TextBlock Text="{x:Static loc:GuiUiText.ui_import_load_mode_desc}"
+                            <TextBlock Text="{x:Static loc:GuiLocalizationString.ui_import_load_mode_desc}"
                                        Classes="muted" FontSize="12" TextWrapping="Wrap" />
                         </StackPanel>
                         <ToggleSwitch Grid.Column="1"
@@ -67,9 +67,9 @@
                         <TextBlock Text="&#xf05a;" Classes="fa-icon" FontSize="18"
                                    Foreground="{DynamicResource AccentBrush}" />
                         <StackPanel Grid.Column="1" Spacing="5">
-                            <TextBlock Text="{x:Static loc:GuiUiText.ui_import_recommended_title}"
+                            <TextBlock Text="{x:Static loc:GuiLocalizationString.ui_import_recommended_title}"
                                        FontWeight="SemiBold" />
-                            <TextBlock Text="{x:Static loc:GuiUiText.ui_import_recommended_desc}"
+                            <TextBlock Text="{x:Static loc:GuiLocalizationString.ui_import_recommended_desc}"
                                        Classes="muted" FontSize="12" TextWrapping="Wrap" />
                         </StackPanel>
                     </Grid>

@@ -7,17 +7,17 @@
 
     <Grid Margin="34,26" ColumnDefinitions="240,*" RowDefinitions="*,Auto,Auto" ColumnSpacing="24">
         <StackPanel Grid.RowSpan="3" Grid.Column="0" Spacing="16">
-            <TextBlock Text="{x:Static loc:GuiUiText.ui_settings_eyebrow}" Classes="eyebrow" />
+            <TextBlock Text="{x:Static loc:GuiLocalizationString.ui_settings_eyebrow}" Classes="eyebrow" />
             <TextBlock Text="{x:Static loc:GuiLocalizationString.settings_title}" Classes="page-title" FontSize="27" />
-            <TextBlock Text="{x:Static loc:GuiUiText.ui_settings_desc}"
+            <TextBlock Text="{x:Static loc:GuiLocalizationString.ui_settings_desc}"
                        Classes="muted" FontSize="12" TextWrapping="Wrap" />
             <Border Classes="card" Padding="16" Margin="0,8,0,0">
                 <StackPanel Spacing="11">
-                    <TextBlock Text="{x:Static loc:GuiUiText.ui_settings_hint_title}" Classes="section-title" />
-                    <TextBlock Text="{x:Static loc:GuiUiText.ui_settings_hint_desc}"
+                    <TextBlock Text="{x:Static loc:GuiLocalizationString.ui_settings_hint_title}" Classes="section-title" />
+                    <TextBlock Text="{x:Static loc:GuiLocalizationString.ui_settings_hint_desc}"
                                Classes="muted" FontSize="11" TextWrapping="Wrap" />
                     <Border Background="{DynamicResource AccentDimBrush}" CornerRadius="0" Padding="10">
-                        <TextBlock Text="{x:Static loc:GuiUiText.ui_settings_hint_saved}"
+                        <TextBlock Text="{x:Static loc:GuiLocalizationString.ui_settings_hint_saved}"
                                    Classes="muted" FontSize="11" TextWrapping="Wrap" />
                     </Border>
                 </StackPanel>

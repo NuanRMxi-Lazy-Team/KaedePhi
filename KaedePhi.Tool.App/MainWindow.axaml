@@ -46,13 +46,13 @@
                         </StackPanel>
 
                         <StackPanel Grid.Row="1" Margin="0,22,0,0" Spacing="6">
-                            <TextBlock Text="{x:Static loc:GuiUiText.ui_workspace}" Classes="eyebrow"
+                            <TextBlock Text="{x:Static loc:GuiLocalizationString.ui_workspace}" Classes="eyebrow"
                                        Margin="10,0,0,8" IsVisible="{Binding IsSidebarExpanded}" />
                             <Button x:Name="ImportNavigation" Classes="nav-item"
                                     Classes.active="{Binding IsImportActive}"
                                     Classes.collapsed="{Binding !IsSidebarExpanded}" Click="OnImportNavigationClick"
-                                    ToolTip.Tip="{x:Static loc:GuiUiText.ui_nav_import_title}"
-                                    AutomationProperties.Name="{x:Static loc:GuiUiText.ui_nav_import_title}">
+                                    ToolTip.Tip="{x:Static loc:GuiLocalizationString.ui_nav_import_title}"
+                                    AutomationProperties.Name="{x:Static loc:GuiLocalizationString.ui_nav_import_title}">
                                 <Grid ColumnDefinitions="Auto,Auto">
                                     <Border Width="44" Height="44">
                                         <TextBlock Text="&#xf093;" Classes="fa-icon" FontSize="16"
@@ -61,9 +61,9 @@
                                     <StackPanel Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center"
                                                 Spacing="3"
                                                 IsVisible="{Binding IsSidebarExpanded}">
-                                        <TextBlock Text="{x:Static loc:GuiUiText.ui_nav_import_title}"
+                                        <TextBlock Text="{x:Static loc:GuiLocalizationString.ui_nav_import_title}"
                                                    FontWeight="SemiBold" />
-                                        <TextBlock Text="{x:Static loc:GuiUiText.ui_nav_import_desc}"
+                                        <TextBlock Text="{x:Static loc:GuiLocalizationString.ui_nav_import_desc}"
                                                    Classes="nav-description" FontSize="11" />
                                     </StackPanel>
                                 </Grid>
@@ -71,8 +71,8 @@
                             <Button x:Name="ToolsNavigation" Classes="nav-item" Classes.active="{Binding IsToolActive}"
                                     Classes.collapsed="{Binding !IsSidebarExpanded}" Click="OnToolsNavigationClick"
                                     IsEnabled="{Binding CanOpenTools}"
-                                    ToolTip.Tip="{x:Static loc:GuiUiText.ui_nav_tool_title}"
-                                    AutomationProperties.Name="{x:Static loc:GuiUiText.ui_nav_tool_title}">
+                                    ToolTip.Tip="{x:Static loc:GuiLocalizationString.ui_nav_tool_title}"
+                                    AutomationProperties.Name="{x:Static loc:GuiLocalizationString.ui_nav_tool_title}">
                                 <Grid ColumnDefinitions="Auto,Auto">
                                     <Border Width="44" Height="44">
                                         <TextBlock Text="&#xf0ad;" Classes="fa-icon" FontSize="16"
@@ -81,9 +81,9 @@
                                     <StackPanel Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center"
                                                 Spacing="3"
                                                 IsVisible="{Binding IsSidebarExpanded}">
-                                        <TextBlock Text="{x:Static loc:GuiUiText.ui_nav_tool_title}"
+                                        <TextBlock Text="{x:Static loc:GuiLocalizationString.ui_nav_tool_title}"
                                                    FontWeight="SemiBold" />
-                                        <TextBlock Text="{x:Static loc:GuiUiText.ui_nav_tool_desc}"
+                                        <TextBlock Text="{x:Static loc:GuiLocalizationString.ui_nav_tool_desc}"
                                                    Classes="nav-description" FontSize="11" />
                                     </StackPanel>
                                 </Grid>
@@ -92,8 +92,8 @@
                                     Classes.active="{Binding IsExportActive}"
                                     Classes.collapsed="{Binding !IsSidebarExpanded}" Click="OnExportNavigationClick"
                                     IsEnabled="{Binding CanOpenExport}"
-                                    ToolTip.Tip="{x:Static loc:GuiUiText.ui_nav_export_title}"
-                                    AutomationProperties.Name="{x:Static loc:GuiUiText.ui_nav_export_title}">
+                                    ToolTip.Tip="{x:Static loc:GuiLocalizationString.ui_nav_export_title}"
+                                    AutomationProperties.Name="{x:Static loc:GuiLocalizationString.ui_nav_export_title}">
                                 <Grid ColumnDefinitions="Auto,Auto">
                                     <Border Width="44" Height="44">
                                         <TextBlock Text="&#xf56e;" Classes="fa-icon" FontSize="16"
@@ -102,9 +102,9 @@
                                     <StackPanel Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center"
                                                 Spacing="3"
                                                 IsVisible="{Binding IsSidebarExpanded}">
-                                        <TextBlock Text="{x:Static loc:GuiUiText.ui_nav_export_title}"
+                                        <TextBlock Text="{x:Static loc:GuiLocalizationString.ui_nav_export_title}"
                                                    FontWeight="SemiBold" />
-                                        <TextBlock Text="{x:Static loc:GuiUiText.ui_nav_export_desc}"
+                                        <TextBlock Text="{x:Static loc:GuiLocalizationString.ui_nav_export_desc}"
                                                    Classes="nav-description" FontSize="11" />
                                     </StackPanel>
                                 </Grid>
@@ -131,7 +131,7 @@
                             <StackPanel IsVisible="{Binding IsSidebarExpanded}">
                                 <Border Classes="context-card" IsVisible="{Binding HasChart}">
                                     <StackPanel Spacing="6">
-                                        <TextBlock Text="{x:Static loc:GuiUiText.ui_current_chart}" Classes="eyebrow" />
+                                        <TextBlock Text="{x:Static loc:GuiLocalizationString.ui_current_chart}" Classes="eyebrow" />
                                         <TextBlock Text="{Binding CurrentFileName}" FontWeight="SemiBold"
                                                    TextTrimming="CharacterEllipsis"
                                                    ToolTip.Tip="{Binding CurrentFileName}" />
@@ -163,8 +163,8 @@
                                    ToolTip.Tip="{Binding BackgroundMessage}" />
                         <Button x:Name="BackgroundRefreshButton" Grid.Column="2" Classes="background-refresh"
                                 Classes.busy="{Binding IsRefreshingBackground}" IsEnabled="{Binding !IsRefreshingBackground}"
-                                Click="OnBackgroundRefreshClick" ToolTip.Tip="{x:Static loc:GuiUiText.ui_background_refresh_hint}"
-                                AutomationProperties.Name="{x:Static loc:GuiUiText.ui_background_refresh}">
+                                Click="OnBackgroundRefreshClick" ToolTip.Tip="{x:Static loc:GuiLocalizationString.ui_background_refresh_hint}"
+                                AutomationProperties.Name="{x:Static loc:GuiLocalizationString.ui_background_refresh}">
                             <TextBlock Text="&#xf2f1;" Classes="fa-icon" FontSize="16"
                                        HorizontalAlignment="Center" VerticalAlignment="Center" />
                         </Button>

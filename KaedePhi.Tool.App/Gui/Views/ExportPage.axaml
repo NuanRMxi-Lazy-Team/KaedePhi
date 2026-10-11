@@ -10,13 +10,13 @@
             <StackPanel Grid.Column="0" Spacing="14">
                 <Border Classes="card" Padding="20">
                     <StackPanel Spacing="16">
-                        <TextBlock Text="{x:Static loc:GuiUiText.ui_export_eyebrow}" Classes="eyebrow" />
-                        <TextBlock Text="{x:Static loc:GuiUiText.ui_export_result_title}" Classes="page-title" FontSize="27" />
-                        <TextBlock Text="{x:Static loc:GuiUiText.ui_export_result_desc}"
+                        <TextBlock Text="{x:Static loc:GuiLocalizationString.ui_export_eyebrow}" Classes="eyebrow" />
+                        <TextBlock Text="{x:Static loc:GuiLocalizationString.ui_export_result_title}" Classes="page-title" FontSize="27" />
+                        <TextBlock Text="{x:Static loc:GuiLocalizationString.ui_export_result_desc}"
                                    Classes="muted" FontSize="12" TextWrapping="Wrap" />
                         <Border Background="{DynamicResource SurfaceStrongBrush}" CornerRadius="0" Padding="12">
                             <StackPanel Spacing="6">
-                                <TextBlock Text="{x:Static loc:GuiUiText.ui_export_source_format}" Classes="muted" FontSize="11" />
+                                <TextBlock Text="{x:Static loc:GuiLocalizationString.ui_export_source_format}" Classes="muted" FontSize="11" />
                                 <TextBlock Text="{Binding SourceFormat}" FontWeight="SemiBold" />
                             </StackPanel>
                         </Border>
@@ -38,7 +38,7 @@
                     <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
                         <TextBlock Text="&#xf058;" Classes="fa-icon" FontSize="16"
                                    Foreground="{DynamicResource AccentBrush}" />
-                        <TextBlock Grid.Column="1" Text="{x:Static loc:GuiUiText.ui_export_saved_hint}"
+                        <TextBlock Grid.Column="1" Text="{x:Static loc:GuiLocalizationString.ui_export_saved_hint}"
                                    Classes="muted" FontSize="11" TextWrapping="Wrap" />
                     </Grid>
                 </Border>
@@ -47,8 +47,8 @@
             <Border Grid.Column="1" Classes="card" Padding="22">
                 <Grid RowDefinitions="Auto,*">
                     <StackPanel Grid.Row="0" Spacing="4" Margin="0,2,0,18">
-                        <TextBlock Text="{x:Static loc:GuiUiText.ui_export_advanced_title}" Classes="section-title" FontSize="19" />
-                        <TextBlock Text="{x:Static loc:GuiUiText.ui_export_advanced_desc}"
+                        <TextBlock Text="{x:Static loc:GuiLocalizationString.ui_export_advanced_title}" Classes="section-title" FontSize="19" />
+                        <TextBlock Text="{x:Static loc:GuiLocalizationString.ui_export_advanced_desc}"
                                    Classes="muted" FontSize="12" />
                     </StackPanel>
                     <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
@@ -57,25 +57,25 @@
                                      CornerRadius="0" Padding="16">
                                 <StackPanel Spacing="12">
                                     <StackPanel Spacing="3">
-                                        <TextBlock Text="{x:Static loc:GuiUiText.ui_export_pe_title}" Classes="section-title" />
-                                        <TextBlock Text="{x:Static loc:GuiUiText.ui_export_pe_desc}"
+                                        <TextBlock Text="{x:Static loc:GuiLocalizationString.ui_export_pe_title}" Classes="section-title" />
+                                        <TextBlock Text="{x:Static loc:GuiLocalizationString.ui_export_pe_desc}"
                                                    Classes="muted" FontSize="11" />
                                     </StackPanel>
                                     <Grid ColumnDefinitions="*,150" RowDefinitions="Auto,Auto,Auto,Auto,Auto" RowSpacing="10">
-                                        <TextBlock Text="{x:Static loc:GuiUiText.ui_import_trailing_padding}" VerticalAlignment="Center" />
+                                        <TextBlock Text="{x:Static loc:GuiLocalizationString.ui_import_trailing_padding}" VerticalAlignment="Center" />
                                         <TextBox Grid.Column="1" Text="{Binding PeTrailingBeatPadding}" />
                                         <TextBlock Grid.Row="1" Text="{x:Static loc:GuiLocalizationString.convert_easing_precision}" VerticalAlignment="Center" />
                                         <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding PeUnsupportedEasingPrecision}" />
-                                        <TextBlock Grid.Row="2" Text="{x:Static loc:GuiUiText.ui_export_xy_precision}" VerticalAlignment="Center" />
+                                        <TextBlock Grid.Row="2" Text="{x:Static loc:GuiLocalizationString.ui_export_xy_precision}" VerticalAlignment="Center" />
                                         <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding PeMisalignedXyEventPrecision}" />
-                                        <TextBlock Grid.Row="3" Text="{x:Static loc:GuiUiText.ui_export_alpha_precision}" VerticalAlignment="Center" />
+                                        <TextBlock Grid.Row="3" Text="{x:Static loc:GuiLocalizationString.ui_export_alpha_precision}" VerticalAlignment="Center" />
                                         <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding PeAlphaCutPrecision}" />
-                                        <TextBlock Grid.Row="4" Text="{x:Static loc:GuiUiText.ui_export_alpha_tolerance}" VerticalAlignment="Center" />
+                                        <TextBlock Grid.Row="4" Text="{x:Static loc:GuiLocalizationString.ui_export_alpha_tolerance}" VerticalAlignment="Center" />
                                         <NumericUpDown Grid.Row="4" Grid.Column="1" Value="{Binding PeAlphaCutTolerance}"
                                                        Increment="0.01" FormatString="F3" />
                                     </Grid>
                                     <Grid ColumnDefinitions="*,150">
-                                        <TextBlock Text="{x:Static loc:GuiUiText.ui_export_speed_precision}" VerticalAlignment="Center" />
+                                        <TextBlock Text="{x:Static loc:GuiLocalizationString.ui_export_speed_precision}" VerticalAlignment="Center" />
                                         <TextBox Grid.Column="1" Text="{Binding PeSpeedCutPrecision}" />
                                     </Grid>
                                 </StackPanel>
@@ -85,23 +85,23 @@
                                      CornerRadius="0" Padding="16">
                                 <StackPanel Spacing="12">
                                     <StackPanel Spacing="3">
-                                        <TextBlock Text="{x:Static loc:GuiUiText.ui_export_phigros_title}" Classes="section-title" />
-                                        <TextBlock Text="{x:Static loc:GuiUiText.ui_export_phigros_desc}"
+                                        <TextBlock Text="{x:Static loc:GuiLocalizationString.ui_export_phigros_title}" Classes="section-title" />
+                                        <TextBlock Text="{x:Static loc:GuiLocalizationString.ui_export_phigros_desc}"
                                                    Classes="muted" FontSize="11" />
                                     </StackPanel>
                                     <Grid ColumnDefinitions="*,150" RowDefinitions="Auto,Auto,Auto,Auto" RowSpacing="10">
-                                        <TextBlock Text="{x:Static loc:GuiUiText.ui_export_fallback_bpm}" VerticalAlignment="Center" />
+                                        <TextBlock Text="{x:Static loc:GuiLocalizationString.ui_export_fallback_bpm}" VerticalAlignment="Center" />
                                         <NumericUpDown Grid.Column="1" Value="{Binding PhigrosDefaultBpm}"
                                                        Increment="1" FormatString="F0" />
                                         <TextBlock Grid.Row="1" Text="{x:Static loc:GuiLocalizationString.convert_easing_precision}" VerticalAlignment="Center" />
                                         <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding PhigrosEasingPrecision}" />
-                                        <TextBlock Grid.Row="2" Text="{x:Static loc:GuiUiText.ui_export_xy_precision}" VerticalAlignment="Center" />
+                                        <TextBlock Grid.Row="2" Text="{x:Static loc:GuiLocalizationString.ui_export_xy_precision}" VerticalAlignment="Center" />
                                         <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding PhigrosMisalignedXyEventPrecision}" />
-                                        <TextBlock Grid.Row="3" Text="{x:Static loc:GuiUiText.ui_export_alpha_precision}" VerticalAlignment="Center" />
+                                        <TextBlock Grid.Row="3" Text="{x:Static loc:GuiLocalizationString.ui_export_alpha_precision}" VerticalAlignment="Center" />
                                         <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding PhigrosAlphaCutPrecision}" />
                                     </Grid>
                                     <Grid ColumnDefinitions="*,150">
-                                        <TextBlock Text="{x:Static loc:GuiUiText.ui_export_speed_precision}" VerticalAlignment="Center" />
+                                        <TextBlock Text="{x:Static loc:GuiLocalizationString.ui_export_speed_precision}" VerticalAlignment="Center" />
                                         <TextBox Grid.Column="1" Text="{Binding PhigrosSpeedCutPrecision}" />
                                     </Grid>
                                     <CheckBox Content="{x:Static loc:GuiLocalizationString.convert_filter_fake_notes}"
@@ -109,7 +109,7 @@
                                     <CheckBox Content="{x:Static loc:GuiLocalizationString.convert_negative_alpha_elevation}"
                                               IsChecked="{Binding NegativeAlphaElevation}" />
                                     <Grid ColumnDefinitions="*,150" IsVisible="{Binding NegativeAlphaElevation}">
-                                        <TextBlock Text="{x:Static loc:GuiUiText.ui_export_negative_step}" VerticalAlignment="Center" />
+                                        <TextBlock Text="{x:Static loc:GuiLocalizationString.ui_export_negative_step}" VerticalAlignment="Center" />
                                         <NumericUpDown Grid.Column="1" Value="{Binding NegativeAlphaStep}"
                                                        Increment="0.5" FormatString="F1" Minimum="0.1" />
                                     </Grid>
@@ -120,7 +120,7 @@
                                      CornerRadius="0" Padding="16">
                                 <Grid ColumnDefinitions="*,150">
                                     <StackPanel Spacing="3">
-                                        <TextBlock Text="{x:Static loc:GuiUiText.ui_export_rephiedit_title}" Classes="section-title" />
+                                        <TextBlock Text="{x:Static loc:GuiLocalizationString.ui_export_rephiedit_title}" Classes="section-title" />
                                         <TextBlock Text="{x:Static loc:GuiLocalizationString.convert_easing_precision}" Classes="muted" FontSize="11" />
                                     </StackPanel>
                                     <NumericUpDown Grid.Column="1" Value="{Binding RePhiEditUnsupportedEasingPrecision}"
@@ -132,37 +132,37 @@
                                      CornerRadius="0" Padding="16">
                                 <StackPanel Spacing="12">
                                     <StackPanel Spacing="3">
-                                        <TextBlock Text="{x:Static loc:GuiUiText.ui_export_phichain_title}" Classes="section-title" />
-                                        <TextBlock Text="{x:Static loc:GuiUiText.ui_export_phichain_desc}"
+                                        <TextBlock Text="{x:Static loc:GuiLocalizationString.ui_export_phichain_title}" Classes="section-title" />
+                                        <TextBlock Text="{x:Static loc:GuiLocalizationString.ui_export_phichain_desc}"
                                                    Classes="muted" FontSize="11" />
                                     </StackPanel>
                                     <CheckBox Content="{x:Static loc:GuiLocalizationString.convert_unbind_non_rotating}"
                                               IsChecked="{Binding PhiChainUnbindNonRotatingChildren}" />
-                                    <TextBlock Text="{x:Static loc:GuiUiText.ui_export_unbind}" Classes="muted" FontSize="11" />
+                                    <TextBlock Text="{x:Static loc:GuiLocalizationString.ui_export_unbind}" Classes="muted" FontSize="11" />
                                     <Grid ColumnDefinitions="*,150" RowDefinitions="Auto,Auto,Auto" RowSpacing="10">
-                                        <TextBlock Text="{x:Static loc:GuiUiText.ui_export_precision}" VerticalAlignment="Center" />
+                                        <TextBlock Text="{x:Static loc:GuiLocalizationString.ui_export_precision}" VerticalAlignment="Center" />
                                         <TextBox Grid.Column="1" Text="{Binding PhiChainUnbindPrecision}" />
-                                        <TextBlock Grid.Row="1" Text="{x:Static loc:GuiUiText.ui_export_tolerance}" VerticalAlignment="Center" />
+                                        <TextBlock Grid.Row="1" Text="{x:Static loc:GuiLocalizationString.ui_export_tolerance}" VerticalAlignment="Center" />
                                         <NumericUpDown Grid.Row="1" Grid.Column="1" Value="{Binding PhiChainUnbindTolerance}"
                                                        Increment="0.01" FormatString="F3" />
-                                        <TextBlock Grid.Row="2" Text="{x:Static loc:GuiUiText.ui_export_merge_tolerance}" VerticalAlignment="Center" />
+                                        <TextBlock Grid.Row="2" Text="{x:Static loc:GuiLocalizationString.ui_export_merge_tolerance}" VerticalAlignment="Center" />
                                         <NumericUpDown Grid.Row="2" Grid.Column="1" Value="{Binding PhiChainUnbindMergeTolerance}"
                                                        Increment="0.01" FormatString="F3" />
                                     </Grid>
                                     <CheckBox Content="{x:Static loc:GuiLocalizationString.convert_unbind_classic}"
                                               IsChecked="{Binding PhiChainUnbindClassicMode}" />
-                                    <TextBlock Text="{x:Static loc:GuiUiText.ui_export_multi_merge}" Classes="muted" FontSize="11" />
+                                    <TextBlock Text="{x:Static loc:GuiLocalizationString.ui_export_multi_merge}" Classes="muted" FontSize="11" />
                                     <Grid ColumnDefinitions="*,150" RowDefinitions="Auto,Auto" RowSpacing="10">
-                                        <TextBlock Text="{x:Static loc:GuiUiText.ui_export_precision}" VerticalAlignment="Center" />
+                                        <TextBlock Text="{x:Static loc:GuiLocalizationString.ui_export_precision}" VerticalAlignment="Center" />
                                         <TextBox Grid.Column="1" Text="{Binding PhiChainMultiLayerMergePrecision}" />
-                                        <TextBlock Grid.Row="1" Text="{x:Static loc:GuiUiText.ui_export_tolerance}" VerticalAlignment="Center" />
+                                        <TextBlock Grid.Row="1" Text="{x:Static loc:GuiLocalizationString.ui_export_tolerance}" VerticalAlignment="Center" />
                                         <NumericUpDown Grid.Row="1" Grid.Column="1" Value="{Binding PhiChainMultiLayerMergeTolerance}"
                                                        Increment="0.01" FormatString="F3" />
                                     </Grid>
                                     <CheckBox Content="{x:Static loc:GuiLocalizationString.convert_merge_classic}"
                                               IsChecked="{Binding PhiChainMultiLayerMergeClassicMode}" />
                                     <Grid ColumnDefinitions="*,150">
-                                        <TextBlock Text="{x:Static loc:GuiUiText.ui_export_easing_cut_precision}" VerticalAlignment="Center" />
+                                        <TextBlock Text="{x:Static loc:GuiLocalizationString.ui_export_easing_cut_precision}" VerticalAlignment="Center" />
                                         <TextBox Grid.Column="1" Text="{Binding PhiChainEasingCutPrecision}" />
                                     </Grid>
                                 </StackPanel>
@@ -171,20 +171,20 @@
                             <Border IsVisible="{Binding ShowPhiFansOptions}" Background="{DynamicResource SurfaceStrongBrush}"
                                      CornerRadius="0" Padding="16">
                                 <StackPanel Spacing="12">
-                                    <TextBlock Text="{x:Static loc:GuiUiText.ui_export_phifans_title}" Classes="section-title" />
+                                    <TextBlock Text="{x:Static loc:GuiLocalizationString.ui_export_phifans_title}" Classes="section-title" />
                                     <Grid ColumnDefinitions="*,150" RowDefinitions="Auto,Auto" RowSpacing="10">
                                         <TextBlock Text="{x:Static loc:GuiLocalizationString.convert_easing_precision}" VerticalAlignment="Center" />
                                         <NumericUpDown Grid.Column="1" Value="{Binding PhiFansUnsupportedEasingPrecision}"
                                                        Minimum="1" Maximum="4096" Increment="1" FormatString="F0" />
-                                        <TextBlock Grid.Row="1" Text="{x:Static loc:GuiUiText.ui_export_discontinuity_precision}" VerticalAlignment="Center" />
+                                        <TextBlock Grid.Row="1" Text="{x:Static loc:GuiLocalizationString.ui_export_discontinuity_precision}" VerticalAlignment="Center" />
                                         <NumericUpDown Grid.Row="1" Grid.Column="1" Value="{Binding PhiFansDiscontinuityBeatPrecision}"
                                                        Minimum="1" Maximum="4096" Increment="1" FormatString="F0" />
                                     </Grid>
-                                    <TextBlock Text="{x:Static loc:GuiUiText.ui_export_multi_merge}" Classes="muted" FontSize="11" />
+                                    <TextBlock Text="{x:Static loc:GuiLocalizationString.ui_export_multi_merge}" Classes="muted" FontSize="11" />
                                     <Grid ColumnDefinitions="*,150" RowDefinitions="Auto,Auto" RowSpacing="10">
-                                        <TextBlock Text="{x:Static loc:GuiUiText.ui_export_precision}" VerticalAlignment="Center" />
+                                        <TextBlock Text="{x:Static loc:GuiLocalizationString.ui_export_precision}" VerticalAlignment="Center" />
                                         <TextBox Grid.Column="1" Text="{Binding MultiLayerMergePrecision}" />
-                                        <TextBlock Grid.Row="1" Text="{x:Static loc:GuiUiText.ui_export_tolerance}" VerticalAlignment="Center" />
+                                        <TextBlock Grid.Row="1" Text="{x:Static loc:GuiLocalizationString.ui_export_tolerance}" VerticalAlignment="Center" />
                                         <NumericUpDown Grid.Row="1" Grid.Column="1" Value="{Binding MultiLayerMergeTolerance}"
                                                        Increment="0.01" FormatString="F3" />
                                     </Grid>
@@ -198,17 +198,17 @@
                             <Border IsVisible="{Binding ShowGenericOptions}" Background="{DynamicResource SurfaceStrongBrush}"
                                      CornerRadius="0" Padding="16">
                                 <StackPanel Spacing="12">
-                                    <TextBlock Text="{x:Static loc:GuiUiText.ui_export_common_title}" Classes="section-title" />
-                                    <TextBlock Text="{x:Static loc:GuiUiText.ui_export_common_desc}"
+                                    <TextBlock Text="{x:Static loc:GuiLocalizationString.ui_export_common_title}" Classes="section-title" />
+                                    <TextBlock Text="{x:Static loc:GuiLocalizationString.ui_export_common_desc}"
                                                Classes="muted" FontSize="11" />
-                                    <TextBlock Text="{x:Static loc:GuiUiText.ui_export_unbind}" Classes="muted" FontSize="11" />
+                                    <TextBlock Text="{x:Static loc:GuiLocalizationString.ui_export_unbind}" Classes="muted" FontSize="11" />
                                     <Grid ColumnDefinitions="*,150" RowDefinitions="Auto,Auto,Auto" RowSpacing="10">
-                                        <TextBlock Text="{x:Static loc:GuiUiText.ui_export_precision}" VerticalAlignment="Center" />
+                                        <TextBlock Text="{x:Static loc:GuiLocalizationString.ui_export_precision}" VerticalAlignment="Center" />
                                         <TextBox Grid.Column="1" Text="{Binding UnbindPrecision}" />
-                                        <TextBlock Grid.Row="1" Text="{x:Static loc:GuiUiText.ui_export_tolerance}" VerticalAlignment="Center" />
+                                        <TextBlock Grid.Row="1" Text="{x:Static loc:GuiLocalizationString.ui_export_tolerance}" VerticalAlignment="Center" />
                                         <NumericUpDown Grid.Row="1" Grid.Column="1" Value="{Binding UnbindTolerance}"
                                                        Increment="0.01" FormatString="F3" />
-                                        <TextBlock Grid.Row="2" Text="{x:Static loc:GuiUiText.ui_export_merge_tolerance}" VerticalAlignment="Center" />
+                                        <TextBlock Grid.Row="2" Text="{x:Static loc:GuiLocalizationString.ui_export_merge_tolerance}" VerticalAlignment="Center" />
                                         <NumericUpDown Grid.Row="2" Grid.Column="1" Value="{Binding UnbindMergeTolerance}"
                                                        Increment="0.01" FormatString="F3" />
                                     </Grid>
@@ -216,11 +216,11 @@
                                               IsChecked="{Binding UnbindClassicMode}" />
                                     <CheckBox Content="{x:Static loc:GuiLocalizationString.convert_unbind_compress}"
                                               IsChecked="{Binding UnbindCompress}" />
-                                    <TextBlock Text="{x:Static loc:GuiUiText.ui_export_multi_merge}" Classes="muted" FontSize="11" />
+                                    <TextBlock Text="{x:Static loc:GuiLocalizationString.ui_export_multi_merge}" Classes="muted" FontSize="11" />
                                     <Grid ColumnDefinitions="*,150" RowDefinitions="Auto,Auto" RowSpacing="10">
-                                        <TextBlock Text="{x:Static loc:GuiUiText.ui_export_precision}" VerticalAlignment="Center" />
+                                        <TextBlock Text="{x:Static loc:GuiLocalizationString.ui_export_precision}" VerticalAlignment="Center" />
                                         <TextBox Grid.Column="1" Text="{Binding MultiLayerMergePrecision}" />
-                                        <TextBlock Grid.Row="1" Text="{x:Static loc:GuiUiText.ui_export_tolerance}" VerticalAlignment="Center" />
+                                        <TextBlock Grid.Row="1" Text="{x:Static loc:GuiLocalizationString.ui_export_tolerance}" VerticalAlignment="Center" />
                                         <NumericUpDown Grid.Row="1" Grid.Column="1" Value="{Binding MultiLayerMergeTolerance}"
                                                        Increment="0.01" FormatString="F3" />
                                     </Grid>

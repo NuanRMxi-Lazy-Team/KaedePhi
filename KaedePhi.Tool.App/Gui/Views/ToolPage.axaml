@@ -11,9 +11,9 @@
             <Border Grid.Column="0" Classes="card" Padding="16">
                 <Grid RowDefinitions="Auto,Auto,*">
                     <StackPanel Grid.Row="0" Spacing="4" Margin="4,2,4,16">
-                        <TextBlock Text="{x:Static loc:GuiUiText.ui_tool_eyebrow}" Classes="eyebrow" />
-                        <TextBlock Text="{x:Static loc:GuiUiText.ui_tool_page_title}" Classes="section-title" FontSize="19" />
-                        <TextBlock Text="{x:Static loc:GuiUiText.ui_tool_page_desc}"
+                        <TextBlock Text="{x:Static loc:GuiLocalizationString.ui_tool_eyebrow}" Classes="eyebrow" />
+                        <TextBlock Text="{x:Static loc:GuiLocalizationString.ui_tool_page_title}" Classes="section-title" FontSize="19" />
+                        <TextBlock Text="{x:Static loc:GuiLocalizationString.ui_tool_page_desc}"
                                    Classes="muted" FontSize="12" />
                     </StackPanel>
                     <Border Grid.Row="1" Background="{DynamicResource AccentDimBrush}"
@@ -75,9 +75,9 @@
             <Border Grid.Column="1" Classes="card" Padding="22">
                 <Grid RowDefinitions="Auto,*,Auto">
                     <StackPanel Grid.Row="0" Spacing="4" Margin="0,2,0,18">
-                        <TextBlock Text="{x:Static loc:GuiUiText.ui_tool_options_eyebrow}" Classes="eyebrow" />
+                        <TextBlock Text="{x:Static loc:GuiLocalizationString.ui_tool_options_eyebrow}" Classes="eyebrow" />
                         <TextBlock Text="{x:Static loc:GuiLocalizationString.tool_options_title}" Classes="section-title" FontSize="19" />
-                        <TextBlock Text="{x:Static loc:GuiUiText.ui_tool_options_desc}"
+                        <TextBlock Text="{x:Static loc:GuiLocalizationString.ui_tool_options_desc}"
                                    Classes="muted" FontSize="12" />
                     </StackPanel>
 
@@ -87,7 +87,7 @@
                                 <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
                                     <TextBlock Text="&#xf05a;" Classes="fa-icon" FontSize="16"
                                                Foreground="{DynamicResource AccentBrush}" />
-                                    <TextBlock Grid.Column="1" Text="{x:Static loc:GuiUiText.ui_tool_file_tip}"
+                                    <TextBlock Grid.Column="1" Text="{x:Static loc:GuiLocalizationString.ui_tool_file_tip}"
                                                Classes="muted" FontSize="12" TextWrapping="Wrap" />
                                 </Grid>
                             </Border>
@@ -96,21 +96,21 @@
                                   IsVisible="{Binding ShowGeneralOptions}">
                                 <StackPanel Grid.Row="0" Spacing="3" IsVisible="{Binding ShowPrecision}">
                                     <TextBlock Text="{x:Static loc:GuiLocalizationString.option_precision}" />
-                                    <TextBlock Text="{x:Static loc:GuiUiText.ui_tool_precision_desc}" Classes="muted" FontSize="11" />
+                                    <TextBlock Text="{x:Static loc:GuiLocalizationString.ui_tool_precision_desc}" Classes="muted" FontSize="11" />
                                 </StackPanel>
                                 <NumericUpDown Grid.Row="0" Grid.Column="1" Value="{Binding Precision}"
                                                Minimum="1" Maximum="4096" Increment="1" FormatString="F0"
                                                IsVisible="{Binding ShowPrecision}" />
                                 <StackPanel Grid.Row="1" Spacing="3" IsVisible="{Binding ShowTolerance}">
                                     <TextBlock Text="{x:Static loc:GuiLocalizationString.option_tolerance}" />
-                                    <TextBlock Text="{x:Static loc:GuiUiText.ui_tool_tolerance_desc}" Classes="muted" FontSize="11" />
+                                    <TextBlock Text="{x:Static loc:GuiLocalizationString.ui_tool_tolerance_desc}" Classes="muted" FontSize="11" />
                                 </StackPanel>
                                 <NumericUpDown Grid.Row="1" Grid.Column="1" Value="{Binding Tolerance}"
                                                Minimum="0" Maximum="100" Increment="0.1" FormatString="F2"
                                                IsVisible="{Binding ShowTolerance}" />
                                 <StackPanel Grid.Row="2" Spacing="3" IsVisible="{Binding ShowMergeTolerance}">
                                     <TextBlock Text="{x:Static loc:GuiLocalizationString.option_unbind_merge_tolerance}" />
-                                    <TextBlock Text="{x:Static loc:GuiUiText.ui_tool_merge_tolerance_desc}" Classes="muted" FontSize="11" />
+                                    <TextBlock Text="{x:Static loc:GuiLocalizationString.ui_tool_merge_tolerance_desc}" Classes="muted" FontSize="11" />
                                 </StackPanel>
                                 <NumericUpDown Grid.Row="2" Grid.Column="1" Value="{Binding MergeTolerance}"
                                                Minimum="0" Maximum="100" Increment="0.1" FormatString="F2"
@@ -130,7 +130,7 @@
 
                             <StackPanel IsVisible="{Binding ShowRenderOptions}" Spacing="14">
                                 <Border Height="1" Background="{DynamicResource DividerBrush}" />
-                                <TextBlock Text="{x:Static loc:GuiUiText.ui_tool_render_title}" Classes="section-title" />
+                                <TextBlock Text="{x:Static loc:GuiLocalizationString.ui_tool_render_title}" Classes="section-title" />
                                 <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto" ColumnSpacing="14" RowSpacing="12">
                                     <StackPanel Grid.Row="0" Spacing="3">
                                         <TextBlock Text="{x:Static loc:GuiLocalizationString.option_pixels_per_beat}" />

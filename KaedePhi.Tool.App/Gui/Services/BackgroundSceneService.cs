@@ -1,5 +1,6 @@
 using Avalonia.Media.Imaging;
 using KaedePhi.Tool.App.Gui.Models;
+using Serilog;
 
 namespace KaedePhi.Tool.App.Gui.Services;
 
@@ -7,6 +8,7 @@ internal sealed class BackgroundSceneService
 {
     private const string BackgroundEndpoint = "https://www.loliapi.com/acg/";
     private static readonly HttpClient Client = CreateClient();
+    private readonly ILogger _log = Log.ForContext<BackgroundSceneService>();
     private readonly HttpClient _client;
 
     public BackgroundSceneService()
@@ -64,13 +66,15 @@ internal sealed class BackgroundSceneService
 
                 return new BackgroundImageResource(image, bytes, GetExtension(bytes));
             }
-            catch (OperationCanceledException)
+            catch (OperationCanceledException ex)
             {
+                if (!cancellationToken.IsCancellationRequested)
+                    _log.Debug(ex, "背景图片请求已超时。");
                 return null;
             }
-            catch
+            catch (Exception ex)
             {
-                continue;
+                _log.Debug(ex, "背景图片请求失败，正在尝试下一个请求地址。");
             }
         }
 

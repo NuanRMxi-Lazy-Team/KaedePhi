@@ -4,6 +4,7 @@ using KaedePhi.Tool.Common;
 using KaedePhi.Tool.Converter.Phigros.v3.Utils;
 using KaedePhi.Tool.Converter.RePhiEdit;
 using KaedePhi.Tool.Converter.RePhiEdit.Model;
+using KaedePhi.Tool.Converter.StellateRePhiEditExtended.Utils;
 using IrBlockArea = KaedePhi.Core.Intermediate.Model.BlockArea;
 using IrChart = KaedePhi.Core.Intermediate.Model.Chart;
 using RpeChart = KaedePhi.Core.Formats.RePhiEdit.Model.Chart;
@@ -11,13 +12,28 @@ using RpeJudgeLine = KaedePhi.Core.Formats.RePhiEdit.Model.JudgeLine;
 
 namespace KaedePhi.Tool.Converter.StellateRePhiEditExtended;
 
-internal sealed class StellateRePhiEditExtendedConverter : LoggableBase, ICancellableChartConverter
+/// <summary>
+/// StellateRePhiEditExtended 与 IR 谱面之间的格式转换器。
+/// </summary>
+public sealed class StellateRePhiEditExtendedConverter
+    : LoggableBase,
+        IChartConverter<RpeChart, Unit?, ConvertOption>,
+        ICancellableChartConverter
 {
     private CancellationToken _ct;
 
+    /// <summary>
+    /// 设置转换过程中使用的取消令牌。
+    /// </summary>
+    /// <param name="ct">取消令牌</param>
     public void SetCancellationToken(CancellationToken ct) => _ct = ct;
 
-    internal IrChart ToIr(RpeChart source)
+    /// <summary>
+    /// 将 StellateRePhiEditExtended 谱面转换为 IR 格式。
+    /// </summary>
+    /// <param name="source">源谱面</param>
+    /// <returns>转换后的 IR 谱面</returns>
+    public IrChart ToIr(RpeChart source)
     {
         ArgumentNullException.ThrowIfNull(source);
         _ct.ThrowIfCancellationRequested();
@@ -35,11 +51,13 @@ internal sealed class StellateRePhiEditExtendedConverter : LoggableBase, ICancel
         {
             BpmList = source.BpmList,
             Meta = source.Meta,
-            JudgeLineList = sourceLines
-                .Select((line, index) =>
-                    isBlockAreaLine[index] ? new RpeJudgeLine { Father = line.Father } : line
-                )
-                .ToList(),
+            JudgeLineList =
+            [
+                .. sourceLines
+                    .Select((line, index) =>
+                        isBlockAreaLine[index] ? new RpeJudgeLine { Father = line.Father } : line
+                    )
+            ],
         };
         var baseConverter = new RePhiEditConverter
         {
@@ -65,47 +83,50 @@ internal sealed class StellateRePhiEditExtendedConverter : LoggableBase, ICancel
                 );
         }
 
-        if (blockAreaLines.Count == 1)
+        switch (blockAreaLines.Count)
         {
-            blockAreas.AddRange(geometryConverter.ConvertLine(blockAreaLines[0].Index));
-        }
-        else if (blockAreaLines.Count > 1)
-        {
-            var convertedBlockAreas = new List<IrBlockArea>[blockAreaLines.Count];
-            var sampleParallelism = Math.Max(
-                1,
-                Environment.ProcessorCount / blockAreaLines.Count
-            );
-            try
+            case 1:
+                blockAreas.AddRange(geometryConverter.ConvertLine(blockAreaLines[0].Index));
+                break;
+            case > 1:
             {
-                Parallel.For(
-                    0,
-                    blockAreaLines.Count,
-                    new ParallelOptions
-                    {
-                        CancellationToken = _ct,
-                        MaxDegreeOfParallelism = Environment.ProcessorCount,
-                    },
-                    index =>
-                    {
-                        convertedBlockAreas[index] = geometryConverter.ConvertLine(
-                            blockAreaLines[index].Index,
-                            sampleParallelism
-                        );
-                    }
+                var convertedBlockAreas = new List<IrBlockArea>[blockAreaLines.Count];
+                var sampleParallelism = Math.Max(
+                    1,
+                    Environment.ProcessorCount / blockAreaLines.Count
                 );
-            }
-            catch (AggregateException exception)
-            {
-                var failures = exception.Flatten().InnerExceptions;
-                if (failures.Count == 1)
-                    ExceptionDispatchInfo.Capture(failures[0]).Throw();
+                try
+                {
+                    Parallel.For(
+                        0,
+                        blockAreaLines.Count,
+                        new ParallelOptions
+                        {
+                            CancellationToken = _ct,
+                            MaxDegreeOfParallelism = Environment.ProcessorCount,
+                        },
+                        index =>
+                        {
+                            convertedBlockAreas[index] = geometryConverter.ConvertLine(
+                                blockAreaLines[index].Index,
+                                sampleParallelism
+                            );
+                        }
+                    );
+                }
+                catch (AggregateException exception)
+                {
+                    var failures = exception.Flatten().InnerExceptions;
+                    if (failures.Count == 1)
+                        ExceptionDispatchInfo.Capture(failures[0]).Throw();
 
-                throw;
-            }
+                    throw;
+                }
 
-            foreach (var convertedBlockArea in convertedBlockAreas)
-                blockAreas.AddRange(convertedBlockArea);
+                foreach (var convertedBlockArea in convertedBlockAreas)
+                    blockAreas.AddRange(convertedBlockArea);
+                break;
+            }
         }
 
         var oldToNewIndex = new int[sourceLines.Count];
@@ -150,13 +171,27 @@ internal sealed class StellateRePhiEditExtendedConverter : LoggableBase, ICancel
         );
     }
 
-    internal RpeChart FromIr(IrChart source, ConvertOption options)
+    /// <summary>
+    /// 使用通用转换器接口将 StellateRePhiEditExtended 谱面转换为 IR 格式。
+    /// </summary>
+    /// <param name="input">源谱面</param>
+    /// <param name="options">未使用的输入选项</param>
+    /// <returns>转换后的 IR 谱面</returns>
+    public IrChart ToIr(RpeChart input, Unit? options) => ToIr(input);
+
+    /// <summary>
+    /// 将 IR 谱面转换为 StellateRePhiEditExtended 格式。
+    /// </summary>
+    /// <param name="input">IR 谱面</param>
+    /// <param name="options">输出转换选项</param>
+    /// <returns>转换后的 StellateRePhiEditExtended 谱面</returns>
+    public RpeChart FromIr(IrChart input, ConvertOption options)
     {
-        ArgumentNullException.ThrowIfNull(source);
+        ArgumentNullException.ThrowIfNull(input);
         ArgumentNullException.ThrowIfNull(options);
         _ct.ThrowIfCancellationRequested();
 
-        var normalized = IrChartNormalizer.NormalizeAndValidateNoteEndBeats(source);
+        var normalized = IrChartNormalizer.NormalizeAndValidateNoteEndBeats(input);
         var baseConverter = new RePhiEditConverter
         {
             OnInfo = OnInfo,
@@ -211,9 +246,9 @@ internal sealed class StellateRePhiEditExtendedConverter : LoggableBase, ICancel
     }
 
     private static int MapFather(
-        IReadOnlyList<RpeJudgeLine> sourceLines,
-        IReadOnlyList<bool> isBlockAreaLine,
-        IReadOnlyList<int> oldToNewIndex,
+        List<RpeJudgeLine> sourceLines,
+        bool[] isBlockAreaLine,
+        int[] oldToNewIndex,
         int sourceIndex,
         out bool skippedBlockAreaParent
     )
