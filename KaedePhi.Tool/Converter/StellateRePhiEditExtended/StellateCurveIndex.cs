@@ -17,9 +17,11 @@ internal sealed class StellateCurveIndex
 
     internal StellateCurveIndex(
         IReadOnlyList<RpeEvent> events,
-        PhigrosV3TimeMapper timeMapper
+        PhigrosV3TimeMapper timeMapper,
+        int cacheIndex
     )
     {
+        CacheIndex = cacheIndex;
         _events = new RpeEvent[events.Count];
         _startTimes = new double[events.Count];
         _endTimes = new double[events.Count];
@@ -71,6 +73,8 @@ internal sealed class StellateCurveIndex
     }
 
     internal int FirstIndex { get; }
+
+    internal int CacheIndex { get; }
 
     internal RpeEvent GetEvent(int index) => _events[index];
 

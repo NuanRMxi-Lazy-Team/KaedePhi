@@ -20,12 +20,52 @@ internal sealed class StellateRePhiEditGeometry
     private const double TextureWidth = 900d;
     private const double TextureHeight = 900d;
     private const int SamplesPerBeat = 32;
-    private const int ParallelSampleThreshold = 512;
+    private const int ParallelSampleThreshold = 32;
     private const double SimplifyTolerance = 0.02d;
     private const double ValueEpsilon = 1e-10;
     private const double MinimumBaseSize = 1e-12d;
     private const double HardPointEpsilon = 2.384185791015625e-7;
     private const double CurveStartTimeEpsilon = 1e-10d;
+
+    private sealed class CurveValueCache(int curveCount)
+    {
+        private readonly double[] _values = new double[curveCount];
+        private readonly int[] _generations = new int[curveCount];
+        private int _generation = 1;
+
+        internal void BeginSample()
+        {
+            if (_generation == int.MaxValue)
+            {
+                Array.Clear(_generations);
+                _generation = 1;
+            }
+            else
+            {
+                _generation++;
+            }
+        }
+
+        internal bool TryGetValue(StellateCurveIndex curve, out double value)
+        {
+            var index = curve.CacheIndex;
+            if (_generations[index] == _generation)
+            {
+                value = _values[index];
+                return true;
+            }
+
+            value = default;
+            return false;
+        }
+
+        internal void SetValue(StellateCurveIndex curve, double value)
+        {
+            var index = curve.CacheIndex;
+            _values[index] = value;
+            _generations[index] = _generation;
+        }
+    }
 
     private readonly RpeChart _source;
     private readonly PhigrosV3TimeMapper _timeMapper;
@@ -74,8 +114,14 @@ internal sealed class StellateRePhiEditGeometry
     private void AddCurveIndex(List<RpeEvent>? events)
     {
         if (events is { Count: > 0 } && !_curveIndexes.ContainsKey(events))
-            _curveIndexes.Add(events, new StellateCurveIndex(events, _timeMapper));
+            _curveIndexes.Add(
+                events,
+                new StellateCurveIndex(events, _timeMapper, _curveIndexes.Count)
+            );
     }
+
+    internal void PrepareLine(int lineIndex) =>
+        PrepareCurveIndexes(lineIndex, [], includeScale: true);
 
     private (
         Beat Beat,
@@ -85,7 +131,8 @@ internal sealed class StellateRePhiEditGeometry
         )[] SampleGeometry(
             int lineIndex,
             SortedSet<Beat> sampleBeats,
-            SortedSet<Beat> hardBeats
+            SortedSet<Beat> hardBeats,
+            int maxDegreeOfParallelism
         )
     {
         var beats = sampleBeats.ToArray();
@@ -96,24 +143,34 @@ internal sealed class StellateRePhiEditGeometry
             bool Hard
             )[beats.Length];
 
-        void Sample(int index, HashSet<int> visiting)
+        void Sample(
+            int index,
+            HashSet<int> visiting,
+            CurveValueCache curveValues
+        )
         {
             _ct.ThrowIfCancellationRequested();
+            curveValues.BeginSample();
             var beat = beats[index];
             var musicTime = _timeMapper.ToMusicTime(beat);
             samples[index] = (
                 beat,
-                GetGeometry(lineIndex, musicTime, visiting, rightSide: false),
-                GetGeometry(lineIndex, musicTime, visiting, rightSide: true),
+                GetGeometry(lineIndex, musicTime, visiting, curveValues, rightSide: false),
+                GetGeometry(lineIndex, musicTime, visiting, curveValues, rightSide: true),
                 hardBeats.Contains(beat)
             );
         }
 
-        if (beats.Length < ParallelSampleThreshold || Environment.ProcessorCount <= 1)
+        if (
+            beats.Length < ParallelSampleThreshold
+            || maxDegreeOfParallelism <= 1
+            || Environment.ProcessorCount <= 1
+        )
         {
             var visiting = new HashSet<int>();
+            var curveValues = new CurveValueCache(_curveIndexes.Count);
             for (var index = 0; index < beats.Length; index++)
-                Sample(index, visiting);
+                Sample(index, visiting, curveValues);
 
             return samples;
         }
@@ -126,13 +183,16 @@ internal sealed class StellateRePhiEditGeometry
                 new ParallelOptions
                 {
                     CancellationToken = _ct,
-                    MaxDegreeOfParallelism = Environment.ProcessorCount,
+                    MaxDegreeOfParallelism = maxDegreeOfParallelism,
                 },
-                () => new HashSet<int>(),
-                (index, _, visiting) =>
+                () => (
+                    Visiting: new HashSet<int>(),
+                    CurveValues: new CurveValueCache(_curveIndexes.Count)
+                ),
+                (index, _, state) =>
                 {
-                    Sample(index, visiting);
-                    return visiting;
+                    Sample(index, state.Visiting, state.CurveValues);
+                    return state;
                 },
                 _ => { }
             );
@@ -149,7 +209,7 @@ internal sealed class StellateRePhiEditGeometry
         return samples;
     }
 
-    internal List<Ir.BlockArea> ConvertLine(int lineIndex)
+    internal List<Ir.BlockArea> ConvertLine(int lineIndex, int maxDegreeOfParallelism = 0)
     {
         _ct.ThrowIfCancellationRequested();
         var source = _source.JudgeLineList[lineIndex];
@@ -208,13 +268,17 @@ internal sealed class StellateRePhiEditGeometry
             AddRotationCutPoints(sampleBeats, rotateSourceEvents);
         AddScaleCutPoints(sampleBeats, scaleXSourceEvents, scaleYSourceEvents);
         AddUniformGrid(sampleBeats, endBeat);
-        var samples = SampleGeometry(lineIndex, sampleBeats, hardBeats).ToList();
+        var sampleParallelism = maxDegreeOfParallelism > 0
+            ? maxDegreeOfParallelism
+            : Environment.ProcessorCount;
+        var samples = SampleGeometry(lineIndex, sampleBeats, hardBeats, sampleParallelism).ToList();
 
         var baseBeat = new Beat(0);
         var baseGeometry = GetGeometry(
             lineIndex,
             _timeMapper.ToMusicTime(baseBeat),
             new HashSet<int>(),
+            new CurveValueCache(_curveIndexes.Count),
             rightSide: true
         );
         var baseWidth = baseGeometry.Width > MinimumBaseSize
@@ -663,17 +727,18 @@ internal sealed class StellateRePhiEditGeometry
         int lineIndex,
         double musicTime,
         HashSet<int> visiting,
+            CurveValueCache curveValues,
         bool rightSide
     )
     {
-        var pose = GetPose(lineIndex, musicTime, rightSide, visiting);
+        var pose = GetPose(lineIndex, musicTime, rightSide, visiting, curveValues);
         var line = _source.JudgeLineList[lineIndex];
         var scaleX = FiniteOr(
-            CurveValue(line.Extended?.ScaleXEvents, musicTime, rightSide, 1d),
+            CurveValue(line.Extended?.ScaleXEvents, musicTime, rightSide, 1d, curveValues),
             1d
         );
         var scaleY = FiniteOr(
-            CurveValue(line.Extended?.ScaleYEvents, musicTime, rightSide, 1d),
+            CurveValue(line.Extended?.ScaleYEvents, musicTime, rightSide, 1d, curveValues),
             1d
         );
 
@@ -702,7 +767,8 @@ internal sealed class StellateRePhiEditGeometry
         int lineIndex,
         double musicTime,
         bool rightSide,
-        HashSet<int> visiting
+        HashSet<int> visiting,
+        CurveValueCache curveValues
     )
     {
         if (!visiting.Add(lineIndex))
@@ -712,21 +778,21 @@ internal sealed class StellateRePhiEditGeometry
         {
             var line = _source.JudgeLineList[lineIndex];
             var x = FiniteOr(
-                SumLayerCurve(line, musicTime, rightSide, static layer => layer.MoveXEvents),
+                SumLayerCurve(line, musicTime, rightSide, static layer => layer.MoveXEvents, curveValues),
                 0d
             );
             var y = FiniteOr(
-                SumLayerCurve(line, musicTime, rightSide, static layer => layer.MoveYEvents),
+                SumLayerCurve(line, musicTime, rightSide, static layer => layer.MoveYEvents, curveValues),
                 0d
             );
             var rotation = FiniteOr(
-                SumLayerCurve(line, musicTime, rightSide, static layer => layer.RotateEvents),
+                SumLayerCurve(line, musicTime, rightSide, static layer => layer.RotateEvents, curveValues),
                 0d
             );
 
             if (line.Father < 0 || line.Father >= _source.JudgeLineList.Count) 
                 return (x, y, rotation);
-            var father = GetPose(line.Father, musicTime, rightSide, visiting);
+            var father = GetPose(line.Father, musicTime, rightSide, visiting, curveValues);
             x += father.X;
             y += father.Y;
             var parentPhysicalX = father.X * AspectWidth / 1350d;
@@ -775,18 +841,26 @@ internal sealed class StellateRePhiEditGeometry
         RpeJudgeLine line,
         double musicTime,
         bool rightSide,
-        Func<RpeEventLayer, List<RpeEvent>?> selector
+        Func<RpeEventLayer, List<RpeEvent>?> selector,
+        CurveValueCache? curveValues = null
     )
     {
-        return line.EventLayers.OfType<RpeEventLayer>()
-            .Sum(layer => CurveValue(selector(layer), musicTime, rightSide, 0d));
+        var total = 0d;
+        foreach (var eventLayer in line.EventLayers)
+        {
+            if (eventLayer is RpeEventLayer layer)
+                total += CurveValue(selector(layer), musicTime, rightSide, 0d, curveValues);
+        }
+
+        return total;
     }
 
     private double CurveValue(
         List<RpeEvent>? events,
         double musicTime,
         bool rightSide,
-        double defaultValue
+        double defaultValue,
+        CurveValueCache? curveValues = null
     )
     {
         if (events is not { Count: > 0 })
@@ -795,27 +869,38 @@ internal sealed class StellateRePhiEditGeometry
         if (!_curveIndexes.TryGetValue(events, out var curveIndex))
             throw new InvalidOperationException("扩展曲线索引未初始化。");
 
+        if (curveValues is not null && curveValues.TryGetValue(curveIndex, out var cachedValue))
+            return cachedValue;
+
         var (dominantIndex, previousIndex) = curveIndex.FindDominant(
             musicTime,
             CurveStartTimeEpsilon
         );
         if (dominantIndex < 0)
-            return EventValueAtMusicTime(
+        {
+            var value = EventValueAtMusicTime(
                 curveIndex,
                 curveIndex.FirstIndex,
                 musicTime,
                 allowExtrapolation: true
             );
+            curveValues?.SetValue(curveIndex, value);
+            return value;
+        }
 
         var dominant = curveIndex.GetEvent(dominantIndex);
         var dominantStartTime = curveIndex.GetStartTime(dominantIndex);
         if (!(Math.Abs(musicTime - dominantStartTime) <= CurveStartTimeEpsilon))
-            return EventValueAtMusicTime(
+        {
+            var value = EventValueAtMusicTime(
                 curveIndex,
                 dominantIndex,
                 musicTime,
                 allowExtrapolation: false
             );
+            curveValues?.SetValue(curveIndex, value);
+            return value;
+        }
         if (rightSide)
             return EventValueAtStart(curveIndex, dominantIndex);
         return previousIndex < 0

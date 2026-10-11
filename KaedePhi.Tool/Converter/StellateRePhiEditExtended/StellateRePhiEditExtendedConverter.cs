@@ -1,3 +1,4 @@
+using System.Runtime.ExceptionServices;
 using KaedePhi.Core.Primitives;
 using KaedePhi.Tool.Common;
 using KaedePhi.Tool.Converter.Phigros.v3.Utils;
@@ -57,12 +58,54 @@ internal sealed class StellateRePhiEditExtendedConverter : LoggableBase, ICancel
         foreach (var item in blockAreaLines)
         {
             _ct.ThrowIfCancellationRequested();
+            geometryConverter.PrepareLine(item.Index);
             if (item.Line.Notes is { Count: > 0 })
                 LogWarning(
                     $"StellateRePhiEditExtended 判定线 {item.Index} 的音符因转换为噪域而被忽略。"
                 );
+        }
 
-            blockAreas.AddRange(geometryConverter.ConvertLine(item.Index));
+        if (blockAreaLines.Count == 1)
+        {
+            blockAreas.AddRange(geometryConverter.ConvertLine(blockAreaLines[0].Index));
+        }
+        else if (blockAreaLines.Count > 1)
+        {
+            var convertedBlockAreas = new List<IrBlockArea>[blockAreaLines.Count];
+            var sampleParallelism = Math.Max(
+                1,
+                Environment.ProcessorCount / blockAreaLines.Count
+            );
+            try
+            {
+                Parallel.For(
+                    0,
+                    blockAreaLines.Count,
+                    new ParallelOptions
+                    {
+                        CancellationToken = _ct,
+                        MaxDegreeOfParallelism = Environment.ProcessorCount,
+                    },
+                    index =>
+                    {
+                        convertedBlockAreas[index] = geometryConverter.ConvertLine(
+                            blockAreaLines[index].Index,
+                            sampleParallelism
+                        );
+                    }
+                );
+            }
+            catch (AggregateException exception)
+            {
+                var failures = exception.Flatten().InnerExceptions;
+                if (failures.Count == 1)
+                    ExceptionDispatchInfo.Capture(failures[0]).Throw();
+
+                throw;
+            }
+
+            foreach (var convertedBlockArea in convertedBlockAreas)
+                blockAreas.AddRange(convertedBlockArea);
         }
 
         var oldToNewIndex = new int[sourceLines.Count];
