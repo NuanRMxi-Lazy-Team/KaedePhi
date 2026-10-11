@@ -144,6 +144,8 @@ public sealed class SettingsViewModel : INotifyPropertyChanged
     public double ConvertMultiLayerMergePrecision { get; set; } = 64d;
     public double ConvertMultiLayerMergeTolerance { get; set; } = 0.1d;
     public bool ConvertMultiLayerMergeClassicMode { get; set; }
+    public bool ConvertStreamImport { get; set; }
+    public bool ConvertStreamOutput { get; set; }
 
     #endregion
 
@@ -232,6 +234,8 @@ public sealed class SettingsViewModel : INotifyPropertyChanged
         c.Convert.PhigrosMisalignedXyEventPrecision = ConvertPhigrosMisalignedXyEventPrecision;
         c.Convert.PhigrosAlphaCutPrecision = ConvertPhigrosAlphaCutPrecision;
         c.Convert.PhigrosSpeedCutPrecision = ConvertPhigrosSpeedCutPrecision;
+        c.Convert.StreamImport = ConvertStreamImport;
+        c.Convert.StreamOutput = ConvertStreamOutput;
         c.Convert.UnbindPrecision = ConvertUnbindPrecision;
         c.Convert.UnbindTolerance = ConvertUnbindTolerance;
         c.Convert.UnbindMergeTolerance = ConvertUnbindMergeTolerance;
@@ -294,6 +298,8 @@ public sealed class SettingsViewModel : INotifyPropertyChanged
         ConvertPhigrosMisalignedXyEventPrecision = c.Convert.PhigrosMisalignedXyEventPrecision;
         ConvertPhigrosAlphaCutPrecision = c.Convert.PhigrosAlphaCutPrecision;
         ConvertPhigrosSpeedCutPrecision = c.Convert.PhigrosSpeedCutPrecision;
+        ConvertStreamImport = c.Convert.StreamImport;
+        ConvertStreamOutput = c.Convert.StreamOutput;
         ConvertUnbindPrecision = c.Convert.UnbindPrecision;
         ConvertUnbindTolerance = c.Convert.UnbindTolerance;
         ConvertUnbindMergeTolerance = c.Convert.UnbindMergeTolerance;

@@ -601,6 +601,7 @@ public sealed class ExportViewModel : INotifyPropertyChanged
     /// </summary>
     public void ApplyConversionDefaults(ConvertDefaultsConfig config)
     {
+        UseStream = config.StreamOutput;
         PeTrailingBeatPadding = config.PeTrailingBeatPadding;
         PeUnsupportedEasingPrecision = config.PeUnsupportedEasingPrecision;
         PeMisalignedXyEventPrecision = config.PeMisalignedXyEventPrecision;

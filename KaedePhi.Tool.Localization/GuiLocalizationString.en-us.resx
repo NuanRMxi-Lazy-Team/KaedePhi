@@ -400,6 +400,12 @@
   <data name="convert_common_options" xml:space="preserve">
     <value>Common Options</value>
   </data>
+  <data name="convert_stream_import" xml:space="preserve">
+    <value>Enable stream loading by default (import)</value>
+  </data>
+  <data name="convert_stream_output" xml:space="preserve">
+    <value>Enable stream writing by default (export)</value>
+  </data>
   <data name="convert_unbind_section" xml:space="preserve">
     <value>Father Line Unbind</value>
   </data>

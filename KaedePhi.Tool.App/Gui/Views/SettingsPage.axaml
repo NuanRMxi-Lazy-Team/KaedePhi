@@ -263,6 +263,13 @@
                             <TextBlock Text="{x:Static loc:GuiLocalizationString.convert_common_options}" FontSize="11"
                                        FontWeight="SemiBold" Margin="0,4,0,0" />
 
+                            <StackPanel Spacing="6">
+                                <CheckBox Content="{x:Static loc:GuiLocalizationString.convert_stream_import}"
+                                          IsChecked="{Binding ConvertStreamImport}" />
+                                <CheckBox Content="{x:Static loc:GuiLocalizationString.convert_stream_output}"
+                                          IsChecked="{Binding ConvertStreamOutput}" />
+                            </StackPanel>
+
                             <!-- 解绑 -->
                             <TextBlock Text="{x:Static loc:GuiLocalizationString.convert_unbind_section}" FontSize="11"
                                        FontWeight="SemiBold" Margin="0,4,0,0" />

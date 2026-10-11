@@ -405,6 +405,12 @@
     <data name="convert_common_options" xml:space="preserve">
     <value>通用选项</value>
   </data>
+    <data name="convert_stream_import" xml:space="preserve">
+    <value>默认启用流式加载（导入）</value>
+  </data>
+    <data name="convert_stream_output" xml:space="preserve">
+    <value>默认启用流式写入（导出）</value>
+  </data>
     <data name="convert_unbind_section" xml:space="preserve">
     <value>父子线解绑</value>
   </data>

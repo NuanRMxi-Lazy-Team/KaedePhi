@@ -13,7 +13,10 @@ public sealed class ConvertDefaultsConfig
     /// <summary>是否美化格式化输出 JSON（CLI 使用）。</summary>
     public bool FormatOutput { get; set; }
 
-    /// <summary>是否流式输出到文件（CLI 使用）。</summary>
+    /// <summary>是否默认启用流式导入兼容模式（GUI 导入开关的默认值）。</summary>
+    public bool StreamImport { get; set; }
+
+    /// <summary>是否默认启用流式输出到文件（CLI 与 GUI 导出开关的默认值）。</summary>
     public bool StreamOutput { get; set; }
 
     /// <summary>是否为干运行（仅计算不写入，CLI 使用）。</summary>
@@ -44,7 +47,7 @@ public sealed class ConvertDefaultsConfig
 
     // 通用选项
     public double UnbindPrecision { get; set; } = 64d;
-    public double UnbindTolerance { get; set; } = 1d;
+    public double UnbindTolerance { get; set; } = 0.1d;
     public double UnbindMergeTolerance { get; set; } = 0.1d;
     public bool UnbindClassicMode { get; set; }
     public double MultiLayerMergePrecision { get; set; } = 64d;

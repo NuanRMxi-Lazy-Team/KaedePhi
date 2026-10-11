@@ -39,7 +39,7 @@ internal sealed class GuiNavigationService
     {
         _chart.Clear();
         _main.ClearChartContext();
-        Import.UseStream = false;
+        Import.UseStream = _config.Config.Convert.StreamImport;
         _main.SetShellState("import", import_button, app_subtitle, 1);
         _main.CurrentPage = Import;
         _log.Information(log_navigate_import);
@@ -95,7 +95,6 @@ internal sealed class GuiNavigationService
     {
         Export.SourceFormat = Tool.SourceChartType;
         Export.SelectedFormat = ChartType.RePhiEdit;
-        Export.UseStream = false;
         Export.IndentedOutput = false;
         Export.StatusText = string.Empty;
         Export.IsExporting = false;

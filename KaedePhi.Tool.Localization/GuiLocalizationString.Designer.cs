@@ -211,6 +211,24 @@ namespace KaedePhi.Tool.Localization {
                 return ResourceManager.GetString("convert_common_options", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to 默认启用流式加载（导入）.
+        /// </summary>
+        public static string convert_stream_import {
+            get {
+                return ResourceManager.GetString("convert_stream_import", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to 默认启用流式写入（导出）.
+        /// </summary>
+        public static string convert_stream_output {
+            get {
+                return ResourceManager.GetString("convert_stream_output", resourceCulture);
+            }
+        }
         
         /// <summary>
         ///   Looks up a localized string similar to 回退BPM.

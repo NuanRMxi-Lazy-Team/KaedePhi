@@ -6,7 +6,7 @@
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Title>KaedePhi Core Lib</Title>
     <Authors>NuanR_Star Ciallo Team</Authors>
-    <Description>即使身处无人角落，我仍要继续向前，直到我无法前进。但，可曾记得启程的初衷？</Description>
+    <Description>我知晓，那无边的旅途。</Description>
     <PackageProjectUrl>https://github.com/NuanRMxi-Lazy-Team/KaedePhi</PackageProjectUrl>
     <PackageLicenseExpression>LGPL-3.0-only</PackageLicenseExpression>
     <PackageIcon>KaedePhiIcon.png</PackageIcon>
@@ -42,11 +42,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference
-      Include="..\KaedePhi.Core.Analyzers\KaedePhi.Core.Analyzers\KaedePhi.Core.Analyzers.csproj"
-      OutputItemType="Analyzer"
-      ReferenceOutputAssembly="false"
-    />
+    <ProjectReference Include="..\KaedePhi.Core.Analyzers\KaedePhi.Core.Analyzers\KaedePhi.Core.Analyzers.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
   </ItemGroup>
 
   <ItemGroup>

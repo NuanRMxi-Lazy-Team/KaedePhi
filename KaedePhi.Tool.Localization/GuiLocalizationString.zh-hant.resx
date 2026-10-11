@@ -400,6 +400,12 @@
   <data name="convert_common_options" xml:space="preserve">
     <value>通用選項</value>
   </data>
+  <data name="convert_stream_import" xml:space="preserve">
+    <value>預設開啟串流載入（匯入）</value>
+  </data>
+  <data name="convert_stream_output" xml:space="preserve">
+    <value>預設開啟串流寫入（匯出）</value>
+  </data>
   <data name="convert_unbind_section" xml:space="preserve">
     <value>父子線解綁</value>
   </data>
